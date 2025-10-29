@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Form Test - FIXED</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .info { color: #17a2b8; }
+        .upload-area { border: 2px dashed #dee2e6; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; }
+        .upload-area:hover { border-color: #007bff; background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">🔧 Theme Form Test - FIXED</h1>
+        
+        <div class="test-section">
+            <h3>✅ Fixes Applied:</h3>
+            <ul>
+                <li class="success">✅ Dark mode validation fixed - now accepts 0,1,true,false</li>
+                <li class="success">✅ Favicon file size increased to 2048KB (2MB)</li>
+                <li class="success">✅ Form submission improved with proper checkbox handling</li>
+                <li class="success">✅ Added debugging console logs</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Test Form (Fixed Version):</h3>
+            <form method="POST" action="http://127.0.0.1:8001/hms/system/theme" enctype="multipart/form-data" id="testForm">
+                <input type="hidden" name="_token" value="">
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Primary Color:</label>
+                        <input type="color" name="primary_color" value="#6366f1" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Secondary Color:</label>
+                        <input type="color" name="secondary_color" value="#8b5cf6" class="form-control" required>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Hospital Logo:</label>
+                        <div class="upload-area" onclick="document.getElementById('logo').click()">
+                            <input type="file" name="hospital_logo" id="logo" class="d-none" accept="image/*">
+                            <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                            <p class="mb-0">Click to upload logo</p>
+                            <small class="text-muted">Max 2MB (PNG, JPG)</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Favicon:</label>
+                        <div class="upload-area" onclick="document.getElementById('favicon').click()">
+                            <input type="file" name="favicon" id="favicon" class="d-none" accept="image/*">
+                            <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                            <p class="mb-0">Click to upload favicon</p>
+                            <small class="text-muted">Max 2MB (PNG, JPG, ICO)</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="dark_mode" id="darkMode" value="1" >
+                        <label class="form-check-label" for="darkMode">
+                            Enable Dark Mode
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-save me-2"></i>Test Save Settings
+                </button>
+            </form>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Test Instructions:</h3>
+            <ol>
+                <li><strong>Test Dark Mode:</strong> Check/uncheck the dark mode toggle</li>
+                <li><strong>Test File Upload:</strong> Try uploading logo and favicon files</li>
+                <li><strong>Test Colors:</strong> Change the primary/secondary colors</li>
+                <li><strong>Submit Form:</strong> Click "Test Save Settings"</li>
+                <li><strong>Check Console:</strong> Open browser dev tools to see form data logs</li>
+                <li><strong>Verify Results:</strong> Check if settings are saved and applied</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>🔗 Quick Links:</h3>
+            <div class="d-flex gap-3">
+                <a href="http://127.0.0.1:8001/hms/system/theme" class="btn btn-outline-primary">
+                    <i class="fas fa-palette me-2"></i>Theme Settings
+                </a>
+                <a href="http://127.0.0.1:8001/dashboard" class="btn btn-outline-secondary">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Enhanced form submission with debugging
+        document.getElementById("testForm").addEventListener("submit", function(e) {
+            const submitBtn = document.getElementById("submitBtn");
+            const form = this;
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+            
+            // Handle dark mode checkbox properly
+            const darkModeInput = document.getElementById("darkMode");
+            if (!darkModeInput.checked) {
+                const hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = "dark_mode";
+                hiddenInput.value = "0";
+                form.appendChild(hiddenInput);
+            }
+            
+            // Log form data for debugging
+            const formData = new FormData(form);
+            console.log("=== FORM DATA BEING SUBMITTED ===");
+            for (let [key, value] of formData.entries()) {
+                console.log(key + ": " + value);
+            }
+            console.log("=== END FORM DATA ===");
+            
+            // Re-enable button after 10 seconds
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Test Save Settings';
+            }, 10000);
+        });
+    </script>
+</body>
+</html>

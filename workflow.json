@@ -1,0 +1,141 @@
+{
+  "product": "DuncoHMS",
+  "version": "0.1.0",
+  "description": "Professional hospital management system with modular workflows.",
+  "personas": [
+    "SuperAdmin",
+    "Admin",
+    "Doctor",
+    "Nurse",
+    "Receptionist",
+    "Pharmacist",
+    "LabTechnician",
+    "Radiologist",
+    "Accountant",
+    "InventoryManager",
+    "HRManager",
+    "Patient",
+    "ITSupport"
+  ],
+  "modules": [
+    {
+      "name": "Patients",
+      "routes": ["/hms/patients", "/hms/patients/{id}", "/hms/patients/create"],
+      "entities": ["Patient", "NextOfKin", "Allergy", "Insurance"],
+      "capabilities": ["register_patient", "view_profile", "update_profile", "archive_patient"]
+    },
+    {
+      "name": "Appointments",
+      "routes": ["/hms/appointments"],
+      "entities": ["Appointment", "Schedule", "Clinic"],
+      "capabilities": ["book", "reschedule", "cancel", "assign_doctor"]
+    },
+    {
+      "name": "Doctors",
+      "routes": ["/hms/doctors"],
+      "entities": ["Doctor", "Specialty", "Roster"],
+      "capabilities": ["create", "assign_schedule", "deactivate"]
+    },
+    {
+      "name": "Admissions",
+      "routes": ["/hms/admissions"],
+      "entities": ["Admission", "Ward", "Bed", "Discharge"],
+      "capabilities": ["admit", "transfer", "discharge"]
+    },
+    {
+      "name": "Billing",
+      "routes": ["/hms/billing"],
+      "entities": ["Invoice", "Payment", "Tariff", "Payer"],
+      "capabilities": ["create_invoice", "apply_payment", "void", "refund", "export"]
+    },
+    {
+      "name": "Pharmacy",
+      "routes": ["/hms/pharmacy"],
+      "entities": ["Drug", "Prescription", "Dispense", "StockBatch"],
+      "capabilities": ["prescribe", "dispense", "stock_in", "stock_out"]
+    },
+    {
+      "name": "Laboratory",
+      "routes": ["/hms/laboratory"],
+      "entities": ["LabOrder", "Specimen", "Result", "Panel"],
+      "capabilities": ["order", "collect", "analyze", "verify", "publish"]
+    },
+    {
+      "name": "Radiology",
+      "routes": ["/hms/radiology"],
+      "entities": ["ImagingOrder", "Modality", "Report"],
+      "capabilities": ["order", "schedule", "report"]
+    },
+    {
+      "name": "Inventory",
+      "routes": ["/hms/inventory"],
+      "entities": ["Item", "Category", "Supplier", "PO", "GRN"],
+      "capabilities": ["reorder_levels", "purchasing", "receiving", "issuance"]
+    },
+    {
+      "name": "HR",
+      "routes": ["/hms/hr"],
+      "entities": ["Employee", "Department", "Shift", "Leave"],
+      "capabilities": ["onboard", "roster", "leave_approve", "offboard"]
+    },
+    {
+      "name": "Reports",
+      "routes": ["/hms/reports"],
+      "entities": ["KPI", "ReportTemplate"],
+      "capabilities": ["run", "export", "schedule"]
+    },
+    {
+      "name": "Settings",
+      "routes": ["/hms/settings"],
+      "entities": ["Facility", "Department", "Role", "Permission", "Tariff"],
+      "capabilities": ["configure", "rbac_manage", "integrations"]
+    }
+  ],
+  "workflows": {
+    "outpatient_visit": [
+      "register_patient",
+      "book_appointment",
+      "triage",
+      "doctor_consult",
+      "order_labs_imaging",
+      "prescribe_medication",
+      "billing_and_payment",
+      "dispense_medicines",
+      "followup_scheduling"
+    ],
+    "inpatient_admission": [
+      "admit_patient",
+      "assign_bed",
+      "nursing_care",
+      "doctor_rounds",
+      "orders_and_medication",
+      "transfer_or_discharge",
+      "final_bill_and_discharge_summary"
+    ]
+  },
+  "rbac": {
+    "roles": {
+      "SuperAdmin": ["*"]
+    },
+    "default_permissions": [
+      "patients.view","patients.create","patients.update",
+      "appointments.view","appointments.create","appointments.update",
+      "billing.view","billing.create","billing.apply_payment",
+      "pharmacy.view","pharmacy.dispense",
+      "laboratory.view","laboratory.verify",
+      "radiology.view","radiology.report",
+      "inventory.view","inventory.manage",
+      "hr.view","hr.manage",
+      "reports.view","reports.run",
+      "settings.view","settings.manage"
+    ]
+  },
+  "integrations": {
+    "hl7_fhir": false,
+    "sms": false,
+    "email": true,
+    "payment_gateways": []
+  }
+}
+
+

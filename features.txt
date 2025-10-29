@@ -1,0 +1,317 @@
+MODULE-BY-MODULE FEATURE LIST
+
+Now let’s break down every module and its sub-features.
+
+🏠 Dashboard
+
+Real-time analytics (patients, revenue, beds, staff on duty)
+
+Quick actions (add patient, appointment, invoice)
+
+Role-based cards (Doctors see appointments; Accountants see finances)
+
+Graphs: Admissions, Revenue Trends, OPD/IPD ratio
+
+👨‍⚕️ Doctors Management
+
+Add/Edit/Delete doctors
+
+Assign departments & shifts
+
+Manage OPD charges
+
+Doctor schedule calendar
+
+Doctor profile page with specialization, education, contact
+
+Link doctor to cases, prescriptions, reports
+
+🧑‍⚕️ Nurses Management
+
+Assign to wards/patients
+
+Nursing notes per patient
+
+Shift rotation
+
+Vitals and daily observation recording
+
+🧍‍♂️ Patients Management
+
+Register new patients (OPD/IPD)
+
+Attach documents, photo, and ID
+
+Patient portal credentials
+
+Family/guardian info
+
+Medical history, allergies
+
+Insurance details
+
+Admission/discharge summary
+
+🗂 Cases & Case Handlers
+
+Manage ongoing and closed cases
+
+Assign case handlers (Doctor/Nurse)
+
+Add diagnosis, notes, treatment plan
+
+Auto-link to patient record
+
+🛏 Beds Management
+
+Bed types (ICU, general, private)
+
+Visualization map (color per status)
+
+Assign/release beds
+
+Track bed occupancy per ward
+
+Maintenance status (Cleaning, Reserved)
+
+🧾 Billing & Payments
+
+Auto-generate bills from services
+
+Split bills by insurance/self
+
+Partial & full payments
+
+Invoices & receipts
+
+Export to PDF/Excel
+
+Payment gateway integration (M-Pesa, Stripe, PayPal)
+
+💉 Medicines & Pharmacy
+
+Medicine categories & brands
+
+Stock management with expiry alerts
+
+Barcode scan for dispensing
+
+Auto-billing from prescriptions
+
+Inventory adjustments
+
+Supplier management
+
+🧪 Laboratory (Pathology & Radiology)
+
+Test categories and parameters
+
+Test results input and approval
+
+Auto-link to patient file
+
+Printable report with doctor signature
+
+Radiology image uploads (X-Ray, MRI)
+
+Test cost integration with billing
+
+🚑 Ambulance & Calls
+
+Manage ambulance vehicles
+
+Dispatch logs
+
+Track driver and route
+
+Assign ambulance to emergency calls
+
+Charges and billing per trip
+
+⚙️ Hospital Charges
+
+Service categories (Consultation, Surgery, Lab, Bed, etc.)
+
+Dynamic charge rates
+
+Package creation (e.g., Maternity, Surgery bundle)
+
+Link to billing automatically
+
+💰 Accounts & Finance
+
+Income & expense tracking
+
+Ledger per account
+
+Trial balance, profit/loss, balance sheet
+
+Bank reconciliation
+
+Expense categories
+
+Cashbook, petty cash management
+
+📋 Payroll
+
+Staff salary structure (basic, allowances, deductions)
+
+Auto-generate payslips
+
+Salary reports by month
+
+Integration with attendance
+
+Export payslips
+
+🧾 Reports
+
+Birth & death reports
+
+Patient diagnosis
+
+Billing & payments
+
+Doctor performance
+
+Occupancy report
+
+Monthly revenue
+
+Audit log reports
+
+📅 Appointments & Schedules
+
+Online and internal bookings
+
+Approve/reject appointment requests
+
+Doctor-specific schedules
+
+Email/SMS reminders
+
+Integration with Zoom/Google Meet
+
+🩸 Blood Bank & Donors
+
+Blood groups & stock level
+
+Donor records
+
+Issue/receive blood units
+
+Expiry tracking
+
+Blood request approval
+
+🧰 Inventory Management
+
+Manage all hospital assets
+
+Item categories, stock in/out, supplier list
+
+Purchase orders, GRNs
+
+Minimum stock alerts
+
+🏥 IPD (In-Patient Department)
+
+Admit/discharge workflow
+
+Bed assignment
+
+Daily progress notes
+
+Nursing records, vitals, medication chart
+
+Discharge summary and bill
+
+👨‍⚕️ OPD (Out-Patient Department)
+
+Register new OPD visits
+
+Consultation notes
+
+Prescriptions, investigations
+
+Appointment linkage
+
+Billing auto-generation
+
+📃 Documents & Types
+
+Upload patient documents
+
+Manage document categories (X-Ray, ID, Discharge)
+
+Search and view securely
+
+🧭 Frontend CMS
+
+Manage pages: Home, Services, Doctors, About, Contact
+
+Blog/news module
+
+Testimonials
+
+Contact form with backend inbox
+
+SEO metadata per page
+
+🧰 Settings & System
+
+Manage users, roles, permissions
+
+Hospital profile, logo, branches
+
+Localization & currency setup
+
+Backup/restore data
+
+SMTP, SMS, API keys
+
+Theme customization (dark/light, color scheme)
+
+📲 Notifications & Reminders
+
+Appointment reminders (SMS/email)
+
+Payment confirmation
+
+Lab result ready notification
+
+Bed vacancy alerts
+
+🧑‍💻 Roles & Permissions
+
+Role management (8+ roles)
+
+Permission CRUD (view/create/edit/delete per module)
+
+Assign permissions via UI
+
+🌍 Multi-Language & Multi-Currency
+
+Switch between English, French, Swahili, etc.
+
+Currency setup with exchange rates
+
+📤 Export & Import
+
+Export all data tables (PDF/CSV/Excel)
+
+Bulk import via CSV
+
+Backup download
+
+🤖 AI & Automation (Premium)
+
+Predict patient inflow
+
+Auto-assign doctor based on specialty & load
+
+Anomaly detection in bills
+
+Voice command search
+
+AI summary of daily hospital activity

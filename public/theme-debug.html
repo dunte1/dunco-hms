@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Theme Debug Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Theme Settings Debug Page</h1>
+    
+    <div class="test-section">
+        <h2>Current Theme Settings</h2>
+        <ul>
+            <li>Primary Color: #6366f1</li>
+            <li>Secondary Color: #8b5cf6</li>
+            <li>Hospital Logo: Not set</li>
+            <li>Favicon: Not set</li>
+            <li>Dark Mode: Disabled</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>File Upload Test</h2>
+        <form method="POST" action="http://localhost/hms/system/theme" enctype="multipart/form-data">
+            <input type="hidden" name="_token" value="" autocomplete="off">
+            <p>
+                <label>Primary Color:</label><br>
+                <input type="color" name="primary_color" value="#6366f1">
+            </p>
+            <p>
+                <label>Secondary Color:</label><br>
+                <input type="color" name="secondary_color" value="#8b5cf6">
+            </p>
+            <p>
+                <label>Dark Mode:</label><br>
+                <input type="checkbox" name="dark_mode" value="1" > Enable Dark Mode
+            </p>
+            <p>
+                <label>Hospital Logo:</label><br>
+                <input type="file" name="hospital_logo" accept="image/*">
+            </p>
+            <p>
+                <label>Favicon:</label><br>
+                <input type="file" name="favicon" accept="image/*">
+            </p>
+            <p>
+                <button type="submit">Save Settings</button>
+            </p>
+        </form>
+    </div>
+    
+    <div class="test-section">
+        <h2>Route Test</h2>
+        <p>Theme Route: http://localhost/hms/system/theme</p>
+        <p>Update Route: http://localhost/hms/system/theme</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>Instructions</h2>
+        <p><strong>Now try:</strong></p>
+        <ol>
+            <li>Upload a logo file</li>
+            <li>Upload a favicon file</li>
+            <li>Click "Save Settings"</li>
+            <li>Check if it works without connection errors</li>
+        </ol>
+    </div>
+    
+</body>
+</html>

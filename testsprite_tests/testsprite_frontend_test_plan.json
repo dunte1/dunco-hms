@@ -1,0 +1,716 @@
+[
+  {
+    "id": "TC001",
+    "title": "User login success with valid credentials",
+    "description": "Verify that a user can successfully login with correct email and password",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid email and password"
+      },
+      {
+        "type": "action",
+        "description": "Click the login button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is authenticated and redirected to the dashboard"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "User login fails with invalid credentials",
+    "description": "Verify that login fails and error message is shown with incorrect email or password",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page"
+      },
+      {
+        "type": "action",
+        "description": "Enter invalid email or password"
+      },
+      {
+        "type": "action",
+        "description": "Click the login button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify error message displayed and user remains on login page"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Role-based access control enforcement",
+    "description": "Verify that users can only access modules permitted by their assigned role",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as a user with a specific role (e.g., Doctor)"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access restricted modules (e.g., Billing module)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is denied with appropriate error or redirect"
+      },
+      {
+        "type": "action",
+        "description": "Access allowed modules for the role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify successful access and full CRUD capabilities where applicable"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Patient registration with valid data",
+    "description": "Verify that a patient can be registered successfully with all mandatory fields provided",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to patient registration page"
+      },
+      {
+        "type": "action",
+        "description": "Input valid patient details including first_name, last_name, email, phone, date_of_birth, gender, and address"
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify patient is added and visible in patient list with correct details"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Patient registration fails with missing mandatory fields",
+    "description": "Verify error validation shown when mandatory fields are missing during patient registration",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to patient registration page"
+      },
+      {
+        "type": "action",
+        "description": "Leave mandatory fields (e.g., first_name or date_of_birth) empty"
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify appropriate validation error messages are displayed for missing fields"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Create new doctor profile with valid data",
+    "description": "Verify that doctors can be added with required details like department and specialization",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to doctor management section"
+      },
+      {
+        "type": "action",
+        "description": "Fill doctor creation form with valid data including first_name, last_name, email, phone, department_id, specialization"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify doctor profile is created and listed correctly"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Appointment booking with available doctor and patient",
+    "description": "Ensure an appointment is successfully booked for a patient with a selected doctor at a valid future date and time",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as receptionist or patient"
+      },
+      {
+        "type": "action",
+        "description": "Select valid patient and doctor"
+      },
+      {
+        "type": "action",
+        "description": "Choose valid future appointment date and time"
+      },
+      {
+        "type": "action",
+        "description": "Submit appointment booking"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify appointment is created and appears in appointment list/schedule"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Appointment booking rejects past date/time",
+    "description": "Verify system does not allow booking of appointments in the past",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to appointment booking"
+      },
+      {
+        "type": "action",
+        "description": "Select a past date/time for the appointment"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to submit the appointment"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify system displays error or prevents booking in the past"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Bed assignment with available bed and valid patient",
+    "description": "Verify assigning an available bed to a patient works and occupancy status updates accordingly",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Select a patient for bed assignment"
+      },
+      {
+        "type": "action",
+        "description": "Select an available bed from bed list"
+      },
+      {
+        "type": "action",
+        "description": "Assign bed to patient"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify bed status shows occupied and patient assignment is logged"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Billing invoice creation with valid items and patient",
+    "description": "Verify invoices can be created with valid patient id, total amount, and invoice items",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to billing invoices section"
+      },
+      {
+        "type": "action",
+        "description": "Create new invoice with valid patient_id, total_amount, and valid line items"
+      },
+      {
+        "type": "action",
+        "description": "Submit invoice"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify invoice is created and listed correctly with accurate totals"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Billing invoice creation fails with invalid patient id",
+    "description": "Verify invoice creation fails gracefully when patient does not exist",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt to create invoice with a non-existent patient_id"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify error response or validation message preventing invoice creation"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Lab test request creation and retrieval",
+    "description": "Verify creation of a lab test request for a patient and its retrieval in lab requests list",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Create a new lab test request with valid patient_id and test_id"
+      },
+      {
+        "type": "action",
+        "description": "Retrieve lab requests list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify new lab test request appears in the list with correct details"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Medicine inventory add and retrieval",
+    "description": "Verify addition of a new medicine to inventory with valid details and its visibility in medicine list",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Add a new medicine with valid name, generic_name, category_id, brand_id, and price"
+      },
+      {
+        "type": "action",
+        "description": "Retrieve medicines list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the added medicine is listed with correct attributes"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Blood bank inventory retrieval and request creation",
+    "description": "Verify blood inventory status can be retrieved and that blood requests can be created",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Retrieve blood bank inventory list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify list contains accurate and up-to-date blood inventory details"
+      },
+      {
+        "type": "action",
+        "description": "Create a new blood request with valid data"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify blood request is created and stored correctly"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "HR employee profile creation and payroll assignment",
+    "description": "Verify employee profiles can be created and payroll records assigned correctly",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Create new employee record with required personal and department details"
+      },
+      {
+        "type": "action",
+        "description": "Assign payroll details to employee"
+      },
+      {
+        "type": "assertion",
+        "description": "Employee and payroll data saved and retrievable via HR dashboard"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Inventory stock movement creation and tracking",
+    "description": "Verify stock movements can be created and reflect correctly on inventory quantities",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Create stock movement entry for inventory item with in/out quantity"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify inventory quantity updates accordingly and movement is logged"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Radiology request creation and retrieval",
+    "description": "Verify radiology test requests can be created and retrieved in reports",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Create new radiology test request with valid patient and test data"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify request listed accurately in radiology requests report"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "IPD patient admission creation and list retrieval",
+    "description": "Verify that in-patient admission records can be added and retrieved properly",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Add new IPD admission record for a patient"
+      },
+      {
+        "type": "action",
+        "description": "Retrieve IPD admissions list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify new IPD admission appears in the list with correct details"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "AI appointment suggestion retrieves valid recommendations",
+    "description": "Verify AI-powered appointment suggestion API returns relevant appointment suggestions for given inputs",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Request AI appointment suggestions for a patient or doctor"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify returned suggestions are relevant, logical, and well-formatted"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Multi-language configuration applied on UI",
+    "description": "Verify the system UI text changes according to selected supported languages properly",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Change system language setting to supported language (e.g., Spanish)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that all UI elements display text in the selected language consistently"
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Multi-currency reflected correctly in billing and reports",
+    "description": "Verify that currency setting reflects correctly on financial invoices, payments, and reports",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Set billing currency to supported alternate currency (e.g., EUR)"
+      },
+      {
+        "type": "action",
+        "description": "Create invoice and process payments"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all monetary values display and calculate correctly in chosen currency"
+      }
+    ]
+  },
+  {
+    "id": "TC022",
+    "title": "API endpoints respond with standardized JSON format",
+    "description": "Verify all REST API endpoints return valid JSON response with expected schema and error handling",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send valid GET and POST requests to core API endpoints (e.g., /hms/patients, /hms/appointments)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status codes, content types, and response body schema correctness"
+      },
+      {
+        "type": "action",
+        "description": "Send invalid data or unauthorized requests"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify error codes (400/401/404/etc) and standardized error JSON responses"
+      }
+    ]
+  },
+  {
+    "id": "TC023",
+    "title": "Audit logs capture essential user actions",
+    "description": "Verify that user actions such as login, record creation, updates, and deletions are logged correctly",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Perform critical operations (login, create patient, update appointment, delete record)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify audit logs record correct user, timestamp, and action details for each operation"
+      }
+    ]
+  },
+  {
+    "id": "TC024",
+    "title": "System performance under high concurrency",
+    "description": "Verify that system meets response time benchmarks and does not degrade under simulated concurrent user load",
+    "category": "performance",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate multiple concurrent users performing common workflows (authentication, booking, billing)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response times remain within acceptable limits and no request failures occur"
+      }
+    ]
+  },
+  {
+    "id": "TC025",
+    "title": "Patient portal self-service booking and record viewing",
+    "description": "Verify patients can book appointments, view their medical records, and billing information successfully via patient portal",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login to patient portal with valid credentials"
+      },
+      {
+        "type": "action",
+        "description": "Book a new appointment with a doctor"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify appointment is successfully booked and visible in portal"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to medical records section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify medical records display accurate and complete patient data"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to billing section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify billing statements are displayed with correct amounts and statuses"
+      }
+    ]
+  },
+  {
+    "id": "TC026",
+    "title": "Integration API keys management with validation",
+    "description": "Verify system allows adding, updating, and removing API integration keys securely with validation checks",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to system settings for API keys"
+      },
+      {
+        "type": "action",
+        "description": "Add new API key with valid format"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API key stored and displayed securely without plaintext exposure"
+      },
+      {
+        "type": "action",
+        "description": "Attempt add API key with invalid format"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation error prevents submission"
+      },
+      {
+        "type": "action",
+        "description": "Delete existing API key"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API key removed and no longer usable"
+      }
+    ]
+  },
+  {
+    "id": "TC027",
+    "title": "CMS content management CRUD operations",
+    "description": "Verify CRUD operations for blog posts, galleries, careers, and testimonials in CMS module",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Create new blog post with title, content, and metadata"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify blog post appears in blog listing"
+      },
+      {
+        "type": "action",
+        "description": "Update existing gallery content"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify gallery reflects updated content"
+      },
+      {
+        "type": "action",
+        "description": "Delete a career posting"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify career posting is removed and no longer accessible"
+      }
+    ]
+  },
+  {
+    "id": "TC028",
+    "title": "API authentication with Sanctum token",
+    "description": "Verify that API endpoints secured by Laravel Sanctum require valid authentication tokens and reject unauthorized access",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send API request without token"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify 401 Unauthorized response"
+      },
+      {
+        "type": "action",
+        "description": "Send API request with valid Sanctum token"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify successful API response and access to requested data"
+      }
+    ]
+  },
+  {
+    "id": "TC029",
+    "title": "System settings update and persistence",
+    "description": "Verify system settings can be updated via configuration interface and persist across sessions",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Modify various system settings such as localization, timezone, and feature toggles"
+      },
+      {
+        "type": "action",
+        "description": "Save settings and logout"
+      },
+      {
+        "type": "action",
+        "description": "Login and verify modified settings are applied and persistent"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify system operates with updated configurations consistently"
+      }
+    ]
+  },
+  {
+    "id": "TC030",
+    "title": "Error handling on invalid API requests",
+    "description": "Verify API returns appropriate HTTP status codes and error messages on invalid requests such as missing parameters or malformed JSON",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send API requests missing required parameters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify 400 Bad Request response with detailed validation error message"
+      },
+      {
+        "type": "action",
+        "description": "Send API request with malformed JSON body"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify 400 Bad Request or 422 Unprocessable Entity response with error details"
+      }
+    ]
+  }
+]

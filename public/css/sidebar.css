@@ -1,0 +1,469 @@
+/* ================================================
+   DUNCOHMS SIDEBAR STYLES
+   Professional Medical Dashboard Navigation
+   ================================================ */
+
+/* Enhanced sidebar dark mode styles */
+.dark .sidebar-container {
+    background: linear-gradient(to bottom, #1a1a1a, #2d2d2d) !important;
+    color: #ffffff !important;
+}
+
+.dark .sidebar-container .text-gray-800 {
+    color: #ffffff !important;
+}
+
+.dark .sidebar-container .text-gray-700 {
+    color: #e0e0e0 !important;
+}
+
+.dark .sidebar-container .text-gray-600 {
+    color: #c0c0c0 !important;
+}
+
+.dark .sidebar-container .text-gray-500 {
+    color: #a0a0a0 !important;
+}
+
+.dark .sidebar-container .text-gray-400 {
+    color: #808080 !important;
+}
+
+.dark .sidebar-container .menu-item {
+    color: #e0e0e0 !important;
+}
+
+.dark .sidebar-container .menu-item:hover {
+    background-color: #3d3d3d !important;
+    color: #ffffff !important;
+}
+
+.dark .sidebar-container .submenu-link {
+    color: #c0c0c0 !important;
+}
+
+.dark .sidebar-container .submenu-link:hover {
+    background-color: #3d3d3d !important;
+    color: #ffffff !important;
+}
+
+.dark .sidebar-container .submenu-link.active {
+    background-color: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+.dark .sidebar-container .menu-icon {
+    background-color: #3d3d3d !important;
+}
+
+.dark .sidebar-container .menu-item-emerald:hover {
+    background-color: #3d3d3d !important;
+}
+
+.dark .sidebar-container .submenu-emerald {
+    background-color: #2d2d2d !important;
+}
+
+/* Custom Scrollbar */
+.sidebar-nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 3px;
+}
+
+.dark .sidebar-nav::-webkit-scrollbar-thumb {
+    background: #4a5568;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+.dark .sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: #718096;
+}
+
+/* Menu Items */
+.menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    z-index: 10;
+}
+
+.menu-item:hover {
+    transform: translateX(2px);
+}
+
+.menu-item .flex {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.menu-item .fa-chevron-down {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* Icon Styles with Gradients */
+.menu-icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+    transition: transform 0.2s ease-in-out;
+}
+
+.menu-item:hover .menu-icon {
+    transform: scale(1.1);
+}
+
+/* Color-coded Menu Items */
+.menu-item-emerald:hover {
+    background: linear-gradient(to right, rgb(236 253 245), rgb(204 251 241));
+}
+
+.dark .menu-item-emerald:hover {
+    background: linear-gradient(to right, rgb(6 78 59 / 0.3), rgb(19 78 74 / 0.3));
+}
+
+.menu-item-blue:hover {
+    background: linear-gradient(to right, rgb(239 246 255), rgb(238 242 255));
+}
+
+.dark .menu-item-blue:hover {
+    background: linear-gradient(to right, rgb(30 58 138 / 0.3), rgb(49 46 129 / 0.3));
+}
+
+.menu-item-purple:hover {
+    background: linear-gradient(to right, rgb(250 245 255), rgb(243 232 255));
+}
+
+.dark .menu-item-purple:hover {
+    background: linear-gradient(to right, rgb(88 28 135 / 0.3), rgb(107 33 168 / 0.3));
+}
+
+.menu-item-rose:hover {
+    background: linear-gradient(to right, rgb(255 241 242), rgb(254 242 242));
+}
+
+.dark .menu-item-rose:hover {
+    background: linear-gradient(to right, rgb(159 18 57 / 0.3), rgb(136 19 55 / 0.3));
+}
+
+.menu-item-amber:hover {
+    background: linear-gradient(to right, rgb(254 252 232), rgb(254 243 199));
+}
+
+.dark .menu-item-amber:hover {
+    background: linear-gradient(to right, rgb(120 53 15 / 0.3), rgb(146 64 14 / 0.3));
+}
+
+.menu-item-cyan:hover {
+    background: linear-gradient(to right, rgb(236 254 255), rgb(207 250 254));
+}
+
+.dark .menu-item-cyan:hover {
+    background: linear-gradient(to right, rgb(21 94 117 / 0.3), rgb(22 78 99 / 0.3));
+}
+
+.menu-item-orange:hover {
+    background: linear-gradient(to right, rgb(255 247 237), rgb(254 243 237));
+}
+
+.dark .menu-item-orange:hover {
+    background: linear-gradient(to right, rgb(154 52 18 / 0.3), rgb(124 45 18 / 0.3));
+}
+
+.menu-item-green:hover {
+    background: linear-gradient(to right, rgb(240 253 244), rgb(220 252 231));
+}
+
+.dark .menu-item-green:hover {
+    background: linear-gradient(to right, rgb(20 83 45 / 0.3), rgb(22 101 52 / 0.3));
+}
+
+.menu-item-red:hover {
+    background: linear-gradient(to right, rgb(254 242 242), rgb(254 226 226));
+}
+
+.dark .menu-item-red:hover {
+    background: linear-gradient(to right, rgb(153 27 27 / 0.3), rgb(127 29 29 / 0.3));
+}
+
+.menu-item-indigo:hover {
+    background: linear-gradient(to right, rgb(238 242 255), rgb(224 231 255));
+}
+
+.dark .menu-item-indigo:hover {
+    background: linear-gradient(to right, rgb(55 48 163 / 0.3), rgb(67 56 202 / 0.3));
+}
+
+/* Submenu Styles */
+.submenu {
+    margin-left: 1.5rem;
+    margin-top: 0.25rem;
+    padding-left: 1rem;
+    border-left: 2px solid;
+    space-y: 0.125rem;
+}
+
+.submenu-emerald {
+    border-color: rgb(167 243 208);
+}
+
+.dark .submenu-emerald {
+    border-color: rgb(6 95 70);
+}
+
+.submenu-blue {
+    border-color: rgb(191 219 254);
+}
+
+.dark .submenu-blue {
+    border-color: rgb(30 64 175);
+}
+
+.submenu-purple {
+    border-color: rgb(233 213 255);
+}
+
+.dark .submenu-purple {
+    border-color: rgb(107 33 168);
+}
+
+.submenu-rose {
+    border-color: rgb(254 205 211);
+}
+
+.dark .submenu-rose {
+    border-color: rgb(159 18 57);
+}
+
+.submenu-amber {
+    border-color: rgb(253 230 138);
+}
+
+.dark .submenu-amber {
+    border-color: rgb(146 64 14);
+}
+
+.submenu-cyan {
+    border-color: rgb(165 243 252);
+}
+
+.dark .submenu-cyan {
+    border-color: rgb(22 78 99);
+}
+
+.submenu-orange {
+    border-color: rgb(254 215 170);
+}
+
+.dark .submenu-orange {
+    border-color: rgb(154 52 18);
+}
+
+.submenu-green {
+    border-color: rgb(187 247 208);
+}
+
+.dark .submenu-green {
+    border-color: rgb(22 101 52);
+}
+
+.submenu-red {
+    border-color: rgb(254 202 202);
+}
+
+.dark .submenu-red {
+    border-color: rgb(153 27 27);
+}
+
+.submenu-indigo {
+    border-color: rgb(199 210 254);
+}
+
+.dark .submenu-indigo {
+    border-color: rgb(67 56 202);
+}
+
+/* Submenu Links */
+.submenu-link {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.submenu-link:not(.active) {
+    color: rgb(75 85 99);
+}
+
+.dark .submenu-link:not(.active) {
+    color: rgb(156 163 175);
+}
+
+.submenu-link:not(.active):hover {
+    background-color: rgb(243 244 246);
+    color: rgb(16 185 129);
+}
+
+.dark .submenu-link:not(.active):hover {
+    background-color: rgb(31 41 55);
+    color: rgb(52 211 153);
+}
+
+.submenu-link.active {
+    background: linear-gradient(to right, rgb(209 250 229), rgb(204 251 241));
+    color: rgb(4 120 87);
+    font-weight: 600;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.dark .submenu-link.active {
+    background: linear-gradient(to right, rgb(6 78 59), rgb(19 78 74));
+    color: rgb(167 243 208);
+}
+
+/* Nested Menu Items */
+.nested-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    transition: all 0.15s ease-in-out;
+}
+
+.nested-menu-item:hover {
+    background-color: rgb(249 250 251);
+}
+
+.dark .nested-menu-item:hover {
+    background-color: rgb(55 65 81);
+}
+
+/* Nested Submenu */
+.nested-submenu {
+    margin-left: 1rem;
+    space-y: 0.25rem;
+}
+
+.nested-link {
+    display: flex;
+    align-items: center;
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+    transition: all 0.15s ease-in-out;
+}
+
+.nested-link:not(.active) {
+    color: rgb(107 114 128);
+}
+
+.dark .nested-link:not(.active) {
+    color: rgb(156 163 175);
+}
+
+.nested-link:not(.active):hover {
+    background-color: rgb(239 246 255);
+}
+
+.dark .nested-link:not(.active):hover {
+    background-color: rgb(30 58 138 / 0.2);
+}
+
+.nested-link.active {
+    background-color: rgb(191 219 254);
+    color: rgb(30 64 175);
+}
+
+.dark .nested-link.active {
+    background-color: rgb(30 58 138);
+    color: rgb(191 219 254);
+}
+
+/* Menu Divider */
+.menu-divider {
+    padding: 0.5rem 1rem;
+    margin: 1rem 0;
+}
+
+.menu-divider::before {
+    content: '';
+    display: block;
+    border-top: 1px solid rgb(229 231 235);
+}
+
+.dark .menu-divider::before {
+    border-top-color: rgb(55 65 81);
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to right, rgb(243 244 246), rgb(249 250 251));
+    border-top: 1px solid rgb(229 231 235);
+    padding: 1rem;
+}
+
+.dark .sidebar-footer {
+    background: linear-gradient(to right, rgb(31 41 55), rgb(17 24 39));
+    border-top-color: rgb(55 65 81);
+}
+
+/* Smooth Transitions */
+.sidebar-nav a,
+.sidebar-nav button,
+.sidebar-nav div {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Active State Animation */
+@keyframes pulse-subtle {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar-container {
+        width: 100%;
+    }
+}
+
+/* Print styles */
+@media print {
+    .sidebar-container {
+        display: none;
+    }
+}
+

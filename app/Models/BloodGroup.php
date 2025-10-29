@@ -1,0 +1,29 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class BloodGroup extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['name'];
+
+    public function donors(): HasMany
+    {
+        return $this->hasMany(BloodDonor::class);
+    }
+
+    public function inventory(): HasMany
+    {
+        return $this->hasMany(BloodInventory::class);
+    }
+
+    public function requests(): HasMany
+    {
+        return $this->hasMany(BloodRequest::class);
+    }
+}

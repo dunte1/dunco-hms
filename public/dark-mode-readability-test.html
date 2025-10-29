@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Mode Readability Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+        }
+
+        /* Enhanced Dark mode styles */
+        .dark {
+            color-scheme: dark;
+            background-color: #1a1a1a !important;
+            color: #ffffff !important;
+        }
+        
+        .dark .bg-white {
+            background-color: #2d2d2d !important;
+        }
+        
+        .dark .bg-gray-50 {
+            background-color: #1a1a1a !important;
+        }
+        
+        .dark .bg-gray-100 {
+            background-color: #2d2d2d !important;
+        }
+        
+        .dark .bg-gray-800 {
+            background-color: #1a1a1a !important;
+        }
+        
+        .dark .bg-gray-900 {
+            background-color: #1a1a1a !important;
+        }
+        
+        .dark .text-gray-900 {
+            color: #ffffff !important;
+        }
+        
+        .dark .text-gray-800 {
+            color: #ffffff !important;
+        }
+        
+        .dark .text-gray-700 {
+            color: #e0e0e0 !important;
+        }
+        
+        .dark .text-gray-600 {
+            color: #c0c0c0 !important;
+        }
+        
+        .dark .text-gray-500 {
+            color: #a0a0a0 !important;
+        }
+        
+        .dark .text-gray-400 {
+            color: #808080 !important;
+        }
+        
+        .dark .text-gray-300 {
+            color: #606060 !important;
+        }
+        
+        .dark .text-gray-200 {
+            color: #404040 !important;
+        }
+        
+        .dark .text-gray-100 {
+            color: #ffffff !important;
+        }
+        
+        .dark .border-gray-200 {
+            border-color: #404040 !important;
+        }
+        
+        .dark .border-gray-700 {
+            border-color: #404040 !important;
+        }
+        
+        .dark .card {
+            background-color: #2d2d2d !important;
+            border-color: #404040 !important;
+            color: #ffffff !important;
+        }
+        
+        .dark .form-control {
+            background-color: #3d3d3d !important;
+            border-color: #404040 !important;
+            color: #ffffff !important;
+        }
+        
+        .dark .form-control:focus {
+            background-color: #3d3d3d !important;
+            border-color: var(--primary-color) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25) !important;
+        }
+        
+        .dark .btn-secondary {
+            background-color: #6b7280 !important;
+            border-color: #6b7280 !important;
+            color: #ffffff !important;
+        }
+        
+        .dark .btn-secondary:hover {
+            background-color: #4b5563 !important;
+            border-color: #4b5563 !important;
+            color: #ffffff !important;
+        }
+        
+        .dark .alert-info {
+            background-color: #1e3a8a !important;
+            border-color: #3b82f6 !important;
+            color: #dbeafe !important;
+        }
+        
+        .dark .alert-success {
+            background-color: #166534 !important;
+            border-color: #16a34a !important;
+            color: #dcfce7 !important;
+        }
+        
+        .dark .alert-danger {
+            background-color: #991b1b !important;
+            border-color: #dc2626 !important;
+            color: #fecaca !important;
+        }
+        
+        .dark .alert-warning {
+            background-color: #92400e !important;
+            border-color: #d97706 !important;
+            color: #fef3c7 !important;
+        }
+        
+        .dark .form-check-label {
+            color: #ffffff !important;
+        }
+        
+        .dark .form-check-input:checked {
+            background-color: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+        }
+        
+        .dark .form-check-input {
+            background-color: #3d3d3d !important;
+            border-color: #404040 !important;
+        }
+        
+        .dark .small {
+            color: #b0b0b0 !important;
+        }
+        
+        .dark .breadcrumb {
+            background-color: transparent !important;
+        }
+        
+        .dark .breadcrumb-item a {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+        
+        .dark .breadcrumb-item.active {
+            color: #ffffff !important;
+        }
+
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .dark .test-section { border-color: #404040 !important; background-color: #2d2d2d !important; }
+        
+        .readability-test { padding: 20px; margin: 10px 0; border-radius: 8px; }
+        .dark .readability-test { background-color: #3d3d3d !important; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-800" x-data="{ darkMode: true }" :class="{ 'dark': darkMode }">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-gray-900 dark:text-white">🌙 Dark Mode Readability Test</h1>
+            <button @click="darkMode = !darkMode" class="btn btn-outline-secondary">
+                <i class="fas fa-moon" x-show="!darkMode"></i>
+                <i class="fas fa-sun" x-show="darkMode"></i>
+                Toggle Dark Mode
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h3 class="text-gray-900 dark:text-white">✅ Text Readability Tests</h3>
+            
+            <div class="readability-test">
+                <h4 class="text-gray-900 dark:text-white">Primary Text (Should be bright white)</h4>
+                <p class="text-gray-900 dark:text-white">This is primary text that should be clearly visible in dark mode.</p>
+            </div>
+            
+            <div class="readability-test">
+                <h4 class="text-gray-800 dark:text-white">Secondary Text (Should be white)</h4>
+                <p class="text-gray-800 dark:text-white">This is secondary text that should be clearly visible in dark mode.</p>
+            </div>
+            
+            <div class="readability-test">
+                <h4 class="text-gray-700 dark:text-gray-200">Tertiary Text (Should be light gray)</h4>
+                <p class="text-gray-700 dark:text-gray-200">This is tertiary text that should be readable in dark mode.</p>
+            </div>
+            
+            <div class="readability-test">
+                <h4 class="text-gray-600 dark:text-gray-300">Quaternary Text (Should be medium gray)</h4>
+                <p class="text-gray-600 dark:text-gray-300">This is quaternary text that should be readable in dark mode.</p>
+            </div>
+            
+            <div class="readability-test">
+                <h4 class="text-gray-500 dark:text-gray-400">Muted Text (Should be readable gray)</h4>
+                <p class="text-gray-500 dark:text-gray-400">This is muted text that should be readable in dark mode.</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3 class="text-gray-900 dark:text-white">📝 Form Elements Test</h3>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label text-gray-900 dark:text-white">Form Label</label>
+                    <input type="text" class="form-control" placeholder="Input field" value="Sample text">
+                    <small class="text-muted dark:text-gray-400">Helper text</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-gray-900 dark:text-white">Checkbox Label</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="testCheck">
+                        <label class="form-check-label text-gray-900 dark:text-white" for="testCheck">
+                            Checkbox option
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3 class="text-gray-900 dark:text-white">🎨 Alert Messages Test</h3>
+            
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i>
+                Success message - should be readable with green background
+            </div>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Info message - should be readable with blue background
+            </div>
+            
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Warning message - should be readable with yellow background
+            </div>
+            
+            <div class="alert alert-danger">
+                <i class="fas fa-times-circle me-2"></i>
+                Error message - should be readable with red background
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3 class="text-gray-900 dark:text-white">🔗 Navigation Test</h3>
+            
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#" class="text-gray-600 dark:text-gray-300">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="#" class="text-gray-600 dark:text-gray-300">Settings</a></li>
+                    <li class="breadcrumb-item active text-gray-900 dark:text-white">Theme</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex gap-3">
+                <button class="btn btn-primary">Primary Button</button>
+                <button class="btn btn-secondary">Secondary Button</button>
+                <button class="btn btn-outline-secondary">Outline Button</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3 class="text-gray-900 dark:text-white">📊 Readability Checklist</h3>
+            
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="check1">
+                <label class="form-check-label text-gray-900 dark:text-white" for="check1">
+                    All text is clearly visible and readable
+                </label>
+            </div>
+            
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="check2">
+                <label class="form-check-label text-gray-900 dark:text-white" for="check2">
+                    Form elements have proper contrast
+                </label>
+            </div>
+            
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="check3">
+                <label class="form-check-label text-gray-900 dark:text-white" for="check3">
+                    Alert messages are readable
+                </label>
+            </div>
+            
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="check4">
+                <label class="form-check-label text-gray-900 dark:text-white" for="check4">
+                    Navigation elements are clear
+                </label>
+            </div>
+            
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="check5">
+                <label class="form-check-label text-gray-900 dark:text-white" for="check5">
+                    Buttons have good contrast
+                </label>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3 class="text-gray-900 dark:text-white">🔗 Quick Links</h3>
+            <div class="d-flex gap-3">
+                <a href="http://127.0.0.1:8001/hms/system/theme" class="btn btn-outline-primary">
+                    <i class="fas fa-palette me-2"></i>Theme Settings
+                </a>
+                <a href="http://127.0.0.1:8001/dashboard" class="btn btn-outline-secondary">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</body>
+</html>

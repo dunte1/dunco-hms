@@ -1,0 +1,18 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:8001",
+  "loginUser": "admin@example.com",
+  "loginPassword": "password",
+  "executionArgs": {
+    "projectName": "duncohms",
+    "projectPath": "C:\\Users\\dunth\\Desktop\\hosim\\duncohms",
+    "testIds": [],
+    "additionalInstruction": "Execute all frontend tests comprehensively covering all UI interactions and user workflows",
+    "envs": {
+      "API_KEY": "sk-user-t1uqrN6wSa-e0paOiffqcpEdEd1HnLO7N2OAB58w2Vi2z9hJZ964FALPpThpcqOKGMWhxgRXCEpqb7KEl5XSMDoMuZoMeu2DLlKQLBwzuJRUfOYqMlycIeLAKdx8BgPPzkc"
+    }
+  },
+  "proxy": "http://b3a8691b-290f-430a-9c74-39e24e844dbf:QdCX8XN4nGpxKpNBQGCwdgbejhs9OPLw@tun.testsprite.com:8080"
+}

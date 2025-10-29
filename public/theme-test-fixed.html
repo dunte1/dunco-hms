@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Theme Test Form - FIXED</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, button { padding: 8px; margin: 5px 0; }
+        button { background: #007cba; color: white; border: none; padding: 10px 20px; cursor: pointer; }
+        .success { color: green; font-weight: bold; }
+        .info { background: #e7f3ff; padding: 15px; border-left: 4px solid #007cba; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>🎨 Theme Settings Test Form - FIXED</h1>
+    
+    <div class="info">
+        <strong>✅ This form uses the correct URL (127.0.0.1:8001) and should work!</strong><br>
+        The previous issue was that Laravel was generating URLs with "localhost" instead of "127.0.0.1:8001".
+    </div>
+    
+    <form method="POST" action="http://127.0.0.1:8001/hms/system/theme" enctype="multipart/form-data">
+        <input type="hidden" name="_token" value="">
+        
+        <div class="form-group">
+            <label>Primary Color:</label>
+            <input type="color" name="primary_color" value="#6366f1">
+        </div>
+        
+        <div class="form-group">
+            <label>Secondary Color:</label>
+            <input type="color" name="secondary_color" value="#8b5cf6">
+        </div>
+        
+        <div class="form-group">
+            <label>Dark Mode:</label>
+            <input type="checkbox" name="dark_mode" value="1" > Enable Dark Mode
+        </div>
+        
+        <div class="form-group">
+            <label>Hospital Logo:</label>
+            <input type="file" name="hospital_logo" accept="image/*">
+            <small>Recommended: 200x60 pixels (PNG, JPG)</small>
+        </div>
+        
+        <div class="form-group">
+            <label>Favicon:</label>
+            <input type="file" name="favicon" accept="image/*">
+            <small>Recommended: 32x32 pixels (ICO, PNG)</small>
+        </div>
+        
+        <div class="form-group">
+            <button type="submit">💾 Save Settings</button>
+        </div>
+    </form>
+    
+    <div class="info">
+        <h3>📋 Test Instructions:</h3>
+        <ol>
+            <li><strong>Upload a logo:</strong> Click "Choose file" for Hospital Logo and select an image</li>
+            <li><strong>Upload a favicon:</strong> Click "Choose file" for Favicon and select an image</li>
+            <li><strong>Test colors:</strong> Change the primary/secondary colors</li>
+            <li><strong>Test dark mode:</strong> Check/uncheck the dark mode checkbox</li>
+            <li><strong>Save:</strong> Click "Save Settings" - this should work without connection errors!</li>
+        </ol>
+        
+        <p class="success">✅ If this form works, then the theme page should also work!</p>
+    </div>
+    
+    <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border: 1px solid #dee2e6;">
+        <h3>🔧 Current Settings:</h3>
+        <ul>
+            <li>Primary Color: #6366f1</li>
+            <li>Secondary Color: #8b5cf6</li>
+            <li>Hospital Logo: Not set</li>
+            <li>Favicon: Not set</li>
+            <li>Dark Mode: Disabled</li>
+        </ul>
+    </div>
+    
+</body>
+</html>
