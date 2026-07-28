@@ -6,12 +6,12 @@
             </h2>
             <div class="flex space-x-2">
                 @if(in_array($purchaseOrder->status, ['draft', 'pending']))
-                    <a href="{{ route('hms.hms.inventory.purchase-orders.edit', $purchaseOrder) }}" 
+                    <a href="{{ route('hms.inventory.purchase-orders.edit', $purchaseOrder) }}" 
                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
                         Edit PO
                     </a>
                 @endif
-                <a href="{{ route('hms.hms.inventory.purchase-orders.index') }}" 
+                <a href="{{ route('hms.inventory.purchase-orders.index') }}" 
                    class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm">
                     Back to List
                 </a>
@@ -51,14 +51,14 @@
                             </span>
                         </div>
                         @if($purchaseOrder->status == 'draft')
-                            <form method="POST" action="{{ route('hms.hms.inventory.purchase-orders.submit', $purchaseOrder) }}" class="inline">
+                            <form method="POST" action="{{ route('hms.inventory.purchase-orders.submit', $purchaseOrder) }}" class="inline">
                                 @csrf
                                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
                                     Submit for Approval
                                 </button>
                             </form>
                         @elseif($purchaseOrder->status == 'pending')
-                            <form method="POST" action="{{ route('hms.hms.inventory.purchase-orders.approve', $purchaseOrder) }}" class="inline">
+                            <form method="POST" action="{{ route('hms.inventory.purchase-orders.approve', $purchaseOrder) }}" class="inline">
                                 @csrf
                                 <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm">
                                     Approve PO

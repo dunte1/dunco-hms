@@ -46,6 +46,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/appointments', [ApiController::class, 'createAppointment'])->name('api.appointments.create');
     Route::put('/appointments/{appointment}', [ApiController::class, 'updateAppointment'])->name('api.appointments.update');
     Route::delete('/appointments/{appointment}', [ApiController::class, 'deleteAppointment'])->name('api.appointments.delete');
+
+    // Beds management
+    Route::get('/beds', [ApiController::class, 'getBeds'])->name('api.beds');
+    Route::post('/beds', [ApiController::class, 'createBed'])->name('api.beds.create');
     
     // Billing management
     Route::get('/invoices', [ApiController::class, 'getInvoices'])->name('api.invoices');
@@ -66,3 +70,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Logout
     Route::post('/logout', [ApiController::class, 'logout'])->name('api.logout');
 });
+
+// M-Pesa Webhooks (no auth required - webhooks from Safaricom)
+Route::post('/mpesa/callback', [\App\Http\Controllers\Hms\MpesaCallbackController::class, 'handleCallback'])
+    ->name('mpesa.callback')
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
+// M-Pesa C2B Endpoints (Customer to Business payments)
+Route::post('/mpesa/result', [\App\Http\Controllers\Hms\MpesaCallbackController::class, 'handleResult'])
+    ->name('mpesa.result')
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
+Route::post('/mpesa/confirmation', [\App\Http\Controllers\Hms\MpesaCallbackController::class, 'handleConfirmation'])
+    ->name('mpesa.confirmation')
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
+Route::post('/mpesa/validation', [\App\Http\Controllers\Hms\MpesaCallbackController::class, 'handleValidation'])
+    ->name('mpesa.validation')
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);

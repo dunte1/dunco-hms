@@ -54,3 +54,41 @@ Schedule::call(function () {
         PublishScheduledPost::dispatch($post)->delay(now()->addMinutes(5));
     }
 })->hourly()->description('Retry failed scheduled posts');
+
+// Automated Database Backups - Daily at 2 AM
+Schedule::call(function () {
+    $backupPath = storage_path('app/backups');
+    if (!\Illuminate\Support\Facades\File::exists($backupPath)) {
+        \Illuminate\Support\Facades\File::makeDirectory($backupPath, 0755, true);
+    }
+    
+    $database = config('database.connections.' . config('database.default'));
+    $driver = $database['driver'] ?? 'sqlite';
+    
+    if ($driver === 'sqlite') {
+        $dbPath = $database['database'];
+        if (!\Illuminate\Support\Facades\File::exists($dbPath)) {
+            $dbPath = database_path($database['database']);
+        }
+        
+        if (\Illuminate\Support\Facades\File::exists($dbPath)) {
+            $filename = 'backup_auto_' . date('Y-m-d_His') . '.sql';
+            \Illuminate\Support\Facades\File::copy($dbPath, $backupPath . '/' . $filename);
+        }
+    }
+})->dailyAt('02:00')->description('Automated daily database backup');
+
+// Clean up old backups - Keep only last 30 days, run weekly
+Schedule::call(function () {
+    $backupPath = storage_path('app/backups');
+    if (\Illuminate\Support\Facades\File::exists($backupPath)) {
+        $files = \Illuminate\Support\Facades\File::files($backupPath);
+        $cutoffDate = now()->subDays(30);
+        
+        foreach ($files as $file) {
+            if ($file->getMTime() < $cutoffDate->timestamp) {
+                \Illuminate\Support\Facades\File::delete($file);
+            }
+        }
+    }
+})->weekly()->description('Clean up old backups (keep 30 days)');

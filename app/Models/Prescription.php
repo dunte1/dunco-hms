@@ -13,11 +13,14 @@ class Prescription extends Model
 
     protected $fillable = [
         'patient_id', 'doctor_id', 'opd_visit_id', 'prescription_date',
-        'symptoms', 'diagnosis', 'notes', 'status'
+        'symptoms', 'diagnosis', 'notes', 'status',
+        'digital_signature', 'signed_at', 'signed_by', 'template_id', 'metadata'
     ];
 
     protected $casts = [
         'prescription_date' => 'date',
+        'signed_at' => 'datetime',
+        'metadata' => 'array',
     ];
 
     public function patient(): BelongsTo
@@ -38,5 +41,10 @@ class Prescription extends Model
     public function items(): HasMany
     {
         return $this->hasMany(PrescriptionItem::class);
+    }
+
+    public function signedBy(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'signed_by');
     }
 }

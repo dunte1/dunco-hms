@@ -49,7 +49,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm text-gray-600 dark:text-gray-400">Assigned Users</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ \App\Models\User::role(\Spatie\Permission\Models\Role::all())->count() }}</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ \App\Models\User::whereHas('roles')->count() }}</p>
                 </div>
             </div>
         </div>

@@ -103,7 +103,7 @@ class SettingsController extends Controller
 
     public function auditLogs(): View
     {
-        $logs = AuditLog::with([])
+        $logs = AuditLog::with('user')
             ->latest()
             ->paginate(50);
         return view('hms.settings.audit-logs', compact('logs'));

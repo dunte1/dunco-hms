@@ -80,8 +80,11 @@ class ModulesController extends Controller
             return view($viewPath, ['module' => $name]);
         }
         
-        // Fallback to placeholder
-        return view('admin.modules.placeholder', ['module' => $name]);
+        // Show module information page instead of placeholder
+        return view('admin.modules.module-info', [
+            'module' => $name,
+            'route' => $this->getModuleRoute($name)
+        ]);
     }
     
     /**

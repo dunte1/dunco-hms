@@ -300,8 +300,15 @@
                         @can('view prescriptions')
                             <li>
                                 <a @click.stop href="{{ route('hms.pharmacy.prescriptions.index') }}" 
-                                   class="submenu-link {{ request()->routeIs('hms.pharmacy.prescriptions.*') ? 'active' : '' }}">
+                                   class="submenu-link {{ request()->routeIs('hms.pharmacy.prescriptions.*') && !request()->routeIs('hms.prescriptions.e-prescription.*') ? 'active' : '' }}">
                                     <i class="fa fa-prescription mr-2 w-4"></i> Prescriptions
+                                </a>
+                            </li>
+                            <li>
+                                <a @click.stop href="{{ route('hms.prescriptions.e-prescription.templates') }}" 
+                                   class="submenu-link {{ request()->routeIs('hms.prescriptions.e-prescription.*') ? 'active' : '' }}">
+                                    <i class="fa fa-file-prescription mr-2 w-4"></i> E-Prescription
+                                    <span class="badge badge-warning ml-2">Premium</span>
                                 </a>
                             </li>
                         @endcan
@@ -392,6 +399,14 @@
                     </div>
                     <ul x-show="isMenuOpen('diagnostics')" x-transition class="submenu submenu-rose">
                         
+                        {{-- Laboratory Overview --}}
+                        <li>
+                            <a @click.stop href="{{ route('hms.laboratory.index') }}" 
+                               class="submenu-link {{ request()->routeIs('hms.laboratory.index') ? 'active' : '' }}">
+                                <i class="fa fa-flask mr-2 w-4"></i> Laboratory Overview
+                            </a>
+                        </li>
+                        
                         {{-- Pathology Submenu --}}
                         @canany(['manage test categories', 'add test requests'])
                             <li>
@@ -459,6 +474,16 @@
                                 </ul>
                             </li>
                         @endcanany
+
+                        {{-- Radiology Overview (if route exists) --}}
+                        @if(Route::has('hms.radiology.index'))
+                        <li>
+                            <a @click.stop href="{{ route('hms.radiology.index') }}" 
+                               class="submenu-link {{ request()->routeIs('hms.radiology.index') ? 'active' : '' }}">
+                                <i class="fa fa-x-ray mr-2 w-4"></i> Radiology Overview
+                            </a>
+                        </li>
+                        @endif
 
                         {{-- Blood Bank Submenu --}}
                         @can('manage blood bank')
@@ -927,6 +952,14 @@
                            :class="isMenuOpen('hr') ? 'rotate-180' : ''"></i>
                     </div>
                     <ul x-show="isMenuOpen('hr')" x-transition class="submenu submenu-orange">
+                        {{-- HR Dashboard --}}
+                        <li>
+                            <a @click.stop href="{{ route('hms.hr.index') }}" 
+                               class="submenu-link {{ request()->routeIs('hms.hr.index') ? 'active' : '' }}">
+                                <i class="fa fa-tachometer-alt mr-2 w-4"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
                         
                         {{-- Employees Submenu --}}
                         @can('manage staff profiles')
@@ -955,7 +988,19 @@
                                     <li>
                                         <a @click.stop href="{{ route('hms.hr.designations.index') }}" 
                                            class="nested-link {{ request()->routeIs('hms.hr.designations.*') ? 'active' : '' }}">
-                                            <i class="fa fa-briefcase mr-2 w-4"></i> Designations / Departments
+                                            <i class="fa fa-briefcase mr-2 w-4"></i> Designations
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.hr.departments.index') }}" 
+                                           class="nested-link {{ request()->routeIs('hms.hr.departments.*') ? 'active' : '' }}">
+                                            <i class="fa fa-building mr-2 w-4"></i> Departments
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.hr.appraisals.index') }}" 
+                                           class="nested-link {{ request()->routeIs('hms.hr.appraisals.*') ? 'active' : '' }}">
+                                            <i class="fa fa-chart-line mr-2 w-4"></i> Performance Appraisals
                                         </a>
                                     </li>
                                 </ul>
@@ -1017,6 +1062,165 @@
                                 </ul>
                             </li>
                         @endcan
+
+                        {{-- Leave Types --}}
+                        <li>
+                            <a @click.stop href="{{ route('hms.hr.leave-types.index') }}" 
+                               class="submenu-link {{ request()->routeIs('hms.hr.leave-types.*') ? 'active' : '' }}">
+                                <i class="fa fa-calendar-alt mr-2 w-4"></i>
+                                <span>Leave Types</span>
+                            </a>
+                        </li>
+
+                        {{-- Recruitment & Onboarding --}}
+                        <li>
+                            <div class="nested-menu-item" @click="toggleMenu('recruitment')">
+                                <div class="flex items-center text-sm">
+                                    <i class="fa fa-briefcase mr-2 w-4 text-orange-600"></i>
+                                    <span>Recruitment</span>
+                                </div>
+                                <i class="fa fa-chevron-down text-xs transition-transform" 
+                                   :class="isMenuOpen('recruitment') ? 'rotate-180' : ''"></i>
+                            </div>
+                            <ul x-show="isMenuOpen('recruitment')" x-transition class="nested-submenu">
+                                <li>
+                                    <a @click.stop href="{{ route('hms.hr.job-postings.index') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.hr.job-postings.*') ? 'active' : '' }}">
+                                        <i class="fa fa-clipboard-list mr-2 w-4"></i> Job Postings
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.hr.job-applications.index') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.hr.job-applications.*') ? 'active' : '' }}">
+                                        <i class="fa fa-file-alt mr-2 w-4"></i> Applications
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- Training & Development --}}
+                        <li>
+                            <a @click.stop href="{{ route('hms.hr.training-programs.index') }}" 
+                               class="submenu-link {{ request()->routeIs('hms.hr.training-programs.*') ? 'active' : '' }}">
+                                <i class="fa fa-graduation-cap mr-2 w-4"></i>
+                                <span>Training Programs</span>
+                            </a>
+                        </li>
+
+                        {{-- Announcements --}}
+                        <li>
+                            <a @click.stop href="{{ route('hms.hr.announcements.index') }}" 
+                               class="submenu-link {{ request()->routeIs('hms.hr.announcements.*') ? 'active' : '' }}">
+                                <i class="fa fa-bullhorn mr-2 w-4"></i>
+                                <span>Announcements</span>
+                            </a>
+                        </li>
+
+                        {{-- Shift Management --}}
+                        <li>
+                            <div class="nested-menu-item" @click="toggleMenu('shifts')">
+                                <div class="flex items-center text-sm">
+                                    <i class="fa fa-calendar-check mr-2 w-4 text-orange-600"></i>
+                                    <span>Shifts</span>
+                                </div>
+                                <i class="fa fa-chevron-down text-xs transition-transform" 
+                                   :class="isMenuOpen('shifts') ? 'rotate-180' : ''"></i>
+                            </div>
+                            <ul x-show="isMenuOpen('shifts')" x-transition class="nested-submenu">
+                                <li>
+                                    <a @click.stop href="{{ route('hms.hr.shifts.index') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.hr.shifts.*') ? 'active' : '' }}">
+                                        <i class="fa fa-clock mr-2 w-4"></i> Shift Types
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.hr.schedules.index') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.hr.schedules.*') ? 'active' : '' }}">
+                                        <i class="fa fa-calendar-week mr-2 w-4"></i> Roster Builder
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- Public Holidays --}}
+                        <li>
+                            <a @click.stop href="{{ route('hms.hr.public-holidays.index') }}" 
+                               class="submenu-link {{ request()->routeIs('hms.hr.public-holidays.*') ? 'active' : '' }}">
+                                <i class="fa fa-calendar-day mr-2 w-4"></i>
+                                <span>Public Holidays</span>
+                            </a>
+                        </li>
+
+                        {{-- HR Reports --}}
+                        <li>
+                            <div class="nested-menu-item" @click="toggleMenu('hr-reports')">
+                                <div class="flex items-center text-sm">
+                                    <i class="fa fa-chart-bar mr-2 w-4 text-orange-600"></i>
+                                    <span>Reports</span>
+                                </div>
+                                <i class="fa fa-chevron-down text-xs transition-transform" 
+                                   :class="isMenuOpen('hr-reports') ? 'rotate-180' : ''"></i>
+                            </div>
+                            <ul x-show="isMenuOpen('hr-reports')" x-transition class="nested-submenu">
+                                <li>
+                                    <a @click.stop href="{{ route('hms.hr.reports.employee-list') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.hr.reports.employee-list') ? 'active' : '' }}">
+                                        <i class="fa fa-users mr-2 w-4"></i> Employee List
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.hr.reports.leave') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.hr.reports.leave') ? 'active' : '' }}">
+                                        <i class="fa fa-calendar-times mr-2 w-4"></i> Leave Report
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.hr.reports.attendance') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.hr.reports.attendance') ? 'active' : '' }}">
+                                        <i class="fa fa-clock mr-2 w-4"></i> Attendance Report
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.hr.reports.payroll-summary') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.hr.reports.payroll-summary') ? 'active' : '' }}">
+                                        <i class="fa fa-money-bill-wave mr-2 w-4"></i> Payroll Summary
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.hr.reports.headcount-trends') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.hr.reports.headcount-trends') ? 'active' : '' }}">
+                                        <i class="fa fa-chart-line mr-2 w-4"></i> Headcount Trends
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.hr.reports.attrition') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.hr.reports.attrition') ? 'active' : '' }}">
+                                        <i class="fa fa-user-minus mr-2 w-4"></i> Attrition Report
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.hr.reports.salary-expense') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.hr.reports.salary-expense') ? 'active' : '' }}">
+                                        <i class="fa fa-dollar-sign mr-2 w-4"></i> Salary Expense
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.hr.reports.training-participation') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.hr.reports.training-participation') ? 'active' : '' }}">
+                                        <i class="fa fa-graduation-cap mr-2 w-4"></i> Training Participation
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- HR Settings --}}
+                        <li>
+                            <a @click.stop href="{{ route('hms.hr.settings.index') }}" 
+                               class="submenu-link {{ request()->routeIs('hms.hr.settings.*') ? 'active' : '' }}">
+                                <i class="fa fa-cog mr-2 w-4"></i>
+                                <span>HR Settings</span>
+                            </a>
+                        </li>
 
                         {{-- Documents --}}
                         <li>
@@ -1109,6 +1313,14 @@
                             <a @click.stop href="{{ route('hms.reports.doctor-performance') }}" 
                                class="submenu-link {{ request()->routeIs('hms.reports.doctor-performance') ? 'active' : '' }}">
                                 <i class="fa fa-user-md mr-2 w-4"></i> Doctor Performance Report
+                            </a>
+                        </li>
+                        <li class="menu-divider"></li>
+                        <li>
+                            <a @click.stop href="{{ route('hms.reports.custom-builder.index') }}" 
+                               class="submenu-link {{ request()->routeIs('hms.reports.custom-builder.*') ? 'active' : '' }}">
+                                <i class="fa fa-tools mr-2 w-4"></i> Custom Report Builder
+                                <span class="badge badge-warning ml-2">Premium</span>
                             </a>
                         </li>
                         <li>
@@ -1226,6 +1438,19 @@
                                         <a @click.stop href="{{ route('hms.queue.display-board') }}" target="_blank"
                                            class="nested-link {{ request()->routeIs('hms.queue.display-board') ? 'active' : '' }}">
                                             <i class="fa fa-tv mr-2 w-4"></i> Display Board
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.queue.kiosk') }}" target="_blank"
+                                           class="nested-link {{ request()->routeIs('hms.queue.kiosk') ? 'active' : '' }}">
+                                            <i class="fa fa-desktop mr-2 w-4"></i> Kiosk Mode
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.queue.smart-display') }}" target="_blank"
+                                           class="nested-link {{ request()->routeIs('hms.queue.smart-display') ? 'active' : '' }}">
+                                            <i class="fa fa-tv mr-2 w-4"></i> Smart Display
+                                            <span class="badge badge-warning ml-2">Premium</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -1400,6 +1625,13 @@
                                             <i class="fa fa-palette mr-2 w-4"></i> Logo, Theme, Dark Mode
                                         </a>
                                     </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.settings.theme') }}" 
+                                           class="nested-link {{ request()->routeIs('hms.settings.theme.*') ? 'active' : '' }}">
+                                            <i class="fa fa-paint-brush mr-2 w-4"></i> Theme Customizer
+                                            <span class="badge badge-warning ml-2">Premium</span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                         @endcan
@@ -1471,25 +1703,26 @@
             @endcanany
 
             {{-- 🌐 11. FRONTEND CMS --}}
-            <li class="mb-1">
-                <div class="menu-item menu-item-purple" @click="toggleMenu('cms', true)">
-                    <div class="flex items-center">
-                        <div class="menu-icon bg-gradient-to-br from-purple-500 to-fuchsia-600">
-                            <i class="fa fa-browser text-white text-sm"></i>
+            @canany(['manage homepage', 'manage services', 'manage doctors listing', 'manage marketing'])
+                <li class="mb-1">
+                    <div class="menu-item menu-item-purple" @click="toggleMenu('cms', true)">
+                        <div class="flex items-center">
+                            <div class="menu-icon bg-gradient-to-br from-purple-500 to-fuchsia-600">
+                                <i class="fa fa-browser text-white text-sm"></i>
+                            </div>
+                            <span class="font-semibold text-gray-700 dark:text-gray-200">Frontend CMS</span>
                         </div>
-                        <span class="font-semibold text-gray-700 dark:text-gray-200">Frontend CMS</span>
+                        <i class="fa fa-chevron-down text-xs transition-transform text-gray-400" 
+                           :class="isMenuOpen('cms') ? 'rotate-180' : ''">                        </i>
                     </div>
-                    <i class="fa fa-chevron-down text-xs transition-transform text-gray-400" 
-                       :class="isMenuOpen('cms') ? 'rotate-180' : ''"></i>
-                </div>
-                <ul x-show="isMenuOpen('cms')" x-transition class="submenu submenu-purple">
-                    <li>
-                        <a @click.stop href="{{ route('cms.home') }}" 
-                           class="submenu-link {{ request()->routeIs('cms.home') ? 'active' : '' }}">
-                            <i class="fa fa-home mr-2 w-4"></i> Home Page
-                        </a>
-                    </li>
-                    <li>
+                    <ul x-show="isMenuOpen('cms')" x-transition class="submenu submenu-purple">
+                        <li>
+                            <a @click.stop href="{{ route('cms.home') }}" 
+                               class="submenu-link {{ request()->routeIs('cms.home') ? 'active' : '' }}">
+                                <i class="fa fa-home mr-2 w-4"></i> Home Page
+                            </a>
+                        </li>
+                        <li>
                         <a @click.stop href="{{ route('cms.services') }}" 
                            class="submenu-link {{ request()->routeIs('cms.services') ? 'active' : '' }}">
                             <i class="fa fa-briefcase mr-2 w-4"></i> Services Page
@@ -1517,6 +1750,12 @@
                         <a @click.stop href="{{ route('cms.features') }}" 
                            class="submenu-link {{ request()->routeIs('cms.features') ? 'active' : '' }}">
                             <i class="fa fa-star mr-2 w-4"></i> Features Page
+                        </a>
+                    </li>
+                    <li>
+                        <a @click.stop href="{{ route('cms.header-footer') }}" 
+                           class="submenu-link {{ request()->routeIs('cms.header-footer') ? 'active' : '' }}">
+                            <i class="fa fa-header mr-2 w-4"></i> Header & Footer
                         </a>
                     </li>
                     <li>
@@ -1557,21 +1796,23 @@
                     </li>
                 </ul>
             </li>
+            @endcanany
 
             {{-- 📢 12. MARKETING SUITE --}}
-            <li class="mb-1">
-                <div class="menu-item menu-item-blue" @click="toggleMenu('marketing', true)">
-                    <div class="flex items-center">
-                        <div class="menu-icon bg-gradient-to-br from-blue-500 to-cyan-600">
-                            <i class="fa fa-bullhorn text-white text-sm"></i>
+            @canany(['manage marketing', 'create marketing posts', 'manage campaigns', 'manage social accounts'])
+                <li class="mb-1">
+                    <div class="menu-item menu-item-blue" @click="toggleMenu('marketing', true)">
+                        <div class="flex items-center">
+                            <div class="menu-icon bg-gradient-to-br from-blue-500 to-cyan-600">
+                                <i class="fa fa-bullhorn text-white text-sm"></i>
+                            </div>
+                            <span class="font-semibold text-gray-700 dark:text-gray-200">Marketing Suite</span>
                         </div>
-                        <span class="font-semibold text-gray-700 dark:text-gray-200">Marketing Suite</span>
+                        <i class="fa fa-chevron-down text-xs transition-transform text-gray-400" 
+                           :class="isMenuOpen('marketing') ? 'rotate-180' : ''">                        </i>
                     </div>
-                    <i class="fa fa-chevron-down text-xs transition-transform text-gray-400" 
-                       :class="isMenuOpen('marketing') ? 'rotate-180' : ''"></i>
-                </div>
-                <ul x-show="isMenuOpen('marketing')" x-transition class="submenu submenu-blue">
-                    <li>
+                    <ul x-show="isMenuOpen('marketing')" x-transition class="submenu submenu-blue">
+                        <li>
                         <a @click.stop href="{{ route('marketing.dashboard') }}" 
                            class="submenu-link {{ request()->routeIs('marketing.dashboard') ? 'active' : '' }}">
                             <i class="fa fa-chart-line mr-2 w-4"></i> Dashboard
@@ -1621,6 +1862,7 @@
                     </li>
                 </ul>
             </li>
+            @endcanany
 
             {{-- 🤖 13. AI, INTEGRATIONS & TOOLS --}}
             @canany(['use ai assistant', 'manage ai suggestions', 'view analytics', 'use telemedicine', 'manage rfid tags', 'monitor iot sensors'])
@@ -1659,6 +1901,12 @@
                                 <a @click.stop href="{{ route('ai.diagnosis-suggestions') }}" 
                                    class="submenu-link {{ request()->routeIs('ai.diagnosis-suggestions') ? 'active' : '' }}">
                                     <i class="fa fa-notes-medical mr-2 w-4"></i> AI Case Summary Generator
+                                </a>
+                            </li>
+                            <li>
+                                <a @click.stop href="{{ route('hms.daily-summary.index') }}" 
+                                   class="submenu-link {{ request()->routeIs('hms.daily-summary.*') ? 'active' : '' }}">
+                                    <i class="fa fa-calendar-day mr-2 w-4"></i> Daily Summary
                                 </a>
                             </li>
                         @endcan
@@ -1704,6 +1952,13 @@
                                     <a @click.stop href="{{ route('hms.integrations.google-calendar') }}" 
                                        class="nested-link {{ request()->routeIs('hms.integrations.google-calendar') ? 'active' : '' }}">
                                         <i class="fab fa-google mr-2 w-4"></i> Google Calendar
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.integration.ehr.index') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.integration.ehr.*') ? 'active' : '' }}">
+                                        <i class="fa fa-network-wired mr-2 w-4"></i> EHR Integration (HL7/FHIR)
+                                        <span class="badge badge-warning ml-2">Premium</span>
                                     </a>
                                 </li>
                             </ul>

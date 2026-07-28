@@ -6,12 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Models\TelemedicineSession;
 use App\Models\Patient;
 use App\Models\Doctor;
+use App\Services\ZoomService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class TelemedicineController extends Controller
 {
+    public function __construct(
+        protected ZoomService $zoomService
+    ) {}
+
     public function index(): View
     {
         $sessions = TelemedicineSession::with(['patient', 'doctor'])
@@ -43,7 +49,7 @@ class TelemedicineController extends Controller
         $sessionId = 'TEL-' . strtoupper(uniqid());
         
         // Generate meeting details based on platform
-        $meetingDetails = $this->generateMeetingDetails($data['platform']);
+        $meetingDetails = $this->generateMeetingDetails($data['platform'], $data);
 
         $session = TelemedicineSession::create([
             'session_id' => $sessionId,
@@ -160,14 +166,43 @@ class TelemedicineController extends Controller
         ]);
     }
 
-    private function generateMeetingDetails(string $platform): array
+    private function generateMeetingDetails(string $platform, array $data = []): array
     {
         switch ($platform) {
             case 'zoom':
+                // Use ZoomService if configured, otherwise fallback
+                if ($this->zoomService->isConfigured()) {
+                    $patient = Patient::find($data['patient_id'] ?? null);
+                    $doctor = Doctor::find($data['doctor_id'] ?? null);
+                    
+                    $meetingData = [
+                        'topic' => 'Telemedicine Consultation - ' . ($patient ? $patient->first_name . ' ' . $patient->last_name : 'Patient'),
+                        'start_time' => $data['scheduled_time'] ?? now()->addHour()->format('Y-m-d\TH:i:s\Z'),
+                        'duration' => 30,
+                        'timezone' => config('app.timezone', 'UTC'),
+                    ];
+                    
+                    $result = $this->zoomService->createMeeting($meetingData);
+                    
+                    if ($result['success']) {
+                        return [
+                            'url' => $result['join_url'],
+                            'id' => $result['meeting_id'],
+                            'password' => $result['password'] ?? null,
+                            'start_url' => $result['start_url'] ?? null,
+                        ];
+                    }
+                    
+                    // Fallback if Zoom API fails
+                    Log::warning('Zoom API failed, using fallback', ['error' => $result['message'] ?? 'Unknown error']);
+                }
+                
+                // Fallback URL generation when Zoom is not configured
                 return [
                     'url' => 'https://zoom.us/j/' . rand(100000000, 999999999),
                     'id' => (string) rand(100000000, 999999999),
                 ];
+                
             case 'teams':
                 return [
                     'url' => 'https://teams.microsoft.com/l/meetup-join/' . uniqid(),

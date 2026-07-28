@@ -197,4 +197,70 @@ class CmsController extends Controller
         
         return redirect()->route('cms.seo')->with('success', 'SEO settings updated successfully.');
     }
+    
+    public function headerFooterSettings(): View
+    {
+        $settings = [
+            'header_open_hours' => SystemSetting::get('header_open_hours', 'Mon–Fri 8:00–18:00'),
+            'header_emergency_phone' => SystemSetting::get('header_emergency_phone', '+254 700 000 000'),
+            'footer_about_text' => SystemSetting::get('footer_about_text', ''),
+            'footer_departments' => SystemSetting::get('footer_departments', json_encode([
+                ['name' => 'Cardiology', 'link' => '#cardiology'],
+                ['name' => 'Radiology', 'link' => '#radiology'],
+                ['name' => 'Laboratory', 'link' => '#lab'],
+                ['name' => 'Pharmacy', 'link' => '#pharmacy'],
+            ])),
+            'footer_patient_links' => SystemSetting::get('footer_patient_links', json_encode([
+                ['name' => 'Book Appointment', 'link' => '/book-appointment'],
+                ['name' => 'Find a Doctor', 'link' => '/doctors'],
+                ['name' => 'Contact & Directions', 'link' => '/contact'],
+                ['name' => 'Our Features', 'link' => '/features'],
+            ])),
+            'footer_legal_links' => SystemSetting::get('footer_legal_links', json_encode([
+                ['name' => 'Terms of Service', 'link' => '#'],
+                ['name' => 'Privacy Policy', 'link' => '#'],
+            ])),
+            'footer_copyright' => SystemSetting::get('footer_copyright', '© ' . date('Y') . ' ' . config('app.name', 'Dunco Hospital') . '. All rights reserved.'),
+            'footer_social_facebook' => SystemSetting::get('footer_social_facebook', ''),
+            'footer_social_twitter' => SystemSetting::get('footer_social_twitter', ''),
+            'footer_social_instagram' => SystemSetting::get('footer_social_instagram', ''),
+            'footer_social_linkedin' => SystemSetting::get('footer_social_linkedin', ''),
+            'footer_newsletter_enabled' => SystemSetting::get('footer_newsletter_enabled', '1'),
+        ];
+        
+        return view('cms.admin.header-footer', compact('settings'));
+    }
+    
+    public function updateHeaderFooterSettings(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'header_open_hours' => 'nullable|string|max:255',
+            'header_emergency_phone' => 'nullable|string|max:50',
+            'footer_about_text' => 'nullable|string',
+            'footer_departments' => 'nullable|string',
+            'footer_patient_links' => 'nullable|string',
+            'footer_legal_links' => 'nullable|string',
+            'footer_copyright' => 'nullable|string|max:500',
+            'footer_social_facebook' => 'nullable|url',
+            'footer_social_twitter' => 'nullable|url',
+            'footer_social_instagram' => 'nullable|url',
+            'footer_social_linkedin' => 'nullable|url',
+            'footer_newsletter_enabled' => 'nullable|boolean',
+        ]);
+        
+        SystemSetting::set('header_open_hours', $validated['header_open_hours'] ?? 'Mon–Fri 8:00–18:00');
+        SystemSetting::set('header_emergency_phone', $validated['header_emergency_phone'] ?? '+254 700 000 000');
+        SystemSetting::set('footer_about_text', $validated['footer_about_text'] ?? '');
+        SystemSetting::set('footer_departments', $validated['footer_departments'] ?? '');
+        SystemSetting::set('footer_patient_links', $validated['footer_patient_links'] ?? '');
+        SystemSetting::set('footer_legal_links', $validated['footer_legal_links'] ?? '');
+        SystemSetting::set('footer_copyright', $validated['footer_copyright'] ?? '');
+        SystemSetting::set('footer_social_facebook', $validated['footer_social_facebook'] ?? '');
+        SystemSetting::set('footer_social_twitter', $validated['footer_social_twitter'] ?? '');
+        SystemSetting::set('footer_social_instagram', $validated['footer_social_instagram'] ?? '');
+        SystemSetting::set('footer_social_linkedin', $validated['footer_social_linkedin'] ?? '');
+        SystemSetting::set('footer_newsletter_enabled', $validated['footer_newsletter_enabled'] ?? '1');
+        
+        return redirect()->route('cms.header-footer')->with('success', 'Header & Footer settings updated successfully.');
+    }
 }

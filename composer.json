@@ -16,6 +16,7 @@
         "spatie/laravel-activitylog": "^4.7",
         "spatie/laravel-backup": "^9.0",
         "spatie/laravel-permission": "^6.21",
+        "symfony/routing": "^7.3",
         "twilio/sdk": "^7.3"
     },
     "suggest": {

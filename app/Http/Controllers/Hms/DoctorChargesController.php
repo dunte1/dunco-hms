@@ -60,8 +60,7 @@ class DoctorChargesController extends Controller
             'home_visit_fee' => 'nullable|numeric|min:0',
         ]);
         
-        // For now, we'll store these in a JSON field or you can add columns to doctors table
-        // This is a placeholder implementation
+        // Update doctor charges - fields are now in doctors table
         $doctor->update($data);
         
         return redirect()->route('hms.doctor-charges.index')

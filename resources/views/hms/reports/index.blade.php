@@ -56,6 +56,29 @@
                         </div>
                     </div>
                     
+                    <div class="row mt-3">
+                        <div class="col-md-12 mb-4">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h4 class="card-title mb-0">
+                                        <i class="fas fa-tools mr-2"></i>
+                                        Custom Report Builder
+                                        <span class="badge badge-light ml-2">Premium</span>
+                                    </h4>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-3">Create custom reports with drag-and-drop interface. Select data sources, apply filters, and generate professional reports in PDF or Excel format.</p>
+                                    <a href="{{ route('hms.reports.custom-builder.index') }}" class="btn btn-primary">
+                                        <i class="fas fa-magic mr-2"></i> Open Report Builder
+                                    </a>
+                                    <a href="{{ route('hms.reports.custom-builder.create') }}" class="btn btn-outline-primary">
+                                        <i class="fas fa-plus mr-2"></i> Create New Template
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="row">
                         <div class="col-md-6">
                             <div class="card">

@@ -4,7 +4,7 @@
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('Purchase Orders') }}
             </h2>
-            <a href="{{ route('hms.hms.inventory.purchase-orders.create') }}" 
+            <a href="{{ route('hms.inventory.purchase-orders.create') }}" 
                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg inline-flex items-center">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -98,7 +98,7 @@
                                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex-1 text-sm">
                                 Filter
                             </button>
-                            <a href="{{ route('hms.hms.inventory.purchase-orders.index') }}" 
+                            <a href="{{ route('hms.inventory.purchase-orders.index') }}" 
                                class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm">
                                 Reset
                             </a>
@@ -160,10 +160,10 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex space-x-2">
-                                                <a href="{{ route('hms.hms.inventory.purchase-orders.show', $po) }}" 
+                                                <a href="{{ route('hms.inventory.purchase-orders.show', $po) }}" 
                                                    class="text-blue-600 hover:text-blue-900 dark:text-blue-400">View</a>
                                                 @if(in_array($po->status, ['draft', 'pending']))
-                                                    <a href="{{ route('hms.hms.inventory.purchase-orders.edit', $po) }}" 
+                                                    <a href="{{ route('hms.inventory.purchase-orders.edit', $po) }}" 
                                                        class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Edit</a>
                                                 @endif
                                             </div>
@@ -172,7 +172,7 @@
                                 @empty
                                     <tr>
                                         <td colspan="7" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                                            No purchase orders found. <a href="{{ route('hms.hms.inventory.purchase-orders.create') }}" class="text-blue-600 hover:underline">Create your first purchase order</a>
+                                            No purchase orders found. <a href="{{ route('hms.inventory.purchase-orders.create') }}" class="text-blue-600 hover:underline">Create your first purchase order</a>
                                         </td>
                                     </tr>
                                 @endforelse

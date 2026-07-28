@@ -5,7 +5,7 @@
                 {{ __('Stock Movements') }}
             </h2>
             <div class="flex space-x-2">
-                <a href="{{ route('hms.hms.inventory.stock-movements.create') }}" 
+                <a href="{{ route('hms.inventory.stock-movements.create') }}" 
                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg inline-flex items-center text-sm">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -109,7 +109,7 @@
                                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex-1 text-sm">
                                 Filter
                             </button>
-                            <a href="{{ route('hms.hms.inventory.stock-movements.index') }}" 
+                            <a href="{{ route('hms.inventory.stock-movements.index') }}" 
                                class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm">
                                 Reset
                             </a>
@@ -176,14 +176,14 @@
                                             {{ $movement->user->name }}
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                                            <a href="{{ route('hms.hms.inventory.stock-movements.show', $movement) }}" 
+                                            <a href="{{ route('hms.inventory.stock-movements.show', $movement) }}" 
                                                class="text-blue-600 hover:text-blue-900 dark:text-blue-400">View</a>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
                                         <td colspan="9" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                                            No stock movements found. <a href="{{ route('hms.hms.inventory.stock-movements.create') }}" class="text-blue-600 hover:underline">Record your first movement</a>
+                                            No stock movements found. <a href="{{ route('hms.inventory.stock-movements.create') }}" class="text-blue-600 hover:underline">Record your first movement</a>
                                         </td>
                                     </tr>
                                 @endforelse

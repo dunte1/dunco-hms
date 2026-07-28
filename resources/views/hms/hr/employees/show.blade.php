@@ -11,8 +11,11 @@
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Complete employee information and records</p>
                 </div>
                 <div class="flex items-center gap-2">
+                    <a href="{{ route('hms.hr.employees.id-card.preview', $employee) }}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                        <i class="fa fa-eye mr-2"></i> Preview ID
+                    </a>
                     <a href="{{ route('hms.hr.employees.id-card', $employee) }}" target="_blank" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg">
-                        <i class="fa fa-id-card mr-2"></i> ID Card
+                        <i class="fa fa-download mr-2"></i> Download ID
                     </a>
                     <a href="{{ route('hms.hr.employees.edit', $employee) }}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">
                         <i class="fa fa-edit mr-2"></i> Edit
@@ -83,8 +86,11 @@
                         <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Quick Actions</h3>
                             <div class="space-y-2">
+                                <a href="{{ route('hms.hr.employees.id-card.preview', $employee) }}" target="_blank" class="w-full flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                                    <i class="fa fa-eye mr-2"></i> Preview ID Card
+                                </a>
                                 <a href="{{ route('hms.hr.employees.id-card', $employee) }}" target="_blank" class="w-full flex items-center justify-center px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition">
-                                    <i class="fa fa-id-card mr-2"></i> Download ID Card
+                                    <i class="fa fa-download mr-2"></i> Download ID Card
                                 </a>
                                 <a href="{{ route('hms.hr.employees.edit', $employee) }}" class="w-full flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition">
                                     <i class="fa fa-edit mr-2"></i> Edit Employee

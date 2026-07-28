@@ -4,7 +4,7 @@
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('Stock Movement Details') }}: {{ $stockMovement->movement_number }}
             </h2>
-            <a href="{{ route('hms.hms.inventory.stock-movements.index') }}" 
+            <a href="{{ route('hms.inventory.stock-movements.index') }}" 
                class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg">
                 Back to Movements
             </a>

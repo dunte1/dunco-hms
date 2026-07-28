@@ -1,715 +1,667 @@
 [
   {
     "id": "TC001",
-    "title": "User login success with valid credentials",
-    "description": "Verify that a user can successfully login with correct email and password",
+    "title": "User Authentication - Successful Login",
+    "description": "Verify that users can log in with valid credentials and are routed to their role-specific dashboards.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the login page"
+        "description": "Navigate to the login page."
       },
       {
         "type": "action",
-        "description": "Enter valid email and password"
+        "description": "Enter valid username/email and password."
       },
       {
         "type": "action",
-        "description": "Click the login button"
+        "description": "Click the login button."
       },
       {
         "type": "assertion",
-        "description": "Verify user is authenticated and redirected to the dashboard"
+        "description": "Verify that the user is authenticated successfully."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is redirected to the correct dashboard based on their role (doctor, nurse, administrator)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify audit log records successful login with timestamp and user details."
       }
     ]
   },
   {
     "id": "TC002",
-    "title": "User login fails with invalid credentials",
-    "description": "Verify that login fails and error message is shown with incorrect email or password",
+    "title": "User Authentication - Failed Login with Invalid Credentials",
+    "description": "Verify that login fails with incorrect username/email or password and appropriate error messages are shown.",
     "category": "error handling",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the login page"
+        "description": "Navigate to the login page."
       },
       {
         "type": "action",
-        "description": "Enter invalid email or password"
+        "description": "Enter invalid username/email and/or password."
       },
       {
         "type": "action",
-        "description": "Click the login button"
+        "description": "Click the login button."
       },
       {
         "type": "assertion",
-        "description": "Verify error message displayed and user remains on login page"
+        "description": "Verify that login fails."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an appropriate error message is displayed to the user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify failed login attempt is recorded in audit logs."
       }
     ]
   },
   {
     "id": "TC003",
-    "title": "Role-based access control enforcement",
-    "description": "Verify that users can only access modules permitted by their assigned role",
+    "title": "Role-Based Access Control Enforcement",
+    "description": "Verify that users cannot access unauthorized routes or UI elements outside their permission scope.",
     "category": "security",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Login as a user with a specific role (e.g., Doctor)"
+        "description": "Log in as a nurse user."
       },
       {
         "type": "action",
-        "description": "Attempt to access restricted modules (e.g., Billing module)"
+        "description": "Attempt to access administrator-only routes or UI components."
       },
       {
         "type": "assertion",
-        "description": "Verify access is denied with appropriate error or redirect"
+        "description": "Verify access is denied with proper error or redirection."
       },
       {
         "type": "action",
-        "description": "Access allowed modules for the role"
+        "description": "Verify UI components editable only by administrators are not visible or disabled."
       },
       {
         "type": "assertion",
-        "description": "Verify successful access and full CRUD capabilities where applicable"
+        "description": "Verify audit logs capture denied access attempts."
       }
     ]
   },
   {
     "id": "TC004",
-    "title": "Patient registration with valid data",
-    "description": "Verify that a patient can be registered successfully with all mandatory fields provided",
+    "title": "Patient Registration and Lifecycle - Full Flow",
+    "description": "Verify complete CRUD operations for patient registration, case recording, appointment booking, treatment, billing, and discharge workflows.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to patient registration page"
+        "description": "Log in as staff user with patient management permissions."
       },
       {
         "type": "action",
-        "description": "Input valid patient details including first_name, last_name, email, phone, date_of_birth, gender, and address"
-      },
-      {
-        "type": "action",
-        "description": "Submit the registration form"
+        "description": "Create a new patient record with valid details."
       },
       {
         "type": "assertion",
-        "description": "Verify patient is added and visible in patient list with correct details"
+        "description": "Verify patient details are saved correctly and visible in patient list."
+      },
+      {
+        "type": "action",
+        "description": "Record a new case for the patient including medical history and symptoms."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify case details are saved and linked to the patient record."
+      },
+      {
+        "type": "action",
+        "description": "Book an appointment for the patient with a doctor."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify appointment is scheduled and appears in both patient and doctor calendars."
+      },
+      {
+        "type": "action",
+        "description": "Update the appointment details (reschedule)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updated appointment info is saved and notifications are sent."
+      },
+      {
+        "type": "action",
+        "description": "Record treatment details post-appointment."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify treatment records are saved and linked to the patient and appointment."
+      },
+      {
+        "type": "action",
+        "description": "Generate and issue billing invoice for treatments and services."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify invoice is generated with correct calculations and saved."
+      },
+      {
+        "type": "action",
+        "description": "Process payment and record transaction."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify payment is successfully recorded and invoice status is updated."
+      },
+      {
+        "type": "action",
+        "description": "Discharge the patient."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify discharge workflow completes and patient status updates."
       }
     ]
   },
   {
     "id": "TC005",
-    "title": "Patient registration fails with missing mandatory fields",
-    "description": "Verify error validation shown when mandatory fields are missing during patient registration",
-    "category": "error handling",
+    "title": "AI Virtual Nurse Assistant - Appointment Booking Intent",
+    "description": "Verify that the AI assistant correctly identifies appointment booking intents and books appointments as expected.",
+    "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to patient registration page"
+        "description": "Open the AI virtual nurse chat interface."
       },
       {
         "type": "action",
-        "description": "Leave mandatory fields (e.g., first_name or date_of_birth) empty"
-      },
-      {
-        "type": "action",
-        "description": "Submit the registration form"
+        "description": "Send a natural language message requesting to book an appointment with a specific doctor."
       },
       {
         "type": "assertion",
-        "description": "Verify appropriate validation error messages are displayed for missing fields"
+        "description": "Verify AI assistant parses the intent accurately."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify AI assistant provides available time slots."
+      },
+      {
+        "type": "action",
+        "description": "Select one of the suggested appointment slots."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify appointment is booked and confirmation is displayed."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify booking is reflected in patient and doctor schedules."
       }
     ]
   },
   {
     "id": "TC006",
-    "title": "Create new doctor profile with valid data",
-    "description": "Verify that doctors can be added with required details like department and specialization",
-    "category": "functional",
-    "priority": "High",
+    "title": "AI Virtual Nurse Assistant - Fallback Response When API Unavailable",
+    "description": "Verify the AI assistant provides a meaningful fallback response when the OpenRouter AI integration is unavailable.",
+    "category": "error handling",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to doctor management section"
+        "description": "Simulate the AI API being unavailable or network failure."
       },
       {
         "type": "action",
-        "description": "Fill doctor creation form with valid data including first_name, last_name, email, phone, department_id, specialization"
-      },
-      {
-        "type": "action",
-        "description": "Submit the form"
+        "description": "Send a natural language query to the AI assistant."
       },
       {
         "type": "assertion",
-        "description": "Verify doctor profile is created and listed correctly"
+        "description": "Verify the AI assistant responds with a predefined fallback message."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is informed about the temporary unavailability of AI services."
       }
     ]
   },
   {
     "id": "TC007",
-    "title": "Appointment booking with available doctor and patient",
-    "description": "Ensure an appointment is successfully booked for a patient with a selected doctor at a valid future date and time",
+    "title": "Inventory and Pharmacy Management - Low Stock Alert",
+    "description": "Verify that low stock warnings trigger correctly when medicine or supplies inventory goes below threshold.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Login as receptionist or patient"
+        "description": "Log in as pharmacy staff user."
       },
       {
         "type": "action",
-        "description": "Select valid patient and doctor"
-      },
-      {
-        "type": "action",
-        "description": "Choose valid future appointment date and time"
-      },
-      {
-        "type": "action",
-        "description": "Submit appointment booking"
+        "description": "Add inventory for a medicine item with stock level above alert threshold."
       },
       {
         "type": "assertion",
-        "description": "Verify appointment is created and appears in appointment list/schedule"
+        "description": "Verify no low stock alert is generated."
+      },
+      {
+        "type": "action",
+        "description": "Dispense medicines reducing stock to below the low stock threshold."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the system generates a low stock alert notification."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify alert appears on dashboard and email/SMS if configured."
       }
     ]
   },
   {
     "id": "TC008",
-    "title": "Appointment booking rejects past date/time",
-    "description": "Verify system does not allow booking of appointments in the past",
-    "category": "error handling",
+    "title": "Laboratory Test Ordering and Result Delivery",
+    "description": "Verify ordering lab tests, tracking samples, uploading images, and delivering results to clinicians.",
+    "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to appointment booking"
+        "description": "Log in as a doctor."
       },
       {
         "type": "action",
-        "description": "Select a past date/time for the appointment"
-      },
-      {
-        "type": "action",
-        "description": "Attempt to submit the appointment"
+        "description": "Order one or more laboratory tests for a patient."
       },
       {
         "type": "assertion",
-        "description": "Verify system displays error or prevents booking in the past"
+        "description": "Verify test orders are saved and visible in lab module."
+      },
+      {
+        "type": "action",
+        "description": "Track sample collection and status updates."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify sample statuses update correctly including received, processing, completed."
+      },
+      {
+        "type": "action",
+        "description": "Upload images or reports related to laboratory or radiology tests."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify uploaded files are accessible and linked to the correct patient record."
+      },
+      {
+        "type": "action",
+        "description": "Deliver test results to the ordering clinician."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify clinician receives notifications and results are properly displayed."
       }
     ]
   },
   {
     "id": "TC009",
-    "title": "Bed assignment with available bed and valid patient",
-    "description": "Verify assigning an available bed to a patient works and occupancy status updates accordingly",
+    "title": "Billing Cycle - Invoice Generation and Payment Workflow",
+    "description": "Verify invoice creation, payment processing, record keeping, and financial reporting correctness.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Select a patient for bed assignment"
-      },
-      {
-        "type": "action",
-        "description": "Select an available bed from bed list"
-      },
-      {
-        "type": "action",
-        "description": "Assign bed to patient"
+        "description": "Generate an invoice for patient treatments and services."
       },
       {
         "type": "assertion",
-        "description": "Verify bed status shows occupied and patient assignment is logged"
+        "description": "Verify invoice includes correct charges based on treatments."
+      },
+      {
+        "type": "action",
+        "description": "Send invoice to patient via email."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify email delivery and invoice status updates to 'sent'."
+      },
+      {
+        "type": "action",
+        "description": "Process payment through integrated payment gateway."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify payment transaction records and invoice status changes to 'paid'."
+      },
+      {
+        "type": "action",
+        "description": "Generate financial reports including revenue, outstanding invoices."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify reports reflect accurate financial data matching transactions."
       }
     ]
   },
   {
     "id": "TC010",
-    "title": "Billing invoice creation with valid items and patient",
-    "description": "Verify invoices can be created with valid patient id, total amount, and invoice items",
-    "category": "functional",
+    "title": "IoT Bed Sensor Data Flow and Real-Time Monitoring",
+    "description": "Verify real-time bed sensor data is collected correctly and displayed on dashboards with RFID tracking.",
+    "category": "integration",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to billing invoices section"
-      },
-      {
-        "type": "action",
-        "description": "Create new invoice with valid patient_id, total_amount, and valid line items"
-      },
-      {
-        "type": "action",
-        "description": "Submit invoice"
+        "description": "Simulate IoT bed sensor data transmission with patient presence status."
       },
       {
         "type": "assertion",
-        "description": "Verify invoice is created and listed correctly with accurate totals"
+        "description": "Verify data is received and processed by the system in real-time."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify bed availability and status is updated on real-time dashboards."
+      },
+      {
+        "type": "action",
+        "description": "Attach RFID tags to assets and patients and simulate RFID scans."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify RFID tracking updates asset and patient location data correctly."
       }
     ]
   },
   {
     "id": "TC011",
-    "title": "Billing invoice creation fails with invalid patient id",
-    "description": "Verify invoice creation fails gracefully when patient does not exist",
-    "category": "error handling",
-    "priority": "Medium",
+    "title": "Telemedicine Session Scheduling and Management",
+    "description": "Verify scheduling telemedicine sessions, remote consultations, session tracking, and video call integration placeholder.",
+    "category": "functional",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Attempt to create invoice with a non-existent patient_id"
+        "description": "Log in as patient."
+      },
+      {
+        "type": "action",
+        "description": "Schedule a telemedicine session with a doctor."
       },
       {
         "type": "assertion",
-        "description": "Verify error response or validation message preventing invoice creation"
+        "description": "Verify session is created and confirmed for both patient and doctor."
+      },
+      {
+        "type": "action",
+        "description": "Log in as doctor and join scheduled telemedicine session."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify session status updates to active and logs the participation."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify video call integration placeholder appears and is ready for future implementation."
+      },
+      {
+        "type": "action",
+        "description": "End the telemedicine session."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify session is marked complete with session duration recorded."
       }
     ]
   },
   {
     "id": "TC012",
-    "title": "Lab test request creation and retrieval",
-    "description": "Verify creation of a lab test request for a patient and its retrieval in lab requests list",
+    "title": "Content Management System - CRUD Operations",
+    "description": "Verify complete CRUD operations and validation for CMS public-facing content such as blogs, galleries, and careers.",
     "category": "functional",
-    "priority": "High",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Create a new lab test request with valid patient_id and test_id"
+        "description": "Log in as administrator."
       },
       {
         "type": "action",
-        "description": "Retrieve lab requests list"
+        "description": "Create a new blog post with valid content and metadata."
       },
       {
         "type": "assertion",
-        "description": "Verify new lab test request appears in the list with correct details"
+        "description": "Verify the blog post is saved and published."
+      },
+      {
+        "type": "action",
+        "description": "Edit the blog post with updated content."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the changes are saved and live on the public site."
+      },
+      {
+        "type": "action",
+        "description": "Delete the blog post."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the blog post is removed from the public site and database."
+      },
+      {
+        "type": "action",
+        "description": "Add and manage gallery images and career job postings with similar CRUD verification."
       }
     ]
   },
   {
     "id": "TC013",
-    "title": "Medicine inventory add and retrieval",
-    "description": "Verify addition of a new medicine to inventory with valid details and its visibility in medicine list",
+    "title": "API Endpoint Compliance and Error Handling",
+    "description": "Verify RESTful API endpoints conform to standards, return JSON, and handle errors gracefully for main modules.",
     "category": "functional",
-    "priority": "Medium",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Add a new medicine with valid name, generic_name, category_id, brand_id, and price"
-      },
-      {
-        "type": "action",
-        "description": "Retrieve medicines list"
+        "description": "Send valid API requests to patient, appointment, doctor, billing, laboratory, and AI assistant endpoints."
       },
       {
         "type": "assertion",
-        "description": "Verify the added medicine is listed with correct attributes"
+        "description": "Verify response status codes are 200 OK and JSON data structure is correct."
+      },
+      {
+        "type": "action",
+        "description": "Send invalid requests with missing or malformed data."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API returns appropriate error status codes (4xx) with descriptive JSON error messages."
+      },
+      {
+        "type": "action",
+        "description": "Test unauthorized API calls without authentication tokens."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API returns 401 Unauthorized responses."
       }
     ]
   },
   {
     "id": "TC014",
-    "title": "Blood bank inventory retrieval and request creation",
-    "description": "Verify blood inventory status can be retrieved and that blood requests can be created",
-    "category": "functional",
+    "title": "Frontend Responsiveness Across Browsers and Devices",
+    "description": "Verify UI layout, touch interactions, and component scaling on supported browsers and screen sizes using Tailwind CSS and Alpine.js.",
+    "category": "ui",
     "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Retrieve blood bank inventory list"
+        "description": "Open the hospital management system frontend on Chrome, Firefox, Edge, Safari browsers."
       },
       {
         "type": "assertion",
-        "description": "Verify list contains accurate and up-to-date blood inventory details"
+        "description": "Verify UI components render correctly without layout issues on desktop screen resolutions."
       },
       {
         "type": "action",
-        "description": "Create a new blood request with valid data"
+        "description": "Resize browser window to tablet and mobile screen sizes."
       },
       {
         "type": "assertion",
-        "description": "Verify blood request is created and stored correctly"
+        "description": "Verify responsive UI adjustments, menus collapse, and controls remain usable."
+      },
+      {
+        "type": "action",
+        "description": "Test on physical mobile devices with different OS (iOS, Android)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify touch interactions and navigation are smooth and consistent."
       }
     ]
   },
   {
     "id": "TC015",
-    "title": "HR employee profile creation and payroll assignment",
-    "description": "Verify employee profiles can be created and payroll records assigned correctly",
-    "category": "functional",
-    "priority": "Medium",
+    "title": "Security Features - Multi-Factor Authentication and Data Encryption",
+    "description": "Verify multi-factor authentication (MFA) flows, encryption of sensitive data, and audit logging of security events.",
+    "category": "security",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Create new employee record with required personal and department details"
+        "description": "Enable MFA for a test user account."
       },
       {
         "type": "action",
-        "description": "Assign payroll details to employee"
+        "description": "Attempt login with correct credentials but without completing MFA step."
       },
       {
         "type": "assertion",
-        "description": "Employee and payroll data saved and retrievable via HR dashboard"
+        "description": "Verify login is blocked pending MFA verification."
+      },
+      {
+        "type": "action",
+        "description": "Complete MFA step successfully."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is authenticated fully."
+      },
+      {
+        "type": "action",
+        "description": "Inspect database records for sensitive data such as passwords and patient information."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify sensitive data are encrypted or hashed appropriately."
+      },
+      {
+        "type": "action",
+        "description": "Trigger various security-relevant actions like login, logout, failed login attempts."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify audit logs capture these events with correct detail and timestamps."
       }
     ]
   },
   {
     "id": "TC016",
-    "title": "Inventory stock movement creation and tracking",
-    "description": "Verify stock movements can be created and reflect correctly on inventory quantities",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Create stock movement entry for inventory item with in/out quantity"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify inventory quantity updates accordingly and movement is logged"
-      }
-    ]
-  },
-  {
-    "id": "TC017",
-    "title": "Radiology request creation and retrieval",
-    "description": "Verify radiology test requests can be created and retrieved in reports",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Create new radiology test request with valid patient and test data"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify request listed accurately in radiology requests report"
-      }
-    ]
-  },
-  {
-    "id": "TC018",
-    "title": "IPD patient admission creation and list retrieval",
-    "description": "Verify that in-patient admission records can be added and retrieved properly",
-    "category": "functional",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Add new IPD admission record for a patient"
-      },
-      {
-        "type": "action",
-        "description": "Retrieve IPD admissions list"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify new IPD admission appears in the list with correct details"
-      }
-    ]
-  },
-  {
-    "id": "TC019",
-    "title": "AI appointment suggestion retrieves valid recommendations",
-    "description": "Verify AI-powered appointment suggestion API returns relevant appointment suggestions for given inputs",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Request AI appointment suggestions for a patient or doctor"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify returned suggestions are relevant, logical, and well-formatted"
-      }
-    ]
-  },
-  {
-    "id": "TC020",
-    "title": "Multi-language configuration applied on UI",
-    "description": "Verify the system UI text changes according to selected supported languages properly",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Change system language setting to supported language (e.g., Spanish)"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify that all UI elements display text in the selected language consistently"
-      }
-    ]
-  },
-  {
-    "id": "TC021",
-    "title": "Multi-currency reflected correctly in billing and reports",
-    "description": "Verify that currency setting reflects correctly on financial invoices, payments, and reports",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Set billing currency to supported alternate currency (e.g., EUR)"
-      },
-      {
-        "type": "action",
-        "description": "Create invoice and process payments"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify all monetary values display and calculate correctly in chosen currency"
-      }
-    ]
-  },
-  {
-    "id": "TC022",
-    "title": "API endpoints respond with standardized JSON format",
-    "description": "Verify all REST API endpoints return valid JSON response with expected schema and error handling",
-    "category": "functional",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Send valid GET and POST requests to core API endpoints (e.g., /hms/patients, /hms/appointments)"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify response status codes, content types, and response body schema correctness"
-      },
-      {
-        "type": "action",
-        "description": "Send invalid data or unauthorized requests"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify error codes (400/401/404/etc) and standardized error JSON responses"
-      }
-    ]
-  },
-  {
-    "id": "TC023",
-    "title": "Audit logs capture essential user actions",
-    "description": "Verify that user actions such as login, record creation, updates, and deletions are logged correctly",
-    "category": "security",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Perform critical operations (login, create patient, update appointment, delete record)"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify audit logs record correct user, timestamp, and action details for each operation"
-      }
-    ]
-  },
-  {
-    "id": "TC024",
-    "title": "System performance under high concurrency",
-    "description": "Verify that system meets response time benchmarks and does not degrade under simulated concurrent user load",
+    "title": "Performance Testing - Page Load and API Response Times",
+    "description": "Verify page load times are under 2 seconds and API responses are under 500 milliseconds under nominal load conditions.",
     "category": "performance",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Simulate multiple concurrent users performing common workflows (authentication, booking, billing)"
+        "description": "Navigate to main dashboard as different user roles."
       },
       {
         "type": "assertion",
-        "description": "Verify response times remain within acceptable limits and no request failures occur"
+        "description": "Measure page load time and verify it is less than 2 seconds."
+      },
+      {
+        "type": "action",
+        "description": "Send API requests to critical endpoints (patient data, appointments, billing)."
+      },
+      {
+        "type": "assertion",
+        "description": "Measure response time and verify it is less than 500ms."
       }
     ]
   },
   {
-    "id": "TC025",
-    "title": "Patient portal self-service booking and record viewing",
-    "description": "Verify patients can book appointments, view their medical records, and billing information successfully via patient portal",
-    "category": "functional",
+    "id": "TC017",
+    "title": "Integration Testing for Payment Gateway, SMS, Email, and AI Services",
+    "description": "Verify functional integration points with external services including payment gateways, SMS/email notifications, and AI assistant APIs.",
+    "category": "integration",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Login to patient portal with valid credentials"
-      },
-      {
-        "type": "action",
-        "description": "Book a new appointment with a doctor"
+        "description": "Initiate a payment through the integrated payment gateway."
       },
       {
         "type": "assertion",
-        "description": "Verify appointment is successfully booked and visible in portal"
+        "description": "Verify the payment completes successfully and appropriate records are updated."
       },
       {
         "type": "action",
-        "description": "Navigate to medical records section"
+        "description": "Trigger an SMS notification (e.g., appointment reminder)."
       },
       {
         "type": "assertion",
-        "description": "Verify medical records display accurate and complete patient data"
+        "description": "Verify the SMS is received by the intended recipient."
       },
       {
         "type": "action",
-        "description": "Navigate to billing section"
+        "description": "Send an email from the system (e.g., billing invoice)."
       },
       {
         "type": "assertion",
-        "description": "Verify billing statements are displayed with correct amounts and statuses"
+        "description": "Verify email delivery and correct formatting."
+      },
+      {
+        "type": "action",
+        "description": "Invoke AI assistant API for medical query and appointment booking."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify responses are accurate and timely as expected."
       }
     ]
   },
   {
-    "id": "TC026",
-    "title": "Integration API keys management with validation",
-    "description": "Verify system allows adding, updating, and removing API integration keys securely with validation checks",
+    "id": "TC018",
+    "title": "Documentation and User Manuals Verification",
+    "description": "Verify that all user manuals and documentation are up to date, complete, and cover all system features and administration tasks.",
     "category": "functional",
-    "priority": "Medium",
+    "priority": "Low",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to system settings for API keys"
-      },
-      {
-        "type": "action",
-        "description": "Add new API key with valid format"
+        "description": "Review the user manuals and online documentation."
       },
       {
         "type": "assertion",
-        "description": "Verify API key stored and displayed securely without plaintext exposure"
-      },
-      {
-        "type": "action",
-        "description": "Attempt add API key with invalid format"
+        "description": "Verify all major modules and features such as patient management, AI assistant usage, billing, and CMS are documented."
       },
       {
         "type": "assertion",
-        "description": "Verify validation error prevents submission"
-      },
-      {
-        "type": "action",
-        "description": "Delete existing API key"
+        "description": "Verify documentation includes setup, configuration, and troubleshooting."
       },
       {
         "type": "assertion",
-        "description": "Verify API key removed and no longer usable"
-      }
-    ]
-  },
-  {
-    "id": "TC027",
-    "title": "CMS content management CRUD operations",
-    "description": "Verify CRUD operations for blog posts, galleries, careers, and testimonials in CMS module",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Create new blog post with title, content, and metadata"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify blog post appears in blog listing"
-      },
-      {
-        "type": "action",
-        "description": "Update existing gallery content"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify gallery reflects updated content"
-      },
-      {
-        "type": "action",
-        "description": "Delete a career posting"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify career posting is removed and no longer accessible"
-      }
-    ]
-  },
-  {
-    "id": "TC028",
-    "title": "API authentication with Sanctum token",
-    "description": "Verify that API endpoints secured by Laravel Sanctum require valid authentication tokens and reject unauthorized access",
-    "category": "security",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Send API request without token"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify 401 Unauthorized response"
-      },
-      {
-        "type": "action",
-        "description": "Send API request with valid Sanctum token"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify successful API response and access to requested data"
-      }
-    ]
-  },
-  {
-    "id": "TC029",
-    "title": "System settings update and persistence",
-    "description": "Verify system settings can be updated via configuration interface and persist across sessions",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Modify various system settings such as localization, timezone, and feature toggles"
-      },
-      {
-        "type": "action",
-        "description": "Save settings and logout"
-      },
-      {
-        "type": "action",
-        "description": "Login and verify modified settings are applied and persistent"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify system operates with updated configurations consistently"
-      }
-    ]
-  },
-  {
-    "id": "TC030",
-    "title": "Error handling on invalid API requests",
-    "description": "Verify API returns appropriate HTTP status codes and error messages on invalid requests such as missing parameters or malformed JSON",
-    "category": "error handling",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Send API requests missing required parameters"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify 400 Bad Request response with detailed validation error message"
-      },
-      {
-        "type": "action",
-        "description": "Send API request with malformed JSON body"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify 400 Bad Request or 422 Unprocessable Entity response with error details"
+        "description": "Verify documentation is consistent with the current system version and UI."
       }
     ]
   }

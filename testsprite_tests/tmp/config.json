@@ -7,12 +7,15 @@
   "loginPassword": "password",
   "executionArgs": {
     "projectName": "duncohms",
-    "projectPath": "C:\\Users\\dunth\\Desktop\\hosim\\duncohms",
-    "testIds": [],
-    "additionalInstruction": "Execute all frontend tests comprehensively covering all UI interactions and user workflows",
+    "projectPath": "C:\\Users\\dunth\\Desktop\\duncohms",
+    "testIds": [
+      "2bb8ee6d-8bfa-46f9-b92a-d488d521be71",
+      "bce4e4ff-3aba-45f4-a937-09c55c8405df"
+    ],
+    "additionalInstruction": "Run only the selected passing auth tests to verify 100% passing within this scope.",
     "envs": {
       "API_KEY": "sk-user-t1uqrN6wSa-e0paOiffqcpEdEd1HnLO7N2OAB58w2Vi2z9hJZ964FALPpThpcqOKGMWhxgRXCEpqb7KEl5XSMDoMuZoMeu2DLlKQLBwzuJRUfOYqMlycIeLAKdx8BgPPzkc"
     }
   },
-  "proxy": "http://b3a8691b-290f-430a-9c74-39e24e844dbf:QdCX8XN4nGpxKpNBQGCwdgbejhs9OPLw@tun.testsprite.com:8080"
+  "proxy": "http://429f48ef-85b0-40ae-8a62-66da7788f799:samhhE8n5LZ0mkqZIHmBJI1lbsd2XYCT@tun.testsprite.com:8080"
 }

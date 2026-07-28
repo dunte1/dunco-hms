@@ -1,52 +1,13 @@
-[
-  {
-    "id": "TC001",
-    "title": "test user login endpoint",
-    "description": "Verify that the /login endpoint successfully authenticates users with valid credentials and returns a 200 status code, and returns a 401 status code for invalid credentials."
+{
+  "baseUrl": "http://127.0.0.1:8001",
+  "health": {
+    "method": "GET",
+    "path": "/"
   },
-  {
-    "id": "TC002",
-    "title": "test user registration endpoint",
-    "description": "Verify that the /register endpoint allows new users to register with valid data including name, email, password, and password confirmation, and returns appropriate success or error responses."
-  },
-  {
-    "id": "TC003",
-    "title": "test get all patients endpoint",
-    "description": "Verify that the /hms/patients GET endpoint returns a list of patients with a 200 status code and the response contains expected patient data."
-  },
-  {
-    "id": "TC004",
-    "title": "test create new patient endpoint",
-    "description": "Verify that the /hms/patients POST endpoint creates a new patient when provided with valid patient details such as first name, last name, email, phone, date of birth, gender, and address, and returns a success response."
-  },
-  {
-    "id": "TC005",
-    "title": "test get all doctors endpoint",
-    "description": "Verify that the /hms/doctors GET endpoint returns a list of doctors with a 200 status code and the response contains expected doctor data."
-  },
-  {
-    "id": "TC006",
-    "title": "test create new doctor endpoint",
-    "description": "Verify that the /hms/doctors POST endpoint creates a new doctor profile with valid details including first name, last name, email, phone, department id, and specialization, and returns a success response."
-  },
-  {
-    "id": "TC007",
-    "title": "test get all appointments endpoint",
-    "description": "Verify that the /hms/appointments GET endpoint returns a list of appointments with a 200 status code and the response contains expected appointment data."
-  },
-  {
-    "id": "TC008",
-    "title": "test create new appointment endpoint",
-    "description": "Verify that the /hms/appointments POST endpoint creates a new appointment with valid patient id, doctor id, appointment date, appointment time, and reason, and returns a success response."
-  },
-  {
-    "id": "TC009",
-    "title": "test get all invoices endpoint",
-    "description": "Verify that the /hms/invoices GET endpoint returns a list of invoices with a 200 status code and the response contains expected invoice data."
-  },
-  {
-    "id": "TC010",
-    "title": "test create new invoice endpoint",
-    "description": "Verify that the /hms/invoices POST endpoint creates a new invoice with valid patient id, total amount, and items, and returns a success response."
-  }
-]
+  "endpoints": [
+    { "method": "GET", "path": "/" },
+    { "method": "GET", "path": "/login" }
+  ]
+}
+
+

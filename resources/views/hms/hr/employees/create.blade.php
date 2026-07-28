@@ -34,7 +34,7 @@
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <form action="{{ route('hms.hr.employees.store') }}" method="POST" id="employeeForm">
+                    <form action="{{ route('hms.hr.employees.store') }}" method="POST" id="employeeForm" enctype="multipart/form-data">
                         @csrf
                         
                         <!-- Personal Information Section -->
@@ -156,6 +156,26 @@
                                         <div class="text-danger small mt-1">{{ $message }}</div>
                                     @enderror
                                 </div>
+                                
+                                <div class="col-md-12">
+                                    <label for="photo" class="form-label fw-bold text-dark">
+                                        Employee Photo
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-camera text-muted"></i>
+                                        </span>
+                                        <input type="file" class="form-control form-control-lg border-start-0 @error('photo') is-invalid @enderror" 
+                                               id="photo" name="photo" accept="image/jpeg,image/png,image/jpg,image/gif">
+                                    </div>
+                                    <small class="text-muted">Accepted formats: JPEG, PNG, JPG, GIF (Max: 2MB)</small>
+                                    <div id="photoPreview" class="mt-2" style="display: none;">
+                                        <img id="previewImg" src="" alt="Photo Preview" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #ddd;">
+                                    </div>
+                                    @error('photo')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
 
@@ -172,12 +192,21 @@
                                     <label for="department_id" class="form-label fw-bold text-dark">
                                         Department <span class="text-danger">*</span>
                                     </label>
+                                    @if(count($departments) == 0)
+                                        <div class="alert alert-warning d-flex align-items-center" role="alert">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <div class="flex-grow-1">
+                                                <strong>No departments found!</strong> 
+                                                <a href="{{ route('hms.hr.departments.index') }}" class="alert-link">Create a department first</a>
+                                            </div>
+                                        </div>
+                                    @endif
                                     <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0">
                                             <i class="fas fa-building text-muted"></i>
                                         </span>
                                         <select class="form-select form-select-lg border-start-0 @error('department_id') is-invalid @enderror" 
-                                                id="department_id" name="department_id" required>
+                                                id="department_id" name="department_id" required {{ count($departments) == 0 ? 'disabled' : '' }}>
                                             <option value="">Select Department</option>
                                             @foreach($departments as $id => $name)
                                             <option value="{{ $id }}" {{ old('department_id') == $id ? 'selected' : '' }}>{{ $name }}</option>
@@ -269,6 +298,281 @@
                             </div>
                         </div>
 
+                        <!-- User Account Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-dark fw-bold d-flex align-items-center">
+                                <span class="badge bg-primary-subtle text-primary px-3 py-2 me-2">
+                                    <i class="fas fa-user-lock me-1"></i>
+                                </span>
+                                User Account (Optional)
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="create_user_account" name="create_user_account" value="1">
+                                        <label class="form-check-label fw-bold" for="create_user_account">
+                                            Create login account for this employee
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6" id="password_group" style="display: none;">
+                                    <label for="password" class="form-label fw-bold text-dark">
+                                        Password <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-lock text-muted"></i>
+                                        </span>
+                                        <input type="password" class="form-control form-control-lg border-start-0 @error('password') is-invalid @enderror" 
+                                               id="password" name="password" placeholder="Enter password">
+                                    </div>
+                                    @error('password')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="col-md-6" id="password_confirmation_group" style="display: none;">
+                                    <label for="password_confirmation" class="form-label fw-bold text-dark">
+                                        Confirm Password <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-lock text-muted"></i>
+                                        </span>
+                                        <input type="password" class="form-control form-control-lg border-start-0" 
+                                               id="password_confirmation" name="password_confirmation" placeholder="Confirm password">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Details Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-dark fw-bold d-flex align-items-center">
+                                <span class="badge bg-secondary-subtle text-secondary px-3 py-2 me-2">
+                                    <i class="fas fa-id-card me-1"></i>
+                                </span>
+                                Additional Details
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="nationality" class="form-label fw-bold text-dark">Nationality</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-flag text-muted"></i>
+                                        </span>
+                                        <input type="text" class="form-control form-control-lg border-start-0 @error('nationality') is-invalid @enderror" 
+                                               id="nationality" name="nationality" value="{{ old('nationality') }}" 
+                                               placeholder="e.g., Kenyan">
+                                    </div>
+                                    @error('nationality')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="id_number" class="form-label fw-bold text-dark">ID/Passport Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-id-card text-muted"></i>
+                                        </span>
+                                        <input type="text" class="form-control form-control-lg border-start-0 @error('id_number') is-invalid @enderror" 
+                                               id="id_number" name="id_number" value="{{ old('id_number') }}" 
+                                               placeholder="ID or Passport number">
+                                    </div>
+                                    @error('id_number')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bank Information Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-dark fw-bold d-flex align-items-center">
+                                <span class="badge bg-success-subtle text-success px-3 py-2 me-2">
+                                    <i class="fas fa-university me-1"></i>
+                                </span>
+                                Bank Information
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="bank_name" class="form-label fw-bold text-dark">Bank Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-university text-muted"></i>
+                                        </span>
+                                        <input type="text" class="form-control form-control-lg border-start-0 @error('bank_name') is-invalid @enderror" 
+                                               id="bank_name" name="bank_name" value="{{ old('bank_name') }}" 
+                                               placeholder="Bank name">
+                                    </div>
+                                    @error('bank_name')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <label for="account_number" class="form-label fw-bold text-dark">Account Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-hashtag text-muted"></i>
+                                        </span>
+                                        <input type="text" class="form-control form-control-lg border-start-0 @error('account_number') is-invalid @enderror" 
+                                               id="account_number" name="account_number" value="{{ old('account_number') }}" 
+                                               placeholder="Account number">
+                                    </div>
+                                    @error('account_number')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <label for="bank_branch" class="form-label fw-bold text-dark">Branch</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-building text-muted"></i>
+                                        </span>
+                                        <input type="text" class="form-control form-control-lg border-start-0 @error('bank_branch') is-invalid @enderror" 
+                                               id="bank_branch" name="bank_branch" value="{{ old('bank_branch') }}" 
+                                               placeholder="Branch name">
+                                    </div>
+                                    @error('bank_branch')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Next of Kin Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-dark fw-bold d-flex align-items-center">
+                                <span class="badge bg-danger-subtle text-danger px-3 py-2 me-2">
+                                    <i class="fas fa-users me-1"></i>
+                                </span>
+                                Next of Kin
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="next_of_kin_name" class="form-label fw-bold text-dark">Full Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-user text-muted"></i>
+                                        </span>
+                                        <input type="text" class="form-control form-control-lg border-start-0 @error('next_of_kin_name') is-invalid @enderror" 
+                                               id="next_of_kin_name" name="next_of_kin_name" value="{{ old('next_of_kin_name') }}" 
+                                               placeholder="Full name">
+                                    </div>
+                                    @error('next_of_kin_name')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <label for="next_of_kin_relationship" class="form-label fw-bold text-dark">Relationship</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-heart text-muted"></i>
+                                        </span>
+                                        <input type="text" class="form-control form-control-lg border-start-0 @error('next_of_kin_relationship') is-invalid @enderror" 
+                                               id="next_of_kin_relationship" name="next_of_kin_relationship" value="{{ old('next_of_kin_relationship') }}" 
+                                               placeholder="e.g., Spouse, Parent">
+                                    </div>
+                                    @error('next_of_kin_relationship')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <label for="next_of_kin_contact" class="form-label fw-bold text-dark">Contact</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-phone text-muted"></i>
+                                        </span>
+                                        <input type="text" class="form-control form-control-lg border-start-0 @error('next_of_kin_contact') is-invalid @enderror" 
+                                               id="next_of_kin_contact" name="next_of_kin_contact" value="{{ old('next_of_kin_contact') }}" 
+                                               placeholder="Phone number">
+                                    </div>
+                                    @error('next_of_kin_contact')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Supervisor Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-dark fw-bold d-flex align-items-center">
+                                <span class="badge bg-info-subtle text-info px-3 py-2 me-2">
+                                    <i class="fas fa-user-tie me-1"></i>
+                                </span>
+                                Reporting Manager
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="supervisor_id" class="form-label fw-bold text-dark">Supervisor/Manager</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-user-tie text-muted"></i>
+                                        </span>
+                                        <select class="form-select form-select-lg border-start-0 @error('supervisor_id') is-invalid @enderror" 
+                                                id="supervisor_id" name="supervisor_id">
+                                            <option value="">Select Supervisor</option>
+                                            @foreach($employees ?? [] as $emp)
+                                            <option value="{{ $emp->id }}" {{ old('supervisor_id') == $emp->id ? 'selected' : '' }}>{{ $emp->first_name }} {{ $emp->last_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @error('supervisor_id')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contract Details Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-dark fw-bold d-flex align-items-center">
+                                <span class="badge bg-purple-subtle text-purple px-3 py-2 me-2">
+                                    <i class="fas fa-file-contract me-1"></i>
+                                </span>
+                                Contract Details
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="contract_type" class="form-label fw-bold text-dark">Contract Type</label>
+                                    <select class="form-select form-select-lg @error('contract_type') is-invalid @enderror" 
+                                            id="contract_type" name="contract_type">
+                                        <option value="">Select Type</option>
+                                        <option value="permanent" {{ old('contract_type') == 'permanent' ? 'selected' : '' }}>Permanent</option>
+                                        <option value="contract" {{ old('contract_type') == 'contract' ? 'selected' : '' }}>Contract</option>
+                                        <option value="temporary" {{ old('contract_type') == 'temporary' ? 'selected' : '' }}>Temporary</option>
+                                    </select>
+                                    @error('contract_type')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <label for="contract_start_date" class="form-label fw-bold text-dark">Contract Start Date</label>
+                                    <input type="date" class="form-control form-control-lg @error('contract_start_date') is-invalid @enderror" 
+                                           id="contract_start_date" name="contract_start_date" value="{{ old('contract_start_date') }}">
+                                    @error('contract_start_date')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <label for="contract_end_date" class="form-label fw-bold text-dark">Contract End Date</label>
+                                    <input type="date" class="form-control form-control-lg @error('contract_end_date') is-invalid @enderror" 
+                                           id="contract_end_date" name="contract_end_date" value="{{ old('contract_end_date') }}">
+                                    @error('contract_end_date')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Form Actions -->
                         <div class="d-flex gap-3 justify-content-end pt-3 border-top">
                             <a href="{{ route('hms.hr.employees.index') }}" class="btn btn-light btn-lg px-5">
@@ -319,6 +623,50 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding Employee...';
     });
+    
+    // Photo preview
+    const photoInput = document.getElementById('photo');
+    const photoPreview = document.getElementById('photoPreview');
+    const previewImg = document.getElementById('previewImg');
+    
+    if (photoInput) {
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    photoPreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                photoPreview.style.display = 'none';
+            }
+        });
+    }
+    
+    // Toggle password fields when create user account checkbox is checked
+    const createUserAccount = document.getElementById('create_user_account');
+    const passwordGroup = document.getElementById('password_group');
+    const passwordConfirmationGroup = document.getElementById('password_confirmation_group');
+    
+    if (createUserAccount) {
+        createUserAccount.addEventListener('change', function() {
+            if (this.checked) {
+                passwordGroup.style.display = 'block';
+                passwordConfirmationGroup.style.display = 'block';
+                document.getElementById('password').required = true;
+                document.getElementById('password_confirmation').required = true;
+            } else {
+                passwordGroup.style.display = 'none';
+                passwordConfirmationGroup.style.display = 'none';
+                document.getElementById('password').required = false;
+                document.getElementById('password_confirmation').required = false;
+                document.getElementById('password').value = '';
+                document.getElementById('password_confirmation').value = '';
+            }
+        });
+    }
 });
 </script>
 @endpush

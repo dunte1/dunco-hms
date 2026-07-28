@@ -13,9 +13,13 @@ class RoleManagementController extends Controller
 {
     public function index(): View
     {
-        $roles = Role::with('permissions')->paginate(20);
+        $roles = Role::with(['permissions', 'users'])->paginate(20);
         $permissions = Permission::all()->groupBy(function ($permission) {
-            return explode(' ', $permission->name)[0];
+            if (empty($permission->name)) {
+                return 'other';
+            }
+            $parts = explode(' ', $permission->name);
+            return $parts[0] ?? 'other';
         });
         
         return view('admin.roles.index', compact('roles', 'permissions'));
@@ -24,7 +28,11 @@ class RoleManagementController extends Controller
     public function create(): View
     {
         $permissions = Permission::all()->groupBy(function ($permission) {
-            return explode(' ', $permission->name)[0];
+            if (empty($permission->name)) {
+                return 'other';
+            }
+            $parts = explode(' ', $permission->name);
+            return $parts[0] ?? 'other';
         });
         
         return view('admin.roles.create', compact('permissions'));
@@ -40,8 +48,10 @@ class RoleManagementController extends Controller
 
         $role = Role::create(['name' => $data['name']]);
 
-        if (isset($data['permissions'])) {
-            $role->syncPermissions($data['permissions']);
+        if (isset($data['permissions']) && !empty($data['permissions'])) {
+            // Convert permission IDs to Permission models
+            $permissions = Permission::whereIn('id', $data['permissions'])->get();
+            $role->syncPermissions($permissions);
         }
 
         return response()->json([
@@ -65,7 +75,11 @@ class RoleManagementController extends Controller
     {
         $role->load('permissions');
         $permissions = Permission::all()->groupBy(function ($permission) {
-            return explode(' ', $permission->name)[0];
+            if (empty($permission->name)) {
+                return 'other';
+            }
+            $parts = explode(' ', $permission->name);
+            return $parts[0] ?? 'other';
         });
         
         return view('admin.roles.edit', compact('role', 'permissions'));
@@ -81,15 +95,20 @@ class RoleManagementController extends Controller
 
         $role->update(['name' => $data['name']]);
 
-        if (isset($data['permissions'])) {
-            $role->syncPermissions($data['permissions']);
+        if (isset($data['permissions']) && !empty($data['permissions'])) {
+            // Convert permission IDs to Permission models
+            $permissions = Permission::whereIn('id', $data['permissions'])->get();
+            $role->syncPermissions($permissions);
         } else {
             $role->syncPermissions([]);
         }
+        
+        // Clear permission cache so all users with this role get updated permissions immediately
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         return response()->json([
             'success' => true,
-            'message' => 'Role updated successfully',
+            'message' => 'Role updated successfully. All users with this role will automatically receive the updated permissions.',
             'data' => $role
         ]);
     }
@@ -170,7 +189,11 @@ class RoleManagementController extends Controller
     public function getAllPermissions(): JsonResponse
     {
         $permissions = Permission::all()->groupBy(function ($permission) {
-            return explode(' ', $permission->name)[0];
+            if (empty($permission->name)) {
+                return 'other';
+            }
+            $parts = explode(' ', $permission->name);
+            return $parts[0] ?? 'other';
         });
         
         return response()->json([

@@ -24,6 +24,10 @@
                         <div>
                             <p class="text-sm opacity-90">Total Staff</p>
                             <p class="text-3xl font-bold mt-2">{{ $attendanceStats['total_staff'] }}</p>
+                            <p class="text-xs opacity-75 mt-1">
+                                Users: {{ $attendanceStats['total_users'] ?? 0 }} | 
+                                Employees: {{ $attendanceStats['total_employees'] ?? 0 }}
+                            </p>
                         </div>
                         <div class="p-4 bg-white bg-opacity-30 rounded-lg">
                             <i class="fa fa-users text-3xl"></i>
@@ -255,6 +259,38 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Active Employees Section -->
+            @if(isset($activeEmployees) && $activeEmployees->count() > 0)
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                        <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fa fa-id-badge text-indigo-600 dark:text-indigo-400"></i>
+                        </div>
+                        All Active Employees ({{ $activeEmployees->count() }})
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @foreach($activeEmployees as $emp)
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-indigo-200 dark:bg-indigo-800 rounded-full flex items-center justify-center text-indigo-800 dark:text-indigo-200 font-bold text-sm">
+                                            {{ substr($emp->first_name, 0, 1) . substr($emp->last_name, 0, 1) }}
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $emp->full_name }}</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $emp->employee_id }}</p>
+                                        </div>
+                                    </div>
+                                    @if($emp->user_id)
+                                        <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Has Account</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
 
             <!-- Recent Check-ins -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">

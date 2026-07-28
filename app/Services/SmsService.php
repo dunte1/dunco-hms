@@ -2,117 +2,208 @@
 
 namespace App\Services;
 
-use Twilio\Rest\Client;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Config;
+use Twilio\Rest\Client as TwilioClient;
 
 class SmsService
 {
-    protected $client;
-    protected $from;
+    protected ?TwilioClient $twilio = null;
+    protected string $provider;
 
     public function __construct()
     {
-        $sid = config('services.twilio.sid', env('TWILIO_SID'));
-        $token = config('services.twilio.token', env('TWILIO_TOKEN'));
-        $this->from = config('services.twilio.from', env('TWILIO_FROM'));
-
-        if ($sid && $token) {
-            try {
-                $this->client = new Client($sid, $token);
-            } catch (\Exception $e) {
-                Log::error('SMS Service initialization failed: ' . $e->getMessage());
-                $this->client = null;
-            }
+        $this->provider = config('services.sms.provider', 'twilio');
+        
+        if ($this->provider === 'twilio' && $this->isTwilioConfigured()) {
+            $this->twilio = new TwilioClient(
+                config('services.twilio.sid'),
+                config('services.twilio.token')
+            );
         }
     }
 
     /**
-     * Send SMS to a single recipient
+     * Send SMS to a phone number
      */
-    public function send(string $to, string $message): bool
+    public function send(string $to, string $message, array $options = []): array
     {
-        if (!$this->client || !$this->from) {
-            Log::warning('SMS service not configured. Message not sent to: ' . $to);
-            return false;
+        return match($this->provider) {
+            'twilio' => $this->sendViaTwilio($to, $message, $options),
+            'africas_talking' => $this->sendViaAfricasTalking($to, $message, $options),
+            'nexmo' => $this->sendViaNexmo($to, $message, $options),
+            default => [
+                'success' => false,
+                'message' => 'SMS provider not configured'
+            ]
+        };
+    }
+
+    /**
+     * Send SMS via Twilio
+     */
+    protected function sendViaTwilio(string $to, string $message, array $options): array
+    {
+        if (!$this->twilio) {
+            return [
+                'success' => false,
+                'message' => 'Twilio not configured'
+            ];
         }
 
         try {
-            // Remove any non-numeric characters except +
-            $to = preg_replace('/[^0-9+]/', '', $to);
-
-            $this->client->messages->create(
+            $from = $options['from'] ?? config('services.twilio.from');
+            
+            $result = $this->twilio->messages->create(
                 $to,
                 [
-                    'from' => $this->from,
+                    'from' => $from,
                     'body' => $message
                 ]
             );
 
-            Log::info('SMS sent successfully to: ' . $to);
-            return true;
+            return [
+                'success' => true,
+                'message_id' => $result->sid,
+                'status' => $result->status,
+                'message' => 'SMS sent successfully'
+            ];
         } catch (\Exception $e) {
-            Log::error('SMS sending failed: ' . $e->getMessage(), [
+            Log::error('Twilio SMS failed', [
                 'to' => $to,
-                'message' => substr($message, 0, 50) . '...'
+                'error' => $e->getMessage()
             ]);
-            return false;
+
+            return [
+                'success' => false,
+                'message' => 'Failed to send SMS: ' . $e->getMessage()
+            ];
         }
     }
 
     /**
-     * Send SMS to multiple recipients
+     * Send SMS via Africa's Talking
      */
-    public function sendBulk(array $recipients, string $message): array
+    protected function sendViaAfricasTalking(string $to, string $message, array $options): array
     {
-        $results = [
-            'success' => 0,
-            'failed' => 0,
-            'details' => []
-        ];
+        try {
+            $apiKey = config('services.africas_talking.api_key');
+            $username = config('services.africas_talking.username');
+            $from = $options['from'] ?? config('services.africas_talking.shortcode');
+
+            $response = Http::withHeaders([
+                'apiKey' => $apiKey,
+                'Content-Type' => 'application/x-www-form-urlencoded'
+            ])->asForm()->post('https://api.africastalking.com/version1/messaging', [
+                'username' => $username,
+                'to' => $to,
+                'message' => $message,
+                'from' => $from
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return [
+                    'success' => true,
+                    'message_id' => $data['SMSMessageData']['Recipients'][0]['messageId'] ?? null,
+                    'message' => 'SMS sent successfully'
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Failed to send SMS via Africa\'s Talking'
+            ];
+        } catch (\Exception $e) {
+            Log::error('Africa\'s Talking SMS failed', ['error' => $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Send SMS via Nexmo/Vonage
+     */
+    protected function sendViaNexmo(string $to, string $message, array $options): array
+    {
+        try {
+            $apiKey = config('services.nexmo.api_key');
+            $apiSecret = config('services.nexmo.api_secret');
+            $from = $options['from'] ?? config('services.nexmo.from');
+
+            $response = Http::post('https://rest.nexmo.com/sms/json', [
+                'api_key' => $apiKey,
+                'api_secret' => $apiSecret,
+                'to' => $to,
+                'from' => $from,
+                'text' => $message
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                if (isset($data['messages'][0]['status']) && $data['messages'][0]['status'] == '0') {
+                    return [
+                        'success' => true,
+                        'message_id' => $data['messages'][0]['message-id'] ?? null,
+                        'message' => 'SMS sent successfully'
+                    ];
+                }
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Failed to send SMS via Nexmo'
+            ];
+        } catch (\Exception $e) {
+            Log::error('Nexmo SMS failed', ['error' => $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Send bulk SMS
+     */
+    public function sendBulk(array $recipients, string $message, array $options = []): array
+    {
+        $results = [];
+        $successCount = 0;
+        $failureCount = 0;
 
         foreach ($recipients as $recipient) {
-            $success = $this->send($recipient, $message);
-            
-            if ($success) {
-                $results['success']++;
-                $results['details'][] = ['recipient' => $recipient, 'status' => 'success'];
+            $result = $this->send($recipient, $message, $options);
+            $results[] = [
+                'recipient' => $recipient,
+                'result' => $result
+            ];
+
+            if ($result['success']) {
+                $successCount++;
             } else {
-                $results['failed']++;
-                $results['details'][] = ['recipient' => $recipient, 'status' => 'failed'];
+                $failureCount++;
             }
         }
 
-        return $results;
+        return [
+            'success' => $failureCount === 0,
+            'total' => count($recipients),
+            'success_count' => $successCount,
+            'failure_count' => $failureCount,
+            'results' => $results
+        ];
     }
 
     /**
-     * Send SMS with template replacement
+     * Check if Twilio is configured
      */
-    public function sendWithTemplate(string $to, string $template, array $variables): bool
+    protected function isTwilioConfigured(): bool
     {
-        $message = $this->replaceTemplateVariables($template, $variables);
-        return $this->send($to, $message);
-    }
-
-    /**
-     * Replace template variables like {patient_name}, {date}, etc.
-     */
-    protected function replaceTemplateVariables(string $template, array $variables): string
-    {
-        $message = $template;
-        foreach ($variables as $key => $value) {
-            $message = str_replace('{' . $key . '}', $value, $message);
-        }
-        return $message;
-    }
-
-    /**
-     * Check if SMS service is configured
-     */
-    public function isConfigured(): bool
-    {
-        return $this->client !== null && $this->from !== null;
+        return !empty(config('services.twilio.sid')) &&
+               !empty(config('services.twilio.token')) &&
+               !empty(config('services.twilio.from'));
     }
 }
-

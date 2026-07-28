@@ -25,11 +25,11 @@ Route::middleware('guest')->group(function () {
     // Social Login Routes
     Route::get('auth/{provider}', [AuthenticatedSessionController::class, 'socialLogin'])
         ->name('auth.social')
-        ->where('provider', 'google|microsoft|facebook');
+        ->where('provider', 'google|facebook|twitter|linkedin|github');
 
     Route::get('auth/{provider}/callback', [AuthenticatedSessionController::class, 'socialCallback'])
         ->name('auth.social.callback')
-        ->where('provider', 'google|microsoft|facebook');
+        ->where('provider', 'google|facebook|twitter|linkedin|github');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');

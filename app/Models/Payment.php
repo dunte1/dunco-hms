@@ -12,12 +12,13 @@ class Payment extends Model
 
     protected $fillable = [
         'invoice_id', 'patient_id', 'amount', 'payment_method',
-        'payment_reference', 'payment_date', 'notes'
+        'payment_reference', 'payment_date', 'notes', 'status', 'transaction_data'
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'payment_date' => 'date',
+        'transaction_data' => 'array',
     ];
 
     public function invoice(): BelongsTo

@@ -298,19 +298,21 @@
                         
                         <div class="col-md-6">
                             <label for="department" class="form-label fw-bold text-dark">Department</label>
+                            @if($departments->isEmpty())
+                                <div class="alert alert-warning d-flex align-items-center mb-2" role="alert">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <div class="flex-grow-1">
+                                        <strong>No departments found!</strong> 
+                                        <a href="{{ route('hms.hr.departments.index') }}" class="alert-link">Create a department first</a>
+                                    </div>
+                                </div>
+                            @endif
                             <select class="form-select form-select-lg @error('department') is-invalid @enderror" 
-                                    id="department" name="department">
+                                    id="department" name="department" {{ $departments->isEmpty() ? 'disabled' : '' }}>
                                 <option value="">Select Department</option>
-                                <option value="Medical" {{ old('department') == 'Medical' ? 'selected' : '' }}>Medical</option>
-                                <option value="Nursing" {{ old('department') == 'Nursing' ? 'selected' : '' }}>Nursing</option>
-                                <option value="Laboratory" {{ old('department') == 'Laboratory' ? 'selected' : '' }}>Laboratory</option>
-                                <option value="Pharmacy" {{ old('department') == 'Pharmacy' ? 'selected' : '' }}>Pharmacy</option>
-                                <option value="Radiology" {{ old('department') == 'Radiology' ? 'selected' : '' }}>Radiology</option>
-                                <option value="Administration" {{ old('department') == 'Administration' ? 'selected' : '' }}>Administration</option>
-                                <option value="Finance" {{ old('department') == 'Finance' ? 'selected' : '' }}>Finance</option>
-                                <option value="HR" {{ old('department') == 'HR' ? 'selected' : '' }}>HR</option>
-                                <option value="IT" {{ old('department') == 'IT' ? 'selected' : '' }}>IT</option>
-                                <option value="Maintenance" {{ old('department') == 'Maintenance' ? 'selected' : '' }}>Maintenance</option>
+                                @foreach($departments as $dept)
+                                <option value="{{ $dept->name }}" {{ old('department') == $dept->name ? 'selected' : '' }}>{{ $dept->name }}</option>
+                                @endforeach
                             </select>
                             @error('department')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -385,16 +387,9 @@
                             <label for="edit_department" class="form-label fw-bold text-dark">Department</label>
                             <select class="form-select form-select-lg" id="edit_department" name="department">
                                 <option value="">Select Department</option>
-                                <option value="Medical">Medical</option>
-                                <option value="Nursing">Nursing</option>
-                                <option value="Laboratory">Laboratory</option>
-                                <option value="Pharmacy">Pharmacy</option>
-                                <option value="Radiology">Radiology</option>
-                                <option value="Administration">Administration</option>
-                                <option value="Finance">Finance</option>
-                                <option value="HR">HR</option>
-                                <option value="IT">IT</option>
-                                <option value="Maintenance">Maintenance</option>
+                                @foreach($departments as $dept)
+                                <option value="{{ $dept->name }}">{{ $dept->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>

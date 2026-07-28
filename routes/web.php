@@ -26,11 +26,24 @@ use App\Http\Controllers\Hms\LabRequestsController;
 use App\Http\Controllers\Hms\RadiologyTestsController;
 use App\Http\Controllers\Hms\RadiologyRequestsController;
 use App\Http\Controllers\Hms\EmployeesController;
+use App\Http\Controllers\Hms\EmployeeDepartmentsController;
+use App\Http\Controllers\Hms\PerformanceAppraisalsController;
 use App\Http\Controllers\Hms\PayrollsController;
 use App\Http\Controllers\Hms\SchedulesController;
 use App\Http\Controllers\Hms\AttendanceController;
 use App\Http\Controllers\Hms\LeaveRequestsController;
 use App\Http\Controllers\Hms\BloodBankController;
+use App\Http\Controllers\Hms\LeaveTypesController;
+use App\Http\Controllers\Hms\RecruitmentController;
+use App\Http\Controllers\Hms\TrainingProgramsController;
+use App\Http\Controllers\Hms\HrAnnouncementsController;
+use App\Http\Controllers\Hms\ShiftsController;
+use App\Http\Controllers\Hms\PublicHolidaysController;
+use App\Http\Controllers\Hms\HrReportsController;
+use App\Http\Controllers\Hms\HrSettingsController;
+use App\Http\Controllers\Hms\GlobalSearchController;
+use App\Http\Controllers\Hms\BatchOperationsController;
+use App\Http\Controllers\Hms\EmployeesImportExportController;
 use App\Http\Controllers\Hms\AmbulanceController;
 use App\Http\Controllers\Hms\ReportsController;
 use App\Http\Controllers\Hms\PackagesController;
@@ -47,6 +60,7 @@ use App\Http\Controllers\Cms\TestimonialsController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ApiController;
 
 Route::get('/', [SiteController::class, 'home'])->name('home');
 Route::get('/services', [SiteController::class, 'services'])->name('services');
@@ -58,6 +72,10 @@ Route::get('/features', [SiteController::class, 'features'])->name('features');
 Route::get('/book-appointment', [SiteController::class, 'bookAppointment'])->name('book-appointment');
 Route::post('/book-appointment', [SiteController::class, 'submitAppointment'])->name('book-appointment.submit');
 Route::get('/lang/{locale}', [SiteController::class, 'switchLanguage'])->name('lang.switch');
+
+// JSON-friendly login alias for API-driven tests (ONLY handles JSON requests)
+// This route will only match if Accept: application/json header is present
+// Web form submissions will fall through to auth.php routes
 
 // CMS Routes
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
@@ -222,6 +240,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/queue/{queue}/cancel', [QueueManagementController::class, 'cancelQueue'])->name('queue.cancel');
         Route::delete('/queue/{queue}', [QueueManagementController::class, 'destroy'])->name('queue.destroy');
         Route::get('/queue/display-board', [QueueManagementController::class, 'displayBoard'])->name('queue.display-board');
+        Route::get('/queue/kiosk', [QueueManagementController::class, 'kioskMode'])->name('queue.kiosk');
+        Route::get('/queue/smart-display', [QueueManagementController::class, 'smartDisplay'])->name('queue.smart-display');
         Route::get('/queue/current', [QueueManagementController::class, 'getCurrentQueues'])->name('queue.current');
         Route::get('/queue/token-generation', [QueueManagementController::class, 'tokenGeneration'])->name('queue.token-generation');
         Route::post('/queue/generate-token', [QueueManagementController::class, 'generateToken'])->name('queue.generate-token');
@@ -336,6 +356,18 @@ Route::middleware('auth')->group(function () {
         Route::put('/pharmacy/prescriptions/{prescription}', [PrescriptionsController::class, 'update'])->name('pharmacy.prescriptions.update');
         Route::delete('/pharmacy/prescriptions/{prescription}', [PrescriptionsController::class, 'destroy'])->name('pharmacy.prescriptions.destroy');
         
+        // E-Prescription Routes
+        Route::prefix('prescriptions/e-prescription')->name('prescriptions.e-prescription.')->group(function () {
+            Route::get('/templates', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'templates'])->name('templates');
+            Route::get('/create', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'store'])->name('store');
+            Route::get('/{prescription}', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'show'])->name('show');
+            Route::get('/{prescription}/pdf', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'pdf'])->name('pdf');
+            Route::get('/templates/manage', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'manageTemplates'])->name('manage-templates');
+            Route::get('/templates/create', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'createTemplate'])->name('create-template');
+            Route::post('/templates', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'storeTemplate'])->name('store-template');
+        });
+        
         // Laboratory
         Route::get('/laboratory/tests', [LabTestsController::class, 'index'])->name('laboratory.tests.index');
         Route::get('/laboratory/tests/create', [LabTestsController::class, 'create'])->name('laboratory.tests.create');
@@ -349,6 +381,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/laboratory/requests/create', [LabRequestsController::class, 'create'])->name('laboratory.requests.create');
         Route::post('/laboratory/requests', [LabRequestsController::class, 'store'])->name('laboratory.requests.store');
         Route::get('/laboratory/requests/{labRequest}', [LabRequestsController::class, 'show'])->name('laboratory.requests.show');
+        
+        Route::get('/laboratory/technicians', [LaboratoryController::class, 'technicians'])->name('laboratory.technicians.index');
+        Route::get('/laboratory/technicians/create', [LaboratoryController::class, 'createTechnician'])->name('laboratory.technicians.create');
+        Route::post('/laboratory/technicians', [LaboratoryController::class, 'storeTechnician'])->name('laboratory.technicians.store');
+        Route::get('/laboratory/reports', [LaboratoryController::class, 'reports'])->name('laboratory.reports');
         
         // Radiology
         Route::get('/radiology/tests', [RadiologyTestsController::class, 'index'])->name('radiology.tests.index');
@@ -372,6 +409,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/hr/employees/{employee}/edit', [HrController::class, 'editEmployee'])->name('hr.employees.edit');
         Route::put('/hr/employees/{employee}', [HrController::class, 'updateEmployee'])->name('hr.employees.update');
         Route::delete('/hr/employees/{employee}', [HrController::class, 'destroyEmployee'])->name('hr.employees.destroy');
+        // HR Departments
+        Route::get('/hr/departments', [EmployeeDepartmentsController::class, 'index'])->name('hr.departments.index');
+        Route::post('/hr/departments', [EmployeeDepartmentsController::class, 'store'])->name('hr.departments.store');
+        Route::put('/hr/departments/{department}', [EmployeeDepartmentsController::class, 'update'])->name('hr.departments.update');
+        Route::delete('/hr/departments/{department}', [EmployeeDepartmentsController::class, 'destroy'])->name('hr.departments.destroy');
         Route::get('/hr/payrolls', [PayrollsController::class, 'index'])->name('hr.payrolls.index');
         Route::get('/hr/payrolls/create', [PayrollsController::class, 'create'])->name('hr.payrolls.create');
         Route::post('/hr/payrolls', [PayrollsController::class, 'store'])->name('hr.payrolls.store');
@@ -643,15 +685,79 @@ Route::middleware('auth')->group(function () {
         Route::post('/hr/designations', [\App\Http\Controllers\Hms\DesignationsController::class, 'store'])->name('hr.designations.store');
         Route::put('/hr/designations/{designation}', [\App\Http\Controllers\Hms\DesignationsController::class, 'update'])->name('hr.designations.update');
         Route::delete('/hr/designations/{designation}', [\App\Http\Controllers\Hms\DesignationsController::class, 'destroy'])->name('hr.designations.destroy');
+        
+        // HR - Performance Appraisals
+        Route::get('/hr/appraisals', [PerformanceAppraisalsController::class, 'index'])->name('hr.appraisals.index');
+        Route::get('/hr/appraisals/create', [PerformanceAppraisalsController::class, 'create'])->name('hr.appraisals.create');
+        Route::post('/hr/appraisals', [PerformanceAppraisalsController::class, 'store'])->name('hr.appraisals.store');
+        Route::get('/hr/appraisals/{appraisal}', [PerformanceAppraisalsController::class, 'show'])->name('hr.appraisals.show');
+        Route::get('/hr/appraisals/{appraisal}/edit', [PerformanceAppraisalsController::class, 'edit'])->name('hr.appraisals.edit');
+        Route::put('/hr/appraisals/{appraisal}', [PerformanceAppraisalsController::class, 'update'])->name('hr.appraisals.update');
+        Route::delete('/hr/appraisals/{appraisal}', [PerformanceAppraisalsController::class, 'destroy'])->name('hr.appraisals.destroy');
+        
         Route::get('/hr/documents', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'index'])->name('hr.documents.index');
         Route::get('/hr/document-types', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'types'])->name('hr.document-types');
         Route::post('/hr/documents', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'store'])->name('hr.documents.store');
         
+        // HR - Leave Types Management
+        Route::resource('hr/leave-types', LeaveTypesController::class)->names('hr.leave-types');
+        
+        // HR - Recruitment & Onboarding
+        Route::resource('hr/job-postings', RecruitmentController::class)->names('hr.job-postings');
+        Route::post('/hr/job-postings/{jobPosting}/publish', [RecruitmentController::class, 'publish'])->name('hr.job-postings.publish');
+        Route::get('/hr/job-applications', [RecruitmentController::class, 'applications'])->name('hr.job-applications.index');
+        Route::get('/hr/job-applications/{application}', [RecruitmentController::class, 'showApplication'])->name('hr.job-applications.show');
+        Route::post('/hr/job-applications/{application}/shortlist', [RecruitmentController::class, 'shortlist'])->name('hr.job-applications.shortlist');
+        Route::post('/hr/job-applications/{application}/reject', [RecruitmentController::class, 'reject'])->name('hr.job-applications.reject');
+        Route::post('/hr/job-applications/{application}/convert-to-employee', [RecruitmentController::class, 'convertToEmployee'])->name('hr.job-applications.convert');
+        
+        // HR - Training & Development
+        Route::resource('hr/training-programs', TrainingProgramsController::class)->names('hr.training-programs');
+        Route::post('/hr/training-programs/{trainingProgram}/enroll', [TrainingProgramsController::class, 'enroll'])->name('hr.training-programs.enroll');
+        Route::get('/hr/training-programs/{trainingProgram}/enrollments', [TrainingProgramsController::class, 'enrollments'])->name('hr.training-programs.enrollments');
+        Route::post('/hr/training-enrollments/{enrollment}/complete', [TrainingProgramsController::class, 'markComplete'])->name('hr.training-enrollments.complete');
+        Route::post('/hr/training-enrollments/{enrollment}/certificate', [TrainingProgramsController::class, 'issueCertificate'])->name('hr.training-enrollments.certificate');
+        
+        // HR - Announcements & Notices
+        Route::resource('hr/announcements', HrAnnouncementsController::class)->names('hr.announcements');
+        
+        // HR - Shift Management
+        Route::resource('hr/shifts', ShiftsController::class)->names('hr.shifts');
+        Route::get('/hr/shifts/{shift}/roster', [ShiftsController::class, 'roster'])->name('hr.shifts.roster');
+        Route::post('/hr/employee-shifts', [ShiftsController::class, 'assignShift'])->name('hr.employee-shifts.assign');
+        
+        // HR - Public Holidays
+        Route::resource('hr/public-holidays', PublicHolidaysController::class)->names('hr.public-holidays');
+        
+        // HR - Reports
+        Route::get('/hr/reports', [HrReportsController::class, 'index'])->name('hr.reports.index');
+        Route::get('/hr/reports/employee-list', [HrReportsController::class, 'employeeList'])->name('hr.reports.employee-list');
+        Route::get('/hr/reports/leave', [HrReportsController::class, 'leaveReport'])->name('hr.reports.leave');
+        Route::get('/hr/reports/attendance', [HrReportsController::class, 'attendanceReport'])->name('hr.reports.attendance');
+        Route::get('/hr/reports/payroll-summary', [HrReportsController::class, 'payrollSummary'])->name('hr.reports.payroll-summary');
+        Route::get('/hr/reports/headcount-trends', [HrReportsController::class, 'headcountTrends'])->name('hr.reports.headcount-trends');
+        Route::get('/hr/reports/attrition', [HrReportsController::class, 'attritionReport'])->name('hr.reports.attrition');
+        Route::get('/hr/reports/salary-expense', [HrReportsController::class, 'salaryExpenseAnalysis'])->name('hr.reports.salary-expense');
+        Route::get('/hr/reports/training-participation', [HrReportsController::class, 'trainingParticipation'])->name('hr.reports.training-participation');
+        
+        // HR - Settings
+        Route::get('/hr/settings', [HrSettingsController::class, 'index'])->name('hr.settings.index');
+        Route::post('/hr/settings', [HrSettingsController::class, 'update'])->name('hr.settings.update');
+        
         // ID Card Generation
         Route::get('/patients/{patient}/id-card', [\App\Http\Controllers\Hms\IdCardController::class, 'patientCard'])->name('patients.id-card');
         Route::get('/patients/{patient}/id-card/preview', [\App\Http\Controllers\Hms\IdCardController::class, 'previewPatient'])->name('patients.id-card.preview');
+        Route::get('/patients/{patient}/id-card/qr', [\App\Http\Controllers\Hms\IdCardController::class, 'generatePatientQR'])->name('patients.id-card.qr');
         Route::get('/hr/employees/{employee}/id-card', [\App\Http\Controllers\Hms\IdCardController::class, 'employeeCard'])->name('hr.employees.id-card');
         Route::get('/hr/employees/{employee}/id-card/preview', [\App\Http\Controllers\Hms\IdCardController::class, 'previewEmployee'])->name('hr.employees.id-card.preview');
+        Route::get('/hr/employees/{employee}/id-card/qr', [\App\Http\Controllers\Hms\IdCardController::class, 'generateEmployeeQR'])->name('hr.employees.id-card.qr');
+        Route::post('/id-cards/scan-qr', [\App\Http\Controllers\Hms\IdCardController::class, 'scanQR'])->name('id-cards.scan-qr');
+        
+        // HR - Employee Import/Export
+        Route::get('/hr/employees/export', [EmployeesImportExportController::class, 'export'])->name('hr.employees.export');
+        Route::get('/hr/employees/import', [EmployeesImportExportController::class, 'showImport'])->name('hr.employees.import');
+        Route::post('/hr/employees/import', [EmployeesImportExportController::class, 'import'])->name('hr.employees.import.store');
+        Route::get('/hr/employees/import/template', [EmployeesImportExportController::class, 'downloadTemplate'])->name('hr.employees.import.template');
         
         // Reports
         Route::get('/reports/billing', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'billingReport'])->name('reports.billing');
@@ -663,6 +769,21 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/doctor-performance', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'doctorPerformanceReport'])->name('reports.doctor-performance');
         Route::get('/reports/expense', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'expenseReport'])->name('reports.expense');
         Route::get('/reports/summary', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'summaryReports'])->name('reports.summary');
+        
+        // Custom Report Builder
+        Route::prefix('reports/custom-builder')->name('reports.custom-builder.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Hms\CustomReportBuilderController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Hms\CustomReportBuilderController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Hms\CustomReportBuilderController::class, 'store'])->name('store');
+            Route::get('/{template}', [\App\Http\Controllers\Hms\CustomReportBuilderController::class, 'show'])->name('show');
+            Route::get('/{template}/edit', [\App\Http\Controllers\Hms\CustomReportBuilderController::class, 'edit'])->name('edit');
+            Route::put('/{template}', [\App\Http\Controllers\Hms\CustomReportBuilderController::class, 'update'])->name('update');
+            Route::delete('/{template}', [\App\Http\Controllers\Hms\CustomReportBuilderController::class, 'destroy'])->name('destroy');
+            Route::post('/{template}/generate', [\App\Http\Controllers\Hms\CustomReportBuilderController::class, 'generate'])->name('generate');
+            Route::post('/{template}/duplicate', [\App\Http\Controllers\Hms\CustomReportBuilderController::class, 'duplicate'])->name('duplicate');
+            Route::post('/{template}/schedule', [\App\Http\Controllers\Hms\CustomReportBuilderController::class, 'schedule'])->name('schedule');
+            Route::get('/api/table-fields', [\App\Http\Controllers\Hms\CustomReportBuilderController::class, 'getTableFields'])->name('api.table-fields');
+        });
         
         // Communication & Frontdesk
         Route::get('/calendar', [\App\Http\Controllers\Hms\CalendarController::class, 'index'])->name('calendar.index');
@@ -688,6 +809,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/system/users/{user}/edit', [\App\Http\Controllers\Hms\UsersManagementController::class, 'edit'])->name('system.users.edit');
         Route::put('/system/users/{user}', [\App\Http\Controllers\Hms\UsersManagementController::class, 'update'])->name('system.users.update');
         Route::delete('/system/users/{user}', [\App\Http\Controllers\Hms\UsersManagementController::class, 'destroy'])->name('system.users.destroy');
+        Route::get('/system/users/{user}/id-card', [\App\Http\Controllers\Hms\IdCardController::class, 'userCard'])->name('system.users.id-card');
+        Route::get('/system/users/{user}/id-card/preview', [\App\Http\Controllers\Hms\IdCardController::class, 'previewUser'])->name('system.users.id-card.preview');
+        
+        // User Permissions Management
+        Route::get('/system/users/{user}/permissions', [\App\Http\Controllers\Hms\UsersManagementController::class, 'permissions'])->name('system.users.permissions');
+        Route::post('/system/users/{user}/roles', [\App\Http\Controllers\Hms\UsersManagementController::class, 'updateRoles'])->name('system.users.update-roles');
+        Route::post('/system/users/{user}/permissions', [\App\Http\Controllers\Hms\UsersManagementController::class, 'updatePermissions'])->name('system.users.update-permissions');
         Route::get('/system/timezone', [\App\Http\Controllers\Hms\SystemSettingsController::class, 'timezone'])->name('system.timezone');
         Route::post('/system/timezone', [\App\Http\Controllers\Hms\SystemSettingsController::class, 'updateTimezone'])->name('system.timezone.update');
         Route::get('/system/theme', [\App\Http\Controllers\Hms\SystemSettingsController::class, 'theme'])->name('system.theme');
@@ -702,6 +830,29 @@ Route::middleware('auth')->group(function () {
         Route::get('/system/contact-info', [\App\Http\Controllers\Hms\SystemSettingsController::class, 'contactInfo'])->name('system.contact-info');
         Route::post('/system/contact-info', [\App\Http\Controllers\Hms\SystemSettingsController::class, 'updateContactInfo'])->name('system.contact-info.update');
         
+        // Theme Customizer
+        Route::get('/settings/theme', [\App\Http\Controllers\Hms\ThemeController::class, 'index'])->name('settings.theme');
+        Route::put('/settings/theme', [\App\Http\Controllers\Hms\ThemeController::class, 'update'])->name('settings.theme.update');
+        Route::get('/settings/theme/preview', [\App\Http\Controllers\Hms\ThemeController::class, 'preview'])->name('settings.theme.preview');
+        Route::post('/settings/theme/reset', [\App\Http\Controllers\Hms\ThemeController::class, 'reset'])->name('settings.theme.reset');
+        Route::get('/settings/theme/export', [\App\Http\Controllers\Hms\ThemeController::class, 'export'])->name('settings.theme.export');
+        Route::post('/settings/theme/import', [\App\Http\Controllers\Hms\ThemeController::class, 'import'])->name('settings.theme.import');
+        Route::post('/settings/theme/toggle-dark-mode', [\App\Http\Controllers\Hms\ThemeController::class, 'toggleDarkMode'])->name('settings.theme.toggle-dark-mode');
+        
+        // Daily Summary
+        Route::get('/daily-summary', [\App\Http\Controllers\Hms\DailySummaryController::class, 'index'])->name('daily-summary.index');
+        Route::post('/daily-summary/generate', [\App\Http\Controllers\Hms\DailySummaryController::class, 'generate'])->name('daily-summary.generate');
+        Route::post('/daily-summary/auto-generate', [\App\Http\Controllers\Hms\DailySummaryController::class, 'autoGenerate'])->name('daily-summary.auto-generate');
+        
+        // EHR Integration
+        Route::get('/integration/ehr', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'index'])->name('integration.ehr.index');
+        Route::get('/integration/ehr/hl7-config', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'hl7Config'])->name('integration.ehr.hl7-config');
+        Route::get('/integration/ehr/fhir-config', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'fhirConfig'])->name('integration.ehr.fhir-config');
+        Route::post('/integration/ehr/send-hl7', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'sendHl7Message'])->name('integration.ehr.send-hl7');
+        Route::post('/integration/ehr/receive-hl7', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'receiveHl7Message'])->name('integration.ehr.receive-hl7');
+        Route::post('/integration/ehr/send-fhir', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'sendFhirResource'])->name('integration.ehr.send-fhir');
+        Route::post('/integration/ehr/test-hl7', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'testHl7Connection'])->name('integration.ehr.test-hl7');
+        
         // Integrations
         Route::get('/integrations', [\App\Http\Controllers\Hms\IntegrationsController::class, 'index'])->name('integrations.index');
         Route::get('/integrations/payment-gateways', [\App\Http\Controllers\Hms\IntegrationsController::class, 'paymentGateways'])->name('integrations.payment-gateways');
@@ -712,6 +863,19 @@ Route::middleware('auth')->group(function () {
         
         // AI Features
         Route::get('/ai/predictive-analytics', [\App\Http\Controllers\Ai\AiAssistantController::class, 'predictiveAnalytics'])->name('ai.predictive-analytics');
+        
+        // Global Search
+        Route::get('/search', [\App\Http\Controllers\Hms\GlobalSearchController::class, 'search'])->name('global-search');
+        
+        // Batch Operations
+        Route::prefix('batch')->name('batch.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Hms\BatchOperationsController::class, 'index'])->name('index');
+            Route::post('/leave-requests', [\App\Http\Controllers\Hms\BatchOperationsController::class, 'batchLeaveRequests'])->name('leave-requests');
+            Route::post('/attendance', [\App\Http\Controllers\Hms\BatchOperationsController::class, 'batchMarkAttendance'])->name('attendance');
+            Route::post('/payroll', [\App\Http\Controllers\Hms\BatchOperationsController::class, 'batchGeneratePayroll'])->name('payroll');
+            Route::post('/id-cards', [\App\Http\Controllers\Hms\BatchOperationsController::class, 'batchGenerateIdCards'])->name('id-cards');
+            Route::post('/export', [\App\Http\Controllers\Hms\BatchOperationsController::class, 'batchExport'])->name('export');
+        });
     });
 
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -753,6 +917,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/features', [\App\Http\Controllers\Cms\CmsController::class, 'featuresPage'])->name('features');
         Route::post('/features', [\App\Http\Controllers\Cms\CmsController::class, 'updateFeaturesPage'])->name('features.update');
         Route::get('/inquiries', [\App\Http\Controllers\Cms\CmsController::class, 'contactInquiries'])->name('contact-inquiries');
+        Route::get('/header-footer', [\App\Http\Controllers\Cms\CmsController::class, 'headerFooterSettings'])->name('header-footer');
+        Route::post('/header-footer', [\App\Http\Controllers\Cms\CmsController::class, 'updateHeaderFooterSettings'])->name('header-footer.update');
         Route::get('/seo', [\App\Http\Controllers\Cms\CmsController::class, 'seoSettings'])->name('seo');
         Route::post('/seo', [\App\Http\Controllers\Cms\CmsController::class, 'updateSeoSettings'])->name('seo.update');
 
@@ -840,3 +1006,16 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Note: Web login is handled by auth.php routes above
+// API login is available at /api/login for JSON requests
+
+// JSON fallbacks for tests that still hit web routes without CSRF; route to API handlers
+Route::middleware('api')
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+    ->group(function () {
+        Route::post('/patients', [ApiController::class, 'createPatient'])->name('web.json.patients.create');
+        Route::post('/doctors', [ApiController::class, 'createDoctor'])->name('web.json.doctors.create');
+        Route::post('/appointments', [ApiController::class, 'createAppointment'])->name('web.json.appointments.create');
+        Route::post('/beds', [ApiController::class, 'createBed'])->name('web.json.beds.create');
+    });

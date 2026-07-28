@@ -7,6 +7,7 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Spatie\Permission\Models\Role;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,11 @@ class RouteServiceProvider extends ServiceProvider
     {
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        // Route model binding for Spatie Permission Role
+        Route::bind('role', function ($value) {
+            return Role::findOrFail($value);
         });
 
         $this->routes(function () {

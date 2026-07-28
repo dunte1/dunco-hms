@@ -1,148 +1,317 @@
 @extends('admin.layouts.app')
 
+@section('title', 'HR Dashboard')
+
 @section('content')
-    <div class="mb-4">
-        @include('admin.partials.stats', ['stats' => $stats])
+<div class="container-fluid px-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header-box p-4 rounded-4" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); box-shadow: 0 10px 30px rgba(249, 115, 22, 0.3);">
+                <h2 class="text-white mb-0 fw-bold">
+                    <i class="fas fa-users-cog me-3"></i>HR Dashboard
+                </h2>
+            </div>
+        </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <!-- Recent Attendance -->
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Today's Attendance</h3>
-                @if($recentAttendance->count() > 0)
-                    <div class="space-y-3">
-                        @foreach($recentAttendance as $attendance)
-                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <p class="font-medium">{{ $attendance->employee->full_name }}</p>
-                                    <p class="text-sm text-gray-600">{{ $attendance->check_in ? $attendance->check_in->format('H:i') : 'Not checked in' }}</p>
-                                </div>
-                                <div class="text-right">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                        @if($attendance->status === 'present') bg-green-100 text-green-800
-                                        @elseif($attendance->status === 'late') bg-yellow-100 text-yellow-800
-                                        @elseif($attendance->status === 'absent') bg-red-100 text-red-800
-                                        @else bg-gray-100 text-gray-800 @endif">
-                                        {{ ucfirst($attendance->status) }}
-                                    </span>
-                                </div>
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+        @foreach($stats as $stat)
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-2 small">{{ $stat['label'] }}</h6>
+                                <h2 class="mb-0 fw-bold" style="color: #f97316;">{{ $stat['value'] }}</h2>
                             </div>
-                        @endforeach
+                            <div class="rounded-circle p-3" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-users text-white fs-4"></i>
+                            </div>
+                        </div>
                     </div>
-                @else
-                    <p class="text-gray-500">No attendance records for today</p>
-                @endif
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">Staff Distribution by Department</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="departmentChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">Gender Ratio</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="genderChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">Employment Type Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="employmentTypeChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <!-- Recent Attendance -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">Today's Attendance</h5>
+                </div>
+                <div class="card-body">
+                    @if($recentAttendance->count() > 0)
+                        <div class="list-group list-group-flush">
+                            @foreach($recentAttendance->take(5) as $attendance)
+                                <div class="list-group-item border-0 px-0 py-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">{{ $attendance->user->name ?? 'N/A' }}</h6>
+                                            <small class="text-muted">{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : 'Not checked in' }}</small>
+                                        </div>
+                                        <span class="badge 
+                                            @if($attendance->status === 'present') bg-success
+                                            @elseif($attendance->status === 'late') bg-warning
+                                            @elseif($attendance->status === 'absent') bg-danger
+                                            @else bg-secondary @endif">
+                                            {{ ucfirst($attendance->status) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-muted mb-0">No attendance records for today</p>
+                    @endif
+                </div>
             </div>
         </div>
 
         <!-- Pending Leave Requests -->
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Pending Leave Requests</h3>
-                @if($pendingLeaves->count() > 0)
-                    <div class="space-y-3">
-                        @foreach($pendingLeaves as $leave)
-                            <div class="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
-                                <div>
-                                    <p class="font-medium">{{ $leave->employee->full_name }}</p>
-                                    <p class="text-sm text-gray-600">{{ $leave->leave_type }}</p>
-                                    <p class="text-xs text-gray-500">{{ $leave->start_date->format('M d') }} - {{ $leave->end_date->format('M d') }}</p>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">Pending Leave Requests</h5>
+                </div>
+                <div class="card-body">
+                    @if($pendingLeaves->count() > 0)
+                        <div class="list-group list-group-flush">
+                            @foreach($pendingLeaves as $leave)
+                                <div class="list-group-item border-0 px-0 py-2">
+                                    <div>
+                                        <h6 class="mb-1">{{ $leave->employee->full_name }}</h6>
+                                        <small class="text-muted">{{ $leave->leave_type }}</small><br>
+                                        <small class="text-muted">{{ $leave->start_date->format('M d') }} - {{ $leave->end_date->format('M d') }}</small>
+                                    </div>
                                 </div>
-                                <div class="text-right">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        Pending
-                                    </span>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <p class="text-gray-500">No pending leave requests</p>
-                @endif
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-muted mb-0">No pending leave requests</p>
+                    @endif
+                </div>
             </div>
         </div>
 
-        <!-- Upcoming Birthdays -->
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Upcoming Birthdays</h3>
-                @if($upcomingBirthdays->count() > 0)
-                    <div class="space-y-3">
+        <!-- Upcoming Birthdays & Contract Expirations -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">Upcoming Events</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Birthdays (Next 7 Days)</h6>
+                    @if($upcomingBirthdays->count() > 0)
                         @foreach($upcomingBirthdays as $employee)
-                            <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div>
-                                    <p class="font-medium">{{ $employee->full_name }}</p>
-                                    <p class="text-sm text-gray-600">{{ $employee->position }}</p>
+                                    <h6 class="mb-0 small">{{ $employee->full_name }}</h6>
+                                    <small class="text-muted">{{ $employee->position }}</small>
                                 </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-medium text-blue-600">{{ $employee->date_of_birth->format('M d') }}</p>
-                                </div>
+                                <small class="text-primary fw-bold">{{ $employee->date_of_birth->format('M d') }}</small>
                             </div>
                         @endforeach
-                    </div>
-                @else
-                    <p class="text-gray-500">No upcoming birthdays</p>
-                @endif
+                    @else
+                        <p class="text-muted small mb-3">No upcoming birthdays</p>
+                    @endif
+                    
+                    <hr>
+                    <h6 class="text-muted mb-2">Contract Expirations (Next 30 Days)</h6>
+                    @if($contractExpirations->count() > 0)
+                        @foreach($contractExpirations->take(3) as $employee)
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <h6 class="mb-0 small">{{ $employee->full_name }}</h6>
+                                    <small class="text-muted">{{ $employee->position }}</small>
+                                </div>
+                                <small class="text-warning fw-bold">{{ $employee->contract_end_date->format('M d') }}</small>
+                            </div>
+                        @endforeach
+                    @else
+                        <p class="text-muted small mb-0">No expiring contracts</p>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-        <div class="p-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <a href="{{ route('hms.hr.employees') }}" class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                    <div class="flex-shrink-0">
-                        <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                        </svg>
+    <!-- Payroll Summary & Quick Actions -->
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">Payroll Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-primary">{{ number_format($payrollSummary['this_month'], 2) }}</h4>
+                            <small class="text-muted">This Month</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-warning">{{ $payrollSummary['pending'] }}</h4>
+                            <small class="text-muted">Pending</small>
+                        </div>
                     </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-blue-900">Manage Employees</p>
-                        <p class="text-xs text-blue-700">Add, edit, or view employees</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="{{ route('hms.hr.employees.index') }}" class="btn btn-primary w-100 btn-sm">
+                                <i class="fas fa-users me-1"></i> Employees
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('hms.hr.attendance.index') }}" class="btn btn-success w-100 btn-sm">
+                                <i class="fas fa-clock me-1"></i> Attendance
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('hms.hr.leave-requests.index') }}" class="btn btn-warning w-100 btn-sm">
+                                <i class="fas fa-calendar-times me-1"></i> Leaves
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('hms.hr.payrolls.index') }}" class="btn btn-purple w-100 btn-sm">
+                                <i class="fas fa-money-bill-wave me-1"></i> Payroll
+                            </a>
+                        </div>
                     </div>
-                </a>
-
-                <a href="{{ route('hms.hr.attendance') }}" class="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
-                    <div class="flex-shrink-0">
-                        <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-green-900">Attendance</p>
-                        <p class="text-xs text-green-700">Mark and view attendance</p>
-                    </div>
-                </a>
-
-                <a href="{{ route('hms.hr.leave-requests') }}" class="flex items-center p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors">
-                    <div class="flex-shrink-0">
-                        <svg class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-yellow-900">Leave Requests</p>
-                        <p class="text-xs text-yellow-700">Manage leave applications</p>
-                    </div>
-                </a>
-
-                <a href="{{ route('hms.hr.payroll') }}" class="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
-                    <div class="flex-shrink-0">
-                        <svg class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-purple-900">Payroll</p>
-                        <p class="text-xs text-purple-700">Manage employee payroll</p>
-                    </div>
-                </a>
+                </div>
             </div>
         </div>
     </div>
+</div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Department Distribution Chart
+    const deptCtx = document.getElementById('departmentChart');
+    if (deptCtx) {
+        new Chart(deptCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @json($deptChartLabels),
+                datasets: [{
+                    data: @json($deptChartData),
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    // Gender Ratio Chart
+    const genderCtx = document.getElementById('genderChart');
+    if (genderCtx) {
+        new Chart(genderCtx, {
+            type: 'pie',
+            data: {
+                labels: @json($genderChartLabels),
+                datasets: [{
+                    data: @json($genderChartData),
+                    backgroundColor: ['#3b82f6', '#ec4899', '#8b5cf6']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    // Employment Type Chart
+    const empTypeCtx = document.getElementById('employmentTypeChart');
+    if (empTypeCtx) {
+        new Chart(empTypeCtx, {
+            type: 'bar',
+            data: {
+                labels: @json($empTypeLabels),
+                datasets: [{
+                    label: 'Employees',
+                    data: @json($empTypeData),
+                    backgroundColor: '#f97316'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush
 @endsection
 
 

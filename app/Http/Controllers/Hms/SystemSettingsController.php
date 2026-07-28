@@ -110,7 +110,12 @@ class SystemSettingsController extends Controller
             }
             
             $logoPath = $request->file('hospital_logo')->store('settings/logos', 'public');
+                // Ensure the URL is properly formatted
                 $logoUrl = Storage::url($logoPath);
+                // Normalize the URL to always start with /storage/
+                if (!str_starts_with($logoUrl, '/storage/')) {
+                    $logoUrl = '/storage/' . ltrim($logoUrl, '/');
+                }
                 SystemSetting::set('hospital_logo', $logoUrl, 'string', 'Hospital logo', false);
                 $uploadedFiles[] = 'logo';
                 
@@ -133,7 +138,12 @@ class SystemSettingsController extends Controller
             }
             
             $faviconPath = $request->file('favicon')->store('settings/favicons', 'public');
+                // Ensure the URL is properly formatted
                 $faviconUrl = Storage::url($faviconPath);
+                // Normalize the URL to always start with /storage/
+                if (!str_starts_with($faviconUrl, '/storage/')) {
+                    $faviconUrl = '/storage/' . ltrim($faviconUrl, '/');
+                }
                 SystemSetting::set('favicon', $faviconUrl, 'string', 'Favicon', false);
                 $uploadedFiles[] = 'favicon';
                 

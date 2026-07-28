@@ -193,11 +193,15 @@ class NursesController extends Controller
         
         $nurses = $query->orderBy('first_name')->paginate(15)->withQueryString();
         
-        // Statistics
+        // Statistics - Count nurses assigned to beds (ward assignments)
+        $assignedNurses = Nurse::whereHas('bedAssignments', function($query) {
+            $query->where('status', 'active');
+        })->count();
+        
         $stats = [
             'total_nurses' => Nurse::count(),
-            'assigned' => 0, // Placeholder - you can add actual ward assignment tracking
-            'unassigned' => Nurse::count(),
+            'assigned' => $assignedNurses,
+            'unassigned' => Nurse::count() - $assignedNurses,
             'departments' => NurseDepartment::count(),
         ];
         

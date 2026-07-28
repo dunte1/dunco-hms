@@ -6,16 +6,9 @@
       }"
       :class="{ 'dark': darkMode }"
       x-init="
-          // Server setting is the source of truth for initial load
-          // localStorage will be updated when user toggles dark mode
-          var serverSetting = {{ $themeSettings['dark_mode'] ? 'true' : 'false' }};
-          darkMode = serverSetting;
+          darkMode = {{ $themeSettings['dark_mode'] ? 'true' : 'false' }};
           $el.classList.toggle('dark', darkMode);
-          
-          // Clear any stale localStorage value that doesn't match server
-          if (typeof(Storage) !== 'undefined') {
-              localStorage.setItem('darkMode', String(serverSetting));
-          }
+          if (typeof(Storage) !== 'undefined') { localStorage.setItem('darkMode', String(darkMode)); }
       ">
     <head>
         <meta charset="utf-8">
@@ -386,7 +379,7 @@
                 </nav>
 
                 <!-- Page Content -->
-                <main>
+                <main class="p-4 md:p-6">
                     @yield('content')
                 </main>
             </div>

@@ -32,8 +32,7 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
-        <!-- Alpine.js -->
-        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <!-- Alpine.js is bundled via Vite in resources/js/app.js -->
         
         <style>
             .sidebar {
@@ -100,6 +99,50 @@
                             
                             <!-- Right side of navbar -->
                             <div class="flex items-center space-x-4">
+                                <!-- Global Search -->
+                                <div class="hidden md:block relative" x-data="{ open: false, results: [], query: '' }">
+                                    <div class="relative">
+                                        <input type="text" 
+                                               x-model="query"
+                                               @input.debounce.500ms="
+                                                   if(query.length >= 2) {
+                                                       fetch('{{ route('hms.global-search') }}?q=' + query)
+                                                           .then(res => res.json())
+                                                           .then(data => { results = data.results; open = true; })
+                                                           .catch(() => { results = []; open = false; });
+                                                   } else {
+                                                       open = false;
+                                                   }
+                                               "
+                                               @focus="if(results.length > 0) open = true"
+                                               @click.away="open = false"
+                                               placeholder="Search... (patients, appointments, etc.)"
+                                               class="w-64 pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    </div>
+                                    
+                                    <!-- Search Results Dropdown -->
+                                    <div x-show="open && results.length > 0" 
+                                         x-transition:enter="transition ease-out duration-200"
+                                         x-transition:enter-start="opacity-0 transform scale-95"
+                                         x-transition:enter-end="opacity-100 transform scale-100"
+                                         class="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-y-auto">
+                                        <template x-for="result in results">
+                                            <a :href="result.url" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700">
+                                                <div class="flex items-start">
+                                                    <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                                                        <i :class="result.icon + ' text-white'"></i>
+                                                    </div>
+                                                    <div class="flex-1 min-w-0">
+                                                        <p class="text-sm font-medium text-gray-900 dark:text-white" x-text="result.title"></p>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400" x-text="result.description"></p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </template>
+                                    </div>
+                                </div>
+                                
                                 <!-- User dropdown -->
                                 <div class="relative" x-data="{ open: false }">
                                     <button @click="open = !open" 
@@ -148,13 +191,19 @@
                         <div class="mb-6">
                             {{ $header }}
                         </div>
-                    @elseif(hasSection('header'))
-                        <div class="mb-6">
-                            @yield('header')
-                        </div>
                     @endif
                     
-                    {{ $slot }}
+                    @hasSection('header')
+                        @if(!isset($header))
+                            <div class="mb-6">
+                                @yield('header')
+                            </div>
+                        @endif
+                    @endif
+                    
+                    @if(isset($slot))
+                        {{ $slot }}
+                    @endif
                     @hasSection('content')
                         @yield('content')
                     @endif

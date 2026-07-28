@@ -40,8 +40,15 @@
                         <span class="badge bg-pink-subtle text-pink px-3 py-2 me-3">
                             <i class="fas fa-users me-1"></i>
                         </span>
-                        System Users
+                        All Staff & Users
+                        <span class="badge bg-info ms-2">Total: {{ $total_staff ?? $users->total() }}</span>
                     </h5>
+                    @if(isset($total_users) && isset($total_employees))
+                        <p class="text-muted small mb-0 mt-2">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Users: {{ $total_users }} | Employees: {{ $total_employees }}
+                        </p>
+                    @endif
                 </div>
                 <div class="card-body p-0">
                     @if(session('success'))
@@ -63,51 +70,88 @@
                             <table class="table table-hover mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th class="border-0 py-3 px-4">User</th>
+                                        <th class="border-0 py-3 px-4">Staff/User</th>
                                         <th class="border-0 py-3 px-4">Email</th>
-                                        <th class="border-0 py-3 px-4">Role</th>
+                                        <th class="border-0 py-3 px-4">Role/Department</th>
+                                        <th class="border-0 py-3 px-4">Employee ID</th>
                                         <th class="border-0 py-3 px-4">Created</th>
                                         <th class="border-0 py-3 px-4">Status</th>
                                         <th class="border-0 py-3 px-4 text-end">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($users as $user)
+                                    @foreach($users as $staff)
                                         <tr>
                                             <td class="py-3 px-4">
                                                 <div class="d-flex align-items-center">
                                                     <div class="avatar-sm bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center me-3">
-                                                        <span class="text-primary fw-bold">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                                                        <span class="text-primary fw-bold">{{ strtoupper(substr($staff['name'], 0, 1)) }}</span>
                                                     </div>
                                                     <div>
-                                                        <h6 class="mb-0 fw-semibold text-dark">{{ $user->name }}</h6>
-                                                        <small class="text-muted">ID: {{ $user->id }}</small>
+                                                        <h6 class="mb-0 fw-semibold text-dark">
+                                                            {{ $staff['name'] }}
+                                                            @if($staff['type'] === 'employee' && !$staff['user_id'])
+                                                                <span class="badge bg-info-subtle text-info ms-2">Employee Only</span>
+                                                            @elseif($staff['is_employee'])
+                                                                <span class="badge bg-success-subtle text-success ms-2">User + Employee</span>
+                                                            @else
+                                                                <span class="badge bg-warning-subtle text-warning ms-2">User Only</span>
+                                                            @endif
+                                                        </h6>
+                                                        <small class="text-muted">
+                                                            @if($staff['type'] === 'user')
+                                                                User ID: {{ $staff['id'] }}
+                                                            @else
+                                                                Employee Record
+                                                            @endif
+                                                        </small>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="py-3 px-4">
-                                                <span class="text-dark">{{ $user->email }}</span>
+                                                <span class="text-dark">{{ $staff['email'] }}</span>
                                             </td>
                                             <td class="py-3 px-4">
-                                                @if($user->roles->count() > 0)
-                                                    @foreach($user->roles as $role)
+                                                @if($staff['type'] === 'user' && $staff['roles']->count() > 0)
+                                                    @foreach($staff['roles'] as $role)
                                                         <span class="badge bg-primary-subtle text-primary">{{ $role->name }}</span>
                                                     @endforeach
+                                                @elseif($staff['type'] === 'employee' || $staff['is_employee'])
+                                                    <div>
+                                                        <span class="badge bg-info-subtle text-info">{{ $staff['department'] ?? 'N/A' }}</span>
+                                                        @if($staff['position'])
+                                                            <br><small class="text-muted">{{ $staff['position'] }}</small>
+                                                        @endif
+                                                    </div>
                                                 @else
                                                     <span class="badge bg-secondary-subtle text-secondary">No Role</span>
                                                 @endif
                                             </td>
                                             <td class="py-3 px-4">
-                                                <span class="text-muted">{{ $user->created_at->format('M d, Y') }}</span>
+                                                @if($staff['employee_id'])
+                                                    <span class="text-dark fw-semibold">{{ $staff['employee_id'] }}</span>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
                                             </td>
                                             <td class="py-3 px-4">
-                                                @if($user->email_verified_at)
-                                                    <span class="badge bg-success-subtle text-success">
-                                                        <i class="fas fa-check-circle me-1"></i>Verified
+                                                <span class="text-muted">{{ $staff['created_at']->format('M d, Y') }}</span>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                @php
+                                                    $userStatus = $staff['status'] ?? 'pending';
+                                                @endphp
+                                                @if($userStatus === 'active')
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check-circle me-1"></i>Active
+                                                    </span>
+                                                @elseif($userStatus === 'pending')
+                                                    <span class="badge bg-warning">
+                                                        <i class="fas fa-clock me-1"></i>Pending
                                                     </span>
                                                 @else
-                                                    <span class="badge bg-warning-subtle text-warning">
-                                                        <i class="fas fa-clock me-1"></i>Pending
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-times-circle me-1"></i>Inactive
                                                     </span>
                                                 @endif
                                             </td>
@@ -117,27 +161,62 @@
                                                         <i class="fas fa-ellipsis-v"></i>
                                                     </button>
                                                     <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <a class="dropdown-item" href="{{ route('hms.system.users.show', $user) }}">
-                                                                <i class="fas fa-eye me-2"></i>View
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item" href="{{ route('hms.system.users.edit', $user) }}">
-                                                                <i class="fas fa-edit me-2"></i>Edit
-                                                            </a>
-                                                        </li>
-                                                        @if($user->id !== auth()->id())
+                                                        @if($staff['type'] === 'user' && $staff['user_id'])
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{ route('hms.system.users.show', $staff['user_id']) }}">
+                                                                    <i class="fas fa-eye me-2"></i>View User
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{ route('hms.system.users.edit', $staff['user_id']) }}">
+                                                                    <i class="fas fa-edit me-2"></i>Edit User
+                                                                </a>
+                                                            </li>
                                                             <li><hr class="dropdown-divider"></li>
                                                             <li>
-                                                                <form method="POST" action="{{ route('hms.system.users.destroy', $user) }}" 
-                                                                      onsubmit="return confirm('Are you sure you want to delete this user?')">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button type="submit" class="dropdown-item text-danger">
-                                                                        <i class="fas fa-trash me-2"></i>Delete
-                                                                    </button>
-                                                                </form>
+                                                                <a class="dropdown-item" href="{{ route('hms.system.users.id-card.preview', $staff['user_id']) }}" target="_blank">
+                                                                    <i class="fas fa-id-card me-2"></i>Preview ID Card
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{ route('hms.system.users.id-card', $staff['user_id']) }}" target="_blank">
+                                                                    <i class="fas fa-download me-2"></i>Download ID Card
+                                                                </a>
+                                                            </li>
+                                                            @if($staff['user_id'] !== auth()->id())
+                                                                <li><hr class="dropdown-divider"></li>
+                                                                <li>
+                                                                    <form method="POST" action="{{ route('hms.system.users.destroy', $staff['user_id']) }}" 
+                                                                          onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button type="submit" class="dropdown-item text-danger">
+                                                                            <i class="fas fa-trash me-2"></i>Delete User
+                                                                        </button>
+                                                                    </form>
+                                                                </li>
+                                                            @endif
+                                                        @elseif($staff['type'] === 'employee' && isset($staff['employee_record_id']))
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{ route('hms.hr.employees.show', $staff['employee_record_id']) }}">
+                                                                    <i class="fas fa-eye me-2"></i>View Employee
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{ route('hms.hr.employees.edit', $staff['employee_record_id']) }}">
+                                                                    <i class="fas fa-edit me-2"></i>Edit Employee
+                                                                </a>
+                                                            </li>
+                                                            <li><hr class="dropdown-divider"></li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{ route('hms.hr.employees.id-card.preview', $staff['employee_record_id']) }}" target="_blank">
+                                                                    <i class="fas fa-id-card me-2"></i>Preview ID Card
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{ route('hms.hr.employees.id-card', $staff['employee_record_id']) }}" target="_blank">
+                                                                    <i class="fas fa-download me-2"></i>Download ID Card
+                                                                </a>
                                                             </li>
                                                         @endif
                                                     </ul>

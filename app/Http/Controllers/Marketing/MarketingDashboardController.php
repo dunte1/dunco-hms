@@ -55,8 +55,27 @@ class MarketingDashboardController extends Controller
         // Top performing posts
         $topPosts = MarketingPost::with(['analytics'])
             ->join('marketing_analytics', 'marketing_posts.id', '=', 'marketing_analytics.marketing_post_id')
-            ->select('marketing_posts.*', DB::raw('SUM(marketing_analytics.engagement) as total_engagement'))
-            ->groupBy('marketing_posts.id')
+            ->select(
+                'marketing_posts.id',
+                'marketing_posts.title',
+                'marketing_posts.content',
+                'marketing_posts.status',
+                'marketing_posts.created_at',
+                'marketing_posts.updated_at',
+                'marketing_posts.created_by',
+                'marketing_posts.campaign_id',
+                DB::raw('SUM(marketing_analytics.engagement) as total_engagement')
+            )
+            ->groupBy(
+                'marketing_posts.id',
+                'marketing_posts.title',
+                'marketing_posts.content',
+                'marketing_posts.status',
+                'marketing_posts.created_at',
+                'marketing_posts.updated_at',
+                'marketing_posts.created_by',
+                'marketing_posts.campaign_id'
+            )
             ->orderBy('total_engagement', 'desc')
             ->limit(5)
             ->get();

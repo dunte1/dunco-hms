@@ -128,7 +128,15 @@
                                 @if($settings['hospital_logo'])
                                     <div class="mt-3">
                                         <p class="text-success mb-1"><i class="fas fa-check-circle me-1"></i>Current Logo:</p>
-                                        <img src="{{ $settings['hospital_logo'] }}" alt="Current Logo" class="img-thumbnail" style="max-width: 200px;">
+                                        @php
+                                            $logoUrl = $settings['hospital_logo'];
+                                            if (!str_starts_with($logoUrl, 'http') && !str_starts_with($logoUrl, '/')) {
+                                                $logoUrl = asset('storage/' . $logoUrl);
+                                            } elseif (str_starts_with($logoUrl, '/storage/')) {
+                                                $logoUrl = asset($logoUrl);
+                                            }
+                                        @endphp
+                                        <img src="{{ $logoUrl }}" alt="Current Logo" class="img-thumbnail" style="max-width: 200px;" onerror="this.parentElement.style.display='none';">
                                     </div>
                                 @endif
                             </div>
@@ -153,7 +161,15 @@
                                 @if($settings['favicon'])
                                     <div class="mt-3">
                                         <p class="text-success mb-1"><i class="fas fa-check-circle me-1"></i>Current Favicon:</p>
-                                        <img src="{{ $settings['favicon'] }}" alt="Current Favicon" class="img-thumbnail" style="width: 32px; height: 32px;">
+                                        @php
+                                            $faviconUrl = $settings['favicon'];
+                                            if (!str_starts_with($faviconUrl, 'http') && !str_starts_with($faviconUrl, '/')) {
+                                                $faviconUrl = asset('storage/' . $faviconUrl);
+                                            } elseif (str_starts_with($faviconUrl, '/storage/')) {
+                                                $faviconUrl = asset($faviconUrl);
+                                            }
+                                        @endphp
+                                        <img src="{{ $faviconUrl }}" alt="Current Favicon" class="img-thumbnail" style="width: 32px; height: 32px;" onerror="this.parentElement.style.display='none';">
                                     </div>
                                 @endif
                             </div>
@@ -225,10 +241,10 @@
 </div>
 
 <!-- Cropper.js CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" integrity="sha512-cytbU7NSuVc8Lx9hOPOjOzxBC95y0w2lOPf1Bwf5wXQkpomOU8m0GnR2/zOc8YhNJxVO+5NLkRZpL5j2Rzq3Fw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" integrity="sha512-cyzxRvewl+FOKTtpBzYjW6x6IAYUCZy3sGP40hn+DQkqeluGRCax7qztK2ImL64SA+C7kVWdLI6wvdlStawhyw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <!-- Cropper.js JS - Load before scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" integrity="sha512-6lTSKv1yiQvK8Z0E8uQ5uGHx0SNP7fOq7Vg5P6YzP5sZvXYJMwJLagHq8StCByyb5nEqhQNLXlqYQL/xGH2bIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" integrity="sha512-6lplKUSl86rUVprDIjiW8DuOniNX8UDoRATqZSds/7t6zCQZfaCe3e5zcGaQwxa8Kpn5RTM9Fvl3X2lLV4grPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <style>
     .card:hover {
@@ -589,7 +605,7 @@ function removeFavicon() {
 document.getElementById('themeForm').addEventListener('submit', function(e) {
     const saveBtn = document.getElementById('saveBtn');
     const form = this;
-    
+
     // Convert base64 cropped image to blob if exists
     const croppedLogo = document.getElementById('hospital_logo_cropped').value;
     if (croppedLogo) {
@@ -597,23 +613,34 @@ document.getElementById('themeForm').addEventListener('submit', function(e) {
         fetch(croppedLogo)
             .then(res => res.blob())
             .then(blob => {
-                const file = new File([blob], 'hospital-logo.png', { type: 'image/png' });
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-                document.getElementById('hospital_logo').files = dataTransfer.files;
-                submitForm();
+                try {
+                    const file = new File([blob], 'hospital-logo.png', { type: 'image/png' });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    document.getElementById('hospital_logo').files = dataTransfer.files;
+                    submitForm();
+                    // Actually submit the form after updating files
+                    form.submit();
+                } catch (err) {
+                    restoreSaveBtn();
+                    alert('There was an error uploading the logo.');
+                }
+            })
+            .catch(() => {
+                restoreSaveBtn();
+                alert('There was an error processing the cropped logo.');
             });
         e.preventDefault();
         return false;
     } else {
         submitForm();
     }
-    
+
     function submitForm() {
         // Show loading state
         saveBtn.disabled = true;
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
-        
+
         // Add hidden input for dark mode if unchecked
         const darkModeInput = document.getElementById('darkMode');
         if (!darkModeInput.checked) {
@@ -623,12 +650,14 @@ document.getElementById('themeForm').addEventListener('submit', function(e) {
             hiddenInput.value = '0';
             form.appendChild(hiddenInput);
         }
-        
+
         // Re-enable button after 10 seconds as fallback
-        setTimeout(() => {
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Settings';
-        }, 10000);
+        setTimeout(restoreSaveBtn, 10000);
+    }
+
+    function restoreSaveBtn() {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Settings';
     }
 });
 </script>

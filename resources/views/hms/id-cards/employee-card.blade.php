@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Employee ID Card - {{ $employee->employee_id }}</title>
+    <title>{{ ($employee ?? $user ? ($employee->employee_id ?? 'User-' . $user->id) : 'ID Card') }}</title>
     <style>
         * {
             margin: 0;
@@ -45,6 +45,11 @@
             font-size: 18px;
             font-weight: bold;
             text-transform: uppercase;
+            display: flex;
+            align-items: center;
+        }
+        .hospital-name img {
+            filter: brightness(0) invert(1);
         }
         .card-type {
             background: rgba(255,255,255,0.3);
@@ -183,22 +188,45 @@
         <div class="badge-section">STAFF</div>
         
         <div class="card-header">
-            <div class="hospital-name">DUNCOHMS</div>
+            <div class="hospital-name">
+                @if(!empty($themeSettings['hospital_logo']) && file_exists(storage_path('app/public/' . $themeSettings['hospital_logo'])))
+                    @php
+                        $logoPath = storage_path('app/public/' . $themeSettings['hospital_logo']);
+                        $logoData = base64_encode(file_get_contents($logoPath));
+                        $logoMime = mime_content_type($logoPath);
+                    @endphp
+                    <img src="data:{{ $logoMime }};base64,{{ $logoData }}" alt="Hospital Logo" style="max-height: 30px; max-width: 150px; object-fit: contain;">
+                @else
+                    {{ strtoupper($themeSettings['hospital_name'] ?? 'DUNCOHMS') }}
+                @endif
+            </div>
             <div class="card-type">EMPLOYEE</div>
         </div>
         
         <div class="qr-placeholder">▣</div>
         
         <div class="card-body">
-            <div class="photo-section">
-                {{ strtoupper(substr($employee->first_name, 0, 1) . substr($employee->last_name, 0, 1)) }}
+            <div class="photo-section" style="{{ $photo ? 'background: white; padding: 5px;' : '' }}">
+                @if($photo)
+                    @if(is_file($photo))
+                        <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents($photo)) }}" alt="Photo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                    @else
+                        <img src="{{ $photo }}" alt="Photo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                    @endif
+                @else
+                    @if(isset($employee))
+                        {{ strtoupper(substr($employee->first_name, 0, 1) . substr($employee->last_name, 0, 1)) }}
+                    @elseif(isset($user))
+                        {{ strtoupper(substr($user->name, 0, 2)) }}
+                    @endif
+                @endif
             </div>
             
             <div class="info-section">
-                <div class="employee-name">{{ $employee->full_name }}</div>
-                <div class="employee-id">ID: {{ $employee->employee_id }}</div>
-                <div class="department">{{ $employee->department->name ?? 'N/A' }}</div>
-                <div class="position">{{ $employee->position }}</div>
+                <div class="employee-name">{{ $employee->full_name ?? $user->name ?? 'N/A' }}</div>
+                <div class="employee-id">ID: {{ $employee->employee_id ?? ('USER-' . ($user->id ?? 'N/A')) }}</div>
+                <div class="department">{{ $employee->department->name ?? ($department ?? $role ?? 'N/A') }}</div>
+                <div class="position">{{ $employee->position ?? ($position ?? $role ?? 'Staff') }}</div>
                 
                 <div class="details">
                     <div class="detail-item">
@@ -206,8 +234,16 @@
                         <span class="detail-value">{{ ucfirst($employee->gender ?? 'N/A') }}</span>
                     </div>
                     <div class="detail-item">
-                        <span class="detail-label">Hired</span>
-                        <span class="detail-value">{{ $employee->hire_date ? date('M Y', strtotime($employee->hire_date)) : 'N/A' }}</span>
+                        <span class="detail-label">{{ isset($employee) && $employee->hire_date ? 'Hired' : (isset($user) ? 'Email' : 'Date') }}</span>
+                        <span class="detail-value">
+                            @if(isset($employee) && $employee->hire_date)
+                                {{ date('M Y', strtotime($employee->hire_date)) }}
+                            @elseif(isset($user))
+                                {{ $user->email ?? 'N/A' }}
+                            @else
+                                N/A
+                            @endif
+                        </span>
                     </div>
                 </div>
                 
@@ -218,7 +254,7 @@
         </div>
         
         <div class="footer">
-            <div>This card is property of DUNCOHMS HOSPITAL</div>
+            <div>This card is property of {{ strtoupper($themeSettings['hospital_name'] ?? 'DUNCOHMS') }} HOSPITAL</div>
         </div>
         
         <div class="watermark">{{ date('Y') }}</div>

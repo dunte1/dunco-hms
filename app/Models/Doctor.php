@@ -11,7 +11,8 @@ class Doctor extends Model
     use HasFactory;
 
     protected $fillable = [
-        'first_name','last_name','doctor_department_id','email','phone','qualification','years_experience'
+        'first_name','last_name','doctor_department_id','email','phone','qualification','years_experience',
+        'consultation_fee','followup_fee','emergency_fee','home_visit_fee'
     ];
 
     protected $appends = ['full_name'];

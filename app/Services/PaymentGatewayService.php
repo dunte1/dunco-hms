@@ -107,8 +107,12 @@ class PaymentGatewayService
             }
 
             // Initiate STK Push
-            $response = Http::withToken($token)
-                ->post(config('services.mpesa.stk_push_url'), [
+            $response = Http::withOptions([
+                'verify' => app()->environment('production'), // Only verify SSL in production
+                'timeout' => 30,
+            ])
+            ->withToken($token)
+            ->post(config('services.mpesa.stk_push_url'), [
                     'BusinessShortCode' => config('services.mpesa.shortcode'),
                     'Password' => $this->generateMpesaPassword(),
                     'Timestamp' => now()->format('YmdHis'),
@@ -117,12 +121,18 @@ class PaymentGatewayService
                     'PartyA' => $phone,
                     'PartyB' => config('services.mpesa.shortcode'),
                     'PhoneNumber' => $phone,
-                    'CallBackURL' => route('mpesa.callback'),
+                    'CallBackURL' => url('/api/mpesa/callback'),
                     'AccountReference' => $invoice->invoice_number,
                     'TransactionDesc' => 'Payment for invoice ' . $invoice->invoice_number,
                 ]);
 
             $result = $response->json();
+            
+            // Log full response for debugging
+            Log::info('M-Pesa STK Push response', [
+                'status' => $response->status(),
+                'response' => $result
+            ]);
 
             if (isset($result['ResponseCode']) && $result['ResponseCode'] == '0') {
                 return [
@@ -135,9 +145,19 @@ class PaymentGatewayService
                 ];
             }
 
+            $errorMessage = $result['ResponseDescription'] ?? ($result['errorMessage'] ?? 'M-Pesa payment failed');
+            
+            Log::error('M-Pesa STK Push failed', [
+                'response_code' => $result['ResponseCode'] ?? 'N/A',
+                'error_message' => $errorMessage,
+                'full_response' => $result
+            ]);
+
             return [
                 'success' => false,
-                'message' => $result['ResponseDescription'] ?? 'M-Pesa payment failed'
+                'message' => $errorMessage,
+                'response_code' => $result['ResponseCode'] ?? null,
+                'raw_response' => $result
             ];
             
         } catch (\Exception $e) {
@@ -190,8 +210,20 @@ class PaymentGatewayService
             $consumerKey = config('services.mpesa.consumer_key');
             $consumerSecret = config('services.mpesa.consumer_secret');
             
-            $response = Http::withBasicAuth($consumerKey, $consumerSecret)
-                ->get(config('services.mpesa.oauth_url'));
+            $response = Http::withOptions([
+                'verify' => app()->environment('production'), // Only verify SSL in production
+                'timeout' => 30,
+            ])
+            ->withBasicAuth($consumerKey, $consumerSecret)
+            ->get(config('services.mpesa.oauth_url'));
+
+            if (!$response->successful()) {
+                Log::error('M-Pesa OAuth failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+                return null;
+            }
 
             $result = $response->json();
             

@@ -12,6 +12,7 @@ use App\Models\Payment;
 use App\Models\LabRequest;
 use App\Models\RadiologyRequest;
 use App\Models\User;
+use App\Models\Employee;
 use App\Models\Attendance;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class DashboardController extends Controller
             'total_doctors' => \App\Models\Doctor::count(),
             'available_beds' => \App\Models\Bed::where('is_available', true)->count(),
             'total_beds' => \App\Models\Bed::count(),
-            'todays_appointments' => Appointment::whereDate('appointment_date', today())->count(),
+            'todays_appointments' => Appointment::whereDate('scheduled_at', today())->count(),
             
             // Staff Stats
             'total_nurses' => \App\Models\Nurse::count(),
@@ -63,10 +64,10 @@ class DashboardController extends Controller
         // Today's statistics
         $stats = [
             'appointments' => [
-                'total' => Appointment::whereDate('appointment_date', $today)->count(),
-                'completed' => Appointment::whereDate('appointment_date', $today)->where('status', 'completed')->count(),
-                'pending' => Appointment::whereDate('appointment_date', $today)->where('status', 'pending')->count(),
-                'cancelled' => Appointment::whereDate('appointment_date', $today)->where('status', 'cancelled')->count(),
+                'total' => Appointment::whereDate('scheduled_at', $today)->count(),
+                'completed' => Appointment::whereDate('scheduled_at', $today)->where('status', 'completed')->count(),
+                'pending' => Appointment::whereDate('scheduled_at', $today)->where('status', 'pending')->count(),
+                'cancelled' => Appointment::whereDate('scheduled_at', $today)->where('status', 'cancelled')->count(),
             ],
             'patients' => [
                 'new_registrations' => Patient::whereDate('created_at', $today)->count(),
@@ -93,8 +94,8 @@ class DashboardController extends Controller
         
         // Recent appointments
         $recentAppointments = Appointment::with(['patient', 'doctor'])
-            ->whereDate('appointment_date', $today)
-            ->orderBy('appointment_time', 'desc')
+            ->whereDate('scheduled_at', $today)
+            ->orderBy('scheduled_at', 'desc')
             ->limit(10)
             ->get();
         
@@ -112,9 +113,21 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
         
-        // Staff attendance stats
+        // Staff attendance stats - Include both Users and Employees
+        // Count users who have employee records OR standalone users
+        $totalUsers = User::count();
+        $totalEmployees = Employee::where('status', 'active')->count();
+        
+        // Count unique staff (users with employees + employees without users + standalone users)
+        $usersWithEmployees = User::whereHas('employee')->count();
+        $employeesWithoutUsers = Employee::where('status', 'active')->whereNull('user_id')->count();
+        $standaloneUsers = User::whereDoesntHave('employee')->count();
+        $totalUniqueStaff = $usersWithEmployees + $employeesWithoutUsers + $standaloneUsers;
+        
         $attendanceStats = [
-            'total_staff' => User::count(),
+            'total_staff' => $totalUniqueStaff > 0 ? $totalUniqueStaff : max($totalUsers, $totalEmployees),
+            'total_users' => $totalUsers,
+            'total_employees' => $totalEmployees,
             'present_today' => Attendance::whereDate('date', $today)
                 ->where('status', 'present')
                 ->distinct('user_id')
@@ -129,7 +142,7 @@ class DashboardController extends Controller
                 ->count('user_id'),
         ];
         
-        // Get staff by role with attendance
+        // Get staff by role with attendance - Include both Users and Employees
         $staffByRole = [
             'doctors' => User::role('Doctor')->with(['attendance' => function($q) use ($today) {
                 $q->whereDate('date', $today);
@@ -148,6 +161,11 @@ class DashboardController extends Controller
             }])->get(),
         ];
         
+        // Get all active employees
+        $activeEmployees = Employee::where('status', 'active')
+            ->with(['department', 'user'])
+            ->get();
+        
         // Recent check-ins
         $recentCheckIns = Attendance::with('user')
             ->whereDate('date', $today)
@@ -156,6 +174,6 @@ class DashboardController extends Controller
             ->limit(15)
             ->get();
         
-        return view('hms.dashboard.active-staff', compact('attendanceStats', 'staffByRole', 'recentCheckIns'));
+        return view('hms.dashboard.active-staff', compact('attendanceStats', 'staffByRole', 'activeEmployees', 'recentCheckIns'));
     }
 }

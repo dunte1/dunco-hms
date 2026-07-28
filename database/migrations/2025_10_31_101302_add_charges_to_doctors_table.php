@@ -1,0 +1,36 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('doctors', function (Blueprint $table) {
+            $table->decimal('consultation_fee', 10, 2)->nullable()->after('years_experience');
+            $table->decimal('followup_fee', 10, 2)->nullable()->after('consultation_fee');
+            $table->decimal('emergency_fee', 10, 2)->nullable()->after('followup_fee');
+            $table->decimal('home_visit_fee', 10, 2)->nullable()->after('emergency_fee');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('doctors', function (Blueprint $table) {
+            $table->dropColumn([
+                'consultation_fee',
+                'followup_fee',
+                'emergency_fee',
+                'home_visit_fee'
+            ]);
+        });
+    }
+};

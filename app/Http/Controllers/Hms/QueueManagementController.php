@@ -254,5 +254,41 @@ class QueueManagementController extends Controller
     {
         return view('hms.queue.token-success', compact('queue'));
     }
+
+    /**
+     * Kiosk mode for queue display
+     */
+    public function kioskMode(): View
+    {
+        $queues = QueueManagement::with(['patient', 'doctor'])
+            ->whereIn('status', ['waiting', 'called', 'in_progress'])
+            ->orderBy('token_number')
+            ->get();
+        
+        $currentQueues = QueueManagement::where('status', 'in_progress')
+            ->with(['patient', 'doctor'])
+            ->get();
+        
+        return view('hms.queue.kiosk', compact('queues', 'currentQueues'));
+    }
+
+    /**
+     * Smart display board with enhanced features
+     */
+    public function smartDisplay(): View
+    {
+        $queues = QueueManagement::with(['patient', 'doctor'])
+            ->whereIn('status', ['waiting', 'called', 'in_progress'])
+            ->orderBy('token_number')
+            ->get();
+        
+        $stats = [
+            'waiting' => QueueManagement::where('status', 'waiting')->count(),
+            'called' => QueueManagement::where('status', 'called')->count(),
+            'in_progress' => QueueManagement::where('status', 'in_progress')->count(),
+        ];
+        
+        return view('hms.queue.smart-display', compact('queues', 'stats'));
+    }
 }
 

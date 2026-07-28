@@ -22,9 +22,31 @@
                         </nav>
                     </div>
                     <div class="mt-3 mt-sm-0">
-                        <a href="{{ route('hms.hr.employees.create') }}" class="btn btn-light btn-lg shadow-sm px-4">
-                            <i class="fas fa-user-plus me-2"></i>Add New Employee
-                        </a>
+                        <div class="btn-group">
+                            <a href="{{ route('hms.hr.employees.create') }}" class="btn btn-light btn-lg shadow-sm px-4">
+                                <i class="fas fa-user-plus me-2"></i>Add New Employee
+                            </a>
+                            <button type="button" class="btn btn-light btn-lg shadow-sm px-3 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                                <span class="visually-hidden">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('hms.hr.employees.export') }}">
+                                        <i class="fas fa-file-excel me-2"></i>Export to Excel
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('hms.hr.employees.import') }}">
+                                        <i class="fas fa-file-upload me-2"></i>Import from Excel
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('hms.hr.employees.import.template') }}">
+                                        <i class="fas fa-download me-2"></i>Download Template
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -156,18 +178,18 @@
                     @endif
 
                     @if($employees->count() > 0)
-                    <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0" id="employeesTable">
+                    <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                            <table class="table table-hover align-middle mb-0" id="employeesTable" style="min-width: 1200px;">
                                 <thead class="table-light">
                                 <tr>
-                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 12%;">Employee ID</th>
-                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 18%;">Name</th>
-                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 18%;">Email</th>
-                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 12%;">Department</th>
-                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 15%;">Position</th>
-                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 10%;">Type</th>
-                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 10%;">Status</th>
-                                        <th class="px-4 py-3 fw-semibold text-dark text-center" style="width: 5%;">Actions</th>
+                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 11%;">Employee ID</th>
+                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 16%;">Name</th>
+                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 16%;">Email</th>
+                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 11%;">Department</th>
+                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 13%;">Position</th>
+                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 9%;">Type</th>
+                                        <th class="px-4 py-3 fw-semibold text-dark" style="width: 9%;">Status</th>
+                                        <th class="px-4 py-3 fw-semibold text-dark text-center" style="width: 15%; min-width: 180px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -223,22 +245,26 @@
                                             {{ ucfirst($employee->status) }}
                                         </span>
                                     </td>
-                                            <td class="px-4 py-3 text-center">
+                                            <td class="px-4 py-3 text-center" style="white-space: nowrap;">
                                                 <div class="btn-group btn-group-sm" role="group">
-                                                    <a href="{{ route('hms.hr.employees.id-card', $employee) }}" target="_blank" class="btn btn-outline-pink" 
-                                                            data-bs-toggle="tooltip" title="Download ID Card">
-                                                        <i class="fas fa-id-card"></i>
-                                                    </a>
-                                                    <a href="{{ route('hms.hr.employees.show', $employee) }}" class="btn btn-outline-primary" 
-                                                            data-bs-toggle="tooltip" title="View Details">
+                                                    <a href="{{ route('hms.hr.employees.id-card.preview', $employee) }}" target="_blank" class="btn btn-outline-info btn-sm" 
+                                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Preview ID Card">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    <a href="{{ route('hms.hr.employees.edit', $employee) }}" class="btn btn-outline-success" 
-                                                            data-bs-toggle="tooltip" title="Edit">
+                                                    <a href="{{ route('hms.hr.employees.id-card', $employee) }}" target="_blank" class="btn btn-outline-pink btn-sm" 
+                                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Download ID Card">
+                                                        <i class="fas fa-download"></i>
+                                                    </a>
+                                                    <a href="{{ route('hms.hr.employees.show', $employee) }}" class="btn btn-outline-primary btn-sm" 
+                                                            data-bs-toggle="tooltip" data-bs-placement="top" title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{{ route('hms.hr.employees.edit', $employee) }}" class="btn btn-outline-success btn-sm" 
+                                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
                                                 </div>
-                                    </td>
+                                            </td>
                                 </tr>
                                     @endforeach
                             </tbody>

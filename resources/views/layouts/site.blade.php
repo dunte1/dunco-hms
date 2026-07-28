@@ -9,8 +9,17 @@
 
         <!-- Favicon -->
         @if($themeSettings['favicon'] ?? false)
-            <link rel="icon" type="image/x-icon" href="{{ $themeSettings['favicon'] }}">
-            <link rel="shortcut icon" type="image/x-icon" href="{{ $themeSettings['favicon'] }}">
+            @php
+                $faviconUrl = $themeSettings['favicon'];
+                // Ensure proper URL format
+                if (!str_starts_with($faviconUrl, 'http') && !str_starts_with($faviconUrl, '/')) {
+                    $faviconUrl = asset('storage/' . $faviconUrl);
+                } elseif (str_starts_with($faviconUrl, '/storage/')) {
+                    $faviconUrl = asset($faviconUrl);
+                }
+            @endphp
+            <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}">
+            <link rel="shortcut icon" type="image/x-icon" href="{{ $faviconUrl }}">
         @else
             <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
             <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
@@ -24,9 +33,13 @@
     <body class="antialiased bg-gray-50" id="top">
         <div class="bg-indigo-50 border-b text-xs text-gray-700">
             <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
-                <div class="hidden md:block">Open Hours: Mon–Fri 8:00–18:00</div>
+                <div class="hidden md:block">{{ \App\Models\SystemSetting::get('header_open_hours', 'Mon–Fri 8:00–18:00') }}</div>
                 <div class="flex items-center gap-4">
-                    <a href="tel:+254700000000" class="font-medium text-red-700">Emergency: +254 700 000 000</a>
+                    @php
+                        $emergencyPhone = \App\Models\SystemSetting::get('header_emergency_phone', '+254 700 000 000');
+                        $emergencyPhoneClean = preg_replace('/[^0-9+]/', '', $emergencyPhone);
+                    @endphp
+                    <a href="tel:{{ $emergencyPhoneClean }}" class="font-medium text-red-700">Emergency: {{ $emergencyPhone }}</a>
                     <div x-data="{ open:false }" class="relative">
                         <button @click="open=!open" class="text-gray-700" aria-haspopup="listbox" aria-expanded="false">{{ strtoupper(app()->getLocale()) }}</button>
                         <div x-show="open" @click.outside="open=false" class="absolute right-0 mt-2 bg-white border rounded shadow text-sm">
@@ -43,7 +56,19 @@
             <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                 <a href="{{ route('home') }}" class="flex items-center gap-2" aria-label="{{ config('app.name', 'DuncoHMS') }} home">
                     @if($themeSettings['hospital_logo'] ?? false)
-                        <img src="{{ $themeSettings['hospital_logo'] }}" alt="{{ config('app.name', 'DuncoHMS') }} Logo" class="h-9 w-auto">
+                        @php
+                            $logoUrl = $themeSettings['hospital_logo'];
+                            // Ensure proper URL format
+                            if (!str_starts_with($logoUrl, 'http') && !str_starts_with($logoUrl, '/')) {
+                                $logoUrl = asset('storage/' . $logoUrl);
+                            } elseif (str_starts_with($logoUrl, '/storage/')) {
+                                $logoUrl = asset($logoUrl);
+                            }
+                        @endphp
+                        <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'DuncoHMS') }} Logo" class="h-9 w-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="h-8 w-8 bg-indigo-600 rounded flex items-center justify-center" style="display: none;">
+                            <span class="text-white font-bold text-lg">D</span>
+                        </div>
                     @else
                         <div class="h-8 w-8 bg-indigo-600 rounded flex items-center justify-center">
                             <span class="text-white font-bold text-lg">D</span>
@@ -109,50 +134,91 @@
                     <p class="text-gray-600">{{ $themeSettings['hospital_address'] ?? '123 Hospital Road' }}</p>
                     <p><a href="tel:{{ $themeSettings['hospital_phone'] ?? '+254700000000' }}" class="text-gray-700">{{ $themeSettings['hospital_phone'] ?? '+254 700 000 000' }}</a></p>
                     <p><a href="mailto:{{ $themeSettings['hospital_email'] ?? 'info@hospital.com' }}" class="text-gray-700">{{ $themeSettings['hospital_email'] ?? 'info@hospital.com' }}</a></p>
+                    @if(\App\Models\SystemSetting::get('footer_about_text'))
+                        <p class="text-gray-600 mt-2">{{ \App\Models\SystemSetting::get('footer_about_text') }}</p>
+                    @endif
                     <div class="flex gap-3 mt-3 text-gray-600">
-                        <a href="#" aria-label="Facebook">FB</a>
-                        <a href="#" aria-label="X">X</a>
-                        <a href="#" aria-label="Instagram">IG</a>
-                        <a href="#" aria-label="LinkedIn">IN</a>
+                        @php
+                            $socialFb = \App\Models\SystemSetting::get('footer_social_facebook', '');
+                            $socialTw = \App\Models\SystemSetting::get('footer_social_twitter', '');
+                            $socialIg = \App\Models\SystemSetting::get('footer_social_instagram', '');
+                            $socialLi = \App\Models\SystemSetting::get('footer_social_linkedin', '');
+                        @endphp
+                        @if($socialFb)<a href="{{ $socialFb }}" target="_blank" aria-label="Facebook" class="hover:text-blue-600">FB</a>@endif
+                        @if($socialTw)<a href="{{ $socialTw }}" target="_blank" aria-label="X" class="hover:text-gray-900">X</a>@endif
+                        @if($socialIg)<a href="{{ $socialIg }}" target="_blank" aria-label="Instagram" class="hover:text-pink-600">IG</a>@endif
+                        @if($socialLi)<a href="{{ $socialLi }}" target="_blank" aria-label="LinkedIn" class="hover:text-blue-700">IN</a>@endif
                     </div>
                 </div>
                 <div>
                     <div class="font-semibold mb-3">Departments</div>
                     <ul class="space-y-1 text-gray-700">
-                        <li><a href="{{ route('services') }}#cardiology">Cardiology</a></li>
-                        <li><a href="{{ route('services') }}#radiology">Radiology</a></li>
-                        <li><a href="{{ route('services') }}#lab">Laboratory</a></li>
-                        <li><a href="{{ route('services') }}#pharmacy">Pharmacy</a></li>
+                        @php
+                            $depts = json_decode(\App\Models\SystemSetting::get('footer_departments', '[]'), true);
+                            if (!is_array($depts) || empty($depts)) {
+                                $depts = [
+                                    ['name' => 'Cardiology', 'link' => route('services') . '#cardiology'],
+                                    ['name' => 'Radiology', 'link' => route('services') . '#radiology'],
+                                    ['name' => 'Laboratory', 'link' => route('services') . '#lab'],
+                                    ['name' => 'Pharmacy', 'link' => route('services') . '#pharmacy'],
+                                ];
+                            }
+                        @endphp
+                        @foreach($depts as $dept)
+                            <li><a href="{{ $dept['link'] ?? '#' }}">{{ $dept['name'] ?? '' }}</a></li>
+                        @endforeach
                     </ul>
                 </div>
                 <div>
                     <div class="font-semibold mb-3">Patients</div>
                     <ul class="space-y-1 text-gray-700">
-                        <li><a href="{{ route('book-appointment') }}">Book Appointment</a></li>
-                        <li><a href="{{ route('doctors') }}">Find a Doctor</a></li>
-                        <li><a href="{{ route('contact') }}">Contact & Directions</a></li>
-                        <li><a href="{{ route('features') }}">Our Features</a></li>
+                        @php
+                            $patientLinks = json_decode(\App\Models\SystemSetting::get('footer_patient_links', '[]'), true);
+                            if (!is_array($patientLinks) || empty($patientLinks)) {
+                                $patientLinks = [
+                                    ['name' => 'Book Appointment', 'link' => route('book-appointment')],
+                                    ['name' => 'Find a Doctor', 'link' => route('doctors')],
+                                    ['name' => 'Contact & Directions', 'link' => route('contact')],
+                                    ['name' => 'Our Features', 'link' => route('features')],
+                                ];
+                            }
+                        @endphp
+                        @foreach($patientLinks as $link)
+                            <li><a href="{{ $link['link'] ?? '#' }}">{{ $link['name'] ?? '' }}</a></li>
+                        @endforeach
                     </ul>
                 </div>
                 <div>
                     <div class="font-semibold mb-3">Legal</div>
                     <ul class="space-y-1 text-gray-700">
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
+                        @php
+                            $legalLinks = json_decode(\App\Models\SystemSetting::get('footer_legal_links', '[]'), true);
+                            if (!is_array($legalLinks) || empty($legalLinks)) {
+                                $legalLinks = [
+                                    ['name' => 'Terms of Service', 'link' => '#'],
+                                    ['name' => 'Privacy Policy', 'link' => '#'],
+                                ];
+                            }
+                        @endphp
+                        @foreach($legalLinks as $link)
+                            <li><a href="{{ $link['link'] ?? '#' }}">{{ $link['name'] ?? '' }}</a></li>
+                        @endforeach
                     </ul>
-                    <form class="mt-4" aria-label="Newsletter subscribe">
-                        <label class="block text-gray-700 mb-1">Subscribe</label>
-                        <div class="flex gap-2">
-                            <input type="email" class="border rounded p-2 flex-1" placeholder="you@example.com" aria-label="Email address">
-                            <button class="px-3 py-2 bg-indigo-600 text-white rounded" type="button">Join</button>
-                        </div>
-                    </form>
+                    @if(\App\Models\SystemSetting::get('footer_newsletter_enabled', '1'))
+                        <form class="mt-4" aria-label="Newsletter subscribe">
+                            <label class="block text-gray-700 mb-1">Subscribe</label>
+                            <div class="flex gap-2">
+                                <input type="email" class="border rounded p-2 flex-1" placeholder="you@example.com" aria-label="Email address">
+                                <button class="px-3 py-2 bg-indigo-600 text-white rounded" type="button">Join</button>
+                            </div>
+                        </form>
+                    @endif
                 </div>
             </div>
             <div class="border-t">
                 <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between text-xs text-gray-500">
                     <div class="text-center flex-1">
-                        <span>© {{ date('Y') }} {{ $themeSettings['hospital_name'] ?? config('app.name', 'Hospital') }}. All rights reserved.</span>
+                        {{ \App\Models\SystemSetting::get('footer_copyright', '© ' . date('Y') . ' ' . config('app.name', 'Dunco Hospital') . '. All rights reserved.') }}
                         <span class="ml-4">Powered by <strong>{{ $themeSettings['system_name'] ?? 'DuncoHMS' }}</strong> © {{ $themeSettings['system_developer'] ?? 'Dunco Technologies' }}</span>
                     </div>
                     <a href="#top" class="hover:text-gray-700 ml-4" aria-label="Back to top">Back to top ↑</a>

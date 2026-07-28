@@ -4,12 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Login - HealthCare Pro</title>
+    <title>Login - {{ config('app.name', 'DuncoHMS') }}</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('favicon.ico') }}">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +17,34 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    @php
+        $primaryColor = \App\Models\SystemSetting::get('primary_color', '#6366f1');
+        $secondaryColor = \App\Models\SystemSetting::get('secondary_color', '#8b5cf6');
+        
+        // Convert hex to RGB for rgba shadows
+        function hexToRgb($hex) {
+            $hex = str_replace('#', '', $hex);
+            if (strlen($hex) == 3) {
+                $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+            }
+            $r = hexdec(substr($hex, 0, 2));
+            $g = hexdec(substr($hex, 2, 2));
+            $b = hexdec(substr($hex, 4, 2));
+            return "$r, $g, $b";
+        }
+        
+        $primaryRgb = hexToRgb($primaryColor);
+    @endphp
+    
     <style>
+        :root {
+            --primary-color: {{ $primaryColor }};
+            --secondary-color: {{ $secondaryColor }};
+            --primary-shadow: rgba({{ $primaryRgb }}, 0.35);
+            --primary-shadow-hover: rgba({{ $primaryRgb }}, 0.45);
+            --primary-shadow-light: rgba({{ $primaryRgb }}, 0.1);
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -29,15 +54,15 @@
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             height: 100vh;
-            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 25%, #3b82f6 50%, #60a5fa 75%, #93c5fd 100%);
+            background: linear-gradient(135deg, {{ $primaryColor }} 0%, {{ $primaryColor }} 25%, {{ $primaryColor }} 50%, {{ $secondaryColor }} 75%, {{ $secondaryColor }} 100%);
             background-size: 400% 400%;
             animation: gradientShift 15s ease infinite;
-            overflow: hidden;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: auto;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
         @keyframes gradientShift {
@@ -88,120 +113,76 @@
             50% { transform: translateY(-30px) scale(1.1); }
         }
         
-        /* Flip Card Container */
-        .flip-card-container {
-            perspective: 1000px;
+        .login-container {
             width: 100%;
-            max-width: 450px;
-            height: 520px;
+            max-width: 420px;
+            padding: 20px;
             position: relative;
             z-index: 10;
         }
         
-        .flip-card {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .flip-card.flipped {
-            transform: rotateY(180deg);
-        }
-        
-        .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
+        .login-card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 24px;
+            padding: 40px 32px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
-            padding: 32px 28px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            overflow-y: auto;
         }
         
-        .card-back {
-            transform: rotateY(180deg);
+        .logo-container {
+            text-align: center;
+            margin-bottom: 32px;
         }
         
-        /* Brand Logo */
-        .brand-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        .logo-container img {
+            max-width: 120px;
+            max-height: 80px;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.2));
         }
         
-        .brand-icon {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+        .logo-container .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            margin: 0 auto 12px;
+            box-shadow: 0 4px 12px var(--primary-shadow);
         }
         
-        .brand-icon i {
-            font-size: 20px;
+        .logo-container .logo-icon i {
+            font-size: 28px;
             color: white;
         }
         
-        .brand-text h1 {
-            font-size: 18px;
-            font-weight: 800;
-            color: white;
-            margin: 0;
-            letter-spacing: -0.5px;
-        }
-        
-        .brand-text span {
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 600;
-            letter-spacing: -0.1px;
-        }
-        
-        /* Header Styles */
-        .card-header {
+        .login-header {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
         
-        .card-header h2 {
-            font-size: 26px;
+        .login-header h1 {
+            font-size: 28px;
             font-weight: 800;
             color: white;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             letter-spacing: -0.8px;
         }
         
-        .card-header p {
-            font-size: 13px;
+        .login-header p {
+            font-size: 15px;
             color: rgba(255, 255, 255, 0.9);
             font-weight: 600;
             letter-spacing: -0.2px;
         }
         
-        /* Form Styles */
         .form-group {
-            margin-bottom: 16px;
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-bottom: 20px;
         }
-        
-        .form-group:nth-child(1) { animation-delay: 0.1s; }
-        .form-group:nth-child(2) { animation-delay: 0.2s; }
-        .form-group:nth-child(3) { animation-delay: 0.3s; }
-        .form-group:nth-child(4) { animation-delay: 0.4s; }
         
         .form-label {
             display: block;
@@ -212,18 +193,14 @@
             letter-spacing: -0.2px;
         }
         
-        .input-wrapper {
-            position: relative;
-        }
-        
         .form-input {
             width: 100%;
-            padding: 12px 14px 12px 42px;
-            font-size: 13px;
+            padding: 12px 16px;
+            font-size: 15px;
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            font-family: 'Inter', sans-serif;
+            font-family: inherit;
             color: white;
             background: rgba(255, 255, 255, 0.1);
             font-weight: 500;
@@ -237,8 +214,8 @@
         
         .form-input:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--primary-shadow-light);
             background: rgba(255, 255, 255, 0.15);
         }
         
@@ -247,103 +224,12 @@
             font-weight: 500;
         }
         
-        .input-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 15px;
-            transition: all 0.3s ease;
-            pointer-events: none;
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 24px;
         }
         
-        .form-input:focus + .input-icon {
-            color: #3b82f6;
-            transform: translateY(-50%) scale(1.1);
-        }
-        
-        .password-toggle {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.6);
-            cursor: pointer;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            padding: 4px;
-        }
-        
-        .password-toggle:hover {
-            color: #3b82f6;
-            transform: translateY(-50%) scale(1.15);
-        }
-        
-        /* Error Messages */
-        .error-message {
-            display: none;
-            margin-top: 8px;
-            font-size: 12px;
-            color: #ef4444;
-            font-weight: 600;
-            animation: shake 0.5s ease-in-out;
-        }
-        
-        .error-message.show {
-            display: block;
-        }
-        
-        .form-input.error {
-            border-color: #ef4444;
-            background: rgba(239, 68, 68, 0.1);
-        }
-        
-        .form-input.error:focus {
-            border-color: #ef4444;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        
-        /* Form Footer */
-        .form-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            animation-delay: 0.5s;
-        }
-        
-        .checkbox-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .checkbox {
-            width: 18px;
-            height: 18px;
-            accent-color: #3b82f6;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        
-        .checkbox-label {
-            font-size: 14px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            letter-spacing: -0.2px;
-            user-select: none;
-        }
-        
-        .forgot-link {
+        .forgot-password a {
             font-size: 14px;
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
@@ -352,169 +238,69 @@
             letter-spacing: -0.2px;
         }
         
-        .forgot-link:hover {
+        .forgot-password a:hover {
             color: white;
             transform: translateX(2px);
         }
         
-        /* Primary Button */
-        .btn-primary {
+        .btn-signin {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            animation-delay: 0.6s;
+            box-shadow: 0 6px 20px var(--primary-shadow);
+            margin-bottom: 24px;
             letter-spacing: -0.3px;
             position: relative;
             overflow: hidden;
-            margin-bottom: 16px;
         }
         
-        .btn-primary:hover {
+        .btn-signin:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.45);
+            box-shadow: 0 12px 32px var(--primary-shadow-hover);
         }
         
-        .btn-primary:active {
+        .btn-signin:active {
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 6px 20px var(--primary-shadow);
         }
         
-        /* Divider */
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 14px 0;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 12px;
-            font-weight: 600;
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            animation-delay: 0.7s;
-            letter-spacing: -0.2px;
+        .btn-signin:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
         }
         
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .divider span {
-            padding: 0 16px;
-        }
-        
-        /* Social Buttons */
-        .social-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        
-        .btn-social {
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 700;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            letter-spacing: -0.3px;
-        }
-        
-        .btn-social:hover {
-            border-color: rgba(255, 255, 255, 0.5);
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-social i {
-            font-size: 16px;
-        }
-        
-        /* Toggle Link */
-        .toggle-link {
+        .signup-link {
             text-align: center;
-            font-size: 13px;
+            font-size: 14px;
             color: rgba(255, 255, 255, 0.8);
             font-weight: 600;
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            animation-delay: 0.8s;
             letter-spacing: -0.2px;
-            margin-bottom: 16px;
         }
         
-        .toggle-link a {
+        .signup-link a {
             color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
             font-weight: 800;
             transition: all 0.3s ease;
-            cursor: pointer;
         }
         
-        .toggle-link a:hover {
+        .signup-link a:hover {
             color: white;
             text-decoration: underline;
-        }
-        
-        /* Footer */
-        .footer-links {
-            text-align: center;
-            margin-top: 16px;
-            padding-top: 14px;
-            border-top: 1.5px solid rgba(255, 255, 255, 0.2);
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            animation-delay: 0.9s;
-        }
-        
-        .footer-text {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 6px;
-            font-weight: 600;
-            letter-spacing: -0.1px;
-        }
-        
-        .footer-nav {
-            display: flex;
-            justify-content: center;
-            gap: 14px;
-            font-size: 11px;
-        }
-        
-        .footer-nav a {
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            letter-spacing: -0.2px;
-        }
-        
-        .footer-nav a:hover {
-            color: white;
         }
         
         /* Animations */
         @keyframes fadeInUp {
             from {
-            opacity: 0;
+                opacity: 0;
                 transform: translateY(30px);
             }
             to {
@@ -523,39 +309,54 @@
             }
         }
         
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .flip-card-container {
-                max-width: 90%;
-                height: auto;
-                min-height: 480px;
-            }
-            
-            .card-face {
-                padding: 28px 24px;
-            }
-            
-            .card-header h2 {
-                font-size: 22px;
-            }
-            
-            .social-buttons {
-                grid-template-columns: 1fr;
-            }
+        .logo-container {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .login-header {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            animation-delay: 0.1s;
+            animation-fill-mode: both;
+        }
+        
+        .form-group {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            animation-fill-mode: both;
+        }
+        
+        .form-group:nth-child(1) { animation-delay: 0.2s; }
+        .form-group:nth-child(2) { animation-delay: 0.3s; }
+        
+        .forgot-password {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            animation-delay: 0.4s;
+            animation-fill-mode: both;
+        }
+        
+        .btn-signin {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            animation-delay: 0.5s;
+            animation-fill-mode: both;
+        }
+        
+        .signup-link {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            animation-delay: 0.6s;
+            animation-fill-mode: both;
         }
         
         @media (max-width: 480px) {
-            .card-face {
-                padding: 24px 20px;
+            .login-card {
+                padding: 32px 24px;
+                border-radius: 16px;
             }
             
-            .card-header h2 {
-                font-size: 20px;
+            .login-header h1 {
+                font-size: 24px;
             }
             
-            .form-input {
-                padding: 10px 12px 10px 38px;
-                font-size: 12px;
+            .bg-circle-1, .bg-circle-2 {
+                display: none;
             }
         }
     </style>
@@ -566,436 +367,115 @@
     <div class="bg-decoration bg-circle-2"></div>
     <div class="bg-decoration bg-circle-3"></div>
     
-    <!-- Flip Card Container -->
-    <div class="flip-card-container">
-        <div class="flip-card" id="flipCard">
-            <!-- Login Card (Front) -->
-            <div class="card-face">
-                <div class="brand-logo">
-                    <div class="brand-icon">
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Logo -->
+            <div class="logo-container">
+                @php
+                    $logoUrl = \App\Models\SystemSetting::get('hospital_logo', '');
+                    $hospitalName = \App\Models\SystemSetting::get('hospital_name', config('app.name', 'DuncoHMS'));
+                    $logoPath = null;
+                    
+                    // Handle logo URL from SystemSetting (stored as /storage/path or full URL)
+                    if ($logoUrl) {
+                        if (str_starts_with($logoUrl, 'http')) {
+                            $logoPath = $logoUrl; // Full URL
+                        } elseif (str_starts_with($logoUrl, '/storage/')) {
+                            $logoPath = asset($logoUrl); // Storage path
+                        } elseif (str_starts_with($logoUrl, '/')) {
+                            $logoPath = asset($logoUrl); // Absolute path
+                        } else {
+                            $logoPath = asset('storage/' . $logoUrl); // Relative storage path
+                        }
+                    }
+                @endphp
+                @if($logoPath)
+                    <img src="{{ $logoPath }}" alt="{{ $hospitalName }} Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="logo-icon" style="display: none;">
                         <i class="fas fa-hospital"></i>
-                        </div>
-                    <div class="brand-text">
-                        <h1>HealthCare Pro</h1>
-                        <span>Advanced Healthcare Solutions</span>
                     </div>
-                </div>
-                
-                <div class="card-header">
-                    <h2>Welcome back</h2>
-                    <p>Sign in to your account to continue</p>
-                </div>
-                
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label class="form-label" for="loginEmail">Email Address</label>
-                        <div class="input-wrapper">
-                            <input 
-                                type="email" 
-                                id="loginEmail" 
-                                class="form-input" 
-                                placeholder="Enter your email"
-                                required
-                            >
-                            <i class="input-icon fas fa-envelope"></i>
-                        </div>
-                        <div class="error-message" id="loginEmailError">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <span>Please enter a valid email address</span>
-                        </div>
+                @elseif(file_exists(public_path('images/logo.png')))
+                    <img src="{{ asset('images/logo.png') }}" alt="{{ $hospitalName }} Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="logo-icon" style="display: none;">
+                        <i class="fas fa-hospital"></i>
                     </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="loginPassword">Password</label>
-                        <div class="input-wrapper">
-                            <input 
-                                type="password" 
-                                id="loginPassword" 
-                                class="form-input" 
-                                placeholder="Enter your password"
-                                required
-                            >
-                            <i class="input-icon fas fa-lock"></i>
-                            <i class="password-toggle fas fa-eye" id="toggleLoginPassword"></i>
-                        </div>
-                        <div class="error-message" id="loginPasswordError">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <span>Password must be at least 6 characters</span>
-                        </div>
+                @elseif(file_exists(public_path('logo.png')))
+                    <img src="{{ asset('logo.png') }}" alt="{{ $hospitalName }} Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="logo-icon" style="display: none;">
+                        <i class="fas fa-hospital"></i>
                     </div>
-                    
-                    <div class="form-footer">
-                        <div class="checkbox-wrapper">
-                            <input type="checkbox" id="remember" class="checkbox">
-                            <label for="remember" class="checkbox-label">Remember me</label>
-                        </div>
-                        <a href="{{ route('password.request') }}" class="forgot-link">Forgot password?</a>
+                @else
+                    <div class="logo-icon">
+                        <i class="fas fa-hospital"></i>
                     </div>
-                    
-                    <button type="submit" class="btn-primary" id="loginBtn">
-                        Sign in to your account
-                    </button>
-                    
-                    <div class="divider">
-                        <span>Or continue with</span>
-                        </div>
-                    
-                    <div class="social-buttons">
-                        <button type="button" class="btn-social">
-                            <i class="fab fa-google" style="color: white;"></i>
-                            Google
-                        </button>
-                        <button type="button" class="btn-social">
-                            <i class="fab fa-microsoft" style="color: white;"></i>
-                            Microsoft
-                        </button>
-                    </div>
-                    
-                    <div class="toggle-link">
-                        Don't have an account? <a href="#" onclick="flipCard()">Sign up here</a>
-                </div>
-                </form>
-                
-                <div class="footer-links">
-                    <p class="footer-text">© 2025 HealthCare Pro. All rights reserved.</p>
-                    <div class="footer-nav">
-                        <a href="#">Privacy Policy</a>
-                        <a href="#">Terms of Service</a>
-                        <a href="#">Support</a>
-                    </div>
-                </div>
+                    <div style="font-size: 18px; font-weight: 800; color: white; margin-top: 8px; letter-spacing: -0.5px;">{{ $hospitalName }}</div>
+                @endif
             </div>
             
-            <!-- Register Card (Back) -->
-            <div class="card-face card-back">
-                <div class="brand-logo">
-                    <div class="brand-icon">
-                        <i class="fas fa-hospital"></i>
-        </div>
-                    <div class="brand-text">
-                        <h1>HealthCare Pro</h1>
-                        <span>Advanced Healthcare Solutions</span>
-                    </div>
-                </div>
-                
-                <div class="card-header">
-                    <h2>Create Account</h2>
-                    <p>Join HealthCare Pro to get started</p>
-                                </div>
-                
-                <form id="registerForm">
-                    <div class="form-group">
-                        <label class="form-label" for="registerName">Full Name</label>
-                        <div class="input-wrapper">
-                            <input 
-                                type="text" 
-                                id="registerName" 
-                                class="form-input" 
-                                placeholder="Enter your full name"
-                                required
-                            >
-                            <i class="input-icon fas fa-user"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="registerEmail">Email Address</label>
-                        <div class="input-wrapper">
-                                <input 
-                                    type="email" 
-                                id="registerEmail" 
-                                class="form-input" 
-                                placeholder="Enter your email"
-                                    required 
-                            >
-                            <i class="input-icon fas fa-envelope"></i>
-                        </div>
-        </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="registerPassword">Password</label>
-                        <div class="input-wrapper">
-                                <input 
-                                type="password" 
-                                id="registerPassword" 
-                                class="form-input" 
-                                placeholder="Create a password"
-                                required
-                            >
-                            <i class="input-icon fas fa-lock"></i>
-                            <i class="password-toggle fas fa-eye" id="toggleRegisterPassword"></i>
-        </div>
-                        </div>
-                        
-                    <div class="form-group">
-                        <label class="form-label" for="confirmPassword">Confirm Password</label>
-                        <div class="input-wrapper">
-                            <input 
-                                type="password" 
-                                id="confirmPassword" 
-                                class="form-input" 
-                                placeholder="Confirm your password"
-                                required
-                            >
-                            <i class="input-icon fas fa-lock"></i>
-                        </div>
-                        </div>
-                        
-                    <div class="form-footer">
-                        <div class="checkbox-wrapper">
-                            <input type="checkbox" id="agreeTerms" class="checkbox" required>
-                            <label for="agreeTerms" class="checkbox-label">I agree to the terms and conditions</label>
-                            </div>
-                            </div>
-                    
-                    <button type="submit" class="btn-primary" id="registerBtn">
-                        Create Account
-                    </button>
-                    
-                    <div class="divider">
-                        <span>Or continue with</span>
-                        </div>
-                        
-                    <div class="social-buttons">
-                        <button type="button" class="btn-social">
-                            <i class="fab fa-google" style="color: white;"></i>
-                                Google
-                            </button>
-                        <button type="button" class="btn-social">
-                            <i class="fab fa-microsoft" style="color: white;"></i>
-                                Microsoft
-                            </button>
-                        </div>
-                    
-                    <div class="toggle-link">
-                        Already have an account? <a href="#" onclick="flipCard()">Sign in here</a>
-                    </div>
-                </form>
-                
-                <div class="footer-links">
-                    <p class="footer-text">© 2025 HealthCare Pro. All rights reserved.</p>
-                    <div class="footer-nav">
-                        <a href="#">Privacy Policy</a>
-                        <a href="#">Terms of Service</a>
-                        <a href="#">Support</a>
-                    </div>
-                </div>
+            <!-- Header -->
+            <div class="login-header">
+                <h1>Welcome back</h1>
+                <p>Sign in to your account to continue</p>
             </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" method="POST" action="{{ route('login') }}">
+                @csrf
+                
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email"
+                        class="form-input" 
+                        placeholder="Enter your email"
+                        value="{{ old('email') }}"
+                        required
+                        autofocus
+                    >
+                    @error('email')
+                        <div style="color: #ef4444; font-size: 12px; margin-top: 8px; font-weight: 600;">{{ $message }}</div>
+                    @enderror
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password"
+                        class="form-input" 
+                        placeholder="Enter your password"
+                        required
+                    >
+                    @error('password')
+                        <div style="color: #ef4444; font-size: 12px; margin-top: 8px; font-weight: 600;">{{ $message }}</div>
+                    @enderror
+                </div>
+                
+                <div class="forgot-password">
+                    <a href="{{ route('password.request') }}">Forgot password?</a>
+                </div>
+                
+                <button type="submit" class="btn-signin" id="loginBtn">
+                    Sign in to your account
+                </button>
+                
+                <div class="signup-link">
+                    Don't have an account? <a href="{{ route('register') }}">Sign up here</a>
+                </div>
+            </form>
         </div>
     </div>
     
     <script>
-        // Flip card functionality
-        function flipCard() {
-            const flipCard = document.getElementById('flipCard');
-            flipCard.classList.toggle('flipped');
-        }
-        
-        // Password toggle functionality
-        document.getElementById('toggleLoginPassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('loginPassword');
-            const toggleIcon = this;
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        });
-        
-        document.getElementById('toggleRegisterPassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('registerPassword');
-            const toggleIcon = this;
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        });
-        
-        // Form validation
+        // Form submission handling - let form submit normally for web authentication
         document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            if (email && password) {
-            // Show loading state
-                const submitBtn = document.getElementById('loginBtn');
-                const originalText = submitBtn.textContent;
-                submitBtn.textContent = 'Signing in...';
-                submitBtn.disabled = true;
-                
-                // Submit the form to Laravel backend
-                const formData = new FormData();
-                formData.append('email', email);
-                formData.append('password', password);
-                formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '');
-                
-                fetch('/login', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        // Redirect to dashboard on successful login
-                        window.location.href = '/dashboard';
-                    } else {
-                        return response.json().then(data => {
-                            throw new Error(data.message || 'Login failed');
-                        });
-                    }
-                })
-                .catch(error => {
-                    // Show error message
-                    alert('Login failed: ' + error.message);
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
-                });
-            }
-        });
-        
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const agreeTerms = document.getElementById('agreeTerms').checked;
-            
-            if (password !== confirmPassword) {
-                alert('Passwords do not match!');
-                return;
-            }
-            
-            if (!agreeTerms) {
-                alert('Please agree to the terms and conditions!');
-                return;
-            }
-            
-            if (name && email && password && confirmPassword) {
-                // Show loading state
-                const submitBtn = document.getElementById('registerBtn');
-                const originalText = submitBtn.textContent;
-                submitBtn.textContent = 'Creating Account...';
-                submitBtn.disabled = true;
-                
-                // Submit the form to Laravel backend
-                const formData = new FormData();
-                formData.append('name', name);
-                formData.append('email', email);
-                formData.append('password', password);
-                formData.append('password_confirmation', confirmPassword);
-                formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '');
-                
-                fetch('/register', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        // Redirect to dashboard on successful registration
-                        window.location.href = '/dashboard';
-                    } else {
-                        return response.json().then(data => {
-                            throw new Error(data.message || 'Registration failed');
-                        });
-                    }
-                })
-                .catch(error => {
-                    // Show error message
-                    alert('Registration failed: ' + error.message);
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
-                });
-            }
-        });
-        
-        // Enhanced form validation
-        function validateEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
-        
-        function validatePassword(password) {
-            return password.length >= 6;
-        }
-        
-        function showError(inputId, errorId, message) {
-            const input = document.getElementById(inputId);
-            const error = document.getElementById(errorId);
-            input.classList.add('error');
-            error.querySelector('span').textContent = message;
-            error.classList.add('show');
-        }
-        
-        function hideError(inputId, errorId) {
-            const input = document.getElementById(inputId);
-            const error = document.getElementById(errorId);
-            input.classList.remove('error');
-            error.classList.remove('show');
-        }
-        
-        // Real-time validation
-        document.getElementById('loginEmail').addEventListener('blur', function() {
-            if (this.value && !validateEmail(this.value)) {
-                showError('loginEmail', 'loginEmailError', 'Please enter a valid email address');
-            } else {
-                hideError('loginEmail', 'loginEmailError');
-            }
-        });
-        
-        document.getElementById('loginPassword').addEventListener('input', function() {
-            if (this.value && !validatePassword(this.value)) {
-                showError('loginPassword', 'loginPasswordError', 'Password must be at least 6 characters');
-            } else {
-                hideError('loginPassword', 'loginPasswordError');
-            }
-        });
-        
-        // Register form validation
-        document.getElementById('registerEmail').addEventListener('blur', function() {
-            if (this.value && !validateEmail(this.value)) {
-                this.style.borderColor = '#ef4444';
-            } else {
-                this.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-            }
-        });
-        
-        document.getElementById('registerPassword').addEventListener('input', function() {
-            if (this.value && !validatePassword(this.value)) {
-                this.style.borderColor = '#ef4444';
-            } else {
-                this.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-            }
-        });
-        
-        document.getElementById('confirmPassword').addEventListener('input', function() {
-            const password = document.getElementById('registerPassword').value;
-            if (this.value && this.value !== password) {
-                this.style.borderColor = '#ef4444';
-            } else {
-                this.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-            }
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
+            // Don't prevent default - let it submit normally to auth.php route
         });
         
         // Parallax effect for background circles
@@ -1011,48 +491,6 @@
                 circle.style.transform = `translate(${xMove}px, ${yMove}px)`;
             });
         });
-        
-        // Ripple effect for buttons
-        function createRipple(event) {
-            const button = event.currentTarget;
-            const ripple = document.createElement('span');
-            const rect = button.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            const x = event.clientX - rect.left - size / 2;
-            const y = event.clientY - rect.top - size / 2;
-            
-            ripple.style.width = ripple.style.height = size + 'px';
-            ripple.style.left = x + 'px';
-            ripple.style.top = y + 'px';
-            ripple.style.position = 'absolute';
-            ripple.style.borderRadius = '50%';
-            ripple.style.background = 'rgba(255, 255, 255, 0.6)';
-            ripple.style.transform = 'scale(0)';
-            ripple.style.animation = 'ripple 0.6s ease-out';
-            ripple.style.pointerEvents = 'none';
-            
-            button.appendChild(ripple);
-            
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
-        }
-        
-        document.querySelectorAll('.btn-primary, .btn-social').forEach(button => {
-            button.addEventListener('click', createRipple);
-        });
-        
-        // Add ripple animation CSS
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(4);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>

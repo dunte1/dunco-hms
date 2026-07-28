@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Hms;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Designation;
+use App\Models\EmployeeDepartment;
 
 class DesignationsController extends Controller
 {
@@ -14,8 +15,9 @@ class DesignationsController extends Controller
     public function index()
     {
         $designations = Designation::orderBy('name')->paginate(15);
+        $departments = EmployeeDepartment::orderBy('name')->get();
         
-        return view('hms.hr.designations.index', compact('designations'));
+        return view('hms.hr.designations.index', compact('designations', 'departments'));
     }
 
     /**

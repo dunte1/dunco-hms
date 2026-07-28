@@ -1,447 +1,96 @@
 {
   "tech_stack": [
-    "PHP 8.2+",
-    "Laravel 12.x",
-    "MySQL/PostgreSQL/SQLite",
-    "Tailwind CSS 3.1+",
-    "Alpine.js 3.4+",
-    "Vite 7.0+",
-    "Laravel Sanctum",
-    "Spatie Laravel Permission",
-    "DomPDF",
-    "Laravel Queues",
-    "Chart.js",
-    "TestSprite"
+    "PHP",
+    "Laravel",
+    "MySQL",
+    "Node.js",
+    "Vite",
+    "TailwindCSS",
+    "AlpineJS"
   ],
   "features": [
     {
-      "name": "Patient Management",
-      "description": "Complete patient lifecycle management including registration, medical history, insurance, cases, and document management",
+      "name": "Routing and Controllers",
+      "description": "HTTP routes and controllers for web, API, and auth.",
       "files": [
-        "app/Http/Controllers/Hms/PatientsController.php",
-        "app/Models/Patient.php",
-        "app/Models/PatientCase.php",
-        "app/Models/PatientDiagnosis.php",
-        "app/Models/PatientInsurance.php",
-        "app/Models/MedicalHistory.php",
-        "resources/views/hms/patients/"
+        "routes/web.php",
+        "routes/api.php",
+        "routes/auth.php",
+        "app/Http/Controllers"
       ]
     },
     {
-      "name": "Appointment Management",
-      "description": "Comprehensive appointment scheduling system with online booking, calendar integration, requests, and notifications",
+      "name": "Authentication",
+      "description": "Login, registration, password reset, and profile views.",
       "files": [
-        "app/Http/Controllers/Hms/AppointmentsController.php",
-        "app/Http/Controllers/Hms/CalendarController.php",
-        "app/Models/Appointment.php",
-        "app/Models/AppointmentRequest.php",
-        "resources/views/hms/appointments/",
-        "app/Events/AppointmentBooked.php"
-      ]
-    },
-    {
-      "name": "Doctor Management",
-      "description": "Doctor profiles, specializations, schedules, departments, and OPD charges management",
-      "files": [
-        "app/Http/Controllers/Hms/DoctorsController.php",
-        "app/Http/Controllers/Hms/DoctorDepartmentsController.php",
-        "app/Http/Controllers/Hms/DoctorChargesController.php",
-        "app/Models/Doctor.php",
-        "app/Models/DoctorDepartment.php",
-        "resources/views/hms/doctors/"
-      ]
-    },
-    {
-      "name": "Nurse Management",
-      "description": "Nurse profiles, assignments, ward management, and duty roster",
-      "files": [
-        "app/Http/Controllers/Hms/NursesController.php",
-        "app/Models/Nurse.php",
-        "app/Models/NurseDepartment.php",
-        "resources/views/hms/nurses/"
-      ]
-    },
-    {
-      "name": "IPD Management",
-      "description": "In-patient admissions, bed assignments, discharge workflow, and treatment plans",
-      "files": [
-        "app/Http/Controllers/Hms/IpdAdmissionsController.php",
-        "app/Http/Controllers/Hms/AdmissionsController.php",
-        "app/Http/Controllers/Hms/DischargeSummaryController.php",
-        "app/Models/IpdAdmission.php",
-        "resources/views/hms/ipd/"
-      ]
-    },
-    {
-      "name": "OPD Management",
-      "description": "Out-patient visit registration, consultation notes, vitals recording, and prescription management",
-      "files": [
-        "app/Http/Controllers/Hms/OpdVisitsController.php",
-        "app/Models/OpdVisit.php",
-        "resources/views/hms/opd/"
-      ]
-    },
-    {
-      "name": "Bed Management",
-      "description": "Bed types, assignments, releases, occupancy tracking, and visual bed map",
-      "files": [
-        "app/Http/Controllers/Hms/BedsController.php",
-        "app/Http/Controllers/Hms/BedTypesController.php",
-        "app/Models/Bed.php",
-        "app/Models/BedType.php",
-        "app/Models/BedAssignment.php",
-        "resources/views/hms/beds/"
-      ]
-    },
-    {
-      "name": "Pharmacy Management",
-      "description": "Medicine inventory, categories, brands, prescriptions, stock tracking, and dispensing",
-      "files": [
-        "app/Http/Controllers/Hms/PharmacyController.php",
-        "app/Http/Controllers/Hms/MedicinesController.php",
-        "app/Http/Controllers/Hms/MedicineCategoriesController.php",
-        "app/Http/Controllers/Hms/MedicineBrandsController.php",
-        "app/Http/Controllers/Hms/PrescriptionsController.php",
-        "app/Models/Medicine.php",
-        "app/Models/MedicineCategory.php",
-        "app/Models/MedicineBrand.php",
-        "app/Models/Prescription.php",
-        "app/Models/PrescriptionItem.php",
-        "resources/views/hms/pharmacy/"
-      ]
-    },
-    {
-      "name": "Laboratory Management",
-      "description": "Lab tests, categories, requests, results, equipment integration, and technician management",
-      "files": [
-        "app/Http/Controllers/Hms/LaboratoryController.php",
-        "app/Http/Controllers/Hms/LabTestsController.php",
-        "app/Http/Controllers/Hms/LabRequestsController.php",
-        "app/Http/Controllers/Hms/TestCategoriesController.php",
-        "app/Models/LabTest.php",
-        "app/Models/LabRequest.php",
-        "app/Models/LabRequestItem.php",
-        "app/Models/LabCategory.php",
-        "app/Models/LabTechnician.php",
-        "resources/views/hms/laboratory/"
-      ]
-    },
-    {
-      "name": "Radiology Management",
-      "description": "Radiology tests, categories, requests, image upload, and result management",
-      "files": [
-        "app/Http/Controllers/Hms/RadiologyController.php",
-        "app/Http/Controllers/Hms/RadiologyTestsController.php",
-        "app/Http/Controllers/Hms/RadiologyRequestsController.php",
-        "app/Models/RadiologyTest.php",
-        "app/Models/RadiologyRequest.php",
-        "app/Models/RadiologyCategory.php",
-        "resources/views/hms/radiology/"
-      ]
-    },
-    {
-      "name": "Billing & Finance",
-      "description": "Invoice generation, payment processing, accounts, income, expenses, and financial reporting",
-      "files": [
-        "app/Http/Controllers/Hms/BillingController.php",
-        "app/Http/Controllers/Hms/InvoicesController.php",
-        "app/Http/Controllers/Hms/PaymentsController.php",
-        "app/Http/Controllers/Hms/FinanceController.php",
-        "app/Http/Controllers/Hms/AccountsController.php",
-        "app/Http/Controllers/Hms/IncomeController.php",
-        "app/Http/Controllers/Hms/ExpensesController.php",
-        "app/Models/Invoice.php",
-        "app/Models/InvoiceItem.php",
-        "app/Models/Payment.php",
-        "app/Models/Account.php",
-        "app/Models/Income.php",
-        "app/Models/Expense.php",
-        "app/Services/InvoiceService.php",
-        "resources/views/hms/billing/"
-      ]
-    },
-    {
-      "name": "Inventory Management",
-      "description": "Suppliers, purchase orders, stock movements, inventory tracking, and reporting",
-      "files": [
-        "app/Http/Controllers/Hms/InventoryController.php",
-        "app/Http/Controllers/Hms/InventoryManagementController.php",
-        "app/Http/Controllers/Hms/SuppliersController.php",
-        "app/Http/Controllers/Hms/PurchaseOrdersController.php",
-        "app/Http/Controllers/Hms/StockMovementsController.php",
-        "app/Models/Supplier.php",
-        "app/Models/PurchaseOrder.php",
-        "app/Models/PurchaseOrderItem.php",
-        "app/Models/StockMovement.php",
-        "resources/views/hms/inventory/"
-      ]
-    },
-    {
-      "name": "HR Management",
-      "description": "Employee management, payroll, attendance, leave requests, schedules, and designations",
-      "files": [
-        "app/Http/Controllers/Hms/HrController.php",
-        "app/Http/Controllers/Hms/EmployeesController.php",
-        "app/Http/Controllers/Hms/PayrollsController.php",
-        "app/Http/Controllers/Hms/AttendanceController.php",
-        "app/Http/Controllers/Hms/LeaveRequestsController.php",
-        "app/Http/Controllers/Hms/SchedulesController.php",
-        "app/Http/Controllers/Hms/DesignationsController.php",
-        "app/Models/Employee.php",
-        "app/Models/Payroll.php",
-        "app/Models/Attendance.php",
-        "app/Models/LeaveRequest.php",
-        "app/Models/Schedule.php",
-        "app/Models/Designation.php",
-        "resources/views/hms/hr/"
-      ]
-    },
-    {
-      "name": "Blood Bank",
-      "description": "Blood groups, donors, inventory tracking, requests, and expiry alerts",
-      "files": [
-        "app/Http/Controllers/Hms/BloodBankController.php",
-        "app/Models/BloodGroup.php",
-        "app/Models/BloodDonor.php",
-        "app/Models/BloodInventory.php",
-        "app/Models/BloodRequest.php",
-        "resources/views/hms/blood-bank/"
-      ]
-    },
-    {
-      "name": "Ambulance & Emergency",
-      "description": "Ambulance fleet management, emergency calls, driver tracking, and billing integration",
-      "files": [
-        "app/Http/Controllers/Hms/AmbulanceController.php",
-        "app/Models/Ambulance.php",
-        "app/Models/AmbulanceCall.php",
-        "app/Models/EmergencyAdmission.php",
-        "resources/views/hms/ambulance/"
-      ]
-    },
-    {
-      "name": "Case Handler Management",
-      "description": "Social workers and case handler management for patient cases",
-      "files": [
-        "app/Http/Controllers/Hms/CaseHandlersController.php",
-        "app/Models/CaseHandler.php",
-        "resources/views/hms/case-handlers/"
-      ]
-    },
-    {
-      "name": "Diagnosis System",
-      "description": "Diagnosis categories, patient diagnoses, and treatment tracking",
-      "files": [
-        "app/Http/Controllers/Hms/DiagnosisController.php",
-        "app/Models/DiagnosisCategory.php",
-        "app/Models/PatientDiagnosis.php",
-        "resources/views/hms/diagnosis/"
-      ]
-    },
-    {
-      "name": "Reports System",
-      "description": "Patient reports, revenue reports, appointment reports, lab/pharmacy reports, birth/death/operation reports",
-      "files": [
-        "app/Http/Controllers/Hms/ReportsController.php",
-        "app/Http/Controllers/Hms/AnalyticsReportsController.php",
-        "app/Http/Controllers/Hms/BirthDeathReportsController.php",
-        "app/Http/Controllers/Hms/OperationReportsController.php",
-        "app/Models/BirthReport.php",
-        "app/Models/DeathReport.php",
-        "app/Models/OperationReport.php",
-        "resources/views/hms/reports/"
-      ]
-    },
-    {
-      "name": "Insurance Management",
-      "description": "Insurance providers, claims, verification, and API integration",
-      "files": [
-        "app/Http/Controllers/Hms/InsuranceController.php",
-        "app/Http/Controllers/Hms/InsuranceProvidersController.php",
-        "app/Http/Controllers/Hms/InsuranceClaimsController.php",
-        "app/Models/InsuranceProvider.php",
-        "app/Models/InsuranceClaim.php",
-        "app/Models/InsuranceApiLog.php",
-        "resources/views/hms/insurance/"
-      ]
-    },
-    {
-      "name": "Packages Management",
-      "description": "Service packages, package items, and pricing management",
-      "files": [
-        "app/Http/Controllers/Hms/PackagesController.php",
-        "app/Models/Package.php",
-        "app/Models/PackageItem.php",
-        "resources/views/hms/packages/"
-      ]
-    },
-    {
-      "name": "Telemedicine",
-      "description": "Telemedicine session creation, scheduling, and management",
-      "files": [
-        "app/Http/Controllers/Telemedicine/TelemedicineController.php",
-        "app/Models/TelemedicineSession.php",
-        "resources/views/telemedicine/"
-      ]
-    },
-    {
-      "name": "Queue Management",
-      "description": "Queue system with token generation, display board, and real-time updates",
-      "files": [
-        "app/Http/Controllers/Hms/QueueManagementController.php",
-        "app/Models/QueueManagement.php",
-        "resources/views/hms/queue/"
-      ]
-    },
-    {
-      "name": "Visitor Management",
-      "description": "Visitor check-in/check-out, badge printing, and analytics",
-      "files": [
-        "app/Http/Controllers/Hms/VisitorController.php",
-        "app/Models/VisitorLog.php",
-        "resources/views/hms/visitors/"
-      ]
-    },
-    {
-      "name": "IoT & RFID",
-      "description": "IoT bed sensors, RFID tags, and location tracking",
-      "files": [
-        "app/Http/Controllers/Iot/IotBedMonitoringController.php",
-        "app/Http/Controllers/Rfid/RfidController.php",
-        "app/Models/IotBedSensor.php",
-        "app/Models/RfidTag.php",
-        "resources/views/iot/"
-      ]
-    },
-    {
-      "name": "AI & Automation",
-      "description": "AI appointment suggestions, diagnosis suggestions, Elliana D Virtual Nurse Assistant, and BI analytics",
-      "files": [
-        "app/Http/Controllers/Ai/AiAssistantController.php",
-        "app/Http/Controllers/Ai/EllianaDController.php",
-        "app/Http/Controllers/Analytics/BiDashboardController.php",
-        "app/Services/EllianaDAssistantService.php",
-        "app/Models/AiAppointmentSuggestion.php",
-        "app/Models/AiDiagnosisSuggestion.php",
-        "app/Models/BiAnalytic.php",
-        "resources/views/ai/"
-      ]
-    },
-    {
-      "name": "Notifications & Reminders",
-      "description": "Email notifications, SMS alerts, database notifications, and automated reminders",
-      "files": [
-        "app/Http/Controllers/Hms/NotificationsController.php",
-        "app/Http/Controllers/Hms/RemindersController.php",
-        "app/Notifications/AppointmentReminder.php",
-        "app/Notifications/PaymentReminder.php",
-        "app/Notifications/LabResultReadyNotification.php",
-        "app/Services/SmsService.php",
-        "resources/views/hms/notifications/"
-      ]
-    },
-    {
-      "name": "Settings & Configuration",
-      "description": "System settings, branch management, localization, multi-currency, and API keys",
-      "files": [
-        "app/Http/Controllers/Hms/SettingsController.php",
-        "app/Http/Controllers/Hms/SystemSettingsController.php",
-        "app/Http/Controllers/Hms/LocalizationController.php",
-        "app/Http/Controllers/Hms/ApiKeysController.php",
-        "app/Models/SystemSetting.php",
-        "app/Models/HospitalBranch.php",
-        "app/Models/Currency.php",
-        "app/Services/ConfigurationService.php",
-        "app/Services/CurrencyService.php",
-        "resources/views/hms/settings/"
-      ]
-    },
-    {
-      "name": "CMS (Content Management)",
-      "description": "Blog management, gallery, career postings, testimonials, and public pages",
-      "files": [
-        "app/Http/Controllers/Cms/BlogController.php",
-        "app/Http/Controllers/Cms/GalleryController.php",
-        "app/Http/Controllers/Cms/CareersController.php",
-        "app/Http/Controllers/Cms/TestimonialsController.php",
-        "app/Models/BlogPost.php",
-        "app/Models/GalleryItem.php",
-        "app/Models/JobPosting.php",
-        "app/Models/Testimonial.php",
-        "resources/views/cms/"
-      ]
-    },
-    {
-      "name": "Patient Portal",
-      "description": "Patient portal login, dashboard, appointment viewing, prescription access, and billing information",
-      "files": [
-        "app/Http/Controllers/PatientPortal/PatientPortalController.php",
-        "app/Models/PatientPortalAccount.php",
-        "resources/views/patient-portal/"
-      ]
-    },
-    {
-      "name": "Authentication & Authorization",
-      "description": "User authentication, role-based access control, permissions, and API token management",
-      "files": [
-        "app/Http/Controllers/Auth/AuthenticatedSessionController.php",
-        "app/Http/Controllers/Admin/RoleManagementController.php",
-        "app/Http/Controllers/Hms/UsersManagementController.php",
-        "app/Models/User.php",
-        "app/Models/Role.php",
-        "app/Models/Permission.php",
-        "app/Models/ApiToken.php",
-        "app/Http/Middleware/PermissionMiddleware.php",
-        "app/Http/Middleware/RoleMiddleware.php",
+        "resources/views/auth",
+        "resources/views/profile",
+        "app/Http/Controllers/Auth",
         "routes/auth.php"
       ]
     },
     {
-      "name": "Dashboard",
-      "description": "Role-based dashboard with analytics, charts, KPIs, and real-time statistics",
+      "name": "Admin Dashboard",
+      "description": "Administrative UI and layout for management tasks.",
       "files": [
-        "app/Http/Controllers/Hms/DashboardController.php",
-        "app/Http/Controllers/Admin/DashboardController.php",
-        "resources/views/dashboard.blade.php",
-        "resources/views/hms/dashboard/"
+        "resources/views/admin",
+        "resources/views/layouts",
+        "resources/views/partials"
       ]
     },
     {
-      "name": "Integration Features",
-      "description": "Lab equipment integration, insurance API integration, and payment gateway integration",
+      "name": "CMS",
+      "description": "Content management templates and components.",
       "files": [
-        "app/Http/Controllers/Integration/LabIntegrationController.php",
-        "app/Http/Controllers/Integration/InsuranceApiController.php",
-        "app/Models/LabEquipment.php",
-        "app/Models/EquipmentResult.php",
-        "app/Services/PaymentGatewayService.php",
-        "resources/views/integration/"
+        "resources/views/cms",
+        "resources/views/components"
       ]
     },
     {
-      "name": "Marketing Module",
-      "description": "Marketing campaigns, AI content generation, social media management, SEO, and scheduler",
+      "name": "Marketing",
+      "description": "Marketing pages and related assets.",
       "files": [
-        "app/Http/Controllers/Marketing/MarketingDashboardController.php",
-        "app/Http/Controllers/Marketing/CampaignController.php",
-        "app/Http/Controllers/Marketing/AiContentController.php",
-        "app/Http/Controllers/Marketing/MarketingPostController.php",
-        "app/Http/Controllers/Marketing/SeoController.php",
-        "app/Http/Controllers/Marketing/SchedulerController.php",
-        "app/Services/Marketing/AiContentService.php",
-        "resources/views/marketing/"
+        "resources/views/marketing",
+        "resources/views/site",
+        "public"
       ]
     },
     {
-      "name": "Security Features",
-      "description": "Biometric authentication, card scanner, and audit logging",
+      "name": "Patient Portal",
+      "description": "Patient-facing portal pages.",
       "files": [
-        "app/Http/Controllers/Security/BiometricController.php",
-        "app/Http/Controllers/Security/CardScannerController.php",
-        "app/Models/AuditLog.php",
-        "app/Services/BiometricService.php",
-        "resources/views/security/"
+        "resources/views/patient-portal"
+      ]
+    },
+    {
+      "name": "HMS Module",
+      "description": "Hospital management system views and logic.",
+      "files": [
+        "resources/views/hms",
+        "app/Models",
+        "app/Services"
+      ]
+    },
+    {
+      "name": "Frontend Build and Assets",
+      "description": "Vite config, JS bootstrap, CSS pipeline, and Tailwind setup.",
+      "files": [
+        "vite.config.js",
+        "resources/js/app.js",
+        "resources/js/bootstrap.js",
+        "resources/css/app.css",
+        "tailwind.config.js",
+        "postcss.config.js"
+      ]
+    },
+    {
+      "name": "Email Templates",
+      "description": "Blade templates for transactional emails.",
+      "files": [
+        "resources/views/emails"
       ]
     }
   ]
 }
+
+

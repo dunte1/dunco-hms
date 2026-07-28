@@ -46,9 +46,16 @@ class AuthenticatedSessionController extends Controller
                 'timestamp' => now()
             ]);
 
-            // Check if user needs to verify email
-            if (!Auth::user()->hasVerifiedEmail()) {
+            // Skip email verification check for development/testing
+            // For production, you may want to re-enable this check
+            // Check if user needs to verify email (only in production)
+            if (config('app.env') === 'production' && !Auth::user()->hasVerifiedEmail()) {
                 return redirect()->route('verification.notice');
+            }
+
+            // Auto-verify email in development/testing environment
+            if (config('app.env') !== 'production' && !Auth::user()->hasVerifiedEmail()) {
+                Auth::user()->markEmailAsVerified();
             }
 
             // Redirect based on user role or intended URL
@@ -99,9 +106,30 @@ class AuthenticatedSessionController extends Controller
      */
     public function socialLogin(string $provider): RedirectResponse
     {
-        // This would integrate with Laravel Socialite
-        // For now, redirect to login with a message
-        return redirect()->route('login')->with('status', 'Social login coming soon!');
+        $allowedProviders = ['google', 'facebook', 'twitter', 'linkedin', 'github'];
+        
+        if (!in_array($provider, $allowedProviders)) {
+            return redirect()->route('login')->with('error', 'Unsupported login provider.');
+        }
+
+        try {
+            // Check if Laravel Socialite is available
+            if (!class_exists('Laravel\Socialite\Facades\Socialite')) {
+                return redirect()->route('login')->with('error', 'Social login package not installed. Install Laravel Socialite: composer require laravel/socialite');
+            }
+
+            // Redirect to provider's OAuth page
+            return \Laravel\Socialite\Facades\Socialite::driver($provider)
+                ->redirect();
+        } catch (\Exception $e) {
+            \Log::error('Social login redirect failed', [
+                'provider' => $provider,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->route('login')
+                ->with('error', 'Unable to initiate ' . ucfirst($provider) . ' login. Please configure your credentials.');
+        }
     }
 
     /**
@@ -109,8 +137,50 @@ class AuthenticatedSessionController extends Controller
      */
     public function socialCallback(string $provider): RedirectResponse
     {
-        // This would handle the OAuth callback
-        // For now, redirect to login
-        return redirect()->route('login')->with('error', 'Social login not implemented yet.');
+        $allowedProviders = ['google', 'facebook', 'twitter', 'linkedin', 'github'];
+        
+        if (!in_array($provider, $allowedProviders)) {
+            return redirect()->route('login')->with('error', 'Unsupported login provider.');
+        }
+
+        try {
+            if (!class_exists('Laravel\Socialite\Facades\Socialite')) {
+                return redirect()->route('login')->with('error', 'Social login package not installed.');
+            }
+
+            $socialUser = \Laravel\Socialite\Facades\Socialite::driver($provider)->user();
+            
+            // Find or create user
+            $user = \App\Models\User::firstOrCreate(
+                ['email' => $socialUser->getEmail()],
+                [
+                    'name' => $socialUser->getName(),
+                    'email' => $socialUser->getEmail(),
+                    'email_verified_at' => now(),
+                    'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
+                ]
+            );
+
+            // Update user avatar if available
+            if ($socialUser->getAvatar() && !$user->avatar) {
+                $user->avatar = $socialUser->getAvatar();
+                $user->save();
+            }
+
+            \Illuminate\Support\Facades\Auth::login($user, true);
+
+            session()->regenerate();
+
+            return redirect()->intended(\Illuminate\Support\Facades\Route::has('dashboard') ? route('dashboard') : '/');
+            
+        } catch (\Exception $e) {
+            \Log::error('Social login callback failed', [
+                'provider' => $provider,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->route('login')
+                ->with('error', 'Login with ' . ucfirst($provider) . ' failed. Please try again or use email login.');
+        }
     }
 }
