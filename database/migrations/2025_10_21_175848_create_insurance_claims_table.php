@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('claim_number')->unique();
             $table->foreignId('patient_id')->constrained()->onDelete('cascade');
-            $table->foreignId('patient_insurance_id')->constrained()->onDelete('cascade');
+            $table->foreignId('patient_insurance_id')->constrained('patient_insurance')->onDelete('cascade');
             $table->foreignId('invoice_id')->nullable()->constrained()->onDelete('set null');
             $table->date('claim_date');
             $table->date('service_date');
