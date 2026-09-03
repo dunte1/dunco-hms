@@ -159,4 +159,11 @@ class AiAssistantController extends Controller
         if (empty($diagnoses)) return 0;
         return max(array_column($diagnoses, 'probability'));
     }
+
+    public function predictiveAnalytics()
+    {
+        return view('hms.ai.predictive-analytics', [
+            'title' => 'Predictive Analytics',
+        ]);
+    }
 }

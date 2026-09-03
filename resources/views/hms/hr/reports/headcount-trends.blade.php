@@ -69,10 +69,10 @@ document.addEventListener('DOMContentLoaded', function() {
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: @json(array_map(fn($m) => date('F', mktime(0, 0, 0, $m, 1)), array_keys($trends))),
+                labels: {{ json_encode(array_map(fn($m) => date('F', mktime(0, 0, 0, $m, 1)), array_keys($trends))) }},
                 datasets: [{
                     label: 'Headcount',
-                    data: @json(array_values($trends)),
+                    data: {{ json_encode(array_values($trends)) }},
                     borderColor: '#06b6d4',
                     backgroundColor: 'rgba(6, 182, 212, 0.1)',
                     tension: 0.4,

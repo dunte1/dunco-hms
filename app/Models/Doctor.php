@@ -22,6 +22,11 @@ class Doctor extends Model
         return $this->belongsTo(DoctorDepartment::class, 'doctor_department_id');
     }
 
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'doctor_id');
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim($this->first_name.' '.$this->last_name);

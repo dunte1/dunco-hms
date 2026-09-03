@@ -101,10 +101,10 @@ document.addEventListener('DOMContentLoaded', function() {
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: @json(array_map(fn($m) => date('M', mktime(0, 0, 0, $m, 1)), array_keys($monthlyExpenses))),
+                labels: {{ json_encode(array_map(fn($m) => date('M', mktime(0, 0, 0, $m, 1)), array_keys($monthlyExpenses))) }},
                 datasets: [{
                     label: 'Salary Expense',
-                    data: @json(array_values($monthlyExpenses)),
+                    data: {{ json_encode(array_values($monthlyExpenses)) }},
                     backgroundColor: '#f97316'
                 }]
             },

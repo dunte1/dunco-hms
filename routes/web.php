@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Hms\PatientsController;
 use App\Http\Controllers\Hms\AppointmentsController;
+use App\Http\Controllers\Hms\ShaController;
+use App\Http\Controllers\Hms\ICD10Controller;
 use App\Http\Controllers\Hms\QueueManagementController;
 use App\Http\Controllers\Hms\DoctorsController;
 use App\Http\Controllers\Hms\AdmissionsController;
@@ -229,6 +231,31 @@ Route::middleware('auth')->group(function () {
         Route::get('/appointments', [AppointmentsController::class, 'index'])->name('appointments.index');
         Route::get('/appointments/create', [AppointmentsController::class, 'create'])->name('appointments.create');
         Route::post('/appointments', [AppointmentsController::class, 'store'])->name('appointments.store');
+        Route::get('/appointments/{appointment}', [AppointmentsController::class, 'show'])->name('appointments.show');
+        Route::get('/appointments/{appointment}/edit', [AppointmentsController::class, 'edit'])->name('appointments.edit');
+        Route::put('/appointments/{appointment}', [AppointmentsController::class, 'update'])->name('appointments.update');
+        Route::delete('/appointments/{appointment}', [AppointmentsController::class, 'destroy'])->name('appointments.destroy');
+
+        // SHA/SHIF Module Routes
+        Route::get('/sha', [ShaController::class, 'index'])->name('sha.index');
+        Route::get('/sha/members', [ShaController::class, 'members'])->name('sha.members');
+        Route::post('/sha/verify', [ShaController::class, 'verify'])->name('sha.verify');
+        Route::post('/sha/members', [ShaController::class, 'storeMember'])->name('sha.member.store');
+        Route::get('/sha/members/{member}', [ShaController::class, 'memberShow'])->name('sha.member.show');
+        Route::get('/sha/authorizations', [ShaController::class, 'authorizations'])->name('sha.authorizations');
+        Route::post('/sha/authorizations', [ShaController::class, 'requestAuthorization'])->name('sha.authorization.request');
+        Route::get('/sha/authorizations/{authorization}', [ShaController::class, 'authorizationShow'])->name('sha.authorization.show');
+        Route::get('/sha/providers', [ShaController::class, 'providers'])->name('sha.providers');
+        Route::post('/sha/providers', [ShaController::class, 'storeProvider'])->name('sha.provider.store');
+        Route::get('/sha/service-codes', [ShaController::class, 'serviceCodes'])->name('sha.service-codes');
+
+        // ICD-10 Module Routes
+        Route::get('/icd10', [ICD10Controller::class, 'index'])->name('icd10.index');
+        Route::get('/icd10/create', [ICD10Controller::class, 'create'])->name('icd10.create');
+        Route::post('/icd10', [ICD10Controller::class, 'store'])->name('icd10.store');
+        Route::get('/icd10/{code}/edit', [ICD10Controller::class, 'edit'])->name('icd10.edit');
+        Route::put('/icd10/{code}', [ICD10Controller::class, 'update'])->name('icd10.update');
+        Route::delete('/icd10/{code}', [ICD10Controller::class, 'destroy'])->name('icd10.destroy');
         
         // Queue Management Routes
         Route::get('/queue', [QueueManagementController::class, 'index'])->name('queue.index');
@@ -678,7 +705,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/insurance/policies/{policy}/edit', [\App\Http\Controllers\Hms\InsuranceController::class, 'editPolicy'])->name('insurance.policies.edit');
         Route::put('/insurance/policies/{policy}', [\App\Http\Controllers\Hms\InsuranceController::class, 'updatePolicy'])->name('insurance.policies.update');
         Route::delete('/insurance/policies/{policy}', [\App\Http\Controllers\Hms\InsuranceController::class, 'destroyPolicy'])->name('insurance.policies.destroy');
-        Route::post('/insurance/claims', [\App\Http\Controllers\Hms\InsuranceController::class, 'submitClaim'])->name('insurance.submit-claim');
         
         // HR - Designations & Documents
         Route::get('/hr/designations', [\App\Http\Controllers\Hms\DesignationsController::class, 'index'])->name('hr.designations.index');

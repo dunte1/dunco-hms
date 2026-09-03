@@ -37,7 +37,7 @@
                             <select name="insurance_provider_id" required
                                     class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-purple-500">
                                 <option value="">Select Provider</option>
-                                @foreach($providers as $provider)
+                                @foreach($insuranceProviders as $provider)
                                     <option value="{{ $provider->id }}">{{ $provider->name }}</option>
                                 @endforeach
                             </select>
