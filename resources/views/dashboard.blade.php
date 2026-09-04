@@ -181,8 +181,8 @@
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-xs text-gray-600 dark:text-gray-400">{{ $appointment->appointment_date->format('M d, Y') }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-500">{{ $appointment->appointment_time }}</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">{{ $appointment->scheduled_at ? $appointment->scheduled_at->format('M d, Y') : 'N/A' }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-500">{{ $appointment->scheduled_at ? $appointment->scheduled_at->format('h:i A') : '' }}</p>
                             </div>
                         </div>
                     @empty
