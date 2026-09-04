@@ -9,24 +9,14 @@ use App\Models\Doctor;
 use App\Models\Nurse;
 use App\Models\Appointment;
 use App\Models\Invoice;
-use App\Models\InvoiceItem;
 use App\Models\Payment;
 use App\Models\Medicine;
 use App\Models\MedicineCategory;
 use App\Models\MedicineBrand;
 use App\Models\LabTest;
 use App\Models\LabCategory;
-use App\Models\LabRequest;
-use App\Models\LabRequestItem;
-use App\Models\Prescription;
-use App\Models\PrescriptionItem;
-use App\Models\MedicalHistory;
-use App\Models\Employee;
-use App\Models\EmployeeDepartment;
-use App\Models\Designation;
 use App\Models\BedType;
 use App\Models\Bed;
-use App\Models\IpdAdmission;
 use App\Models\OpdVisit;
 use App\Models\InsuranceProvider;
 use App\Models\PatientInsurance;
@@ -35,7 +25,6 @@ use App\Models\ExpenseCategory;
 use App\Models\Income;
 use App\Models\BloodGroup;
 use App\Models\BloodDonor;
-use App\Models\BloodInventory;
 use App\Models\QueueManagement;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -367,17 +356,12 @@ class CompleteDemoSeeder extends Seeder
 
         foreach ($doctorUsers as $i => $user) {
             $doctor = Doctor::create([
-                'user_id' => $user->id,
                 'first_name' => explode(' ', $user->name)[1] ?? $user->name,
                 'last_name' => explode(' ', $user->name)[2] ?? '',
                 'email' => $user->email,
                 'phone' => $user->phone ?? $faker->phoneNumber,
-                'specialization' => $specialties[$i % count($specialties)],
-                'department' => $specialties[$i % count($specialties)],
                 'qualification' => $faker->randomElement(['MBChB', 'MD', 'MBBS', 'FRCS']),
-                'experience_years' => $faker->numberBetween(2, 25),
-                'consultation_fee' => $faker->randomElement([1000, 1500, 2000, 2500, 3000]),
-                'status' => 'active',
+                'years_experience' => $faker->numberBetween(2, 25),
             ]);
             $doctors[] = $doctor;
         }
@@ -392,19 +376,32 @@ class CompleteDemoSeeder extends Seeder
         $nurses = [];
         $nurseUsers = User::role('Nurse')->get();
 
+        // Ensure nurse departments exist
+        $deptNames = ['General Ward', 'ICU', 'Pediatrics', 'Maternity', 'Emergency'];
+        foreach ($deptNames as $name) {
+            \App\Models\NurseDepartment::firstOrCreate(['name' => $name]);
+        }
+
+        $deptIndex = 0;
         foreach ($nurseUsers as $user) {
+            $dept = \App\Models\NurseDepartment::all()[$deptIndex % \App\Models\NurseDepartment::count()];
             $nurse = Nurse::create([
-                'user_id' => $user->id,
+                'nurse_id' => 'NUR-' . str_pad($user->id, 4, '0', STR_PAD_LEFT),
                 'first_name' => explode(' ', $user->name)[1] ?? $user->name,
                 'last_name' => explode(' ', $user->name)[2] ?? '',
                 'email' => $user->email,
                 'phone' => $user->phone ?? $faker->phoneNumber,
+                'date_of_birth' => $faker->dateTimeBetween('-40 years', '-25 years')->format('Y-m-d'),
+                'gender' => $faker->randomElement(['male', 'female']),
+                'nurse_department_id' => $dept->id,
                 'qualification' => $faker->randomElement(['RN', 'RM', 'BSN', 'MSN']),
-                'department' => $faker->randomElement(['General Ward', 'ICU', 'Pediatrics', 'Maternity', 'Emergency']),
-                'shift' => $faker->randomElement(['Morning', 'Afternoon', 'Night']),
-                'status' => 'active',
+                'address' => $faker->address,
+                'joining_date' => $faker->dateTimeBetween('-3 years', 'now')->format('Y-m-d'),
+                'salary' => $faker->randomElement([40000, 50000, 60000, 70000]),
+                'shift' => $faker->randomElement(['day', 'night', 'rotating']),
             ]);
             $nurses[] = $nurse;
+            $deptIndex++;
         }
 
         $this->command->info('   Created ' . count($nurses) . ' nurse records');
@@ -427,15 +424,7 @@ class CompleteDemoSeeder extends Seeder
                 'phone' => $user->phone ?? $faker->phoneNumber,
                 'dob' => $faker->dateTimeBetween('-60 years', '-5 years')->format('Y-m-d'),
                 'gender' => $gender,
-                'blood_group' => $faker->randomElement(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
                 'address' => $faker->address,
-                'city' => $faker->randomElement(['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret']),
-                'state' => $faker->randomElement(['Nairobi', 'Coast', 'Nyanza', 'Rift Valley', 'Central']),
-                'country' => 'Kenya',
-                'emergency_contact_name' => $faker->name,
-                'emergency_contact_phone' => $faker->phoneNumber,
-                'emergency_contact_relationship' => $faker->randomElement(['Spouse', 'Parent', 'Sibling', 'Child']),
-                'user_id' => $user->id,
                 'created_at' => $faker->dateTimeBetween('-1 year', 'now'),
             ]);
             $patients[] = $patient;
@@ -453,14 +442,7 @@ class CompleteDemoSeeder extends Seeder
                 'phone' => $faker->phoneNumber,
                 'dob' => $faker->dateTimeBetween('-80 years', '-1 year')->format('Y-m-d'),
                 'gender' => $gender,
-                'blood_group' => $faker->randomElement(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
                 'address' => $faker->address,
-                'city' => $faker->randomElement(['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret']),
-                'state' => $faker->randomElement(['Nairobi', 'Coast', 'Nyanza', 'Rift Valley', 'Central']),
-                'country' => 'Kenya',
-                'emergency_contact_name' => $faker->name,
-                'emergency_contact_phone' => $faker->phoneNumber,
-                'emergency_contact_relationship' => $faker->randomElement(['Spouse', 'Parent', 'Sibling', 'Child']),
                 'created_at' => $faker->dateTimeBetween('-1 year', 'now'),
             ]);
             $patients[] = $patient;
@@ -488,6 +470,7 @@ class CompleteDemoSeeder extends Seeder
 
     private function seedBeds(): void
     {
+        $faker = Faker::create();
         $bedTypes = [
             ['name' => 'General Ward', 'description' => 'Standard ward bed', 'charge_per_day' => 2000],
             ['name' => 'Semi-Private', 'description' => 'Semi-private room', 'charge_per_day' => 5000],
@@ -632,7 +615,7 @@ class CompleteDemoSeeder extends Seeder
     private function seedAppointments(array $patients, array $doctors): void
     {
         $faker = Faker::create();
-        $statuses = ['scheduled', 'confirmed', 'completed', 'cancelled'];
+        $statuses = ['pending', 'confirmed', 'completed', 'canceled'];
         $appointmentCount = 0;
 
         foreach ($patients as $patient) {
@@ -645,32 +628,11 @@ class CompleteDemoSeeder extends Seeder
                 $appointment = Appointment::create([
                     'patient_id' => $patient->id,
                     'doctor_id' => $doctor->id,
-                    'appointment_date' => $date->format('Y-m-d'),
-                    'appointment_time' => $date->format('H:i:s'),
-                    'reason' => $faker->randomElement(['General checkup', 'Follow-up', 'Consultation', 'Lab review', 'Prescription renewal', 'Vaccination']),
+                    'scheduled_at' => $date->format('Y-m-d H:i:s'),
                     'status' => $status,
-                    'notes' => $faker->optional(0.5)->sentence,
+                    'note' => $faker->optional(0.5)->sentence,
                 ]);
                 $appointmentCount++;
-
-                // Create OPD visit for completed appointments
-                if ($status === 'completed') {
-                    OpdVisit::create([
-                        'patient_id' => $patient->id,
-                        'doctor_id' => $doctor->id,
-                        'visit_date' => $date->format('Y-m-d'),
-                        'chief_complaint' => $faker->randomElement(['Headache', 'Fever', 'Cough', 'Stomach pain', 'Back pain', 'Fatigue']),
-                        'vital_signs' => json_encode([
-                            'temperature' => $faker->randomFloat(1, 36.0, 38.5),
-                            'blood_pressure' => $faker->randomElement(['120/80', '130/85', '110/70', '140/90']),
-                            'pulse' => $faker->numberBetween(60, 100),
-                            'weight' => $faker->numberBetween(45, 120),
-                        ]),
-                        'diagnosis' => $faker->randomElement(['Upper respiratory infection', 'Malaria', 'Gastritis', 'Hypertension', 'Diabetes mellitus', 'Back strain']),
-                        'treatment' => $faker->sentence,
-                        'status' => 'completed',
-                    ]);
-                }
             }
         }
 
@@ -685,46 +647,35 @@ class CompleteDemoSeeder extends Seeder
         foreach ($patients as $patient) {
             if ($faker->boolean(60)) {
                 $subtotal = $faker->randomFloat(2, 500, 15000);
-                $tax = $subtotal * 0.16;
-                $total = $subtotal + $tax;
+                $tax = round($subtotal * 0.16, 2);
+                $discount = $faker->optional(0.3)->randomFloat(2, 0, $subtotal * 0.2) ?? 0;
+                $total = $subtotal + $tax - $discount;
+                $status = $faker->randomElement(['pending', 'paid', 'partial', 'overdue']);
+                $paidAmount = $status === 'paid' ? $total : ($status === 'partial' ? $total * 0.5 : 0);
 
                 $invoice = Invoice::create([
-                    'invoice_number' => 'INV-' . str_pad($invoice->id ?? rand(1000, 9999), 6, '0', STR_PAD_LEFT),
+                    'invoice_number' => 'INV-' . str_pad(rand(10000, 99999), 6, '0', STR_PAD_LEFT),
                     'patient_id' => $patient->id,
-                    'subtotal' => $subtotal,
-                    'tax' => $tax,
-                    'discount' => $faker->optional(0.3)->randomFloat(2, 0, $subtotal * 0.2),
-                    'total' => $total,
-                    'status' => $faker->randomElement(['pending', 'paid', 'partial', 'overdue']),
+                    'invoice_date' => $faker->dateTimeBetween('-1 month', 'now')->format('Y-m-d'),
                     'due_date' => $faker->dateTimeBetween('now', '+30 days')->format('Y-m-d'),
+                    'subtotal' => $subtotal,
+                    'tax_amount' => $tax,
+                    'discount_amount' => $discount,
+                    'total_amount' => $total,
+                    'paid_amount' => $paidAmount,
+                    'balance_amount' => $total - $paidAmount,
+                    'status' => $status,
                     'notes' => $faker->optional(0.5)->sentence,
                 ]);
 
-                // Fix invoice number
-                $invoice->update(['invoice_number' => 'INV-' . str_pad($invoice->id, 6, '0', STR_PAD_LEFT)]);
-
-                // Add invoice items
-                $itemCount = $faker->numberBetween(1, 4);
-                for ($i = 0; $i < $itemCount; $i++) {
-                    InvoiceItem::create([
-                        'invoice_id' => $invoice->id,
-                        'description' => $faker->randomElement(['Consultation', 'Lab test', 'Medicine', 'Procedure', 'X-ray', 'Ultrasound']),
-                        'quantity' => $faker->numberBetween(1, 5),
-                        'unit_price' => $faker->randomFloat(2, 200, 5000),
-                        'total' => $faker->randomFloat(2, 200, 5000),
-                    ]);
-                }
-
                 // Create payment for paid invoices
-                if ($invoice->status === 'paid') {
+                if ($paidAmount > 0) {
                     Payment::create([
                         'invoice_id' => $invoice->id,
-                        'patient_id' => $patient->id,
-                        'amount' => $total,
+                        'amount' => $paidAmount,
                         'payment_method' => $faker->randomElement(['cash', 'mpesa', 'card', 'insurance']),
                         'payment_date' => $faker->dateTimeBetween('-1 month', 'now')->format('Y-m-d'),
                         'reference_number' => 'PAY-' . strtoupper($faker->bothify('??####')),
-                        'status' => 'completed',
                     ]);
                 }
 
