@@ -513,15 +513,17 @@ class CompleteDemoSeeder extends Seeder
             $bedType = BedType::where('name', $bt['name'])->first();
             $count = $bt['name'] === 'ICU' ? 5 : ($bt['name'] === 'HDU' ? 8 : 15);
             for ($i = 1; $i <= $count; $i++) {
-                Bed::firstOrCreate(
-                    ['bed_number' => 'BED-' . str_pad($bedNumber, 4, '0', STR_PAD_LEFT)],
-                    [
-                        'bed_type_id' => $bedType->id,
-                        'ward' => $bt['name'],
-                        'floor' => $faker->numberBetween(1, 3),
-                        'status' => $faker->randomElement(['available', 'available', 'available', 'occupied', 'maintenance']),
-                    ]
-                );
+                $bedNum = 'BED-' . str_pad($bedNumber, 4, '0', STR_PAD_LEFT);
+                if (Bed::where('bed_number', $bedNum)->exists()) {
+                    $bedNumber++;
+                    continue;
+                }
+                Bed::create([
+                    'bed_number' => $bedNum,
+                    'ward_name' => $bt['name'],
+                    'bed_type_id' => $bedType->id,
+                    'is_available' => $faker->randomElement([true, true, true, false]),
+                ]);
                 $bedNumber++;
             }
         }
