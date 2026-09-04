@@ -29,6 +29,11 @@ class Bed extends Model
         return $this->hasMany(BedAssignment::class);
     }
 
+    public function currentAssignment(): HasOne
+    {
+        return $this->hasOne(BedAssignment::class)->latest();
+    }
+
     public function sensor(): HasOne
     {
         return $this->hasOne(IotBedSensor::class);
