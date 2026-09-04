@@ -1,61 +1,136 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Dunco Hospital Management System (Dunco HMS)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A comprehensive, web-based hospital management system built with Laravel 12, PHP 8.2+, Blade templates, Alpine.js, and Tailwind CSS.
 
-## About Laravel
+**Version:** 2.4  
+**Production URL:** https://hmse.duncowebsolutions.co.ke/  
+**License:** Proprietary — Dunco Web Solutions
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Overview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Dunco HMS is a full-featured healthcare management platform designed for hospitals, clinics, and medical facilities in Kenya. It provides end-to-end management of hospital operations including patient registration, clinical workflows, billing, pharmacy, laboratory, radiology, human resources, and SHA (Social Health Authority) insurance integration.
 
-## Learning Laravel
+## Key Features
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Patient Management** — Registration, profiles, medical history, diagnosis (ICD-10)
+- **Clinical Workflow** — OPD/IPD consultations, vital signs, prescriptions
+- **Pharmacy** — Medicine catalog, prescriptions, stock management, e-prescriptions
+- **Laboratory** — Test catalog, requests, results, equipment management
+- **Radiology** — Imaging tests, requests, reports
+- **Billing & Finance** — Invoices, payments, receipts, M-Pesa integration
+- **Insurance/SHA** — SHA member verification, eligibility, pre-authorization, claims
+- **Human Resources** — Employees, payroll, attendance, leave, training
+- **Queue Management** — Token generation, display board, kiosk
+- **Telemedicine** — Video consultation sessions with Zoom integration
+- **Patient Portal** — Self-service portal with 2FA
+- **Reports & Analytics** — Financial, patient, revenue reports with export
+- **CMS & Marketing** — Blog, gallery, careers, social media management
+- **RFID & IoT** — Tag tracking, bed sensor monitoring
+- **Biometric Security** — Fingerprint and card scanner integration
+- **AI Features** — Elliana-D virtual nurse assistant
+- **Multi-Branch** — Support for multiple hospital locations
+- **Multi-Language** — English, French, Swahili, Arabic
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Technology Stack
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Component | Technology |
+|-----------|------------|
+| Backend | Laravel 12.x / PHP 8.2+ |
+| Frontend | Blade + Alpine.js + Tailwind CSS |
+| Database | MySQL 8.0+ |
+| Build Tool | Vite 7.0+ |
+| Authentication | Laravel Sanctum |
+| Authorization | Spatie Permission (21 roles, 93 permissions) |
+| PDF | barryvdh/laravel-dompdf |
+| Excel | maatwebsite/excel |
+| SMS | Twilio SDK |
+| Logging | spatie/laravel-activitylog |
+| Backups | spatie/laravel-backup |
 
-## Laravel Sponsors
+## Installation
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+# Clone repository
+git clone https://github.com/dunte1/dunco-hms.git
+cd dunco-hms
 
-### Premium Partners
+# Install dependencies
+composer install
+npm install
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# Configure environment
+cp .env.example .env
+php artisan key:generate
 
-## Contributing
+# Set up database
+php artisan migrate
+php artisan db:seed
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Build assets
+npm run build
 
-## Code of Conduct
+# Create storage link
+php artisan storage:link
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Start queue worker
+php artisan queue:work
+```
 
-## Security Vulnerabilities
+See [docs/INSTALLATION-GUIDE.md](docs/INSTALLATION-GUIDE.md) for complete instructions.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Complete Documentation](docs/DUNCO-HMS-COMPLETE-DOCUMENTATION.md) | Full system documentation |
+| [Installation Guide](docs/INSTALLATION-GUIDE.md) | Step-by-step installation |
+| [User Guide](docs/USER-GUIDE.md) | End-user documentation |
+| [Admin Guide](docs/ADMIN-GUIDE.md) | Administrator documentation |
+| [SHA Integration](docs/SHA-INTEGRATION.md) | SHA/EHA integration guide |
+| [API Documentation](docs/API-DOCUMENTATION.md) | REST API reference |
+| [Security](docs/SECURITY.md) | Security controls and recommendations |
+| [Modules & Features](docs/MODULES-AND-FEATURES.md) | Complete feature matrix |
+| [Role-Permission Matrix](docs/ROLE-PERMISSION-MATRIX.md) | Access control matrix |
+| [Demo Guide](docs/DEMO-GUIDE.md) | Demonstration guide |
+
+## SHA Integration Status
+
+The system includes SHA (Social Health Authority) integration through Kenya's DHA Health Interoperability Engine (EHA). The `ShaService` provides OAuth2 authentication, member verification, eligibility checks, pre-authorization, and claims submission.
+
+**Current Status:** The SHA service code is production-ready, but EHA credentials have not been configured in the production environment. The system falls back to local database operations when EHA is unavailable.
+
+See [docs/SHA-INTEGRATION.md](docs/SHA-INTEGRATION.md) for details.
+
+## Demo
+
+**URL:** https://hmse.duncowebsolutions.co.ke/
+
+Demo credentials should be provisioned separately for prospective clients. Do not use production credentials for demonstrations.
+
+## Database
+
+- **133 tables** covering all hospital operations
+- **110+ migrations** (all completed)
+- **110+ Eloquent models**
+
+## Security
+
+- Role-based access control (21 roles, 93 permissions)
+- Sanctum API authentication
+- CSRF, XSS, SQL injection protection
+- Activity logging and audit trails
+- HTTPS enforcement
+
+See [docs/SECURITY.md](docs/SECURITY.md) for complete security documentation.
+
+## Support
+
+- **Email:** dunthecan02@gmail.com
+- **GitHub Issues:** https://github.com/dunte1/dunco-hms/issues
+- **Website:** https://duncowebsolutions.co.ke/
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Proprietary — Dunco Web Solutions. All rights reserved.
