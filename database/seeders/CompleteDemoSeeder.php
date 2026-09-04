@@ -140,7 +140,6 @@ class CompleteDemoSeeder extends Seeder
                 'name' => 'System Administrator',
                 'password' => Hash::make('admin123'),
                 'email_verified_at' => now(),
-                'status' => 'active',
             ]
         );
         $admin->syncRoles(['Super Admin']);
@@ -151,7 +150,6 @@ class CompleteDemoSeeder extends Seeder
                 'name' => 'Hospital Administrator',
                 'password' => Hash::make('admin123'),
                 'email_verified_at' => now(),
-                'status' => 'active',
             ]
         );
         $hospitalAdmin->syncRoles(['Hospital Admin']);
@@ -179,7 +177,6 @@ class CompleteDemoSeeder extends Seeder
                     'password' => Hash::make('doctor123'),
                     'phone' => $doc['phone'],
                     'email_verified_at' => now(),
-                    'status' => 'active',
                 ]
             );
             $user->syncRoles(['Doctor']);
@@ -203,7 +200,6 @@ class CompleteDemoSeeder extends Seeder
                     'password' => Hash::make('nurse123'),
                     'phone' => $nur['phone'],
                     'email_verified_at' => now(),
-                    'status' => 'active',
                 ]
             );
             $user->syncRoles(['Nurse']);
