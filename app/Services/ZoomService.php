@@ -8,17 +8,17 @@ use Illuminate\Support\Facades\Cache;
 
 class ZoomService
 {
-    protected string $accountId;
-    protected string $clientId;
-    protected string $clientSecret;
-    protected string $baseUrl;
+    protected string $accountId = '';
+    protected string $clientId = '';
+    protected string $clientSecret = '';
+    protected string $baseUrl = 'https://api.zoom.us/v2';
 
     public function __construct()
     {
-        $this->accountId = config('services.zoom.account_id', '');
-        $this->clientId = config('services.zoom.client_id', '');
-        $this->clientSecret = config('services.zoom.client_secret', '');
-        $this->baseUrl = config('services.zoom.base_url', 'https://api.zoom.us/v2');
+        $this->accountId = config('services.zoom.account_id') ?? '';
+        $this->clientId = config('services.zoom.client_id') ?? '';
+        $this->clientSecret = config('services.zoom.client_secret') ?? '';
+        $this->baseUrl = config('services.zoom.base_url') ?? 'https://api.zoom.us/v2';
     }
 
     /**
