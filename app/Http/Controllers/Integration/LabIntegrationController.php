@@ -43,7 +43,6 @@ class LabIntegrationController extends Controller
     public function testConnection(LabEquipment $equipment): JsonResponse
     {
         try {
-            // Simulate connection test
             $isConnected = $this->testEquipmentConnection($equipment);
             
             $equipment->update(['is_connected' => $isConnected]);
@@ -71,7 +70,6 @@ class LabIntegrationController extends Controller
 
         $equipment = LabEquipment::find($data['equipment_id']);
         
-        // Process raw data from equipment
         $processedData = $this->processEquipmentData($data['raw_data'], $equipment);
 
         $result = EquipmentResult::create([
@@ -82,7 +80,6 @@ class LabIntegrationController extends Controller
             'result_status' => 'processed'
         ]);
 
-        // Update lab request status
         $labRequest = LabRequest::find($data['lab_request_id']);
         $labRequest->update(['status' => 'completed']);
 
@@ -108,14 +105,17 @@ class LabIntegrationController extends Controller
 
     private function testEquipmentConnection(LabEquipment $equipment): bool
     {
-        // Simulate connection test based on equipment type
+        if (!$equipment->connection_type) {
+            return false;
+        }
+
         switch ($equipment->connection_type) {
             case 'tcp':
                 return $this->testTcpConnection($equipment->ip_address, $equipment->port);
             case 'http':
                 return $this->testHttpConnection($equipment->ip_address);
             case 'serial':
-                return $this->testSerialConnection($equipment->serial_number);
+                return $this->testSerialConnection($equipment);
             default:
                 return false;
         }
@@ -123,26 +123,49 @@ class LabIntegrationController extends Controller
 
     private function testTcpConnection(string $ip, int $port): bool
     {
-        // Simulate TCP connection test
+        if (empty($ip) || empty($port)) {
+            return false;
+        }
+
         return @fsockopen($ip, $port, $errno, $errstr, 5) !== false;
     }
 
     private function testHttpConnection(string $ip): bool
     {
-        // Simulate HTTP connection test
+        if (empty($ip)) {
+            return false;
+        }
+
         $context = stream_context_create(['http' => ['timeout' => 5]]);
         return @file_get_contents("http://{$ip}/status", false, $context) !== false;
     }
 
-    private function testSerialConnection(string $serial): bool
+    private function testSerialConnection(LabEquipment $equipment): bool
     {
-        // Simulate serial connection test
-        return true; // Simplified for demo
+        $config = $equipment->configuration ?? [];
+
+        if (empty($equipment->serial_number)) {
+            return false;
+        }
+
+        $port = $config['serial_port'] ?? null;
+        $baudRate = $config['baud_rate'] ?? 9600;
+
+        if (!$port) {
+            return false;
+        }
+
+        $fp = @fopen($port, 'r+');
+        if ($fp) {
+            fclose($fp);
+            return true;
+        }
+
+        return false;
     }
 
     private function processEquipmentData(array $rawData, LabEquipment $equipment): array
     {
-        // Process raw data based on equipment type
         $processedData = [];
 
         switch ($equipment->equipment_type) {
@@ -164,7 +187,6 @@ class LabIntegrationController extends Controller
 
     private function processAnalyzerData(array $rawData): array
     {
-        // Process analyzer data (blood chemistry, etc.)
         return [
             'test_results' => $rawData['results'] ?? [],
             'units' => $rawData['units'] ?? [],
@@ -176,7 +198,6 @@ class LabIntegrationController extends Controller
 
     private function processCentrifugeData(array $rawData): array
     {
-        // Process centrifuge data
         return [
             'speed' => $rawData['speed'] ?? 0,
             'time' => $rawData['time'] ?? 0,
@@ -187,7 +208,6 @@ class LabIntegrationController extends Controller
 
     private function processMicroscopeData(array $rawData): array
     {
-        // Process microscope data
         return [
             'magnification' => $rawData['magnification'] ?? 0,
             'image_data' => $rawData['image'] ?? null,

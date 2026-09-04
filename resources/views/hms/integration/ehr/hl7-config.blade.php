@@ -29,7 +29,7 @@
                 <div class="mb-3">
                     <label class="form-label">Sending Facility</label>
                     <input type="text" name="sending_facility" class="form-control" 
-                           value="{{ config('app.name', 'DuncoHMS') }}">
+                           value="{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }}">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Receiving Facility</label>

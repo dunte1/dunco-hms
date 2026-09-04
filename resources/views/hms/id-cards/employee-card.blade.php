@@ -197,7 +197,7 @@
                     @endphp
                     <img src="data:{{ $logoMime }};base64,{{ $logoData }}" alt="Hospital Logo" style="max-height: 30px; max-width: 150px; object-fit: contain;">
                 @else
-                    {{ strtoupper($themeSettings['hospital_name'] ?? 'DUNCOHMS') }}
+                    {{ strtoupper(\App\Models\SystemSetting::get('hospital_name', config('app.name'))) }}
                 @endif
             </div>
             <div class="card-type">EMPLOYEE</div>
@@ -254,7 +254,7 @@
         </div>
         
         <div class="footer">
-            <div>This card is property of {{ strtoupper($themeSettings['hospital_name'] ?? 'DUNCOHMS') }} HOSPITAL</div>
+            <div>This card is property of {{ strtoupper(\App\Models\SystemSetting::get('hospital_name', config('app.name'))) }}</div>
         </div>
         
         <div class="watermark">{{ date('Y') }}</div>

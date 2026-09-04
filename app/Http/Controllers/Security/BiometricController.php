@@ -61,7 +61,7 @@ class BiometricController extends Controller
             if ($patient) {
                 // Create or get user account for patient
                 $user = \App\Models\User::firstOrCreate(
-                    ['email' => $patient->email ?? 'patient_' . $patient->id . '@duncohms.com'],
+                    ['email' => $patient->email ?? 'patient_' . $patient->id . '@' . strtolower(str_replace(' ', '', \App\Models\SystemSetting::get('hospital_name', config('app.name')))) . '.com'],
                     [
                         'name' => $patient->full_name,
                         'password' => bcrypt('patient_' . $patient->id . '_' . time()),

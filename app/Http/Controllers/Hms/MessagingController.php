@@ -4,12 +4,21 @@ namespace App\Http\Controllers\Hms;
 
 use App\Http\Controllers\Controller;
 use App\Models\Patient;
+use App\Models\MessageTemplate;
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class MessagingController extends Controller
 {
+    protected SmsService $smsService;
+
+    public function __construct(SmsService $smsService)
+    {
+        $this->smsService = $smsService;
+    }
+
     public function index(): View
     {
         return view('hms.communication.messaging.index');
@@ -23,11 +32,7 @@ class MessagingController extends Controller
 
     public function templates(): View
     {
-        $templates = [
-            ['id' => 1, 'name' => 'Appointment Reminder', 'content' => 'Hello {patient_name}, this is a reminder for your appointment on {date} at {time}.'],
-            ['id' => 2, 'name' => 'Payment Reminder', 'content' => 'Dear {patient_name}, your payment of ${amount} is due. Please settle your account.'],
-            ['id' => 3, 'name' => 'Lab Results Ready', 'content' => 'Hello {patient_name}, your lab results are ready. Please visit the hospital to collect them.'],
-        ];
+        $templates = MessageTemplate::orderBy('name')->get();
 
         return view('hms.communication.messaging.templates', compact('templates'));
     }
@@ -40,8 +45,16 @@ class MessagingController extends Controller
             'message' => 'required|string',
         ]);
 
-        // Logic to send message would go here
-        
-        return back()->with('success', 'Message sent successfully!');
+        if ($data['message_type'] === 'sms') {
+            $result = $this->smsService->send($data['recipient'], $data['message']);
+
+            if ($result['success']) {
+                return back()->with('success', 'SMS sent successfully!');
+            }
+
+            return back()->with('error', 'Failed to send SMS: ' . ($result['message'] ?? 'Unknown error'));
+        }
+
+        return back()->with('success', 'Message queued for sending!');
     }
 }

@@ -45,14 +45,12 @@ class EhrIntegrationController extends Controller
             'data' => 'required|array',
         ]);
 
-        // Generate HL7 message
         $hl7Message = $this->generateHl7Message(
             $validated['message_type'],
             $validated['patient_id'],
             $validated['data']
         );
 
-        // Send to configured endpoint
         $endpoint = config('ehr.hl7_endpoint');
         if ($endpoint) {
             try {
@@ -93,13 +91,14 @@ class EhrIntegrationController extends Controller
     {
         $message = $request->input('message');
         
-        // Parse HL7 message
         $parsed = $this->parseHl7Message($message);
         
-        // Process based on message type
-        $this->processHl7Message($parsed);
+        $result = $this->processHl7Message($parsed);
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'result' => $result,
+        ]);
     }
 
     /**
@@ -107,9 +106,6 @@ class EhrIntegrationController extends Controller
      */
     private function generateHl7Message(string $type, int $patientId, array $data): string
     {
-        // Basic HL7 message structure
-        // MSH|^~\&|SendingApp|SendingFacility|ReceivingApp|ReceivingFacility|20250121120000||ADT^A01|123456|P|2.5
-        
         $patient = \App\Models\Patient::findOrFail($patientId);
         $timestamp = now()->format('YmdHis');
         $messageControlId = uniqid();
@@ -129,6 +125,11 @@ class EhrIntegrationController extends Controller
         $parsed = [];
 
         foreach ($segments as $segment) {
+            $segment = trim($segment);
+            if (empty($segment)) {
+                continue;
+            }
+
             $fields = explode('|', $segment);
             $segmentType = $fields[0] ?? '';
             $parsed[$segmentType] = $fields;
@@ -140,11 +141,134 @@ class EhrIntegrationController extends Controller
     /**
      * Process HL7 Message
      */
-    private function processHl7Message(array $parsed): void
+    private function processHl7Message(array $parsed): array
     {
-        // Process incoming HL7 messages
-        // This would typically update patient records, create orders, etc.
-        Log::info('HL7 message processed', ['parsed' => $parsed]);
+        $result = [
+            'processed' => false,
+            'message_type' => null,
+            'patient_id' => null,
+            'errors' => [],
+        ];
+
+        if (!isset($parsed['MSH'])) {
+            $result['errors'][] = 'Missing MSH segment';
+            return $result;
+        }
+
+        $mshSegment = $parsed['MSH'];
+        $messageType = $mshSegment[8] ?? null;
+
+        if (!$messageType) {
+            $result['errors'][] = 'Missing message type in MSH segment';
+            return $result;
+        }
+
+        $result['message_type'] = $messageType;
+
+        if (!isset($parsed['PID'])) {
+            $result['errors'][] = 'Missing PID segment';
+            return $result;
+        }
+
+        $pidSegment = $parsed['PID'];
+        $patientId = $pidSegment[3] ?? null;
+        $result['patient_id'] = $patientId;
+
+        $baseType = explode('^', $messageType)[0] ?? $messageType;
+
+        switch ($baseType) {
+            case 'ADT':
+                $this->processAdtMessage($parsed, $patientId, $result);
+                break;
+            case 'ORM':
+                $this->processOrmMessage($parsed, $patientId, $result);
+                break;
+            case 'ORU':
+                $this->processOruMessage($parsed, $patientId, $result);
+                break;
+            default:
+                $result['errors'][] = "Unsupported message type: {$baseType}";
+                return $result;
+        }
+
+        $result['processed'] = empty($result['errors']);
+
+        Log::info('HL7 message processed', [
+            'message_type' => $messageType,
+            'patient_id' => $patientId,
+            'result' => $result,
+        ]);
+
+        return $result;
+    }
+
+    /**
+     * Process ADT (Admit/Discharge/Transfer) message
+     */
+    private function processAdtMessage(array $parsed, $patientId, array &$result): void
+    {
+        if (!isset($parsed['PV1'])) {
+            $result['errors'][] = 'Missing PV1 segment for ADT message';
+            return;
+        }
+
+        $pv1 = $parsed['PV1'];
+        $visitNumber = $pv1[19] ?? null;
+        $patientClass = $pv1[2] ?? null;
+
+        $result['data'] = [
+            'visit_number' => $visitNumber,
+            'patient_class' => $patientClass,
+        ];
+
+        if ($patientId) {
+            $patient = \App\Models\Patient::find($patientId);
+            if ($patient) {
+                $result['patient_name'] = $patient->first_name . ' ' . $patient->last_name;
+            }
+        }
+    }
+
+    /**
+     * Process ORM (Order) message
+     */
+    private function processOrmMessage(array $parsed, $patientId, array &$result): void
+    {
+        if (!isset($parsed['ORC'])) {
+            $result['errors'][] = 'Missing ORC segment for ORM message';
+            return;
+        }
+
+        $orc = $parsed['ORC'];
+        $orderControl = $orc[1] ?? null;
+        $orderNumber = $orc[2] ?? null;
+
+        $result['data'] = [
+            'order_control' => $orderControl,
+            'order_number' => $orderNumber,
+        ];
+    }
+
+    /**
+     * Process ORU (Observation Result) message
+     */
+    private function processOruMessage(array $parsed, $patientId, array &$result): void
+    {
+        if (!isset($parsed['OBX'])) {
+            $result['errors'][] = 'Missing OBX segment for ORU message';
+            return;
+        }
+
+        $obx = $parsed['OBX'];
+        $observationId = $obx[3] ?? null;
+        $value = $obx[5] ?? null;
+        $units = $obx[6] ?? null;
+
+        $result['data'] = [
+            'observation_id' => $observationId,
+            'value' => $value,
+            'units' => $units,
+        ];
     }
 
     /**

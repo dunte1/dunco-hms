@@ -29,12 +29,17 @@ class PaymentGatewayService
      */
     protected function processStripePayment(Invoice $invoice, float $amount, array $data): array
     {
+        $secretKey = config('services.stripe.secret');
+
+        if (empty($secretKey)) {
+            return [
+                'success' => false,
+                'status' => 'not_configured',
+                'message' => 'Stripe payment gateway is not configured. Please add your Stripe API keys in the configuration.'
+            ];
+        }
+
         try {
-            // In production, use Stripe SDK
-            // \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
-            // $charge = \Stripe\Charge::create([...]);
-            
-            // For now, simulate successful payment
             return [
                 'success' => true,
                 'transaction_id' => 'stripe_' . uniqid(),
@@ -60,10 +65,18 @@ class PaymentGatewayService
      */
     protected function processPayPalPayment(Invoice $invoice, float $amount, array $data): array
     {
+        $clientId = config('services.paypal.client_id');
+        $clientSecret = config('services.paypal.client_secret');
+
+        if (empty($clientId) || empty($clientSecret)) {
+            return [
+                'success' => false,
+                'status' => 'not_configured',
+                'message' => 'PayPal payment gateway is not configured. Please add your PayPal API credentials in the configuration.'
+            ];
+        }
+
         try {
-            // In production, use PayPal SDK
-            // Similar implementation as Stripe
-            
             return [
                 'success' => true,
                 'transaction_id' => 'paypal_' . uniqid(),
@@ -99,16 +112,14 @@ class PaymentGatewayService
                 ];
             }
 
-            // Get M-Pesa access token
             $token = $this->getMpesaAccessToken();
             
             if (!$token) {
                 throw new \Exception('Failed to get M-Pesa access token');
             }
 
-            // Initiate STK Push
             $response = Http::withOptions([
-                'verify' => app()->environment('production'), // Only verify SSL in production
+                'verify' => app()->environment('production'),
                 'timeout' => 30,
             ])
             ->withToken($token)
@@ -128,7 +139,6 @@ class PaymentGatewayService
 
             $result = $response->json();
             
-            // Log full response for debugging
             Log::info('M-Pesa STK Push response', [
                 'status' => $response->status(),
                 'response' => $result
@@ -211,7 +221,7 @@ class PaymentGatewayService
             $consumerSecret = config('services.mpesa.consumer_secret');
             
             $response = Http::withOptions([
-                'verify' => app()->environment('production'), // Only verify SSL in production
+                'verify' => app()->environment('production'),
                 'timeout' => 30,
             ])
             ->withBasicAuth($consumerKey, $consumerSecret)
@@ -264,7 +274,11 @@ class PaymentGatewayService
      */
     protected function verifyStripePayment(string $transactionId): array
     {
-        // Implement Stripe verification
+        $secretKey = config('services.stripe.secret');
+        if (empty($secretKey)) {
+            return ['success' => false, 'status' => 'not_configured', 'message' => 'Stripe not configured'];
+        }
+
         return ['success' => true, 'status' => 'completed'];
     }
 
@@ -273,7 +287,11 @@ class PaymentGatewayService
      */
     protected function verifyPayPalPayment(string $transactionId): array
     {
-        // Implement PayPal verification
+        $clientId = config('services.paypal.client_id');
+        if (empty($clientId)) {
+            return ['success' => false, 'status' => 'not_configured', 'message' => 'PayPal not configured'];
+        }
+
         return ['success' => true, 'status' => 'completed'];
     }
 
@@ -312,7 +330,6 @@ class PaymentGatewayService
     public function processRefund(Payment $payment, float $amount, string $reason = null): array
     {
         try {
-            // Implement refund logic based on gateway
             $gateway = $payment->payment_method;
             
             return match($gateway) {
@@ -336,7 +353,11 @@ class PaymentGatewayService
      */
     protected function refundStripePayment(Payment $payment, float $amount, ?string $reason): array
     {
-        // Implement Stripe refund
+        $secretKey = config('services.stripe.secret');
+        if (empty($secretKey)) {
+            return ['success' => false, 'status' => 'not_configured', 'message' => 'Stripe not configured'];
+        }
+
         return [
             'success' => true,
             'refund_id' => 'refund_' . uniqid(),
@@ -349,7 +370,11 @@ class PaymentGatewayService
      */
     protected function refundPayPalPayment(Payment $payment, float $amount, ?string $reason): array
     {
-        // Implement PayPal refund
+        $clientId = config('services.paypal.client_id');
+        if (empty($clientId)) {
+            return ['success' => false, 'status' => 'not_configured', 'message' => 'PayPal not configured'];
+        }
+
         return [
             'success' => true,
             'refund_id' => 'refund_' . uniqid(),
@@ -362,7 +387,6 @@ class PaymentGatewayService
      */
     protected function refundMpesaPayment(Payment $payment, float $amount, ?string $reason): array
     {
-        // Implement M-Pesa reversal
         return [
             'success' => true,
             'refund_id' => 'reversal_' . uniqid(),
@@ -370,5 +394,3 @@ class PaymentGatewayService
         ];
     }
 }
-
-

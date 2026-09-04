@@ -91,7 +91,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>DUNCOHMS Hospital</h1>
+        <h1>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }}</h1>
         <h2>Profit & Loss Statement</h2>
         <p>Period: {{ \Carbon\Carbon::parse($fromDate)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($toDate)->format('M d, Y') }}</p>
     </div>
@@ -190,7 +190,7 @@
 
     <div class="footer">
         <p>Generated on {{ now()->format('F d, Y \a\t h:i A') }}</p>
-        <p>&copy; {{ date('Y') }} DUNCOHMS Hospital. All rights reserved.</p>
+        <p>&copy; {{ date('Y') }} {{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }}. All rights reserved.</p>
     </div>
 </body>
 </html>

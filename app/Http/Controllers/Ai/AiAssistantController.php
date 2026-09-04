@@ -8,6 +8,7 @@ use App\Models\AiDiagnosisSuggestion;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -30,17 +31,13 @@ class AiAssistantController extends Controller
             'preferred_time' => 'required',
         ]);
 
-        // Simulate AI logic for appointment suggestions
         $doctor = Doctor::find($data['doctor_id']);
         $patient = Patient::find($data['patient_id']);
 
-        // Get doctor's available slots (simplified)
         $availableSlots = $this->getDoctorAvailableSlots($doctor, $data['preferred_date']);
         
-        // AI suggestion logic (simplified)
         $bestSlot = $this->findBestTimeSlot($availableSlots, $data['preferred_time']);
         
-        // Combine preferred date with the suggested time slot
         $suggestedDateTime = \Carbon\Carbon::parse($data['preferred_date'] . ' ' . $bestSlot);
         
         $confidenceScore = $this->calculateConfidenceScore($bestSlot, $data['preferred_time']);
@@ -83,7 +80,6 @@ class AiAssistantController extends Controller
             'lab_results' => 'nullable|array',
         ]);
 
-        // Simulate AI diagnosis logic
         $suggestedDiagnoses = $this->analyzeSymptoms($data['symptoms'], $data['vital_signs'] ?? [], $data['lab_results'] ?? []);
         $confidenceScore = $this->calculateDiagnosisConfidence($suggestedDiagnoses);
 
@@ -105,9 +101,41 @@ class AiAssistantController extends Controller
         ]);
     }
 
-    private function getDoctorAvailableSlots($doctor, $date)
+    private function getDoctorAvailableSlots($doctor, $date): array
     {
-        // Simplified: return mock available slots
+        $schedules = Schedule::where('employee_id', $doctor->id)
+            ->where('schedule_date', $date)
+            ->get();
+
+        if ($schedules->isEmpty()) {
+            return $this->getDefaultSlots();
+        }
+
+        $slots = [];
+        foreach ($schedules as $schedule) {
+            $startTime = \Carbon\Carbon::parse($schedule->start_time);
+            $endTime = \Carbon\Carbon::parse($schedule->end_time);
+
+            while ($startTime->lt($endTime)) {
+                $slots[] = $startTime->format('H:i');
+                $startTime->addMinutes(30);
+            }
+        }
+
+        $bookedTimes = Appointment::where('doctor_id', $doctor->id)
+            ->whereDate('scheduled_at', $date)
+            ->where('status', '!=', 'cancelled')
+            ->pluck('scheduled_at')
+            ->map(fn ($dt) => $dt->format('H:i'))
+            ->toArray();
+
+        $slots = array_values(array_diff($slots, $bookedTimes));
+
+        return empty($slots) ? $this->getDefaultSlots() : $slots;
+    }
+
+    private function getDefaultSlots(): array
+    {
         return [
             '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
             '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
@@ -116,7 +144,6 @@ class AiAssistantController extends Controller
 
     private function findBestTimeSlot($availableSlots, $preferredTime)
     {
-        // Find closest available slot to preferred time
         $preferred = date('H:i', strtotime($preferredTime));
         $closest = $availableSlots[0];
         $minDiff = abs(strtotime($preferred) - strtotime($closest));
@@ -129,29 +156,54 @@ class AiAssistantController extends Controller
             }
         }
 
-        return $closest; // Return time string instead of Carbon instance
+        return $closest;
     }
 
     private function calculateConfidenceScore($suggestedTime, $preferredTime)
     {
         $diff = abs(strtotime($suggestedTime) - strtotime($preferredTime));
-        return max(60, 100 - ($diff / 60) * 2); // Higher score for closer times
+        return max(60, 100 - ($diff / 60) * 2);
     }
 
     private function analyzeSymptoms($symptoms, $vitalSigns, $labResults)
     {
-        // Simplified AI diagnosis logic
         $diagnoses = [];
-        
-        if (in_array('fever', $symptoms) && in_array('cough', $symptoms)) {
-            $diagnoses[] = ['condition' => 'Common Cold', 'probability' => 75];
-        }
-        
-        if (in_array('chest_pain', $symptoms) && in_array('shortness_of_breath', $symptoms)) {
-            $diagnoses[] = ['condition' => 'Possible Heart Condition', 'probability' => 85];
+        $symptomSet = array_map('strtolower', $symptoms);
+
+        $mappings = [
+            ['symptoms' => ['fever', 'cough'], 'condition' => 'Common Cold', 'probability' => 75],
+            ['symptoms' => ['chest_pain', 'shortness_of_breath'], 'condition' => 'Possible Heart Condition', 'probability' => 85],
+            ['symptoms' => ['headache', 'nausea'], 'condition' => 'Migraine', 'probability' => 70],
+            ['symptoms' => ['fever', 'headache', 'stiff_neck'], 'condition' => 'Meningitis', 'probability' => 60],
+            ['symptoms' => ['abdominal_pain', 'nausea', 'vomiting'], 'condition' => 'Gastroenteritis', 'probability' => 72],
+            ['symptoms' => ['fatigue', 'weight_loss', 'fever'], 'condition' => 'Tuberculosis', 'probability' => 55],
+            ['symptoms' => ['joint_pain', 'swelling', 'stiffness'], 'condition' => 'Rheumatoid Arthritis', 'probability' => 65],
+            ['symptoms' => ['chest_pain', 'cough', 'fever'], 'condition' => 'Pneumonia', 'probability' => 78],
+            ['symptoms' => ['shortness_of_breath', 'wheezing', 'cough'], 'condition' => 'Asthma', 'probability' => 80],
+            ['symptoms' => ['fever', 'rash', 'joint_pain'], 'condition' => 'Dengue Fever', 'probability' => 68],
+            ['symptoms' => ['frequent_urination', 'thirst', 'fatigue'], 'condition' => 'Diabetes Mellitus', 'probability' => 74],
+            ['symptoms' => ['sore_throat', 'fever', 'swollen_lymph_nodes'], 'condition' => 'Pharyngitis', 'probability' => 77],
+            ['symptoms' => ['back_pain', 'limited_mobility'], 'condition' => 'Musculoskeletal Strain', 'probability' => 82],
+            ['symptoms' => ['anxiety', 'insomnia', 'fatigue'], 'condition' => 'Generalized Anxiety Disorder', 'probability' => 63],
+            ['symptoms' => ['diarrhea', 'fever', 'abdominal_pain'], 'condition' => 'Food Poisoning', 'probability' => 76],
+        ];
+
+        foreach ($mappings as $mapping) {
+            $matchCount = count(array_intersect($symptomSet, $mapping['symptoms']));
+            $matchRatio = $matchCount / count($mapping['symptoms']);
+
+            if ($matchRatio >= 0.5) {
+                $adjustedProbability = (int) ($mapping['probability'] * $matchRatio);
+                $diagnoses[] = [
+                    'condition' => $mapping['condition'],
+                    'probability' => min($adjustedProbability, 99),
+                ];
+            }
         }
 
-        return $diagnoses;
+        usort($diagnoses, fn ($a, $b) => $b['probability'] <=> $a['probability']);
+
+        return array_slice($diagnoses, 0, 5);
     }
 
     private function calculateDiagnosisConfidence($diagnoses)

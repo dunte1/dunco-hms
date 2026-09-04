@@ -254,23 +254,19 @@
         }
         
         function bookAppointment() {
-            // Implementation for booking appointment
-            alert('Book appointment feature coming soon!');
+            window.location.href = '{{ route("patient-portal.appointments") }}';
         }
         
         function viewPrescriptions() {
-            // Implementation for viewing prescriptions
-            alert('View prescriptions feature coming soon!');
+            window.location.href = '{{ route("patient-portal.prescriptions") }}';
         }
         
         function viewLabResults() {
-            // Implementation for viewing lab results
-            alert('View lab results feature coming soon!');
+            window.location.href = '{{ route("patient-portal.lab-results") }}';
         }
         
         function updateProfile() {
-            // Implementation for updating profile
-            alert('Update profile feature coming soon!');
+            window.location.href = '{{ route("patient-portal.profile") }}';
         }
     </script>
 </body>

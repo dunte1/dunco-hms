@@ -173,7 +173,6 @@ class BiDashboardController extends Controller
 
     private function getOccupancyDataPoints(string $dateFrom, string $dateTo, string $granularity): array
     {
-        // Simplified occupancy calculation
         $dataPoints = [];
         $currentDate = \Carbon\Carbon::parse($dateFrom);
         $endDate = \Carbon\Carbon::parse($dateTo);
@@ -249,7 +248,6 @@ class BiDashboardController extends Controller
             return [];
         }
 
-        // Simple linear regression for predictions
         $lastValue = end($dataPoints)['value'];
         $secondLastValue = $dataPoints[count($dataPoints) - 2]['value'];
         $trend = $lastValue - $secondLastValue;
@@ -300,14 +298,38 @@ class BiDashboardController extends Controller
 
     private function calculatePatientSatisfaction(): float
     {
-        // Simplified satisfaction calculation
-        return 85.5; // Mock data
+        $totalAppointments = Appointment::count();
+        if ($totalAppointments === 0) {
+            return 0;
+        }
+
+        $completedAppointments = Appointment::where('status', 'completed')->count();
+        return round(($completedAppointments / $totalAppointments) * 100, 1);
     }
 
     private function calculateAverageWaitTime(): int
     {
-        // Simplified wait time calculation
-        return 15; // Mock data in minutes
+        $appointments = Appointment::whereNotNull('scheduled_at')
+            ->where('status', 'completed')
+            ->whereDate('scheduled_at', '>=', now()->subDays(30))
+            ->get();
+
+        if ($appointments->isEmpty()) {
+            return 0;
+        }
+
+        $totalWaitMinutes = 0;
+        $count = 0;
+
+        foreach ($appointments as $appointment) {
+            if ($appointment->created_at && $appointment->scheduled_at) {
+                $waitMinutes = $appointment->created_at->diffInMinutes($appointment->scheduled_at);
+                $totalWaitMinutes += $waitMinutes;
+                $count++;
+            }
+        }
+
+        return $count > 0 ? (int) round($totalWaitMinutes / $count) : 0;
     }
 
     private function calculateRevenueGrowth(): float
@@ -358,10 +380,22 @@ class BiDashboardController extends Controller
 
     private function calculateOccupancyMetrics($dateFrom, $dateTo): array
     {
+        $occupancies = [];
+        $currentDate = \Carbon\Carbon::parse($dateFrom);
+        $endDate = \Carbon\Carbon::parse($dateTo);
+
+        while ($currentDate->lte($endDate)) {
+            $occupiedBeds = $this->getOccupiedBedsForDate($currentDate);
+            $totalBeds = $this->getTotalBeds();
+            $occupancyRate = $totalBeds > 0 ? ($occupiedBeds / $totalBeds) * 100 : 0;
+            $occupancies[] = $occupancyRate;
+            $currentDate->addDay();
+        }
+
         return [
             'average_occupancy' => $this->calculateBedOccupancy(),
-            'peak_occupancy' => 95.5, // Mock data
-            'lowest_occupancy' => 45.2, // Mock data
+            'peak_occupancy' => !empty($occupancies) ? max($occupancies) : 0,
+            'lowest_occupancy' => !empty($occupancies) ? min($occupancies) : 0,
         ];
     }
 

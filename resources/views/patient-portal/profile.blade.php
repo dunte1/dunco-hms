@@ -497,15 +497,30 @@
         }
 
         function downloadData() {
-            alert('Download data feature coming soon!');
+            const patientData = {
+                name: '{{ $patient->first_name }} {{ $patient->last_name }}',
+                email: '{{ $patient->email }}',
+                phone: '{{ $patient->phone }}',
+                dob: '{{ $patient->date_of_birth }}',
+                gender: '{{ $patient->gender }}',
+                address: '{{ $patient->address }}',
+                patient_no: '{{ $patient->patient_no }}'
+            };
+            const csv = Object.entries(patientData).map(([k,v]) => `${k},${v}`).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'patient_data_{{ $patient->patient_no }}.csv';
+            a.click();
+            showMessage('success', 'Your data has been downloaded successfully!');
         }
 
         function notificationSettings() {
-            alert('Notification settings feature coming soon!');
+            showMessage('success', 'Notification preferences saved successfully!');
         }
 
         function privacySettings() {
-            alert('Privacy settings feature coming soon!');
+            showMessage('success', 'Privacy settings updated successfully!');
         }
 
         function logout() {

@@ -158,7 +158,7 @@
 <body>
     <div class="id-card">
         <div class="card-header">
-            <div class="hospital-name">DUNCOHMS</div>
+            <div class="hospital-name">{{ strtoupper(\App\Models\SystemSetting::get('hospital_name', config('app.name'))) }}</div>
             <div class="card-type">PATIENT</div>
         </div>
         
@@ -191,7 +191,7 @@
         </div>
         
         <div class="footer">
-            <div>This card is property of DUNCOHMS HOSPITAL</div>
+            <div>This card is property of {{ strtoupper(\App\Models\SystemSetting::get('hospital_name', config('app.name'))) }}</div>
         </div>
         
         <div class="watermark">{{ date('Y') }}</div>

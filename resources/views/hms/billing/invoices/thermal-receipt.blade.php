@@ -212,9 +212,9 @@
     <div class="receipt">
         <!-- Header -->
         <div class="header">
-            <div class="hospital-name">DUNCOHMS HOSPITAL</div>
+            <div class="hospital-name">{{ strtoupper(\App\Models\SystemSetting::get('hospital_name', config('app.name'))) }}</div>
             <div class="hospital-info">Professional Healthcare Services</div>
-            <div class="hospital-info">Tel: +254 700 000 000 | Email: info@duncohms.com</div>
+            <div class="hospital-info">Tel: {{ \App\Models\SystemSetting::get('hospital_phone', '+254 700 000 000') }} | Email: {{ \App\Models\SystemSetting::get('hospital_email', 'info@example.com') }}</div>
             <div class="receipt-title">{{ $invoice->status === 'paid' ? 'RECEIPT' : 'INVOICE' }}</div>
         </div>
         
