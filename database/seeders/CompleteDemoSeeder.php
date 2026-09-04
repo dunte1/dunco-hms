@@ -691,10 +691,11 @@ class CompleteDemoSeeder extends Seeder
                 if ($paidAmount > 0) {
                     Payment::create([
                         'invoice_id' => $invoice->id,
+                        'patient_id' => $patient->id,
                         'amount' => $paidAmount,
                         'payment_method' => $faker->randomElement(['cash', 'mpesa', 'card', 'insurance']),
                         'payment_date' => $faker->dateTimeBetween('-1 month', 'now')->format('Y-m-d'),
-                        'reference_number' => 'PAY-' . strtoupper($faker->bothify('??####')),
+                        'payment_reference' => 'PAY-' . strtoupper($faker->bothify('??####')),
                     ]);
                 }
 
