@@ -64,7 +64,7 @@
                     <button type="submit" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-md transition">
                         <i class="fa-solid fa-plus mr-2"></i> Register Tag
                     </button>
-                    <a href="{{ route('hms.rfid.index') }}" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 transition">
+                    <a href="{{ route('rfid.index') }}" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 transition">
                         Cancel
                     </a>
                 </div>

@@ -71,7 +71,7 @@
                     <button type="submit" class="px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg shadow-md transition">
                         <i class="fa-solid fa-plus mr-2"></i> Register Sensor
                     </button>
-                    <a href="{{ route('hms.iot.index') }}" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 transition">
+                    <a href="{{ route('iot.bed-monitoring') }}" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 transition">
                         Cancel
                     </a>
                 </div>
