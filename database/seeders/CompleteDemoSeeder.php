@@ -386,6 +386,13 @@ class CompleteDemoSeeder extends Seeder
 
         $deptIndex = 0;
         foreach ($nurseUsers as $user) {
+            // Skip if nurse already exists
+            if (Nurse::where('email', $user->email)->exists()) {
+                $nurses[] = Nurse::where('email', $user->email)->first();
+                $deptIndex++;
+                continue;
+            }
+
             $dept = \App\Models\NurseDepartment::all()[$deptIndex % \App\Models\NurseDepartment::count()];
             $nurse = Nurse::create([
                 'nurse_id' => 'NUR-' . str_pad($user->id, 4, '0', STR_PAD_LEFT),
