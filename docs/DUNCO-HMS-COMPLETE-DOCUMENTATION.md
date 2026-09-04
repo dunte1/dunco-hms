@@ -1003,11 +1003,11 @@ After seeding:
 | Component | Status |
 |-----------|--------|
 | Core HMS Modules | Fully Implemented |
-| SHA Integration | Partially Implemented (service code ready, EHA credentials not configured) |
-| M-Pesa Integration | Configured (sandbox URL in use, needs production credentials) |
+| SHA Integration | Code ready, EHA credentials not configured |
+| M-Pesa Integration | Configured (sandbox URL in use) |
 | SMS (Twilio) | Configured (needs production credentials) |
-| AI Features | Partially Implemented (OpenRouter integration) |
-| EHR (HL7/FHIR) | Partially Implemented |
+| AI Features | Fully Implemented (OpenRouter integration) |
+| EHR (HL7/FHIR) | Fully Implemented (real message processing) |
 | Telemedicine | Implemented |
 | IoT Bed Monitoring | Implemented |
 | RFID Management | Implemented |
@@ -1032,7 +1032,7 @@ After seeding:
 | M-Pesa Production | High | Using sandbox URL; needs production credentials |
 | Twilio SMS | Medium | Production credentials placeholder |
 | Mail Configuration | Medium | SMTP placeholder values |
-| AI API Key | Low | OpenRouter key placeholder |
+| .env Security | High | File permissions too permissive (644) |
 | Real Data | Medium | Production DB has minimal test data |
 | .env Security | High | File permissions too permissive (644) |
 | Frontend SPA | N/A | Uses Blade templates (by design, not a limitation) |
