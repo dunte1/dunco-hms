@@ -6,17 +6,54 @@
 
 ## Demo Credentials
 
-Demo credentials should be provisioned separately for prospective clients.
+All accounts use the same password pattern. The system has been seeded with complete demo data.
 
-**Important:** Do not use production administrator credentials for demonstrations. Create dedicated demo accounts with limited data.
+### Login Credentials
 
-### Recommended Demo Setup
+| Role | Email | Password |
+|------|-------|----------|
+| **Super Admin** | admin@duncohms.com | admin123 |
+| **Hospital Admin** | hospital@duncohms.com | admin123 |
+| **Doctor** | dr.mwangi@duncohms.com | doctor123 |
+| **Nurse** | nurse.njeri@duncohms.com | nurse123 |
+| **Receptionist** | reception.kimani@duncohms.com | reception123 |
+| **Pharmacist** | pharmacist.otieno@duncohms.com | pharmacist123 |
+| **Lab Technician** | lab.wekesa@duncohms.com | labtech123 |
+| **Accountant** | accountant.ogutu@duncohms.com | accountant123 |
+| **HR Officer** | hr@duncohms.com | hr123 |
+| **Patient** | patient.kamau@duncohms.com | patient123 |
 
-1. Create a demo user account (e.g., demo@duncowebsolutions.co.ke)
-2. Assign appropriate role (e.g., Hospital Admin)
-3. Seed demo patient data
-4. Seed demo appointments and records
-5. Reset demo data periodically
+### Additional Staff Accounts
+
+| Role | Email | Password |
+|------|-------|----------|
+| Doctor | dr.hassan@duncohms.com | doctor123 |
+| Doctor | dr.ochieng@duncohms.com | doctor123 |
+| Doctor | dr.wanjiku@duncohms.com | doctor123 |
+| Doctor | dr.kiprop@duncohms.com | doctor123 |
+| Nurse | nurse.akinyi@duncohms.com | nurse123 |
+| Nurse | nurse.wambui@duncohms.com | nurse123 |
+| Nurse | nurse.anyango@duncohms.com | nurse123 |
+| Nurse | nurse.muthoni@duncohms.com | nurse123 |
+| Receptionist | reception.mutua@duncohms.com | reception123 |
+| Pharmacist | pharmacist.chebet@duncohms.com | pharmacist123 |
+| Lab Tech | lab.ndunge@duncohms.com | labtech123 |
+| Inventory Manager | inventory@duncohms.com | inventory123 |
+
+### Demo Data Included
+
+- **32 users** across all roles
+- **331 patients** with profiles
+- **5 doctors** with records
+- **5 nurses** with records
+- **403 appointments** (mixed statuses)
+- **93 invoices** with payments
+- **75 medicines** in pharmacy
+- **60 lab tests** in catalog
+- **73 beds** across 6 ward types
+- **42 insurance policies** (SHA, NHIF, AAR, Jubilee, Britam)
+- **10 blood donors**
+- **12 departments** and **10 designations**
 
 ## What to Demonstrate
 
