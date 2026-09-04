@@ -198,6 +198,21 @@ class SmsService
     }
 
     /**
+     * Check if any SMS provider is configured
+     */
+    public function isConfigured(): bool
+    {
+        return match($this->provider) {
+            'twilio' => $this->isTwilioConfigured(),
+            'africas_talking' => !empty(config('services.africas_talking.api_key')) &&
+                                !empty(config('services.africas_talking.username')),
+            'nexmo' => !empty(config('services.nexmo.api_key')) &&
+                       !empty(config('services.nexmo.api_secret')),
+            default => false
+        };
+    }
+
+    /**
      * Check if Twilio is configured
      */
     protected function isTwilioConfigured(): bool
@@ -205,5 +220,13 @@ class SmsService
         return !empty(config('services.twilio.sid')) &&
                !empty(config('services.twilio.token')) &&
                !empty(config('services.twilio.from'));
+    }
+
+    /**
+     * Get the active provider name
+     */
+    public function getProvider(): string
+    {
+        return $this->provider;
     }
 }

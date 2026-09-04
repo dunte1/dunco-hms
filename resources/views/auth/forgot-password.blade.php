@@ -4,226 +4,79 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="Reset your password for {{ config('app.name') }} - Hospital Management System">
-    
-    <title>Forgot Password - {{ config('app.name', 'Hospital Management System') }}</title>
-    
-    <!-- Fonts -->
+    <title>Forgot Password - {{ config('app.name', 'Dunco HMS') }}</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Scripts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-        .input-focus:focus {
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-            border-color: #6366f1;
-        }
-        .btn-hover:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        .floating-animation {
-            animation: float 6s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .auth-entrance { animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
-<body class="h-full gradient-bg">
-    <div class="min-h-full flex">
-        <!-- Left Side - Branding -->
-        <div class="hidden lg:flex lg:w-1/2 xl:w-2/3 relative overflow-hidden">
-            <!-- Background Pattern -->
-            <div class="absolute inset-0 opacity-10">
-                <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.1"><circle cx="30" cy="30" r="4"/></g></svg>');"></div>
+<body class="h-full bg-gray-50">
+    <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-cyan-50 to-teal-100 p-4">
+        <div class="w-full max-w-md">
+            {{-- Logo --}}
+            <div class="mb-8 text-center">
+                <a href="/" class="inline-flex items-center gap-2">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-teal-600">
+                        <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900">{{ config('app.name', 'Dunco HMS') }}</span>
+                </a>
             </div>
-            
-            <!-- Floating Elements -->
-            <div class="absolute top-20 left-20 w-32 h-32 bg-white bg-opacity-10 rounded-full floating-animation"></div>
-            <div class="absolute top-40 right-32 w-24 h-24 bg-white bg-opacity-5 rounded-full floating-animation" style="animation-delay: -2s;"></div>
-            <div class="absolute bottom-32 left-32 w-40 h-40 bg-white bg-opacity-5 rounded-full floating-animation" style="animation-delay: -4s;"></div>
-            
-            <!-- Content -->
-            <div class="relative z-10 flex flex-col justify-center px-12 py-16 text-white">
-                <div class="mb-8">
-                    <div class="flex items-center mb-6">
-                        <div class="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center mr-4">
-                            <i class="fas fa-key text-3xl text-white"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-3xl font-bold">Password Recovery</h1>
-                            <p class="text-white text-opacity-80">Secure & Easy Password Reset</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="space-y-8">
-                    <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-shield-alt text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-semibold mb-2">Secure Process</h3>
-                            <p class="text-white text-opacity-80">Your password reset link is encrypted and time-limited for maximum security.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-clock text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-semibold mb-2">Quick Recovery</h3>
-                            <p class="text-white text-opacity-80">Get back to your account in minutes with our streamlined reset process.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-envelope text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-semibold mb-2">Email Verification</h3>
-                            <p class="text-white text-opacity-80">We'll send you a secure link to reset your password via email.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Right Side - Reset Form -->
-        <div class="flex-1 flex flex-col justify-center px-4 py-12 sm:px-6 lg:px-20 xl:px-24">
-            <div class="mx-auto w-full max-w-sm lg:w-96">
-                <!-- Header -->
-                <div class="text-center mb-8">
-                    <div class="mx-auto w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4">
-                        <i class="fas fa-key text-2xl text-white"></i>
-                    </div>
-                    <h2 class="text-3xl font-bold text-gray-900">Forgot Password?</h2>
-                    <p class="mt-2 text-sm text-gray-600">No worries! Enter your email and we'll send you a reset link.</p>
-    </div>
 
-                <!-- Reset Form -->
-                <div class="bg-white py-8 px-6 shadow-2xl rounded-2xl border border-gray-100">
-    <!-- Session Status -->
-                    @if (session('status'))
-                        <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-check-circle text-green-400"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-green-800">{{ session('status') }}</p>
-                                </div>
-                            </div>
+            {{-- Card --}}
+            <div class="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm auth-entrance">
+                @if (session('status'))
+                    <div class="mb-6 flex flex-col items-center text-center">
+                        <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">
+                            <svg class="h-7 w-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                         </div>
-                    @endif
-                    
-                    <form method="POST" action="{{ route('password.email') }}" class="space-y-6">
-        @csrf
+                        <h2 class="text-xl font-bold text-gray-900">Check your email</h2>
+                        <p class="mt-2 text-sm text-gray-500">{{ session('status') }}</p>
+                    </div>
+                @else
+                    <div class="mb-6 flex flex-col items-center text-center">
+                        <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-100">
+                            <svg class="h-6 w-6 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900">Forgot your password?</h2>
+                        <p class="mt-2 text-sm text-gray-500">Enter your email and we'll send you a link to reset your password.</p>
+                    </div>
 
-                        <!-- Email Field -->
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-envelope mr-2 text-gray-400"></i>Email Address
-                            </label>
-                            <div class="relative">
-                                <input 
-                                    id="email" 
-                                    name="email" 
-                                    type="email" 
-                                    value="{{ old('email') }}" 
-                                    required 
-                                    autofocus 
-                                    autocomplete="email"
-                                    class="input-focus block w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 @error('email') border-red-300 @enderror"
-                                    placeholder="Enter your registered email address"
-                                >
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-user text-gray-400"></i>
-                                </div>
-                            </div>
-                            @error('email')
-                                <p class="mt-2 text-sm text-red-600 flex items-center">
-                                    <i class="fas fa-exclamation-circle mr-1"></i>
-                                    {{ $message }}
-                                </p>
-                            @enderror
+                    <form method="POST" action="{{ route('password.email') }}">
+                        @csrf
+                        <div class="mb-6">
+                            <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700">Email address</label>
+                            <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus
+                                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                                placeholder="you@example.com">
+                            @error('email') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                         </div>
-                        
-                        <!-- Submit Button -->
-        <div>
-                            <button 
-                                type="submit" 
-                                class="btn-hover group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200"
-                            >
-                                <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                                    <i class="fas fa-paper-plane text-indigo-500 group-hover:text-indigo-400 transition duration-200"></i>
-                                </span>
-                                Send Reset Link
-                            </button>
-                        </div>
+
+                        <button type="submit" class="h-11 w-full rounded-lg bg-cyan-600 px-4 text-sm font-semibold text-white shadow-sm shadow-cyan-600/20 transition-all hover:bg-cyan-700 hover:shadow-md hover:shadow-cyan-600/30 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2">
+                            Send password reset link
+                        </button>
                     </form>
-                    
-                    <!-- Back to Login -->
-                    <div class="mt-6 text-center">
-                        <p class="text-sm text-gray-600">
-                            Remember your password? 
-                            <a href="{{ route('login') }}" class="font-medium text-indigo-600 hover:text-indigo-500 transition duration-200 hover:underline">
-                                Sign in here
-                            </a>
-                        </p>
-                    </div>
-        </div>
+                @endif
 
-                <!-- Footer -->
-                <div class="mt-8 text-center">
-                    <p class="text-xs text-white text-opacity-60">
-                        © {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
-                    </p>
+                <div class="mt-6 text-center">
+                    <a href="{{ route('login') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-gray-700">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                        Back to sign in
+                    </a>
                 </div>
             </div>
+
+            <p class="mt-8 text-center text-xs text-gray-400">
+                &copy; {{ date('Y') }} {{ config('app.name', 'Dunco HMS') }}. All rights reserved.
+            </p>
         </div>
     </div>
-    
-    <!-- JavaScript -->
-    <script>
-        // Add loading state to form submission
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const submitButton = this.querySelector('button[type="submit"]');
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending reset link...';
-            submitButton.disabled = true;
-        });
-        
-        // Add smooth animations
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('.bg-white');
-            form.style.opacity = '0';
-            form.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                form.style.transition = 'all 0.6s ease-out';
-                form.style.opacity = '1';
-                form.style.transform = 'translateY(0)';
-            }, 100);
-        });
-    </script>
 </body>
 </html>
