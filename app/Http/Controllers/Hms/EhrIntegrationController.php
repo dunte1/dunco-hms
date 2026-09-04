@@ -110,7 +110,9 @@ class EhrIntegrationController extends Controller
         $timestamp = now()->format('YmdHis');
         $messageControlId = uniqid();
 
-        $msh = "MSH|^~\\&|DuncoHMS|Hospital|External|External|{$timestamp}||{$type}^A01|{$messageControlId}|P|2.5";
+        $systemName = \App\Models\SystemSetting::get('system_name', 'DuncoHMS');
+        $hospitalName = \App\Models\SystemSetting::get('hospital_name', 'Hospital');
+        $msh = "MSH|^~\\&|{$systemName}|{$hospitalName}|External|External|{$timestamp}||{$type}^A01|{$messageControlId}|P|2.5";
         $pid = "PID|1||{$patient->id}||{$patient->first_name}^{$patient->last_name}||{$patient->date_of_birth->format('Ymd')}|{$patient->gender}";
         
         return "$msh\r$pid";

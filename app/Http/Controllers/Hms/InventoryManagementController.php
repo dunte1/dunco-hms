@@ -66,30 +66,21 @@ class InventoryManagementController extends Controller
 
     public function suppliers(): View
     {
-        $suppliers = [
-            ['id' => 1, 'name' => 'MedSupply Co.', 'contact' => '+1234567890', 'email' => 'contact@medsupply.com', 'items' => 45],
-            ['id' => 2, 'name' => 'HealthEquip Ltd.', 'contact' => '+0987654321', 'email' => 'info@healthequip.com', 'items' => 32],
-        ];
+        $suppliers = \App\Models\Supplier::withCount('items')->get();
         
         return view('hms.inventory.suppliers', compact('suppliers'));
     }
 
     public function stockMovements(): View
     {
-        $movements = [
-            ['id' => 1, 'item' => 'Surgical Gloves', 'type' => 'IN', 'quantity' => 100, 'date' => now()],
-            ['id' => 2, 'item' => 'Syringes', 'type' => 'OUT', 'quantity' => 50, 'date' => now()->subDays(1)],
-        ];
+        $movements = \App\Models\StockMovement::with('medicine')->latest()->paginate(20);
         
         return view('hms.inventory.stock-movements', compact('movements'));
     }
 
     public function purchaseOrders(): View
     {
-        $orders = [
-            ['id' => 1, 'order_number' => 'PO-001', 'supplier' => 'MedSupply Co.', 'total' => 5000, 'status' => 'pending', 'date' => now()],
-            ['id' => 2, 'order_number' => 'PO-002', 'supplier' => 'HealthEquip Ltd.', 'total' => 3500, 'status' => 'completed', 'date' => now()->subDays(2)],
-        ];
+        $orders = \App\Models\PurchaseOrder::with('supplier')->latest()->paginate(20);
         
         return view('hms.inventory.purchase-orders', compact('orders'));
     }

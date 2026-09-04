@@ -67,11 +67,11 @@
                         @endphp
                         <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'DuncoHMS') }} Logo" class="h-9 w-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="h-8 w-8 bg-indigo-600 rounded flex items-center justify-center" style="display: none;">
-                            <span class="text-white font-bold text-lg">D</span>
+                            <span class="text-white font-bold text-lg">{{ strtoupper(substr(config('app.name', 'Hospital'), 0, 1)) }}</span>
                         </div>
                     @else
                         <div class="h-8 w-8 bg-indigo-600 rounded flex items-center justify-center">
-                            <span class="text-white font-bold text-lg">D</span>
+                            <span class="text-white font-bold text-lg">{{ strtoupper(substr(config('app.name', 'Hospital'), 0, 1)) }}</span>
                         </div>
                     @endif
                     <span class="text-lg font-semibold">{{ config('app.name', 'DuncoHMS') }}</span>

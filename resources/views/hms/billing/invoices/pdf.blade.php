@@ -39,7 +39,7 @@
         <div class="header">
             <h1>{{ config('app.name', 'DuncoHMS') }}</h1>
             <p>Hospital Management System</p>
-            <p>123 Medical Street, Healthcare City, HC 12345 | Tel: (123) 456-7890</p>
+            <p>{{ \App\Models\SystemSetting::get('hospital_address', 'Address not configured') }} | Tel: {{ \App\Models\SystemSetting::get('hospital_phone', 'Phone not configured') }}</p>
         </div>
 
         <!-- Invoice Number -->
@@ -169,7 +169,7 @@
         <!-- Footer -->
         <div class="footer">
             <p><strong>Thank you for your business!</strong></p>
-            <p>For any questions regarding this invoice, please contact us at billing@hospital.com or call (123) 456-7890</p>
+            <p>For any questions regarding this invoice, please contact us at {{ \App\Models\SystemSetting::get('hospital_email', 'billing@hospital.com') }} or call {{ \App\Models\SystemSetting::get('hospital_phone', '(123) 456-7890') }}</p>
             <p style="margin-top: 10px; font-size: 10px;">This is a computer-generated invoice and does not require a signature.</p>
         </div>
     </div>

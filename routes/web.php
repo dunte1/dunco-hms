@@ -7,7 +7,7 @@ use App\Http\Controllers\Hms\ShaController;
 use App\Http\Controllers\Hms\ICD10Controller;
 use App\Http\Controllers\Hms\QueueManagementController;
 use App\Http\Controllers\Hms\DoctorsController;
-use App\Http\Controllers\Hms\AdmissionsController;
+
 use App\Http\Controllers\Hms\BillingController;
 use App\Http\Controllers\Hms\PharmacyController;
 use App\Http\Controllers\Hms\LaboratoryController;
@@ -301,8 +301,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/radiology', [RadiologyController::class, 'index'])->name('radiology.index');
         Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
         Route::get('/hr', [HrController::class, 'index'])->name('hr.index');
-        Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
-        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         
         // Bed Management
         Route::get('/bed-types', [BedTypesController::class, 'index'])->name('bed-types.index');

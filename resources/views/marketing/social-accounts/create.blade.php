@@ -59,7 +59,7 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Name *</label>
                         <input type="text" name="account_name" value="{{ old('account_name') }}" required
                             class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="e.g., Dunco Hospital Official">
+                            placeholder="e.g., Your Hospital Official">
                     </div>
 
                     <div>
