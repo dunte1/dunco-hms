@@ -421,9 +421,17 @@ class CompleteDemoSeeder extends Seeder
     {
         $faker = Faker::create();
         $patients = [];
-        $patientNumber = 1;
+        $patientNumber = Patient::count() + 1;
 
         foreach ($patientUsers as $user) {
+            // Skip if patient already exists for this user
+            $existing = Patient::where('email', $user->email)->first();
+            if ($existing) {
+                $patients[] = $existing;
+                $patientNumber++;
+                continue;
+            }
+
             $gender = $faker->randomElement(['male', 'female']);
             $patient = Patient::create([
                 'patient_no' => 'P' . str_pad($patientNumber, 5, '0', STR_PAD_LEFT),
@@ -443,8 +451,15 @@ class CompleteDemoSeeder extends Seeder
         // Also create 40 more patients without user accounts
         for ($i = 0; $i < 40; $i++) {
             $gender = $faker->randomElement(['male', 'female']);
+            $patientNo = 'P' . str_pad($patientNumber, 5, '0', STR_PAD_LEFT);
+            // Skip if patient_no already exists
+            if (Patient::where('patient_no', $patientNo)->exists()) {
+                $patientNumber++;
+                continue;
+            }
+
             $patient = Patient::create([
-                'patient_no' => 'P' . str_pad($patientNumber, 5, '0', STR_PAD_LEFT),
+                'patient_no' => $patientNo,
                 'first_name' => $faker->firstName($gender),
                 'last_name' => $faker->lastName,
                 'email' => $faker->optional(0.7)->email,
