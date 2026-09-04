@@ -22,12 +22,10 @@ use App\Models\InsuranceProvider;
 use App\Models\PatientInsurance;
 use App\Models\EmployeeDepartment;
 use App\Models\Designation;
-use App\Models\Expense;
 use App\Models\ExpenseCategory;
-use App\Models\Income;
 use App\Models\BloodGroup;
 use App\Models\BloodDonor;
-use App\Models\QueueManagement;
+use App\Models\NurseDepartment;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
@@ -754,13 +752,20 @@ class CompleteDemoSeeder extends Seeder
         $faker = Faker::create();
 
         // Blood donors
+        $bgIds = BloodGroup::pluck('id')->toArray();
         for ($i = 0; $i < 10; $i++) {
+            $gender = $faker->randomElement(['male', 'female']);
             BloodDonor::create([
-                'name' => $faker->name,
+                'donor_id' => 'DONOR-' . str_pad($i + 1, 4, '0', STR_PAD_LEFT),
+                'first_name' => $faker->firstName($gender),
+                'last_name' => $faker->lastName,
+                'email' => $faker->unique()->safeEmail,
                 'phone' => $faker->phoneNumber,
-                'blood_group' => $faker->randomElement($bloodGroups),
+                'date_of_birth' => $faker->dateTimeBetween('-50 years', '-20 years')->format('Y-m-d'),
+                'gender' => $gender,
+                'blood_group_id' => $faker->randomElement($bgIds),
+                'address' => $faker->address,
                 'last_donation_date' => $faker->dateTimeBetween('-6 months', 'now')->format('Y-m-d'),
-                'status' => 'active',
             ]);
         }
 
@@ -770,30 +775,7 @@ class CompleteDemoSeeder extends Seeder
             ExpenseCategory::firstOrCreate(['name' => $cat]);
         }
 
-        for ($i = 0; $i < 20; $i++) {
-            $category = ExpenseCategory::inRandomOrder()->first();
-            Expense::create([
-                'expense_category_id' => $category->id,
-                'description' => $faker->sentence,
-                'amount' => $faker->randomFloat(2, 5000, 500000),
-                'date' => $faker->dateTimeBetween('-3 months', 'now')->format('Y-m-d'),
-                'payment_method' => $faker->randomElement(['cash', 'bank_transfer', 'mpesa']),
-                'reference' => $faker->optional(0.7)->bothify('EXP-####'),
-            ]);
-        }
-
-        // Income
-        for ($i = 0; $i < 20; $i++) {
-            Income::create([
-                'description' => $faker->randomElement(['Consultation fee', 'Lab test payment', 'Surgery payment', 'Room charges', 'Pharmacy sales']),
-                'amount' => $faker->randomFloat(2, 5000, 200000),
-                'date' => $faker->dateTimeBetween('-3 months', 'now')->format('Y-m-d'),
-                'category' => $faker->randomElement(['consultation', 'laboratory', 'pharmacy', 'surgery', 'room']),
-                'reference' => $faker->optional(0.7)->bothify('INC-####'),
-            ]);
-        }
-
-        $this->command->info('   Created blood bank, expenses, and income data');
+        $this->command->info('   Created blood bank and expense categories');
     }
 
     private function printSummary(): void
