@@ -20,6 +20,8 @@ use App\Models\Bed;
 use App\Models\OpdVisit;
 use App\Models\InsuranceProvider;
 use App\Models\PatientInsurance;
+use App\Models\EmployeeDepartment;
+use App\Models\Designation;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Income;
