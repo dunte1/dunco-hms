@@ -18,7 +18,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('hms.iot.store-sensor') }}" class="max-w-2xl">
+            <form method="POST" action="{{ route('iot.sensor.store') }}" class="max-w-2xl">
                 @csrf
 
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border p-6 mb-6">

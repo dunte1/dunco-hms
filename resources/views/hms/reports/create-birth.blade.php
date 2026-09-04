@@ -22,7 +22,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('hms.reports.store-birth') }}">
+        <form method="POST" action="{{ route('hms.reports.birth.store') }}">
             @csrf
 
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border p-6 mb-6">
