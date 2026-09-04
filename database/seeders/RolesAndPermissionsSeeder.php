@@ -42,7 +42,7 @@ class RolesAndPermissionsSeeder extends Seeder
             
             // Lab & Radiology
             'manage test categories', 'add test requests', 'enter test results', 'approve test results',
-            'print lab reports', 'download lab reports', 'view test results',
+            'print lab reports', 'download lab reports', 'view test results', 'manage blood bank',
             
             // Billing & Finance
             'create invoices', 'edit invoices', 'add payments', 'add refunds',
@@ -55,7 +55,7 @@ class RolesAndPermissionsSeeder extends Seeder
             
             // Doctors & Staff
             'manage staff profiles', 'assign departments', 'view attendance', 'manage salaries',
-            'manage payrolls',
+            'manage payrolls', 'view doctors', 'manage nurses', 'manage ambulances', 'manage case handlers',
             
             // Bed & Room Management
             'create bed types', 'edit bed types', 'view bed status', 'manage bed assignments',
