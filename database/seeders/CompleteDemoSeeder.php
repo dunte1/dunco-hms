@@ -732,11 +732,9 @@ class CompleteDemoSeeder extends Seeder
                     'patient_id' => $patient->id,
                     'insurance_provider_id' => $provider->id,
                     'policy_number' => strtoupper($faker->bothify('??#####')),
-                    'member_id' => strtoupper($faker->bothify('??########')),
-                    'coverage_percentage' => $provider->coverage_percentage,
-                    'start_date' => $faker->dateTimeBetween('-2 years', 'now')->format('Y-m-d'),
-                    'end_date' => $faker->dateTimeBetween('+6 months', '+2 years')->format('Y-m-d'),
-                    'status' => 'active',
+                    'effective_date' => $faker->dateTimeBetween('-2 years', 'now')->format('Y-m-d'),
+                    'expiry_date' => $faker->dateTimeBetween('+6 months', '+2 years')->format('Y-m-d'),
+                    'coverage_amount' => $faker->randomFloat(2, 100000, 500000),
                 ]);
                 $insuredCount++;
             }
