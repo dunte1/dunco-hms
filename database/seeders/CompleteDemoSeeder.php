@@ -30,7 +30,6 @@ use App\Models\IpdAdmission;
 use App\Models\OpdVisit;
 use App\Models\InsuranceProvider;
 use App\Models\PatientInsurance;
-use App\Models\Invoice;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Income;
