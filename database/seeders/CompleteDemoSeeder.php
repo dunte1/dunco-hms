@@ -549,42 +549,36 @@ class CompleteDemoSeeder extends Seeder
         }
 
         $medicineData = [
-            ['name' => 'Amoxicillin 500mg', 'category' => 'Antibiotics', 'price' => 150, 'cost' => 80, 'quantity' => 500, 'expiry' => '2027-06-15'],
-            ['name' => 'Paracetamol 500mg', 'category' => 'Analgesics', 'price' => 50, 'cost' => 20, 'quantity' => 1000, 'expiry' => '2027-12-31'],
-            ['name' => 'Ibuprofen 400mg', 'category' => 'Analgesics', 'price' => 80, 'cost' => 35, 'quantity' => 800, 'expiry' => '2027-09-20'],
-            ['name' => 'Amlodipine 5mg', 'category' => 'Antihypertensives', 'price' => 200, 'cost' => 100, 'quantity' => 300, 'expiry' => '2027-03-10'],
-            ['name' => 'Metformin 500mg', 'category' => 'Antidiabetics', 'price' => 120, 'cost' => 60, 'quantity' => 400, 'expiry' => '2027-08-25'],
-            ['name' => 'Artemether-Lumefantrine', 'category' => 'Antimalarials', 'price' => 300, 'cost' => 150, 'quantity' => 200, 'expiry' => '2027-04-18'],
-            ['name' => 'Vitamin C 1000mg', 'category' => 'Vitamins', 'price' => 100, 'cost' => 40, 'quantity' => 600, 'expiry' => '2028-01-15'],
-            ['name' => 'Cetirizine 10mg', 'category' => 'Antihistamines', 'price' => 70, 'cost' => 30, 'quantity' => 350, 'expiry' => '2027-11-30'],
-            ['name' => 'Omeprazole 20mg', 'category' => 'Gastrointestinal', 'price' => 150, 'cost' => 70, 'quantity' => 250, 'expiry' => '2027-07-22'],
-            ['name' => 'Salbutamol Inhaler', 'category' => 'Respiratory', 'price' => 500, 'cost' => 280, 'quantity' => 100, 'expiry' => '2027-05-14'],
-            ['name' => 'Ciprofloxacin 500mg', 'category' => 'Antibiotics', 'price' => 200, 'cost' => 100, 'quantity' => 300, 'expiry' => '2027-10-08'],
-            ['name' => 'Losartan 50mg', 'category' => 'Antihypertensives', 'price' => 180, 'cost' => 90, 'quantity' => 250, 'expiry' => '2027-02-28'],
-            ['name' => 'Glibenclamide 5mg', 'category' => 'Antidiabetics', 'price' => 60, 'cost' => 25, 'quantity' => 400, 'expiry' => '2027-09-15'],
-            ['name' => 'ORS Sachets', 'category' => 'Gastrointestinal', 'price' => 30, 'cost' => 10, 'quantity' => 2000, 'expiry' => '2028-06-30'],
-            ['name' => 'Hydrocortisone Cream', 'category' => 'Dermatological', 'price' => 250, 'cost' => 120, 'quantity' => 150, 'expiry' => '2027-08-10'],
+            ['name' => 'Amoxicillin 500mg', 'category' => 'Antibiotics', 'price' => 150, 'quantity' => 500, 'form' => 'capsule', 'strength' => '500mg', 'expiry' => '2027-06-15'],
+            ['name' => 'Paracetamol 500mg', 'category' => 'Analgesics', 'price' => 50, 'quantity' => 1000, 'form' => 'tablet', 'strength' => '500mg', 'expiry' => '2027-12-31'],
+            ['name' => 'Ibuprofen 400mg', 'category' => 'Analgesics', 'price' => 80, 'quantity' => 800, 'form' => 'tablet', 'strength' => '400mg', 'expiry' => '2027-09-20'],
+            ['name' => 'Amlodipine 5mg', 'category' => 'Antihypertensives', 'price' => 200, 'quantity' => 300, 'form' => 'tablet', 'strength' => '5mg', 'expiry' => '2027-03-10'],
+            ['name' => 'Metformin 500mg', 'category' => 'Antidiabetics', 'price' => 120, 'quantity' => 400, 'form' => 'tablet', 'strength' => '500mg', 'expiry' => '2027-08-25'],
+            ['name' => 'Artemether-Lumefantrine', 'category' => 'Antimalarials', 'price' => 300, 'quantity' => 200, 'form' => 'tablet', 'strength' => '20/120mg', 'expiry' => '2027-04-18'],
+            ['name' => 'Vitamin C 1000mg', 'category' => 'Vitamins', 'price' => 100, 'quantity' => 600, 'form' => 'tablet', 'strength' => '1000mg', 'expiry' => '2028-01-15'],
+            ['name' => 'Cetirizine 10mg', 'category' => 'Antihistamines', 'price' => 70, 'quantity' => 350, 'form' => 'tablet', 'strength' => '10mg', 'expiry' => '2027-11-30'],
+            ['name' => 'Omeprazole 20mg', 'category' => 'Gastrointestinal', 'price' => 150, 'quantity' => 250, 'form' => 'capsule', 'strength' => '20mg', 'expiry' => '2027-07-22'],
+            ['name' => 'Salbutamol Inhaler', 'category' => 'Respiratory', 'price' => 500, 'quantity' => 100, 'form' => 'inhaler', 'strength' => '100mcg', 'expiry' => '2027-05-14'],
+            ['name' => 'Ciprofloxacin 500mg', 'category' => 'Antibiotics', 'price' => 200, 'quantity' => 300, 'form' => 'tablet', 'strength' => '500mg', 'expiry' => '2027-10-08'],
+            ['name' => 'Losartan 50mg', 'category' => 'Antihypertensives', 'price' => 180, 'quantity' => 250, 'form' => 'tablet', 'strength' => '50mg', 'expiry' => '2027-02-28'],
+            ['name' => 'Glibenclamide 5mg', 'category' => 'Antidiabetics', 'price' => 60, 'quantity' => 400, 'form' => 'tablet', 'strength' => '5mg', 'expiry' => '2027-09-15'],
+            ['name' => 'ORS Sachets', 'category' => 'Gastrointestinal', 'price' => 30, 'quantity' => 2000, 'form' => 'sachet', 'strength' => null, 'expiry' => '2028-06-30'],
+            ['name' => 'Hydrocortisone Cream', 'category' => 'Dermatological', 'price' => 250, 'quantity' => 150, 'form' => 'cream', 'strength' => '1%', 'expiry' => '2027-08-10'],
         ];
 
         foreach ($medicineData as $med) {
             $category = MedicineCategory::where('name', $med['category'])->first();
-            $brand = MedicineBrand::where('name', 'Generic')->first();
             $medicine = Medicine::create([
                 'name' => $med['name'],
-                'category_id' => $category->id ?? null,
-                'brand_id' => $brand->id ?? null,
+                'category_id' => $category->id ?? 1,
                 'generic_name' => $med['name'],
-                'dosage' => $med['name'],
-                'form' => $faker->randomElement(['Tablet', 'Capsule', 'Syrup', 'Injection', 'Cream', 'Inhaler']),
-                'price' => $med['price'],
-                'cost' => $med['cost'],
-                'quantity' => $med['quantity'],
-                'reorder_level' => 50,
+                'dosage_form' => $med['form'],
+                'strength' => $med['strength'],
+                'unit_price' => $med['price'],
+                'stock_quantity' => $med['quantity'],
+                'minimum_stock' => 50,
                 'expiry_date' => $med['expiry'],
-                'manufacturing_date' => $faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
-                'batch_number' => 'BATCH-' . strtoupper($faker->bothify('??##')),
                 'description' => $med['name'] . ' medication',
-                'status' => 'active',
             ]);
             $medicines[] = $medicine;
         }
