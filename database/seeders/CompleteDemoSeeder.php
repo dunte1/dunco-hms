@@ -618,12 +618,11 @@ class CompleteDemoSeeder extends Seeder
         foreach ($testData as $test) {
             $category = LabCategory::where('name', $test['category'])->first();
             $labTest = LabTest::create([
-                'name' => $test['name'],
-                'category_id' => $category->id ?? null,
+                'test_name' => $test['name'],
+                'category_id' => $category->id ?? 1,
                 'price' => $test['price'],
                 'normal_range' => $test['normal_range'],
                 'description' => $test['name'] . ' laboratory test',
-                'status' => 'active',
             ]);
             $labTests[] = $labTest;
         }
