@@ -13,6 +13,9 @@ class StockMovement extends Model
         'medicine_id',
         'purchase_order_id',
         'user_id',
+        'store_id',
+        'to_store_id',
+        'batch_id',
         'movement_type',
         'direction',
         'quantity',
@@ -63,6 +66,21 @@ class StockMovement extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class);
+    }
+
+    public function toStore(): BelongsTo
+    {
+        return $this->belongsTo(Store::class, 'to_store_id');
+    }
+
+    public function batch(): BelongsTo
+    {
+        return $this->belongsTo(MedicineBatch::class, 'batch_id');
     }
 
     /**

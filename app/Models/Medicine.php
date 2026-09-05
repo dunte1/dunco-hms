@@ -32,8 +32,43 @@ class Medicine extends Model
         return $this->belongsTo(MedicineBrand::class, 'brand_id');
     }
 
-    public function prescriptionItems(): HasMany
+    public function stockMovements(): HasMany
     {
-        return $this->hasMany(PrescriptionItem::class);
+        return $this->hasMany(StockMovement::class);
+    }
+
+    public function storeStocks(): HasMany
+    {
+        return $this->hasMany(StoreStock::class);
+    }
+
+    public function batches(): HasMany
+    {
+        return $this->hasMany(MedicineBatch::class);
+    }
+
+    public function getMedicineNameAttribute(): string
+    {
+        return $this->name . ($this->strength ? " ({$this->strength})" : '');
+    }
+
+    public function getTotalStockAcrossStoresAttribute(): int
+    {
+        return (int) $this->storeStocks()->sum('quantity');
+    }
+
+    public function getStockAtStore(int $storeId): int
+    {
+        return (int) $this->storeStocks()->where('store_id', $storeId)->value('quantity') ?? 0;
+    }
+
+    public function scopeLowStock($query)
+    {
+        return $query->whereColumn('stock_quantity', '<=', 'minimum_stock');
+    }
+
+    public function scopeExpiring($query, int $days = 30)
+    {
+        return $query->where('expiry_date', '<=', now()->addDays($days))->where('expiry_date', '>=', now());
     }
 }

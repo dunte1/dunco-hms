@@ -25,6 +25,7 @@ use App\Http\Controllers\Hms\MrdController;
 use App\Http\Controllers\Hms\VaccinationController;
 use App\Http\Controllers\Hms\MortuaryController;
 use App\Http\Controllers\Hms\EquipmentMaintenanceController;
+use App\Http\Controllers\Hms\StoreController;
 use App\Http\Controllers\Hms\IpdAdmissionsController;
 use App\Http\Controllers\Hms\OpdVisitsController;
 use App\Http\Controllers\Hms\InvoicesController;
@@ -361,6 +362,23 @@ Route::middleware('auth')->group(function () {
         Route::get('/laboratory', [LaboratoryController::class, 'index'])->name('laboratory.index');
         Route::get('/radiology', [RadiologyController::class, 'index'])->name('radiology.index');
         Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+        
+        // Store Management (Multi-Store Inventory)
+        Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
+        Route::get('/stores/create', [StoreController::class, 'create'])->name('stores.create');
+        Route::post('/stores', [StoreController::class, 'store'])->name('stores.store');
+        Route::get('/stores/transfer', [StoreController::class, 'transfer'])->name('stores.transfer');
+        Route::post('/stores/transfer', [StoreController::class, 'storeTransfer'])->name('stores.transfer-store');
+        Route::get('/stores/{store}', [StoreController::class, 'show'])->name('stores.show');
+        Route::get('/stores/{store}/edit', [StoreController::class, 'edit'])->name('stores.edit');
+        Route::put('/stores/{store}', [StoreController::class, 'update'])->name('stores.update');
+        Route::delete('/stores/{store}', [StoreController::class, 'destroy'])->name('stores.destroy');
+        Route::get('/stores/{store}/stock', [StoreController::class, 'stock'])->name('stores.stock');
+        Route::post('/stores/{store}/adjust-stock', [StoreController::class, 'adjustStock'])->name('stores.adjust-stock');
+        Route::get('/stores/{store}/batches', [StoreController::class, 'batches'])->name('stores.batches');
+        Route::post('/stores/{store}/batches', [StoreController::class, 'storeBatch'])->name('stores.batch-store');
+        Route::get('/stores/{store}/reports', [StoreController::class, 'reports'])->name('stores.reports');
+        
         Route::get('/hr', [HrController::class, 'index'])->name('hr.index');
         
         // Bed Management
