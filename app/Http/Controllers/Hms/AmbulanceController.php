@@ -193,4 +193,105 @@ class AmbulanceController extends Controller
         EmergencyAdmission::create($data);
         return redirect()->route('hms.ambulance.emergency')->with('status', 'Emergency admission recorded');
     }
+
+    public function showAmbulance(Ambulance $ambulance): View
+    {
+        return view('hms.ambulance.show-ambulance', compact('ambulance'));
+    }
+
+    public function editAmbulance(Ambulance $ambulance): View
+    {
+        return view('hms.ambulance.edit-ambulance', compact('ambulance'));
+    }
+
+    public function updateAmbulance(Request $request, Ambulance $ambulance): RedirectResponse
+    {
+        $data = $request->validate([
+            'vehicle_number' => 'required|string|unique:ambulances,vehicle_number,' . $ambulance->id,
+            'driver_name' => 'required|string',
+            'driver_phone' => 'required|string',
+            'vehicle_type' => 'required|in:basic,advanced,critical_care',
+            'equipment_list' => 'nullable|string',
+        ]);
+
+        $ambulance->update($data);
+        return redirect()->route('hms.ambulance.index')->with('status', 'Ambulance updated');
+    }
+
+    public function destroyAmbulance(Ambulance $ambulance): RedirectResponse
+    {
+        $ambulance->delete();
+        return redirect()->route('hms.ambulance.index')->with('status', 'Ambulance deleted');
+    }
+
+    public function showCall(AmbulanceCall $call): View
+    {
+        $call->load('ambulance');
+        return view('hms.ambulance.show-call', compact('call'));
+    }
+
+    public function editCall(AmbulanceCall $call): View
+    {
+        $ambulances = Ambulance::where('is_available', true)->get(['id', 'vehicle_number', 'driver_name']);
+        return view('hms.ambulance.edit-call', compact('call', 'ambulances'));
+    }
+
+    public function updateCall(Request $request, AmbulanceCall $call): RedirectResponse
+    {
+        $data = $request->validate([
+            'ambulance_id' => 'required|exists:ambulances,id',
+            'caller_name' => 'required|string',
+            'caller_phone' => 'required|string',
+            'pickup_address' => 'required|string',
+            'destination_address' => 'required|string',
+            'patient_condition' => 'required|string',
+            'call_time' => 'required|date',
+        ]);
+
+        $call->update($data);
+        return redirect()->route('hms.ambulance.calls')->with('status', 'Ambulance call updated');
+    }
+
+    public function destroyCall(AmbulanceCall $call): RedirectResponse
+    {
+        $call->delete();
+        return redirect()->route('hms.ambulance.calls')->with('status', 'Ambulance call deleted');
+    }
+
+    public function showEmergency(EmergencyAdmission $emergency): View
+    {
+        $emergency->load(['patient', 'ambulance']);
+        return view('hms.ambulance.show-emergency', compact('emergency'));
+    }
+
+    public function editEmergency(EmergencyAdmission $emergency): View
+    {
+        $ambulances = Ambulance::where('is_available', true)->get(['id', 'vehicle_number']);
+        $patients = \App\Models\Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        return view('hms.ambulance.edit-emergency', compact('emergency', 'ambulances', 'patients'));
+    }
+
+    public function updateEmergency(Request $request, EmergencyAdmission $emergency): RedirectResponse
+    {
+        $data = $request->validate([
+            'patient_id' => 'nullable|exists:patients,id',
+            'patient_name' => 'required|string',
+            'patient_phone' => 'nullable|string',
+            'ambulance_id' => 'nullable|exists:ambulances,id',
+            'admission_time' => 'required|date',
+            'triage_level' => 'required|in:critical,urgent,semi_urgent,non_urgent',
+            'chief_complaint' => 'required|string',
+            'vital_signs' => 'nullable|string',
+            'initial_assessment' => 'nullable|string',
+        ]);
+
+        $emergency->update($data);
+        return redirect()->route('hms.ambulance.emergency')->with('status', 'Emergency admission updated');
+    }
+
+    public function destroyEmergency(EmergencyAdmission $emergency): RedirectResponse
+    {
+        $emergency->delete();
+        return redirect()->route('hms.ambulance.emergency')->with('status', 'Emergency admission deleted');
+    }
 }

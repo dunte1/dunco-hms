@@ -105,4 +105,46 @@ class DischargeSummaryController extends Controller
         return redirect()->route('hms.discharge-summary.index')
             ->with('success', 'Patient discharged successfully!');
     }
+
+    public function edit(IpdAdmission $discharge): View
+    {
+        $patients = Patient::orderBy('first_name')->get();
+        $doctors = Doctor::orderBy('first_name')->get();
+        return view('hms.discharge-summary.edit', compact('discharge', 'patients', 'doctors'));
+    }
+
+    public function update(Request $request, IpdAdmission $discharge): RedirectResponse
+    {
+        $data = $request->validate([
+            'ipd_admission_id' => 'required|exists:ipd_admissions,id',
+            'discharge_date' => 'required|date',
+            'diagnosis' => 'required|string',
+            'treatment_plan' => 'nullable|string',
+        ]);
+
+        $admission = IpdAdmission::findOrFail($data['ipd_admission_id']);
+        $admission->update([
+            'discharge_date' => $data['discharge_date'],
+            'status' => 'discharged',
+            'diagnosis' => $data['diagnosis'],
+            'treatment_plan' => $data['treatment_plan'],
+        ]);
+
+        if ($admission->bed_id) {
+            $admission->bed->update(['is_occupied' => false]);
+        }
+
+        return redirect()->route('hms.discharge-summary.index')->with('success', 'Discharge summary updated!');
+    }
+
+    public function destroy(IpdAdmission $discharge): RedirectResponse
+    {
+        // If patient is discharged, release the bed
+        if ($discharge->status === 'discharged' && $discharge->bed_id) {
+            $discharge->bed->update(['is_occupied' => false]);
+        }
+
+        $discharge->delete();
+        return redirect()->route('hms.discharge-summary.index')->with('success', 'Discharge summary deleted!');
+    }
 }

@@ -25,6 +25,32 @@ class DoctorDepartmentsController extends Controller
         DoctorDepartment::create($data);
         return back()->with('status', 'Department created');
     }
+
+    public function show(DoctorDepartment $department): View
+    {
+        return view('hms.doctors.departments.show', compact('department'));
+    }
+
+    public function edit(DoctorDepartment $department): View
+    {
+        return view('hms.doctors.departments.edit', compact('department'));
+    }
+
+    public function update(Request $request, DoctorDepartment $department): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string|unique:doctor_departments,name,' . $department->id,
+            'description' => 'nullable|string'
+        ]);
+        $department->update($data);
+        return back()->with('status', 'Department updated');
+    }
+
+    public function destroy(DoctorDepartment $department): RedirectResponse
+    {
+        $department->delete();
+        return back()->with('status', 'Department deleted');
+    }
 }
 
 

@@ -83,4 +83,9 @@ class ICD10Controller extends Controller
         $code->delete();
         return redirect()->route('hms.icd10.index')->with('success', 'ICD-10 code deleted.');
     }
+
+    public function show(ICD10Code $code): View
+    {
+        return view('hms.icd10.show', compact('code'));
+    }
 }

@@ -47,5 +47,15 @@ class EmployeeDepartmentsController extends Controller
         $department->delete();
         return back()->with('success', 'Department deleted successfully!');
     }
+
+    public function show(EmployeeDepartment $department): View
+    {
+        return view('hms.hr.departments.show', compact('department'));
+    }
+
+    public function create(): View
+    {
+        return view('hms.hr.departments.create');
+    }
 }
 

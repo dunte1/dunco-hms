@@ -112,4 +112,74 @@ class BloodBankController extends Controller
         BloodRequest::create($data);
         return redirect()->route('hms.bloodbank.requests')->with('status', 'Blood request created');
     }
+
+    public function showDonor(BloodDonor $donor): View
+    {
+        $donor->load('bloodGroup');
+        return view('hms.bloodbank.show-donor', compact('donor'));
+    }
+
+    public function editDonor(BloodDonor $donor): View
+    {
+        $bloodGroups = BloodGroup::orderBy('name')->pluck('name', 'id');
+        return view('hms.bloodbank.edit-donor', compact('donor', 'bloodGroups'));
+    }
+
+    public function updateDonor(Request $request, BloodDonor $donor): RedirectResponse
+    {
+        $data = $request->validate([
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'email' => 'required|email|unique:blood_donors,email,' . $donor->id,
+            'phone' => 'required|string',
+            'date_of_birth' => 'required|date',
+            'gender' => 'required|in:male,female,other',
+            'blood_group_id' => 'required|exists:blood_groups,id',
+            'address' => 'required|string',
+            'medical_history' => 'nullable|string',
+        ]);
+
+        $donor->update($data);
+        return redirect()->route('hms.bloodbank.donors')->with('status', 'Blood donor updated');
+    }
+
+    public function destroyDonor(BloodDonor $donor): RedirectResponse
+    {
+        $donor->delete();
+        return redirect()->route('hms.bloodbank.donors')->with('status', 'Blood donor deleted');
+    }
+
+    public function showRequest(BloodRequest $request): View
+    {
+        $request->load(['patient', 'doctor', 'bloodGroup']);
+        return view('hms.bloodbank.show-request', compact('request'));
+    }
+
+    public function editRequest(BloodRequest $request): View
+    {
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $bloodGroups = BloodGroup::orderBy('name')->pluck('name', 'id');
+        return view('hms.bloodbank.edit-request', compact('request', 'patients', 'doctors', 'bloodGroups'));
+    }
+
+    public function updateRequest(Request $request, BloodRequest $bloodRequest): RedirectResponse
+    {
+        $data = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'doctor_id' => 'required|exists:doctors,id',
+            'blood_group_id' => 'required|exists:blood_groups,id',
+            'units_required' => 'required|integer|min:1',
+            'reason' => 'required|string',
+        ]);
+
+        $bloodRequest->update($data);
+        return redirect()->route('hms.bloodbank.requests')->with('status', 'Blood request updated');
+    }
+
+    public function destroyRequest(BloodRequest $bloodRequest): RedirectResponse
+    {
+        $bloodRequest->delete();
+        return redirect()->route('hms.bloodbank.requests')->with('status', 'Blood request deleted');
+    }
 }

@@ -112,6 +112,48 @@ class PaymentsController extends Controller
 
         return redirect()->route('hms.billing.payments.index')->with('status', $message);
     }
+
+    public function show(Payment $payment): View
+    {
+        $payment->load(['invoice.patient', 'invoice.doctor']);
+        return view('hms.billing.payments.show', compact('payment'));
+    }
+
+    public function edit(Payment $payment): View
+    {
+        $invoices = Invoice::where('balance_amount', '>', 0)->with('patient')->get();
+        return view('hms.billing.payments.edit', compact('payment', 'invoices'));
+    }
+
+    public function update(Request $request, Payment $payment): RedirectResponse
+    {
+        $data = $request->validate([
+            'invoice_id' => 'required|exists:invoices,id',
+            'amount' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|string',
+            'payment_reference' => 'nullable|string',
+            'payment_date' => 'required|date',
+            'notes' => 'nullable|string',
+        ]);
+
+        $payment->update($data);
+        return redirect()->route('hms.billing.payments.index')->with('status', 'Payment updated');
+    }
+
+    public function destroy(Payment $payment): RedirectResponse
+    {
+        // Reverse invoice balance
+        $invoice = $payment->invoice;
+        if ($invoice) {
+            $invoice->paid_amount -= $payment->amount;
+            $invoice->balance_amount = $invoice->total_amount - $invoice->paid_amount;
+            $invoice->status = $invoice->balance_amount <= 0 ? 'paid' : ($invoice->paid_amount > 0 ? 'partial' : 'pending');
+            $invoice->save();
+        }
+
+        $payment->delete();
+        return redirect()->route('hms.billing.payments.index')->with('status', 'Payment deleted');
+    }
     
     /**
      * Display thermal receipt for a payment

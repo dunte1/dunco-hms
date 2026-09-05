@@ -135,4 +135,74 @@ class CaseHandlersController extends Controller
         PatientCase::create($data);
         return redirect()->route('hms.case-handlers.cases')->with('status', 'Case created');
     }
+
+    public function show(CaseHandler $handler): View
+    {
+        return view('hms.case-handlers.show', compact('handler'));
+    }
+
+    public function edit(CaseHandler $handler): View
+    {
+        return view('hms.case-handlers.edit', compact('handler'));
+    }
+
+    public function update(Request $request, CaseHandler $handler): RedirectResponse
+    {
+        $data = $request->validate([
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'email' => 'required|email|unique:case_handlers,email,' . $handler->id,
+            'phone' => 'required|string',
+            'specialization' => 'required|string',
+            'qualifications' => 'required|string',
+            'address' => 'required|string',
+            'joining_date' => 'required|date',
+            'salary' => 'nullable|numeric|min:0',
+            'notes' => 'nullable|string',
+        ]);
+
+        $handler->update($data);
+        return redirect()->route('hms.case-handlers.index')->with('status', 'Case handler updated');
+    }
+
+    public function destroy(CaseHandler $handler): RedirectResponse
+    {
+        $handler->delete();
+        return redirect()->route('hms.case-handlers.index')->with('status', 'Case handler deleted');
+    }
+
+    public function showCase(PatientCase $case): View
+    {
+        $case->load(['patient', 'caseHandler']);
+        return view('hms.case-handlers.show-case', compact('case'));
+    }
+
+    public function editCase(PatientCase $case): View
+    {
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $caseHandlers = CaseHandler::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        return view('hms.case-handlers.edit-case', compact('case', 'patients', 'caseHandlers'));
+    }
+
+    public function updateCase(Request $request, PatientCase $case): RedirectResponse
+    {
+        $data = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'case_handler_id' => 'required|exists:case_handlers,id',
+            'case_type' => 'required|in:medical,social,financial,legal',
+            'description' => 'required|string',
+            'priority' => 'required|in:low,medium,high,urgent',
+            'opened_date' => 'required|date',
+            'notes' => 'nullable|string',
+        ]);
+
+        $case->update($data);
+        return redirect()->route('hms.case-handlers.cases')->with('status', 'Case updated');
+    }
+
+    public function destroyCase(PatientCase $case): RedirectResponse
+    {
+        $case->delete();
+        return redirect()->route('hms.case-handlers.cases')->with('status', 'Case deleted');
+    }
 }

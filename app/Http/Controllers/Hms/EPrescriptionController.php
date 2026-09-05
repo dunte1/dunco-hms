@@ -15,6 +15,18 @@ use Illuminate\Http\RedirectResponse;
 class EPrescriptionController extends Controller
 {
     /**
+     * Display all e-prescriptions
+     */
+    public function index(): View
+    {
+        $prescriptions = Prescription::with(['patient', 'doctor'])
+            ->latest('prescription_date')
+            ->paginate(20);
+
+        return view('hms.prescriptions.e-prescription.index', compact('prescriptions'));
+    }
+
+    /**
      * Display E-Prescription templates
      */
     public function templates(): View
@@ -133,6 +145,85 @@ class EPrescriptionController extends Controller
         // This would use DomPDF or similar
         // For now, return view
         return view('hms.prescriptions.e-prescription.pdf', compact('prescription', 'template'));
+    }
+
+    /**
+     * Edit E-Prescription
+     */
+    public function edit(Prescription $prescription): View
+    {
+        $prescription->load(['patient', 'doctor', 'items.medicine']);
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $medicines = Medicine::orderBy('name')->get(['id', 'name', 'dosage_form', 'strength']);
+        $templates = EPrescriptionTemplate::where('is_active', true)->get();
+        return view('hms.prescriptions.e-prescription.edit', compact('prescription', 'patients', 'doctors', 'medicines', 'templates'));
+    }
+
+    /**
+     * Update E-Prescription
+     */
+    public function update(Request $request, Prescription $prescription): RedirectResponse
+    {
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'doctor_id' => 'required|exists:doctors,id',
+            'prescription_date' => 'required|date',
+            'template_id' => 'nullable|exists:e_prescription_templates,id',
+            'symptoms' => 'nullable|string',
+            'diagnosis' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'digital_signature' => 'required|string',
+            'medicines' => 'required|array|min:1',
+            'medicines.*.medicine_id' => 'required|exists:medicines,id',
+            'medicines.*.dosage' => 'required|string',
+            'medicines.*.frequency' => 'required|string',
+            'medicines.*.quantity' => 'required|integer|min:1',
+            'medicines.*.duration_days' => 'required|integer|min:1',
+            'medicines.*.instructions' => 'nullable|string',
+        ]);
+
+        $prescription->update([
+            'patient_id' => $validated['patient_id'],
+            'doctor_id' => $validated['doctor_id'],
+            'prescription_date' => $validated['prescription_date'],
+            'symptoms' => $validated['symptoms'] ?? null,
+            'diagnosis' => $validated['diagnosis'] ?? null,
+            'notes' => $validated['notes'] ?? null,
+            'digital_signature' => $validated['digital_signature'],
+            'signed_at' => now(),
+            'signed_by' => auth()->id(),
+            'template_id' => $validated['template_id'] ?? null,
+        ]);
+
+        // Sync prescription items
+        $prescription->items()->delete();
+        foreach ($validated['medicines'] as $medicine) {
+            $prescription->items()->create([
+                'medicine_id' => $medicine['medicine_id'],
+                'dosage' => $medicine['dosage'],
+                'frequency' => $medicine['frequency'],
+                'quantity' => $medicine['quantity'],
+                'duration_days' => $medicine['duration_days'],
+                'instructions' => $medicine['instructions'] ?? null,
+            ]);
+        }
+
+        return redirect()
+            ->route('hms.prescriptions.e-prescription.show', $prescription)
+            ->with('success', 'E-Prescription updated successfully.');
+    }
+
+    /**
+     * Delete E-Prescription
+     */
+    public function destroy(Prescription $prescription): RedirectResponse
+    {
+        $prescription->items()->delete();
+        $prescription->delete();
+        return redirect()
+            ->route('hms.prescriptions.e-prescription.index')
+            ->with('success', 'E-Prescription deleted successfully.');
     }
 
     /**

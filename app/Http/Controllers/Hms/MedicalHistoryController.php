@@ -65,4 +65,39 @@ class MedicalHistoryController extends Controller
 
         return back()->with('success', 'Medical history record added successfully!');
     }
+
+    public function create(): View
+    {
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        return view('hms.medical-history.create', compact('patients'));
+    }
+
+    public function edit(MedicalHistory $history): View
+    {
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        return view('hms.medical-history.edit', compact('history', 'patients'));
+    }
+
+    public function update(Request $request, MedicalHistory $history): RedirectResponse
+    {
+        $data = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'condition' => 'required|string',
+            'diagnosis_date' => 'nullable|date',
+            'treatment' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'is_chronic' => 'boolean',
+            'recorded_date' => 'required|date',
+        ]);
+
+        $history->update($data);
+
+        return back()->with('success', 'Medical history record updated successfully!');
+    }
+
+    public function destroy(MedicalHistory $history): RedirectResponse
+    {
+        $history->delete();
+        return back()->with('success', 'Medical history record deleted successfully!');
+    }
 }

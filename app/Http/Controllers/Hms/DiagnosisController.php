@@ -103,4 +103,72 @@ class DiagnosisController extends Controller
         PatientDiagnosis::create($data);
         return redirect()->route('hms.diagnosis.patient-diagnoses')->with('status', 'Patient diagnosis recorded');
     }
+
+    public function showCategory(DiagnosisCategory $category): View
+    {
+        $category->load('patientDiagnoses');
+        return view('hms.diagnosis.show-category', compact('category'));
+    }
+
+    public function editCategory(DiagnosisCategory $category): View
+    {
+        return view('hms.diagnosis.edit-category', compact('category'));
+    }
+
+    public function updateCategory(Request $request, DiagnosisCategory $category): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string|unique:diagnosis_categories,name,' . $category->id,
+            'description' => 'nullable|string',
+            'code' => 'required|string|unique:diagnosis_categories,code,' . $category->id,
+        ]);
+
+        $category->update($data);
+        return redirect()->route('hms.diagnosis.categories')->with('status', 'Diagnosis category updated');
+    }
+
+    public function destroyCategory(DiagnosisCategory $category): RedirectResponse
+    {
+        $category->delete();
+        return redirect()->route('hms.diagnosis.categories')->with('status', 'Diagnosis category deleted');
+    }
+
+    public function showDiagnosis(PatientDiagnosis $diagnosis): View
+    {
+        $diagnosis->load(['patient', 'doctor', 'diagnosisCategory']);
+        return view('hms.diagnosis.show-diagnosis', compact('diagnosis'));
+    }
+
+    public function editDiagnosis(PatientDiagnosis $diagnosis): View
+    {
+        $diagnosis->load(['patient', 'doctor', 'diagnosisCategory']);
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $categories = DiagnosisCategory::orderBy('name')->pluck('name', 'id');
+        return view('hms.diagnosis.edit-diagnosis', compact('diagnosis', 'patients', 'doctors', 'categories'));
+    }
+
+    public function updateDiagnosis(Request $request, PatientDiagnosis $diagnosis): RedirectResponse
+    {
+        $data = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'doctor_id' => 'required|exists:doctors,id',
+            'diagnosis_category_id' => 'required|exists:diagnosis_categories,id',
+            'diagnosis' => 'required|string',
+            'symptoms' => 'nullable|string',
+            'treatment_plan' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'diagnosis_date' => 'required|date',
+            'status' => 'required|in:active,resolved,chronic',
+        ]);
+
+        $diagnosis->update($data);
+        return redirect()->route('hms.diagnosis.patient-diagnoses')->with('status', 'Patient diagnosis updated');
+    }
+
+    public function destroyDiagnosis(PatientDiagnosis $diagnosis): RedirectResponse
+    {
+        $diagnosis->delete();
+        return redirect()->route('hms.diagnosis.patient-diagnoses')->with('status', 'Patient diagnosis deleted');
+    }
 }

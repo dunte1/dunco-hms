@@ -58,4 +58,44 @@ class LabRequestsController extends Controller
         $labRequest->load(['patient', 'doctor', 'items.labTest']);
         return view('hms.laboratory.requests.show', compact('labRequest'));
     }
+
+    public function edit(LabRequest $labRequest): View
+    {
+        $labRequest->load(['items.labTest']);
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $labTests = LabTest::where('is_active', true)->orderBy('test_name')->get(['id', 'test_name', 'price']);
+        return view('hms.laboratory.requests.edit', compact('labRequest', 'patients', 'doctors', 'labTests'));
+    }
+
+    public function update(Request $request, LabRequest $labRequest): RedirectResponse
+    {
+        $data = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'doctor_id' => 'nullable|exists:doctors,id',
+            'request_date' => 'required|date',
+            'clinical_notes' => 'nullable|string',
+            'lab_tests' => 'required|array|min:1',
+            'lab_tests.*' => 'exists:lab_tests,id',
+        ]);
+
+        $labRequest->update($data);
+
+        // Sync lab request items
+        $labRequest->items()->delete();
+        foreach ($data['lab_tests'] as $testId) {
+            $labRequest->items()->create([
+                'lab_test_id' => $testId,
+            ]);
+        }
+
+        return redirect()->route('hms.laboratory.requests.index')->with('status', 'Lab request updated');
+    }
+
+    public function destroy(LabRequest $labRequest): RedirectResponse
+    {
+        $labRequest->items()->delete();
+        $labRequest->delete();
+        return redirect()->route('hms.laboratory.requests.index')->with('status', 'Lab request deleted');
+    }
 }

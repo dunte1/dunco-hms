@@ -315,6 +315,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/icd10', [ICD10Controller::class, 'index'])->name('icd10.index');
         Route::get('/icd10/create', [ICD10Controller::class, 'create'])->name('icd10.create');
         Route::post('/icd10', [ICD10Controller::class, 'store'])->name('icd10.store');
+        Route::get('/icd10/{code}', [ICD10Controller::class, 'show'])->name('icd10.show');
         Route::get('/icd10/{code}/edit', [ICD10Controller::class, 'edit'])->name('icd10.edit');
         Route::put('/icd10/{code}', [ICD10Controller::class, 'update'])->name('icd10.update');
         Route::delete('/icd10/{code}', [ICD10Controller::class, 'destroy'])->name('icd10.destroy');
@@ -323,6 +324,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/queue', [QueueManagementController::class, 'index'])->name('queue.index');
         Route::get('/queue/create', [QueueManagementController::class, 'create'])->name('queue.create');
         Route::post('/queue', [QueueManagementController::class, 'store'])->name('queue.store');
+        Route::get('/queue/{queue}', [QueueManagementController::class, 'show'])->name('queue.show');
+        Route::get('/queue/{queue}/edit', [QueueManagementController::class, 'edit'])->name('queue.edit');
+        Route::put('/queue/{queue}', [QueueManagementController::class, 'update'])->name('queue.update');
         Route::post('/queue/{queue}/call', [QueueManagementController::class, 'callQueue'])->name('queue.call');
         Route::post('/queue/{queue}/start-service', [QueueManagementController::class, 'startService'])->name('queue.start-service');
         Route::post('/queue/{queue}/complete', [QueueManagementController::class, 'completeQueue'])->name('queue.complete');
@@ -341,6 +345,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/visitors/create', [\App\Http\Controllers\Hms\VisitorController::class, 'create'])->name('visitors.create');
         Route::post('/visitors', [\App\Http\Controllers\Hms\VisitorController::class, 'store'])->name('visitors.store');
         Route::get('/visitors/{visitor}', [\App\Http\Controllers\Hms\VisitorController::class, 'show'])->name('visitors.show');
+        Route::get('/visitors/{visitor}/edit', [\App\Http\Controllers\Hms\VisitorController::class, 'edit'])->name('visitors.edit');
+        Route::put('/visitors/{visitor}', [\App\Http\Controllers\Hms\VisitorController::class, 'update'])->name('visitors.update');
         Route::post('/visitors/{visitor}/check-out', [\App\Http\Controllers\Hms\VisitorController::class, 'checkOut'])->name('visitors.check-out');
         Route::get('/visitors/{visitor}/badge', [\App\Http\Controllers\Hms\VisitorController::class, 'printBadge'])->name('visitors.badge');
         Route::get('/visitors/analytics', [\App\Http\Controllers\Hms\VisitorController::class, 'analytics'])->name('visitors.analytics');
@@ -352,6 +358,14 @@ Route::middleware('auth')->group(function () {
         // Doctor Departments (must come before /doctors/{doctor})
         Route::get('/doctors/departments', [\App\Http\Controllers\Hms\DoctorDepartmentsController::class, 'index'])->name('doctors.departments.index');
         Route::post('/doctors/departments', [\App\Http\Controllers\Hms\DoctorDepartmentsController::class, 'store'])->name('doctors.departments.store');
+        Route::get('/doctors/departments/{department}', [\App\Http\Controllers\Hms\DoctorDepartmentsController::class, 'show'])->name('doctors.departments.show');
+        Route::get('/doctors/departments/{department}/edit', [\App\Http\Controllers\Hms\DoctorDepartmentsController::class, 'edit'])->name('doctors.departments.edit');
+        Route::put('/doctors/departments/{department}', [\App\Http\Controllers\Hms\DoctorDepartmentsController::class, 'update'])->name('doctors.departments.update');
+        Route::delete('/doctors/departments/{department}', [\App\Http\Controllers\Hms\DoctorDepartmentsController::class, 'destroy'])->name('doctors.departments.destroy');
+        Route::get('/doctor-departments/{department}', [\App\Http\Controllers\Hms\DoctorDepartmentsController::class, 'show'])->name('doctor-departments.show');
+        Route::get('/doctor-departments/{department}/edit', [\App\Http\Controllers\Hms\DoctorDepartmentsController::class, 'edit'])->name('doctor-departments.edit');
+        Route::put('/doctor-departments/{department}', [\App\Http\Controllers\Hms\DoctorDepartmentsController::class, 'update'])->name('doctor-departments.update');
+        Route::delete('/doctor-departments/{department}', [\App\Http\Controllers\Hms\DoctorDepartmentsController::class, 'destroy'])->name('doctor-departments.destroy');
         Route::get('/doctors/{doctor}', [DoctorsController::class, 'show'])->name('doctors.show');
         Route::get('/doctors/{doctor}/edit', [DoctorsController::class, 'edit'])->name('doctors.edit');
         Route::put('/doctors/{doctor}', [DoctorsController::class, 'update'])->name('doctors.update');
@@ -384,9 +398,17 @@ Route::middleware('auth')->group(function () {
         // Bed Management
         Route::get('/bed-types', [BedTypesController::class, 'index'])->name('bed-types.index');
         Route::post('/bed-types', [BedTypesController::class, 'store'])->name('bed-types.store');
+        Route::get('/bed-types/{bedType}', [BedTypesController::class, 'show'])->name('bed-types.show');
+        Route::get('/bed-types/{bedType}/edit', [BedTypesController::class, 'edit'])->name('bed-types.edit');
+        Route::put('/bed-types/{bedType}', [BedTypesController::class, 'update'])->name('bed-types.update');
+        Route::delete('/bed-types/{bedType}', [BedTypesController::class, 'destroy'])->name('bed-types.destroy');
         Route::get('/beds', [BedsController::class, 'index'])->name('beds.index');
         Route::get('/beds/create', [BedsController::class, 'create'])->name('beds.create');
         Route::post('/beds', [BedsController::class, 'store'])->name('beds.store');
+        Route::get('/beds/{bed}', [BedsController::class, 'show'])->name('beds.show');
+        Route::get('/beds/{bed}/edit', [BedsController::class, 'edit'])->name('beds.edit');
+        Route::put('/beds/{bed}', [BedsController::class, 'update'])->name('beds.update');
+        Route::delete('/beds/{bed}', [BedsController::class, 'destroy'])->name('beds.destroy');
         
         // OT Scheduling
         Route::prefix('ot')->name('ot.')->group(function () {
@@ -438,6 +460,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/billing/payments', [PaymentsController::class, 'index'])->name('billing.payments.index');
         Route::get('/billing/payments/create', [PaymentsController::class, 'create'])->name('billing.payments.create');
         Route::post('/billing/payments', [PaymentsController::class, 'store'])->name('billing.payments.store');
+        Route::get('/billing/payments/{payment}', [PaymentsController::class, 'show'])->name('billing.payments.show');
+        Route::get('/billing/payments/{payment}/edit', [PaymentsController::class, 'edit'])->name('billing.payments.edit');
+        Route::put('/billing/payments/{payment}', [PaymentsController::class, 'update'])->name('billing.payments.update');
+        Route::delete('/billing/payments/{payment}', [PaymentsController::class, 'destroy'])->name('billing.payments.destroy');
         Route::get('/billing/payments/{payment}/thermal-receipt', [PaymentsController::class, 'thermalReceipt'])->name('billing.payments.thermal-receipt');
         Route::get('/billing/invoices/{invoice}/thermal-receipt', [PaymentsController::class, 'invoiceThermalReceipt'])->name('billing.invoices.thermal-receipt');
         
@@ -482,10 +508,14 @@ Route::middleware('auth')->group(function () {
         
         // E-Prescription Routes
         Route::prefix('prescriptions/e-prescription')->name('prescriptions.e-prescription.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'index'])->name('index');
             Route::get('/templates', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'templates'])->name('templates');
             Route::get('/create', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'create'])->name('create');
             Route::post('/', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'store'])->name('store');
             Route::get('/{prescription}', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'show'])->name('show');
+            Route::get('/{prescription}/edit', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'edit'])->name('edit');
+            Route::put('/{prescription}', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'update'])->name('update');
+            Route::delete('/{prescription}', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'destroy'])->name('destroy');
             Route::get('/{prescription}/pdf', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'pdf'])->name('pdf');
             Route::get('/templates/manage', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'manageTemplates'])->name('manage-templates');
             Route::get('/templates/create', [\App\Http\Controllers\Hms\EPrescriptionController::class, 'createTemplate'])->name('create-template');
@@ -505,6 +535,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/laboratory/requests/create', [LabRequestsController::class, 'create'])->name('laboratory.requests.create');
         Route::post('/laboratory/requests', [LabRequestsController::class, 'store'])->name('laboratory.requests.store');
         Route::get('/laboratory/requests/{labRequest}', [LabRequestsController::class, 'show'])->name('laboratory.requests.show');
+        Route::get('/laboratory/requests/{labRequest}/edit', [LabRequestsController::class, 'edit'])->name('laboratory.requests.edit');
+        Route::put('/laboratory/requests/{labRequest}', [LabRequestsController::class, 'update'])->name('laboratory.requests.update');
+        Route::delete('/laboratory/requests/{labRequest}', [LabRequestsController::class, 'destroy'])->name('laboratory.requests.destroy');
         
         Route::get('/laboratory/technicians', [LaboratoryController::class, 'technicians'])->name('laboratory.technicians.index');
         Route::get('/laboratory/technicians/create', [LaboratoryController::class, 'createTechnician'])->name('laboratory.technicians.create');
@@ -524,6 +557,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/radiology/requests/create', [RadiologyRequestsController::class, 'create'])->name('radiology.requests.create');
         Route::post('/radiology/requests', [RadiologyRequestsController::class, 'store'])->name('radiology.requests.store');
         Route::get('/radiology/requests/{radiologyRequest}', [RadiologyRequestsController::class, 'show'])->name('radiology.requests.show');
+        Route::get('/radiology/requests/{radiologyRequest}/edit', [RadiologyRequestsController::class, 'edit'])->name('radiology.requests.edit');
+        Route::put('/radiology/requests/{radiologyRequest}', [RadiologyRequestsController::class, 'update'])->name('radiology.requests.update');
+        Route::delete('/radiology/requests/{radiologyRequest}', [RadiologyRequestsController::class, 'destroy'])->name('radiology.requests.destroy');
         
         // HR Management
         Route::get('/hr/employees', [EmployeesController::class, 'index'])->name('hr.employees.index');
@@ -535,9 +571,13 @@ Route::middleware('auth')->group(function () {
         Route::delete('/hr/employees/{employee}', [HrController::class, 'destroyEmployee'])->name('hr.employees.destroy');
         // HR Departments
         Route::get('/hr/departments', [EmployeeDepartmentsController::class, 'index'])->name('hr.departments.index');
+        Route::get('/hr/departments/create', [EmployeeDepartmentsController::class, 'create'])->name('hr.departments.create');
         Route::post('/hr/departments', [EmployeeDepartmentsController::class, 'store'])->name('hr.departments.store');
+        Route::get('/hr/departments/{department}', [EmployeeDepartmentsController::class, 'show'])->name('hr.departments.show');
         Route::put('/hr/departments/{department}', [EmployeeDepartmentsController::class, 'update'])->name('hr.departments.update');
         Route::delete('/hr/departments/{department}', [EmployeeDepartmentsController::class, 'destroy'])->name('hr.departments.destroy');
+        Route::get('/employee-departments/create', [EmployeeDepartmentsController::class, 'create'])->name('employee-departments.create');
+        Route::get('/employee-departments/{department}', [EmployeeDepartmentsController::class, 'show'])->name('employee-departments.show');
         Route::get('/hr/payrolls', [PayrollsController::class, 'index'])->name('hr.payrolls.index');
         Route::get('/hr/payrolls/create', [PayrollsController::class, 'create'])->name('hr.payrolls.create');
         Route::post('/hr/payrolls', [PayrollsController::class, 'store'])->name('hr.payrolls.store');
@@ -559,8 +599,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/bloodbank/requests', [BloodBankController::class, 'requests'])->name('bloodbank.requests');
         Route::get('/bloodbank/donors/create', [BloodBankController::class, 'createDonor'])->name('bloodbank.donors.create');
         Route::post('/bloodbank/donors', [BloodBankController::class, 'storeDonor'])->name('bloodbank.donors.store');
+        Route::get('/bloodbank/donors/{donor}', [BloodBankController::class, 'showDonor'])->name('bloodbank.donors.show');
+        Route::get('/bloodbank/donors/{donor}/edit', [BloodBankController::class, 'editDonor'])->name('bloodbank.donors.edit');
+        Route::put('/bloodbank/donors/{donor}', [BloodBankController::class, 'updateDonor'])->name('bloodbank.donors.update');
+        Route::delete('/bloodbank/donors/{donor}', [BloodBankController::class, 'destroyDonor'])->name('bloodbank.donors.destroy');
         Route::get('/bloodbank/requests/create', [BloodBankController::class, 'createRequest'])->name('bloodbank.requests.create');
         Route::post('/bloodbank/requests', [BloodBankController::class, 'storeRequest'])->name('bloodbank.requests.store');
+        Route::get('/bloodbank/requests/{request}', [BloodBankController::class, 'showRequest'])->name('bloodbank.requests.show');
+        Route::get('/bloodbank/requests/{request}/edit', [BloodBankController::class, 'editRequest'])->name('bloodbank.requests.edit');
+        Route::put('/bloodbank/requests/{request}', [BloodBankController::class, 'updateRequest'])->name('bloodbank.requests.update');
+        Route::delete('/bloodbank/requests/{request}', [BloodBankController::class, 'destroyRequest'])->name('bloodbank.requests.destroy');
         
         // Ambulance & Emergency
         Route::get('/ambulance', [AmbulanceController::class, 'index'])->name('ambulance.index');
@@ -568,10 +616,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/ambulance/emergency', [AmbulanceController::class, 'emergency'])->name('ambulance.emergency');
         Route::get('/ambulance/create-ambulance', [AmbulanceController::class, 'createAmbulance'])->name('ambulance.create-ambulance');
         Route::post('/ambulance/ambulances', [AmbulanceController::class, 'storeAmbulance'])->name('ambulance.store-ambulance');
+        Route::get('/ambulance/ambulances/{ambulance}', [AmbulanceController::class, 'showAmbulance'])->name('ambulance.show-ambulance');
+        Route::get('/ambulance/ambulances/{ambulance}/edit', [AmbulanceController::class, 'editAmbulance'])->name('ambulance.edit-ambulance');
+        Route::put('/ambulance/ambulances/{ambulance}', [AmbulanceController::class, 'updateAmbulance'])->name('ambulance.update-ambulance');
+        Route::delete('/ambulance/ambulances/{ambulance}', [AmbulanceController::class, 'destroyAmbulance'])->name('ambulance.destroy-ambulance');
         Route::get('/ambulance/create-call', [AmbulanceController::class, 'createCall'])->name('ambulance.create-call');
         Route::post('/ambulance/calls', [AmbulanceController::class, 'storeCall'])->name('ambulance.store-call');
+        Route::get('/ambulance/calls/{call}', [AmbulanceController::class, 'showCall'])->name('ambulance.show-call');
+        Route::get('/ambulance/calls/{call}/edit', [AmbulanceController::class, 'editCall'])->name('ambulance.edit-call');
+        Route::put('/ambulance/calls/{call}', [AmbulanceController::class, 'updateCall'])->name('ambulance.update-call');
+        Route::delete('/ambulance/calls/{call}', [AmbulanceController::class, 'destroyCall'])->name('ambulance.destroy-call');
         Route::get('/ambulance/create-emergency', [AmbulanceController::class, 'createEmergency'])->name('ambulance.create-emergency');
         Route::post('/ambulance/emergency', [AmbulanceController::class, 'storeEmergency'])->name('ambulance.store-emergency');
+        Route::get('/ambulance/emergency/{emergency}', [AmbulanceController::class, 'showEmergency'])->name('ambulance.show-emergency');
+        Route::get('/ambulance/emergency/{emergency}/edit', [AmbulanceController::class, 'editEmergency'])->name('ambulance.edit-emergency');
+        Route::put('/ambulance/emergency/{emergency}', [AmbulanceController::class, 'updateEmergency'])->name('ambulance.update-emergency');
+        Route::delete('/ambulance/emergency/{emergency}', [AmbulanceController::class, 'destroyEmergency'])->name('ambulance.destroy-emergency');
         
         // Reports & Analytics
         Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
@@ -608,30 +668,66 @@ Route::middleware('auth')->group(function () {
         Route::get('/case-handlers', [CaseHandlersController::class, 'index'])->name('case-handlers.index');
         Route::get('/case-handlers/create', [CaseHandlersController::class, 'create'])->name('case-handlers.create');
         Route::post('/case-handlers', [CaseHandlersController::class, 'store'])->name('case-handlers.store');
+        Route::get('/case-handlers/{handler}', [CaseHandlersController::class, 'show'])->name('case-handlers.show');
+        Route::get('/case-handlers/{handler}/edit', [CaseHandlersController::class, 'edit'])->name('case-handlers.edit');
+        Route::put('/case-handlers/{handler}', [CaseHandlersController::class, 'update'])->name('case-handlers.update');
+        Route::delete('/case-handlers/{handler}', [CaseHandlersController::class, 'destroy'])->name('case-handlers.destroy');
         Route::get('/case-handlers/cases', [CaseHandlersController::class, 'cases'])->name('case-handlers.cases');
         Route::get('/case-handlers/cases/create', [CaseHandlersController::class, 'createCase'])->name('case-handlers.cases.create');
         Route::post('/case-handlers/cases', [CaseHandlersController::class, 'storeCase'])->name('case-handlers.cases.store');
+        Route::get('/case-handlers/cases/{case}', [CaseHandlersController::class, 'showCase'])->name('case-handlers.cases.show');
+        Route::get('/case-handlers/cases/{case}/edit', [CaseHandlersController::class, 'editCase'])->name('case-handlers.cases.edit');
+        Route::put('/case-handlers/cases/{case}', [CaseHandlersController::class, 'updateCase'])->name('case-handlers.cases.update');
+        Route::delete('/case-handlers/cases/{case}', [CaseHandlersController::class, 'destroyCase'])->name('case-handlers.cases.destroy');
         
         // Birth & Death Reports
         Route::get('/reports/birth', [BirthDeathReportsController::class, 'birthReports'])->name('reports.birth');
         Route::get('/reports/death', [BirthDeathReportsController::class, 'deathReports'])->name('reports.death');
         Route::get('/reports/birth/create', [BirthDeathReportsController::class, 'createBirthReport'])->name('reports.birth.create');
         Route::post('/reports/birth', [BirthDeathReportsController::class, 'storeBirthReport'])->name('reports.birth.store');
+        Route::get('/reports/birth/{report}', [BirthDeathReportsController::class, 'showBirthReport'])->name('reports.birth.show');
+        Route::get('/reports/birth/{report}/edit', [BirthDeathReportsController::class, 'editBirthReport'])->name('reports.birth.edit');
+        Route::put('/reports/birth/{report}', [BirthDeathReportsController::class, 'updateBirthReport'])->name('reports.birth.update');
+        Route::delete('/reports/birth/{report}', [BirthDeathReportsController::class, 'destroyBirthReport'])->name('reports.birth.destroy');
         Route::get('/reports/death/create', [BirthDeathReportsController::class, 'createDeathReport'])->name('reports.death.create');
         Route::post('/reports/death', [BirthDeathReportsController::class, 'storeDeathReport'])->name('reports.death.store');
+        Route::get('/reports/death/{report}', [BirthDeathReportsController::class, 'showDeathReport'])->name('reports.death.show');
+        Route::get('/reports/death/{report}/edit', [BirthDeathReportsController::class, 'editDeathReport'])->name('reports.death.edit');
+        Route::put('/reports/death/{report}', [BirthDeathReportsController::class, 'updateDeathReport'])->name('reports.death.update');
+        Route::delete('/reports/death/{report}', [BirthDeathReportsController::class, 'destroyDeathReport'])->name('reports.death.destroy');
+        Route::get('/birth-reports/{report}', [BirthDeathReportsController::class, 'showBirthReport'])->name('birth-reports.show');
+        Route::get('/birth-reports/{report}/edit', [BirthDeathReportsController::class, 'editBirthReport'])->name('birth-reports.edit');
+        Route::put('/birth-reports/{report}', [BirthDeathReportsController::class, 'updateBirthReport'])->name('birth-reports.update');
+        Route::delete('/birth-reports/{report}', [BirthDeathReportsController::class, 'destroyBirthReport'])->name('birth-reports.destroy');
+        Route::get('/death-reports/{report}', [BirthDeathReportsController::class, 'showDeathReport'])->name('death-reports.show');
+        Route::get('/death-reports/{report}/edit', [BirthDeathReportsController::class, 'editDeathReport'])->name('death-reports.edit');
+        Route::put('/death-reports/{report}', [BirthDeathReportsController::class, 'updateDeathReport'])->name('death-reports.update');
+        Route::delete('/death-reports/{report}', [BirthDeathReportsController::class, 'destroyDeathReport'])->name('death-reports.destroy');
         
         // Operation Reports & Surgery
         Route::get('/operations', [OperationReportsController::class, 'index'])->name('operations.index');
         Route::get('/operations/create', [OperationReportsController::class, 'create'])->name('operations.create');
         Route::post('/operations', [OperationReportsController::class, 'store'])->name('operations.store');
+        Route::get('/operations/{report}', [OperationReportsController::class, 'show'])->name('operations.show');
+        Route::get('/operations/{report}/edit', [OperationReportsController::class, 'edit'])->name('operations.edit');
+        Route::put('/operations/{report}', [OperationReportsController::class, 'update'])->name('operations.update');
+        Route::delete('/operations/{report}', [OperationReportsController::class, 'destroy'])->name('operations.destroy');
         
         // Patient Diagnosis
         Route::get('/diagnosis/categories', [DiagnosisController::class, 'categories'])->name('diagnosis.categories');
         Route::get('/diagnosis/categories/create', [DiagnosisController::class, 'createCategory'])->name('diagnosis.categories.create');
         Route::post('/diagnosis/categories', [DiagnosisController::class, 'storeCategory'])->name('diagnosis.categories.store');
+        Route::get('/diagnosis/categories/{category}', [DiagnosisController::class, 'showCategory'])->name('diagnosis.categories.show');
+        Route::get('/diagnosis/categories/{category}/edit', [DiagnosisController::class, 'editCategory'])->name('diagnosis.categories.edit');
+        Route::put('/diagnosis/categories/{category}', [DiagnosisController::class, 'updateCategory'])->name('diagnosis.categories.update');
+        Route::delete('/diagnosis/categories/{category}', [DiagnosisController::class, 'destroyCategory'])->name('diagnosis.categories.destroy');
         Route::get('/diagnosis/patient-diagnoses', [DiagnosisController::class, 'patientDiagnoses'])->name('diagnosis.patient-diagnoses');
         Route::get('/diagnosis/patient-diagnoses/create', [DiagnosisController::class, 'createDiagnosis'])->name('diagnosis.patient-diagnoses.create');
         Route::post('/diagnosis/patient-diagnoses', [DiagnosisController::class, 'storeDiagnosis'])->name('diagnosis.patient-diagnoses.store');
+        Route::get('/diagnosis/patient-diagnoses/{diagnosis}', [DiagnosisController::class, 'showDiagnosis'])->name('diagnosis.patient-diagnoses.show');
+        Route::get('/diagnosis/patient-diagnoses/{diagnosis}/edit', [DiagnosisController::class, 'editDiagnosis'])->name('diagnosis.patient-diagnoses.edit');
+        Route::put('/diagnosis/patient-diagnoses/{diagnosis}', [DiagnosisController::class, 'updateDiagnosis'])->name('diagnosis.patient-diagnoses.update');
+        Route::delete('/diagnosis/patient-diagnoses/{diagnosis}', [DiagnosisController::class, 'destroyDiagnosis'])->name('diagnosis.patient-diagnoses.destroy');
         
         // Staff Management
         Route::get('/staff/receptionists', [StaffManagementController::class, 'receptionists'])->name('staff.receptionists');
@@ -672,6 +768,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/discharge-summary', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'index'])->name('discharge-summary.index');
         Route::get('/discharge-summary/create', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'create'])->name('discharge-summary.create');
         Route::post('/discharge-summary', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'store'])->name('discharge-summary.store');
+        Route::get('/discharge-summary/{discharge}', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'show'])->name('discharge-summary.show');
+        Route::get('/discharge-summary/{discharge}/edit', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'edit'])->name('discharge-summary.edit');
+        Route::put('/discharge-summary/{discharge}', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'update'])->name('discharge-summary.update');
+        Route::delete('/discharge-summary/{discharge}', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'destroy'])->name('discharge-summary.destroy');
         
         // Doctor Charges
         Route::get('/doctor-charges', [\App\Http\Controllers\Hms\DoctorChargesController::class, 'index'])->name('doctor-charges.index');
@@ -679,8 +779,12 @@ Route::middleware('auth')->group(function () {
         
         // Medical History & Vitals
         Route::get('/medical-history', [\App\Http\Controllers\Hms\MedicalHistoryController::class, 'index'])->name('medical-history.index');
-        Route::get('/medical-history/{patient}', [\App\Http\Controllers\Hms\MedicalHistoryController::class, 'show'])->name('medical-history.show');
+        Route::get('/medical-history/create', [\App\Http\Controllers\Hms\MedicalHistoryController::class, 'create'])->name('medical-history.create');
         Route::post('/medical-history', [\App\Http\Controllers\Hms\MedicalHistoryController::class, 'store'])->name('medical-history.store');
+        Route::get('/medical-history/{patient}', [\App\Http\Controllers\Hms\MedicalHistoryController::class, 'show'])->name('medical-history.show');
+        Route::get('/medical-history/{history}/edit', [\App\Http\Controllers\Hms\MedicalHistoryController::class, 'edit'])->name('medical-history.edit');
+        Route::put('/medical-history/{history}', [\App\Http\Controllers\Hms\MedicalHistoryController::class, 'update'])->name('medical-history.update');
+        Route::delete('/medical-history/{history}', [\App\Http\Controllers\Hms\MedicalHistoryController::class, 'destroy'])->name('medical-history.destroy');
         
         // Test Categories (Pathology & Radiology)
         Route::get('/test-categories', [\App\Http\Controllers\Hms\TestCategoriesController::class, 'index'])->name('test-categories.index');
@@ -740,6 +844,12 @@ Route::middleware('auth')->group(function () {
         
         // Advance Payments
         Route::get('/advance-payments', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'index'])->name('advance-payments.index');
+        Route::get('/advance-payments/create', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'create'])->name('advance-payments.create');
+        Route::post('/advance-payments', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'store'])->name('advance-payments.store');
+        Route::get('/advance-payments/{advancePayment}', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'show'])->name('advance-payments.show');
+        Route::get('/advance-payments/{advancePayment}/edit', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'edit'])->name('advance-payments.edit');
+        Route::put('/advance-payments/{advancePayment}', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'update'])->name('advance-payments.update');
+        Route::delete('/advance-payments/{advancePayment}', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'destroy'])->name('advance-payments.destroy');
         Route::get('/advance-payments/deposits', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'deposits'])->name('advance-payments.deposits');
         Route::get('/advance-payments/refunds', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'refunds'])->name('advance-payments.refunds');
         Route::post('/advance-payments/refunds', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'processRefund'])->name('advance-payments.process-refund');

@@ -74,6 +74,38 @@ class VisitorController extends Controller
         return view('hms.visitors.show', compact('visitor'));
     }
 
+    public function edit(VisitorLog $visitor): View
+    {
+        $visitor->load('patient');
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
+        return view('hms.visitors.edit', compact('visitor', 'patients'));
+    }
+
+    public function update(Request $request, VisitorLog $visitor): RedirectResponse
+    {
+        $data = $request->validate([
+            'visitor_name' => 'required|string|max:255',
+            'visitor_phone' => 'required|string|max:20',
+            'visitor_email' => 'nullable|email|max:255',
+            'visitor_id_number' => 'nullable|string|max:50',
+            'visitor_type' => 'required|in:family,friend,representative,delivery,other',
+            'patient_id' => 'nullable|exists:patients,id',
+            'patient_name' => 'nullable|string|max:255',
+            'purpose' => 'required|string|max:255',
+            'department' => 'nullable|string|max:100',
+            'contact_person' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
+        ]);
+
+        if (!empty($data['patient_id'])) {
+            $patient = Patient::find($data['patient_id']);
+            $data['patient_name'] = $patient->first_name . ' ' . $patient->last_name;
+        }
+
+        $visitor->update($data);
+        return redirect()->route('hms.visitors.index')->with('success', 'Visitor log updated');
+    }
+
     public function checkOut(Request $request, VisitorLog $visitor): RedirectResponse
     {
         if ($visitor->check_out_time) {

@@ -103,4 +103,60 @@ class AdvancePaymentsController extends Controller
         return redirect()->route('hms.advance-payments.refunds')
             ->with('status', 'Refund processed successfully');
     }
+
+    public function create(): View
+    {
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        return view('hms.billing.advance-payments.create', compact('patients'));
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'amount' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|string',
+            'payment_date' => 'required|date',
+            'notes' => 'nullable|string',
+        ]);
+
+        $data['balance_amount'] = $data['amount'];
+        $data['used_amount'] = 0;
+        $data['status'] = 'active';
+
+        AdvancePayment::create($data);
+        return redirect()->route('hms.advance-payments.index')->with('status', 'Advance payment recorded');
+    }
+
+    public function show(AdvancePayment $advancePayment): View
+    {
+        $advancePayment->load('patient');
+        return view('hms.billing.advance-payments.show', compact('advancePayment'));
+    }
+
+    public function edit(AdvancePayment $advancePayment): View
+    {
+        $advancePayment->load('patient');
+        return view('hms.billing.advance-payments.edit', compact('advancePayment'));
+    }
+
+    public function update(Request $request, AdvancePayment $advancePayment): RedirectResponse
+    {
+        $data = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'amount' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|string',
+            'payment_date' => 'required|date',
+            'notes' => 'nullable|string',
+        ]);
+
+        $advancePayment->update($data);
+        return redirect()->route('hms.advance-payments.index')->with('status', 'Advance payment updated');
+    }
+
+    public function destroy(AdvancePayment $advancePayment): RedirectResponse
+    {
+        $advancePayment->delete();
+        return redirect()->route('hms.advance-payments.index')->with('status', 'Advance payment deleted');
+    }
 }

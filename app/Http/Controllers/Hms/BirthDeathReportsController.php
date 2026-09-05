@@ -94,4 +94,89 @@ class BirthDeathReportsController extends Controller
         DeathReport::create($data);
         return redirect()->route('hms.reports.death')->with('status', 'Death report created');
     }
+
+    public function showBirthReport(BirthReport $report): View
+    {
+        $report->load(['attendingDoctor', 'attendingNurse']);
+        return view('hms.reports.show-birth', compact('report'));
+    }
+
+    public function editBirthReport(BirthReport $report): View
+    {
+        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $nurses = Nurse::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        return view('hms.reports.edit-birth', compact('report', 'doctors', 'nurses'));
+    }
+
+    public function updateBirthReport(Request $request, BirthReport $report): RedirectResponse
+    {
+        $data = $request->validate([
+            'baby_name' => 'required|string',
+            'mother_name' => 'required|string',
+            'father_name' => 'required|string',
+            'mother_phone' => 'nullable|string',
+            'father_phone' => 'nullable|string',
+            'birth_date' => 'required|date',
+            'birth_time' => 'required',
+            'gender' => 'required|in:male,female',
+            'birth_weight' => 'required|numeric|min:0',
+            'birth_length' => 'required|numeric|min:0',
+            'delivery_type' => 'required|in:normal,cesarean,assisted',
+            'attending_doctor_id' => 'required|exists:doctors,id',
+            'attending_nurse_id' => 'nullable|exists:nurses,id',
+            'complications' => 'nullable|string',
+            'notes' => 'nullable|string',
+        ]);
+
+        $report->update($data);
+        return redirect()->route('hms.reports.birth')->with('status', 'Birth report updated');
+    }
+
+    public function destroyBirthReport(BirthReport $report): RedirectResponse
+    {
+        $report->delete();
+        return redirect()->route('hms.reports.birth')->with('status', 'Birth report deleted');
+    }
+
+    public function showDeathReport(DeathReport $report): View
+    {
+        $report->load(['patient', 'attendingDoctor', 'attendingNurse']);
+        return view('hms.reports.show-death', compact('report'));
+    }
+
+    public function editDeathReport(DeathReport $report): View
+    {
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $nurses = Nurse::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        return view('hms.reports.edit-death', compact('report', 'patients', 'doctors', 'nurses'));
+    }
+
+    public function updateDeathReport(Request $request, DeathReport $report): RedirectResponse
+    {
+        $data = $request->validate([
+            'patient_id' => 'nullable|exists:patients,id',
+            'deceased_name' => 'required|string',
+            'deceased_phone' => 'nullable|string',
+            'death_date' => 'required|date',
+            'death_time' => 'required',
+            'age_at_death' => 'required|integer|min:0',
+            'gender' => 'required|in:male,female,other',
+            'cause_of_death' => 'required|string',
+            'place_of_death' => 'required|string',
+            'attending_doctor_id' => 'required|exists:doctors,id',
+            'attending_nurse_id' => 'nullable|exists:nurses,id',
+            'circumstances' => 'nullable|string',
+            'notes' => 'nullable|string',
+        ]);
+
+        $report->update($data);
+        return redirect()->route('hms.reports.death')->with('status', 'Death report updated');
+    }
+
+    public function destroyDeathReport(DeathReport $report): RedirectResponse
+    {
+        $report->delete();
+        return redirect()->route('hms.reports.death')->with('status', 'Death report deleted');
+    }
 }

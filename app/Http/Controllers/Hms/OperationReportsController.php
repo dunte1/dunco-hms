@@ -61,4 +61,55 @@ class OperationReportsController extends Controller
         OperationReport::create($data);
         return redirect()->route('hms.operations.index')->with('status', 'Operation report created');
     }
+
+    public function show(OperationReport $report): View
+    {
+        $report->load(['patient', 'surgeon', 'assistantDoctor', 'anesthesiologist', 'nurse']);
+        return view('hms.operations.show', compact('report'));
+    }
+
+    public function edit(OperationReport $report): View
+    {
+        $report->load(['surgeon', 'assistantDoctor', 'anesthesiologist', 'nurse']);
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $nurses = Nurse::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        return view('hms.operations.edit', compact('report', 'patients', 'doctors', 'nurses'));
+    }
+
+    public function update(Request $request, OperationReport $report): RedirectResponse
+    {
+        $data = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'operation_name' => 'required|string',
+            'operation_description' => 'required|string',
+            'operation_date' => 'required|date',
+            'start_time' => 'required',
+            'end_time' => 'required',
+            'surgeon_id' => 'required|exists:doctors,id',
+            'assistant_doctor_id' => 'nullable|exists:doctors,id',
+            'anesthesiologist_id' => 'nullable|exists:doctors,id',
+            'nurse_id' => 'nullable|exists:nurses,id',
+            'anesthesia_type' => 'nullable|string',
+            'pre_operation_notes' => 'nullable|string',
+            'operation_notes' => 'required|string',
+            'post_operation_notes' => 'nullable|string',
+            'complications' => 'nullable|string',
+            'outcome' => 'required|in:successful,complications,unsuccessful',
+            'follow_up_instructions' => 'nullable|string',
+        ]);
+
+        $startTime = \Carbon\Carbon::parse($data['start_time']);
+        $endTime = \Carbon\Carbon::parse($data['end_time']);
+        $data['duration_minutes'] = $endTime->diffInMinutes($startTime);
+
+        $report->update($data);
+        return redirect()->route('hms.operations.index')->with('status', 'Operation report updated');
+    }
+
+    public function destroy(OperationReport $report): RedirectResponse
+    {
+        $report->delete();
+        return redirect()->route('hms.operations.index')->with('status', 'Operation report deleted');
+    }
 }

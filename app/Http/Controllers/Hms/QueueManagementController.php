@@ -166,6 +166,38 @@ class QueueManagementController extends Controller
             ->with('success', 'Queue deleted');
     }
 
+    public function show(QueueManagement $queue): View
+    {
+        $queue->load(['patient', 'doctor']);
+        return view('hms.queue.show', compact('queue'));
+    }
+
+    public function edit(QueueManagement $queue): View
+    {
+        $queue->load(['patient', 'doctor']);
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $doctors = Doctor::with('department')->orderBy('first_name')->get();
+        $departments = DoctorDepartment::orderBy('name')->get();
+        return view('hms.queue.edit', compact('queue', 'patients', 'doctors', 'departments'));
+    }
+
+    public function update(Request $request, QueueManagement $queue): RedirectResponse
+    {
+        $data = $request->validate([
+            'patient_id' => 'nullable|exists:patients,id',
+            'patient_name' => 'required|string|max:255',
+            'patient_phone' => 'nullable|string|max:20',
+            'doctor_id' => 'nullable|exists:doctors,id',
+            'department' => 'required|string|max:100',
+            'queue_type' => 'required|in:appointment,walk_in,emergency,follow_up',
+            'priority' => 'nullable|in:low,normal,high,emergency',
+            'notes' => 'nullable|string',
+        ]);
+
+        $queue->update($data);
+        return redirect()->route('hms.queue.index')->with('success', 'Queue updated');
+    }
+
     public function displayBoard(): View
     {
         // Get waiting, called, and in_progress queues grouped by department

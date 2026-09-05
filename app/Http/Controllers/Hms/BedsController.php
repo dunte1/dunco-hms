@@ -33,4 +33,33 @@ class BedsController extends Controller
         Bed::create($data);
         return redirect()->route('hms.beds.index')->with('status', 'Bed created');
     }
+
+    public function show(Bed $bed): View
+    {
+        $bed->load('bedType');
+        return view('hms.beds.show', compact('bed'));
+    }
+
+    public function edit(Bed $bed): View
+    {
+        $bedTypes = BedType::orderBy('name')->pluck('name', 'id');
+        return view('hms.beds.edit', compact('bed', 'bedTypes'));
+    }
+
+    public function update(Request $request, Bed $bed): RedirectResponse
+    {
+        $data = $request->validate([
+            'bed_number' => 'required|string|unique:beds,bed_number,' . $bed->id,
+            'ward_name' => 'required|string',
+            'bed_type_id' => 'required|exists:bed_types,id',
+        ]);
+        $bed->update($data);
+        return redirect()->route('hms.beds.index')->with('status', 'Bed updated');
+    }
+
+    public function destroy(Bed $bed): RedirectResponse
+    {
+        $bed->delete();
+        return redirect()->route('hms.beds.index')->with('status', 'Bed deleted');
+    }
 }
