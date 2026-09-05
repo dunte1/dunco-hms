@@ -9,15 +9,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('employees', function (Blueprint $table) {
-            $table->date('contract_end_date')->nullable()->after('hire_date');
+            if (!Schema::hasColumn('employees', 'contract_end_date')) {
+                $table->date('contract_end_date')->nullable()->after('hire_date');
+            }
         });
 
         Schema::table('opd_visits', function (Blueprint $table) {
-            $table->decimal('total_amount', 10, 2)->nullable()->default(0)->after('visit_date');
+            if (!Schema::hasColumn('opd_visits', 'total_amount')) {
+                $table->decimal('total_amount', 10, 2)->nullable()->default(0)->after('visit_date');
+            }
         });
 
         Schema::table('queue_management', function (Blueprint $table) {
-            $table->string('token_number', 20)->nullable()->after('patient_id');
+            if (!Schema::hasColumn('queue_management', 'token_number')) {
+                $table->string('token_number', 20)->nullable()->after('patient_id');
+            }
         });
     }
 

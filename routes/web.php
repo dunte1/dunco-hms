@@ -17,6 +17,14 @@ use App\Http\Controllers\Hms\HrController;
 use App\Http\Controllers\Hms\SettingsController;
 use App\Http\Controllers\Hms\BedTypesController;
 use App\Http\Controllers\Hms\BedsController;
+use App\Http\Controllers\Hms\OtSchedulingController;
+use App\Http\Controllers\Hms\DrugInteractionController;
+use App\Http\Controllers\Hms\CssdController;
+use App\Http\Controllers\Hms\ConsentController;
+use App\Http\Controllers\Hms\MrdController;
+use App\Http\Controllers\Hms\VaccinationController;
+use App\Http\Controllers\Hms\MortuaryController;
+use App\Http\Controllers\Hms\EquipmentMaintenanceController;
 use App\Http\Controllers\Hms\IpdAdmissionsController;
 use App\Http\Controllers\Hms\OpdVisitsController;
 use App\Http\Controllers\Hms\InvoicesController;
@@ -132,6 +140,59 @@ Route::prefix('hms')->middleware(['auth'])->group(function () {
     Route::get('/telemedicine/{session}/join', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'joinSession'])->name('telemedicine.join');
     Route::get('/telemedicine/{session}/details', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'getSessionDetails'])->name('telemedicine.details');
     Route::get('/telemedicine/upcoming', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'getUpcomingSessions'])->name('telemedicine.upcoming');
+    
+    // Drug Interactions & Allergies
+    Route::get('/drug-interactions', [DrugInteractionController::class, 'index'])->name('drug-interactions.index');
+    Route::get('/drug-interactions/create', [DrugInteractionController::class, 'create'])->name('drug-interactions.create');
+    Route::post('/drug-interactions', [DrugInteractionController::class, 'store'])->name('drug-interactions.store');
+    Route::get('/drug-interactions/{drugInteraction}', [DrugInteractionController::class, 'show'])->name('drug-interactions.show');
+    Route::get('/drug-interactions/{drugInteraction}/edit', [DrugInteractionController::class, 'edit'])->name('drug-interactions.edit');
+    Route::put('/drug-interactions/{drugInteraction}', [DrugInteractionController::class, 'update'])->name('drug-interactions.update');
+    Route::delete('/drug-interactions/{drugInteraction}', [DrugInteractionController::class, 'destroy'])->name('drug-interactions.destroy');
+    Route::get('/patient-allergies/{patientId}', [DrugInteractionController::class, 'patientAllergies'])->name('patient-allergies');
+    Route::post('/patient-allergies', [DrugInteractionController::class, 'storeAllergy'])->name('patient-allergies.store');
+    Route::delete('/patient-allergies/{allergy}', [DrugInteractionController::class, 'destroyAllergy'])->name('patient-allergies.destroy');
+    
+    // CSSD (Central Sterile Services Department)
+    Route::get('/cssd', [CssdController::class, 'index'])->name('cssd.index');
+    Route::post('/cssd/instruments', [CssdController::class, 'storeInstrument'])->name('cssd.instrument-store');
+    Route::put('/cssd/instruments/{instrument}', [CssdController::class, 'updateInstrument'])->name('cssd.instrument-update');
+    Route::post('/cssd/batches', [CssdController::class, 'storeBatch'])->name('cssd.batch-store');
+    Route::post('/cssd/batches/{batch}/complete', [CssdController::class, 'completeBatch'])->name('cssd.batch-complete');
+    
+    // Consent Management
+    Route::get('/consent', [ConsentController::class, 'index'])->name('consent.index');
+    Route::get('/consent/create', [ConsentController::class, 'create'])->name('consent.create');
+    Route::post('/consent', [ConsentController::class, 'store'])->name('consent.store');
+    Route::get('/consent/{consent}', [ConsentController::class, 'show'])->name('consent.show');
+    Route::post('/consent/{consent}/sign', [ConsentController::class, 'sign'])->name('consent.sign');
+    Route::delete('/consent/{consent}', [ConsentController::class, 'destroy'])->name('consent.destroy');
+    
+    // MRD (Medical Records Department)
+    Route::get('/mrd', [MrdController::class, 'index'])->name('mrd.index');
+    Route::post('/mrd', [MrdController::class, 'store'])->name('mrd.store');
+    Route::get('/mrd/{file}', [MrdController::class, 'show'])->name('mrd.show');
+    Route::post('/mrd/{file}/issue', [MrdController::class, 'issue'])->name('mrd.issue');
+    Route::post('/mrd/{file}/return', [MrdController::class, 'return'])->name('mrd.return');
+    
+    // Vaccination Management
+    Route::get('/vaccination', [VaccinationController::class, 'index'])->name('vaccination.index');
+    Route::post('/vaccination/vaccines', [VaccinationController::class, 'storeVaccine'])->name('vaccination.vaccine-store');
+    Route::get('/vaccination/administer', [VaccinationController::class, 'administer'])->name('vaccination.administer');
+    Route::post('/vaccination/administer', [VaccinationController::class, 'storeAdministration'])->name('vaccination.administer-store');
+    
+    // Mortuary Management
+    Route::get('/mortuary', [MortuaryController::class, 'index'])->name('mortuary.index');
+    Route::post('/mortuary', [MortuaryController::class, 'store'])->name('mortuary.store');
+    Route::get('/mortuary/{record}', [MortuaryController::class, 'show'])->name('mortuary.show');
+    Route::post('/mortuary/{record}/release', [MortuaryController::class, 'release'])->name('mortuary.release');
+    
+    // Equipment Maintenance (CMMS)
+    Route::get('/equipment', [EquipmentMaintenanceController::class, 'index'])->name('equipment.index');
+    Route::post('/equipment', [EquipmentMaintenanceController::class, 'store'])->name('equipment.store');
+    Route::get('/equipment/{equipment}', [EquipmentMaintenanceController::class, 'show'])->name('equipment.show');
+    Route::post('/equipment/{equipment}/maintenance', [EquipmentMaintenanceController::class, 'logMaintenance'])->name('equipment.maintenance');
+    Route::put('/equipment/{equipment}/status', [EquipmentMaintenanceController::class, 'updateStatus'])->name('equipment.status');
     
     // RFID Management
     Route::get('/rfid', [\App\Http\Controllers\Rfid\RfidController::class, 'index'])->name('rfid.index');
@@ -308,6 +369,26 @@ Route::middleware('auth')->group(function () {
         Route::get('/beds', [BedsController::class, 'index'])->name('beds.index');
         Route::get('/beds/create', [BedsController::class, 'create'])->name('beds.create');
         Route::post('/beds', [BedsController::class, 'store'])->name('beds.store');
+        
+        // OT Scheduling
+        Route::prefix('ot')->name('ot.')->group(function () {
+            Route::get('/', [OtSchedulingController::class, 'index'])->name('index');
+            Route::get('/create', [OtSchedulingController::class, 'create'])->name('create');
+            Route::post('/', [OtSchedulingController::class, 'store'])->name('store');
+            Route::get('/schedule', [OtSchedulingController::class, 'schedule'])->name('schedule');
+            Route::get('/rooms', [OtSchedulingController::class, 'rooms'])->name('rooms');
+            Route::post('/rooms', [OtSchedulingController::class, 'storeRoom'])->name('rooms.store');
+            Route::put('/rooms/{room}', [OtSchedulingController::class, 'updateRoom'])->name('rooms.update');
+            Route::get('/instruments', [OtSchedulingController::class, 'instruments'])->name('instruments');
+            Route::post('/instruments', [OtSchedulingController::class, 'storeInstrument'])->name('instrument-store');
+            Route::post('/instruments/{tray}/sterilize', [OtSchedulingController::class, 'sterilize'])->name('instrument-sterilize');
+            Route::get('/{schedule}', [OtSchedulingController::class, 'show'])->name('show');
+            Route::get('/{schedule}/edit', [OtSchedulingController::class, 'edit'])->name('edit');
+            Route::put('/{schedule}', [OtSchedulingController::class, 'update'])->name('update');
+            Route::delete('/{schedule}', [OtSchedulingController::class, 'destroy'])->name('destroy');
+            Route::post('/{schedule}/time-in', [OtSchedulingController::class, 'timeIn'])->name('time-in');
+            Route::post('/{schedule}/time-out', [OtSchedulingController::class, 'timeOut'])->name('time-out');
+        });
         
         // IPD/OPD
         Route::get('/ipd', [IpdAdmissionsController::class, 'index'])->name('ipd.index');
