@@ -26,7 +26,7 @@
 </head>
 <body>
     @php
-        $themeSettings = \App\Models\SystemSetting::getThemeSettings();
+        $themeSettings = \App\Models\[ "primary_color" => \App\Models\SystemSetting::get("primary_color", "#10b981"), "hospital_logo" => \App\Models\SystemSetting::get("hospital_logo", ""), "hospital_name" => \App\Models\SystemSetting::get("hospital_name", config("app.name", "DuncoHMS")), "hospital_address" => \App\Models\SystemSetting::get("hospital_address", ""), "hospital_phone" => \AppModels\SystemSetting::get("hospital_phone", ""), "hospital_email" => \App\Models\SystemSetting::get("hospital_email", "") ];
     @endphp
     <div class="header">
         @if(isset($themeSettings) && !empty($themeSettings['hospital_logo']))
@@ -77,3 +77,4 @@
     </div>
 </body>
 </html>
+
