@@ -37,6 +37,17 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
+            @php
+                $hospitalLogo = \App\Models\SystemSetting::get('hospital_logo', '');
+            @endphp
+            @if($hospitalLogo && file_exists(storage_path('app/public/' . $hospitalLogo)))
+                @php
+                    $logoPath = storage_path('app/public/' . $hospitalLogo);
+                    $logoData = base64_encode(file_get_contents($logoPath));
+                    $logoMime = mime_content_type($logoPath);
+                @endphp
+                <img src="data:{{ $logoMime }};base64,{{ $logoData }}" alt="Hospital Logo" style="max-height: 60px; margin-bottom: 10px;">
+            @endif
             <h1>{{ config('app.name', 'DuncoHMS') }}</h1>
             <p>Hospital Management System</p>
             <p>{{ \App\Models\SystemSetting::get('hospital_address', 'Address not configured') }} | Tel: {{ \App\Models\SystemSetting::get('hospital_phone', 'Phone not configured') }}</p>
@@ -90,8 +101,8 @@
                         @endif
                     </td>
                     <td class="text-right">{{ $item->quantity }}</td>
-                    <td class="text-right">${{ number_format($item->unit_price, 2) }}</td>
-                    <td class="text-right">${{ number_format($item->total_price, 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($item->unit_price, 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($item->total_price, 2) }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -102,32 +113,32 @@
             <table>
                 <tr>
                     <td>Subtotal:</td>
-                    <td class="text-right">${{ number_format($invoice->subtotal, 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($invoice->subtotal, 2) }}</td>
                 </tr>
                 @if($invoice->tax_amount > 0)
                 <tr>
                     <td>Tax:</td>
-                    <td class="text-right">${{ number_format($invoice->tax_amount, 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($invoice->tax_amount, 2) }}</td>
                 </tr>
                 @endif
                 @if($invoice->discount_amount > 0)
                 <tr>
                     <td>Discount:</td>
-                    <td class="text-right">-${{ number_format($invoice->discount_amount, 2) }}</td>
+                    <td class="text-right">-{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($invoice->discount_amount, 2) }}</td>
                 </tr>
                 @endif
                 <tr class="total-row">
                     <td>TOTAL:</td>
-                    <td class="text-right">${{ number_format($invoice->total_amount, 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($invoice->total_amount, 2) }}</td>
                 </tr>
                 @if($invoice->paid_amount > 0)
                 <tr>
                     <td>Paid:</td>
-                    <td class="text-right">-${{ number_format($invoice->paid_amount, 2) }}</td>
+                    <td class="text-right">-{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($invoice->paid_amount, 2) }}</td>
                 </tr>
                 <tr style="background: #fef3c7; font-weight: bold;">
                     <td>Balance Due:</td>
-                    <td class="text-right">${{ number_format($invoice->balance_amount, 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($invoice->balance_amount, 2) }}</td>
                 </tr>
                 @endif
             </table>
@@ -151,7 +162,7 @@
                     <td>{{ $payment->payment_date->format('M d, Y') }}</td>
                     <td>{{ ucwords(str_replace('_', ' ', $payment->payment_method)) }}</td>
                     <td>{{ $payment->payment_reference ?? 'N/A' }}</td>
-                    <td class="text-right">${{ number_format($payment->amount, 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($payment->amount, 2) }}</td>
                 </tr>
                 @endforeach
             </tbody>

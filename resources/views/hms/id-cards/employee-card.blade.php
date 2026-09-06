@@ -80,6 +80,7 @@
             font-size: 32px;
             font-weight: bold;
             flex-shrink: 0;
+            overflow: hidden;
         }
         .info-section {
             flex: 1;
@@ -133,11 +134,9 @@
             border-radius: 5px;
             text-align: center;
         }
-        .barcode {
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            letter-spacing: 1px;
-            font-weight: bold;
+        .barcode-section img {
+            max-width: 100%;
+            height: 28px;
         }
         .footer {
             margin-top: 10px;
@@ -147,7 +146,7 @@
             position: relative;
             z-index: 1;
         }
-        .qr-placeholder {
+        .qr-section {
             position: absolute;
             top: 15px;
             right: 25px;
@@ -158,8 +157,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
             z-index: 1;
+            overflow: hidden;
+        }
+        .qr-section img {
+            width: 46px;
+            height: 46px;
         }
         .watermark {
             position: absolute;
@@ -203,7 +206,13 @@
             <div class="card-type">EMPLOYEE</div>
         </div>
         
-        <div class="qr-placeholder">▣</div>
+        <div class="qr-section">
+            @if(!empty($base64Qr))
+                <img src="data:image/png;base64,{{ $base64Qr }}" alt="QR Code">
+            @else
+                ▣
+            @endif
+        </div>
         
         <div class="card-body">
             <div class="photo-section" style="{{ $photo ? 'background: white; padding: 5px;' : '' }}">
@@ -248,7 +257,11 @@
                 </div>
                 
                 <div class="barcode-section">
-                    <div class="barcode">▍ ▍▍ ▍▍▍ ▍ ▍▍▍ ▍▍</div>
+                    @if(!empty($base64Barcode))
+                        <img src="data:image/png;base64,{{ $base64Barcode }}" alt="Barcode">
+                    @else
+                        <div style="font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 1px; font-weight: bold;">▍ ▍▍ ▍▍▍ ▍ ▍▍▍ ▍▍</div>
+                    @endif
                 </div>
             </div>
         </div>

@@ -13,6 +13,8 @@
 </head>
 <body>
     <div class="header">
+        <h2>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }}</h2>
+        <p>{{ \App\Models\SystemSetting::get('hospital_address', '') }} | Tel: {{ \App\Models\SystemSetting::get('hospital_phone', '') }}</p>
         <h2>Employee List Report</h2>
         <p>Generated on: {{ now()->format('M d, Y') }}</p>
     </div>

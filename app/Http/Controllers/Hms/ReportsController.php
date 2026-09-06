@@ -15,6 +15,7 @@ use Illuminate\View\View;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PatientsExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportsController extends Controller
 {
@@ -200,5 +201,27 @@ class ReportsController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Excel export failed: ' . $e->getMessage()]);
         }
+    }
+
+    public function exportPatientsPdf()
+    {
+        $patients = Patient::latest()->get();
+        $pdf = Pdf::loadView('hms.reports.patients-pdf', compact('patients'));
+        return $pdf->download('patient-report.pdf');
+    }
+
+    public function exportRevenuePdf()
+    {
+        $request = request();
+        $query = Payment::with('invoice.patient');
+        if ($request->filled('from_date')) {
+            $query->whereDate('payment_date', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $query->whereDate('payment_date', '<=', $request->to_date);
+        }
+        $payments = $query->latest('payment_date')->get();
+        $pdf = Pdf::loadView('hms.reports.revenue-pdf', compact('payments'));
+        return $pdf->download('revenue-report.pdf');
     }
 }

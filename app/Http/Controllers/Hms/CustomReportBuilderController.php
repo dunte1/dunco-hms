@@ -9,6 +9,8 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CustomReportBuilderController extends Controller
 {
@@ -232,13 +234,13 @@ class CustomReportBuilderController extends Controller
      */
     private function generatePdf(ReportTemplate $template, array $data)
     {
-        // This would use a PDF library like DomPDF or TCPDF
-        // For now, return a placeholder response
-        return response()->json([
-            'message' => 'PDF generation will be implemented with DomPDF',
-            'template' => $template->name,
-            'record_count' => count($data),
+        $columns = !empty($data) ? array_keys((array)$data[0]) : [];
+        $pdf = Pdf::loadView('hms.reports.generated-report', [
+            'template' => $template,
+            'data' => $data,
+            'columns' => $columns,
         ]);
+        return $pdf->download("report_{$template->name}_" . now()->format('Y-m-d') . '.pdf');
     }
 
     /**
@@ -246,13 +248,9 @@ class CustomReportBuilderController extends Controller
      */
     private function generateExcel(ReportTemplate $template, array $data)
     {
-        // This would use Maatwebsite\Excel
-        // For now, return a placeholder response
-        return response()->json([
-            'message' => 'Excel generation will be implemented with Maatwebsite\Excel',
-            'template' => $template->name,
-            'record_count' => count($data),
-        ]);
+        $collection = collect($data);
+        $columns = !empty($data) ? array_keys((array)$data[0]) : [];
+        return Excel::download(new \App\Exports\GenericExport($collection, $columns), "report_{$template->name}_" . now()->format('Y-m-d') . '.xlsx');
     }
 
     /**

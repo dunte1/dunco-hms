@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Report: {{ $template->name }}</title>
+    <title>Patient Report</title>
     <style>
         body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 11px; color: #333; line-height: 1.5; margin: 0; padding: 20px; }
         .header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #10b981; }
@@ -21,31 +21,37 @@
         <h1>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }}</h1>
         <p>{{ \App\Models\SystemSetting::get('hospital_address', '') }}</p>
         <p>Tel: {{ \App\Models\SystemSetting::get('hospital_phone', '') }} | Email: {{ \App\Models\SystemSetting::get('hospital_email', '') }}</p>
-        <p class="subtitle">{{ $template->name }} | Generated: {{ now()->format('M d, Y h:i A') }}</p>
+        <p class="subtitle">Patient Report | Generated: {{ now()->format('M d, Y h:i A') }}</p>
     </div>
 
-    @if(!empty($data))
     <table>
         <thead>
             <tr>
-                @foreach($columns as $col)
-                    <th>{{ ucwords(str_replace('_', ' ', $col)) }}</th>
-                @endforeach
+                <th>Patient ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>DOB</th>
+                <th>Gender</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($data as $row)
+            @forelse($patients as $patient)
             <tr>
-                @foreach($columns as $col)
-                    <td>{{ $row->$col ?? ($row[$col] ?? 'N/A') }}</td>
-                @endforeach
+                <td>{{ $patient->patient_no }}</td>
+                <td>{{ $patient->full_name }}</td>
+                <td>{{ $patient->email ?? 'N/A' }}</td>
+                <td>{{ $patient->phone ?? 'N/A' }}</td>
+                <td>{{ $patient->dob ? date('M d, Y', strtotime($patient->dob)) : 'N/A' }}</td>
+                <td>{{ ucfirst($patient->gender ?? 'N/A') }}</td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="6" style="text-align: center;">No patients found.</td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
-    @else
-        <p style="text-align: center; color: #999;">No data available for this report.</p>
-    @endif
 
     <div class="footer">
         <p>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }} &mdash; {{ \App\Models\SystemSetting::get('hospital_address', '') }}</p>

@@ -676,6 +676,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/appointments', [ReportsController::class, 'appointmentReports'])->name('reports.appointments');
         Route::get('/reports/financial', [ReportsController::class, 'financialReports'])->name('reports.financial');
         Route::get('/reports/export-patients', [ReportsController::class, 'exportPatients'])->name('reports.export-patients');
+        Route::get('/reports/patients/pdf', [ReportsController::class, 'exportPatientsPdf'])->name('reports.patients.pdf');
+        Route::get('/reports/revenue/pdf', [ReportsController::class, 'exportRevenuePdf'])->name('reports.revenue.pdf');
         
         // Packages Management
         Route::get('/packages', [PackagesController::class, 'index'])->name('packages.index');
@@ -1066,6 +1068,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/hr/employees/{employee}/id-card/preview', [\App\Http\Controllers\Hms\IdCardController::class, 'previewEmployee'])->name('hr.employees.id-card.preview');
         Route::get('/hr/employees/{employee}/id-card/qr', [\App\Http\Controllers\Hms\IdCardController::class, 'generateEmployeeQR'])->name('hr.employees.id-card.qr');
         Route::post('/id-cards/scan-qr', [\App\Http\Controllers\Hms\IdCardController::class, 'scanQR'])->name('id-cards.scan-qr');
+        Route::get('/id-cards/bulk/patients', [\App\Http\Controllers\Hms\IdCardController::class, 'bulkPatientCards'])->name('id-cards.bulk-patients');
+        Route::get('/id-cards/bulk/employees', [\App\Http\Controllers\Hms\IdCardController::class, 'bulkEmployeeCards'])->name('id-cards.bulk-employees');
         
         // HR - Employee Import/Export
         Route::get('/hr/employees/export', [EmployeesImportExportController::class, 'export'])->name('hr.employees.export');
