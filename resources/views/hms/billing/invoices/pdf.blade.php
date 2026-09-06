@@ -31,6 +31,13 @@
         .status-pending { background: #fee2e2; color: #991b1b; }
         .notes { background: #f9fafb; padding: 15px; margin-top: 30px; border-left: 4px solid #10b981; }
         .notes h4 { color: #10b981; margin-bottom: 10px; }
+        @media print {
+            @page { size: A4; margin: 15mm; }
+            body { padding: 0; margin: 0; }
+            .no-print { display: none !important; }
+            table { page-break-inside: avoid; }
+            tr { page-break-inside: avoid; }
+        }
     </style>
 </head>
 <body>

@@ -161,6 +161,11 @@
             color: rgba(255,255,255,0.5);
             z-index: 1;
         }
+        @media print {
+            @page { size: 85.6mm 53.98mm; margin: 0; }
+            body { padding: 0; margin: 0; background: white; }
+            .id-card { box-shadow: none; margin: 0; }
+        }
     </style>
 </head>
 <body>

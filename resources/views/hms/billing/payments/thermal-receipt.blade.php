@@ -266,19 +266,19 @@
         <div class="payment-info">
             <div class="info-row">
                 <span class="info-label">Invoice Total:</span>
-                <span>KSh {{ number_format($payment->invoice->total_amount, 2) }}</span>
+                <span>{{ \App\Models\SystemSetting::get('currency_symbol', 'KSh') }} {{ number_format($payment->invoice->total_amount, 2) }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Previous Payments:</span>
-                <span>KSh {{ number_format($payment->invoice->paid_amount - $payment->amount, 2) }}</span>
+                <span>{{ \App\Models\SystemSetting::get('currency_symbol', 'KSh') }} {{ number_format($payment->invoice->paid_amount - $payment->amount, 2) }}</span>
             </div>
             <div class="info-row" style="font-weight: bold; font-size: 13px; margin-top: 5px;">
                 <span>Amount Paid:</span>
-                <span>KSh {{ number_format($payment->amount, 2) }}</span>
+                <span>{{ \App\Models\SystemSetting::get('currency_symbol', 'KSh') }} {{ number_format($payment->amount, 2) }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Balance Due:</span>
-                <span>KSh {{ number_format($payment->invoice->balance_amount, 2) }}</span>
+                <span>{{ \App\Models\SystemSetting::get('currency_symbol', 'KSh') }} {{ number_format($payment->invoice->balance_amount, 2) }}</span>
             </div>
         </div>
         

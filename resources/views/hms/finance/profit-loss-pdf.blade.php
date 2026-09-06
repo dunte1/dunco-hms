@@ -30,7 +30,7 @@
             margin-bottom: 25px;
         }
         .section-title {
-            background-color: #f0f0f0;
+            background-color: #f0fdf4;
             padding: 8px;
             font-weight: bold;
             font-size: 14px;
@@ -87,10 +87,23 @@
             font-size: 11px;
             color: #666;
         }
+        @media print {
+            @page { size: A4; margin: 15mm; }
+            body { padding: 0; margin: 0; }
+            .no-print { display: none !important; }
+            table { page-break-inside: avoid; }
+            tr { page-break-inside: avoid; }
+        }
     </style>
 </head>
 <body>
+    @php
+        $themeSettings = \App\Models\SystemSetting::getThemeSettings();
+    @endphp
     <div class="header">
+        @if(isset($themeSettings) && !empty($themeSettings['hospital_logo']))
+            <img src="data:image/png;base64,{{ $themeSettings['hospital_logo'] }}" style="height: 50px; margin-right: 10px;">
+        @endif
         <h1>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }}</h1>
         <h2>Profit & Loss Statement</h2>
         <p>Period: {{ \Carbon\Carbon::parse($fromDate)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($toDate)->format('M d, Y') }}</p>
@@ -104,42 +117,42 @@
                 @if($revenue['patient_services'] > 0)
                 <tr>
                     <td>Patient Services</td>
-                    <td class="text-right">KSh {{ number_format($revenue['patient_services'], 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($revenue['patient_services'], 2) }}</td>
                 </tr>
                 @endif
                 @if($revenue['pharmacy_sales'] > 0)
                 <tr>
                     <td>Pharmacy Sales</td>
-                    <td class="text-right">KSh {{ number_format($revenue['pharmacy_sales'], 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($revenue['pharmacy_sales'], 2) }}</td>
                 </tr>
                 @endif
                 @if($revenue['lab_tests'] > 0)
                 <tr>
                     <td>Laboratory Tests</td>
-                    <td class="text-right">KSh {{ number_format($revenue['lab_tests'], 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($revenue['lab_tests'], 2) }}</td>
                 </tr>
                 @endif
                 @if($revenue['radiology'] > 0)
                 <tr>
                     <td>Radiology Services</td>
-                    <td class="text-right">KSh {{ number_format($revenue['radiology'], 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($revenue['radiology'], 2) }}</td>
                 </tr>
                 @endif
                 @if($revenue['consultation_fees'] > 0)
                 <tr>
                     <td>Consultation Fees</td>
-                    <td class="text-right">KSh {{ number_format($revenue['consultation_fees'], 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($revenue['consultation_fees'], 2) }}</td>
                 </tr>
                 @endif
                 @if($revenue['other'] > 0)
                 <tr>
                     <td>Other Income</td>
-                    <td class="text-right">KSh {{ number_format($revenue['other'], 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($revenue['other'], 2) }}</td>
                 </tr>
                 @endif
                 <tr class="total-row revenue-total">
                     <td>TOTAL REVENUE</td>
-                    <td class="text-right">KSh {{ number_format($totalRevenue, 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($totalRevenue, 2) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -153,7 +166,7 @@
                 @forelse($expenses as $expense)
                 <tr>
                     <td>{{ $expense->category->name ?? 'Uncategorized' }}</td>
-                    <td class="text-right">KSh {{ number_format($expense->total, 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($expense->total, 2) }}</td>
                 </tr>
                 @empty
                 <tr>
@@ -162,7 +175,7 @@
                 @endforelse
                 <tr class="total-row expense-total">
                     <td>TOTAL EXPENSES</td>
-                    <td class="text-right">KSh {{ number_format($totalExpenses, 2) }}</td>
+                    <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($totalExpenses, 2) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -177,7 +190,7 @@
                         NET {{ $grossProfit < 0 ? 'LOSS' : 'PROFIT' }}
                     </td>
                     <td class="text-right {{ $grossProfit >= 0 ? 'profit-positive' : 'profit-negative' }}">
-                        KSh {{ number_format($grossProfit, 2) }}
+                        {{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($grossProfit, 2) }}
                     </td>
                 </tr>
                 <tr class="profit-margin">
@@ -189,9 +202,9 @@
     </div>
 
     <div class="footer">
-        <p>Generated on {{ now()->format('F d, Y \a\t h:i A') }}</p>
+        <p>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }} | {{ \App\Models\SystemSetting::get('hospital_address', '') }} | {{ \App\Models\SystemSetting::get('hospital_phone', '') }}</p>
+        <p>Generated on {{ now()->format('F d, Y \a\t H:i') }}</p>
         <p>&copy; {{ date('Y') }} {{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }}. All rights reserved.</p>
     </div>
 </body>
 </html>
-

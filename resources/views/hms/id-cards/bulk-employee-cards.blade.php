@@ -132,12 +132,19 @@
     </style>
 </head>
 <body>
+    @php
+        $themeSettings = \App\Models\SystemSetting::getThemeSettings();
+    @endphp
     <div class="page">
         @foreach($employees as $employee)
             <div class="id-card">
                 <div class="badge-section">STAFF</div>
                 <div class="card-header">
-                    <div class="hospital-name">{{ strtoupper(\App\Models\SystemSetting::get('hospital_name', config('app.name'))) }}</div>
+                    @if(isset($themeSettings) && !empty($themeSettings['hospital_logo']))
+                        <div class="hospital-name"><img src="data:image/png;base64,{{ $themeSettings['hospital_logo'] }}" style="height: 20px; margin-right: 5px;"></div>
+                    @else
+                        <div class="hospital-name">{{ strtoupper(\App\Models\SystemSetting::get('hospital_name', config('app.name'))) }}</div>
+                    @endif
                     <div class="card-type">EMPLOYEE</div>
                 </div>
                 

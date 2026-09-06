@@ -31,11 +31,11 @@
             <h3 style="margin-top: 0; color: #06b6d4;">Payment Details</h3>
             <p><strong>Payment ID:</strong> {{ $payment->payment_reference ?? 'N/A' }}</p>
             <p><strong>Invoice Number:</strong> {{ $payment->invoice->invoice_number }}</p>
-            <p><strong>Amount Paid:</strong> {{ number_format($payment->amount, 2) }}</p>
+            <p><strong>Amount Paid:</strong> {{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($payment->amount, 2) }}</p>
             <p><strong>Payment Method:</strong> {{ ucfirst($payment->payment_method ?? 'N/A') }}</p>
             <p><strong>Date:</strong> {{ $payment->created_at->format('M d, Y h:i A') }}</p>
             @if($payment->invoice->balance_amount > 0)
-            <p><strong>Remaining Balance:</strong> {{ number_format($payment->invoice->balance_amount, 2) }}</p>
+            <p><strong>Remaining Balance:</strong> {{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($payment->invoice->balance_amount, 2) }}</p>
             @endif
         </div>
         
@@ -46,7 +46,7 @@
         <p>Thank you for your payment. Keep this receipt for your records.</p>
         
         <p>Best regards,<br>
-        <strong>{{ config('app.name') }} Team</strong></p>
+        <strong>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }} Team</strong></p>
     </div>
     
     <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">

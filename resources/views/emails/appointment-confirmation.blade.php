@@ -52,7 +52,7 @@
         <p>We look forward to seeing you soon.</p>
         
         <p>Best regards,<br>
-        <strong>{{ config('app.name') }} Team</strong></p>
+        <strong>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }} Team</strong></p>
     </div>
     
     <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">

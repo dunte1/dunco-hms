@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PurchaseOrdersController extends Controller
 {
@@ -324,6 +325,13 @@ class PurchaseOrdersController extends Controller
         $purchaseOrder->update(['status' => 'pending']);
         
         return back()->with('status', 'Purchase Order submitted for approval');
+    }
+
+    public function generatePdf(PurchaseOrder $purchaseOrder)
+    {
+        $purchaseOrder->load(['supplier', 'items']);
+        $pdf = PDF::loadView('hms.inventory.purchase-order-pdf', compact('purchaseOrder'));
+        return $pdf->download("PO-{$purchaseOrder->po_number}.pdf");
     }
 }
 

@@ -11,6 +11,7 @@ use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InsuranceClaimsController extends Controller
 {
@@ -212,5 +213,12 @@ class InsuranceClaimsController extends Controller
 
         return redirect()->route('hms.insurance.claims.index')
             ->with('status', 'Insurance claim deleted successfully');
+    }
+
+    public function generatePdf(InsuranceClaim $claim)
+    {
+        $claim->load(['patient', 'insuranceProvider']);
+        $pdf = PDF::loadView('hms.insurance.claim-pdf', compact('claim'));
+        return $pdf->download("Insurance-Claim-{$claim->claim_number}.pdf");
     }
 }

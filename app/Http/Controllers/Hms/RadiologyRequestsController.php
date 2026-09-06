@@ -10,6 +10,7 @@ use App\Models\Doctor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class RadiologyRequestsController extends Controller
 {
@@ -78,5 +79,12 @@ class RadiologyRequestsController extends Controller
     {
         $radiologyRequest->delete();
         return redirect()->route('hms.radiology.requests.index')->with('status', 'Radiology request deleted');
+    }
+
+    public function reportPdf(RadiologyRequest $radiologyRequest)
+    {
+        $radiologyRequest->load(['patient', 'doctor', 'radiologyTest']);
+        $pdf = PDF::loadView('hms.radiology.radiology-report-pdf', compact('radiologyRequest'));
+        return $pdf->download("Radiology-Report-{$radiologyRequest->request_number}.pdf");
     }
 }

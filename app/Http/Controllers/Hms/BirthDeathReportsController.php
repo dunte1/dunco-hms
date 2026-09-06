@@ -11,6 +11,7 @@ use App\Models\Patient;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class BirthDeathReportsController extends Controller
 {
@@ -178,5 +179,19 @@ class BirthDeathReportsController extends Controller
     {
         $report->delete();
         return redirect()->route('hms.reports.death')->with('status', 'Death report deleted');
+    }
+
+    public function birthCertificate(BirthReport $report)
+    {
+        $report->load('patient');
+        $pdf = PDF::loadView('hms.birth-death.birth-certificate', compact('report'));
+        return $pdf->download("Birth-Certificate-{$report->id}.pdf");
+    }
+
+    public function deathCertificate(DeathReport $report)
+    {
+        $report->load('patient');
+        $pdf = PDF::loadView('hms.birth-death.death-certificate', compact('report'));
+        return $pdf->download("Death-Certificate-{$report->id}.pdf");
     }
 }

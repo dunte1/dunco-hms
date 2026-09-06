@@ -507,6 +507,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/insurance/claims/{claim}/reject', [\App\Http\Controllers\Hms\InsuranceClaimsController::class, 'reject'])->name('insurance.claims.reject');
         Route::post('/insurance/claims/{claim}/payment', [\App\Http\Controllers\Hms\InsuranceClaimsController::class, 'recordPayment'])->name('insurance.claims.payment');
         Route::delete('/insurance/claims/{claim}', [\App\Http\Controllers\Hms\InsuranceClaimsController::class, 'destroy'])->name('insurance.claims.destroy');
+        Route::get('/insurance/claims/{claim}/pdf', [\App\Http\Controllers\Hms\InsuranceClaimsController::class, 'generatePdf'])->name('insurance.claims.pdf');
         
         // Pharmacy
         Route::get('/pharmacy/medicines', [MedicinesController::class, 'index'])->name('pharmacy.medicines.index');
@@ -557,6 +558,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/laboratory/requests/{labRequest}/edit', [LabRequestsController::class, 'edit'])->name('laboratory.requests.edit');
         Route::put('/laboratory/requests/{labRequest}', [LabRequestsController::class, 'update'])->name('laboratory.requests.update');
         Route::delete('/laboratory/requests/{labRequest}', [LabRequestsController::class, 'destroy'])->name('laboratory.requests.destroy');
+        Route::get('/laboratory/requests/{labRequest}/report-pdf', [LabRequestsController::class, 'reportPdf'])->name('laboratory.requests.report-pdf');
         
         Route::get('/laboratory/technicians', [LaboratoryController::class, 'technicians'])->name('laboratory.technicians.index');
         Route::get('/laboratory/technicians/create', [LaboratoryController::class, 'createTechnician'])->name('laboratory.technicians.create');
@@ -579,6 +581,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/radiology/requests/{radiologyRequest}/edit', [RadiologyRequestsController::class, 'edit'])->name('radiology.requests.edit');
         Route::put('/radiology/requests/{radiologyRequest}', [RadiologyRequestsController::class, 'update'])->name('radiology.requests.update');
         Route::delete('/radiology/requests/{radiologyRequest}', [RadiologyRequestsController::class, 'destroy'])->name('radiology.requests.destroy');
+        Route::get('/radiology/requests/{radiologyRequest}/report-pdf', [RadiologyRequestsController::class, 'reportPdf'])->name('radiology.requests.report-pdf');
         
         // HR Management
         Route::get('/hr/employees', [EmployeesController::class, 'index'])->name('hr.employees.index');
@@ -737,10 +740,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/birth-reports/{report}/edit', [BirthDeathReportsController::class, 'editBirthReport'])->name('birth-reports.edit');
         Route::put('/birth-reports/{report}', [BirthDeathReportsController::class, 'updateBirthReport'])->name('birth-reports.update');
         Route::delete('/birth-reports/{report}', [BirthDeathReportsController::class, 'destroyBirthReport'])->name('birth-reports.destroy');
+        Route::get('/birth-reports/{report}/certificate', [BirthDeathReportsController::class, 'birthCertificate'])->name('birth-reports.certificate');
         Route::get('/death-reports/{report}', [BirthDeathReportsController::class, 'showDeathReport'])->name('death-reports.show');
         Route::get('/death-reports/{report}/edit', [BirthDeathReportsController::class, 'editDeathReport'])->name('death-reports.edit');
         Route::put('/death-reports/{report}', [BirthDeathReportsController::class, 'updateDeathReport'])->name('death-reports.update');
         Route::delete('/death-reports/{report}', [BirthDeathReportsController::class, 'destroyDeathReport'])->name('death-reports.destroy');
+        Route::get('/death-reports/{report}/certificate', [BirthDeathReportsController::class, 'deathCertificate'])->name('death-reports.certificate');
         
         // Operation Reports & Surgery
         Route::get('/operations', [OperationReportsController::class, 'index'])->name('operations.index');
@@ -824,6 +829,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/discharge-summary/{discharge}/edit', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'edit'])->name('discharge-summary.edit');
         Route::put('/discharge-summary/{discharge}', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'update'])->name('discharge-summary.update');
         Route::delete('/discharge-summary/{discharge}', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'destroy'])->name('discharge-summary.destroy');
+        Route::get('/discharge-summary/{discharge}/pdf', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'generatePdf'])->name('discharge-summary.pdf');
         
         // Doctor Charges
         Route::get('/doctor-charges', [\App\Http\Controllers\Hms\DoctorChargesController::class, 'index'])->name('doctor-charges.index');
@@ -894,6 +900,10 @@ Route::middleware('auth')->group(function () {
         Route::delete('/inventory/purchase-orders/{purchaseOrder}', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'destroy'])->name('inventory.purchase-orders.destroy');
         Route::post('/inventory/purchase-orders/{purchaseOrder}/submit', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'submit'])->name('inventory.purchase-orders.submit');
         Route::post('/inventory/purchase-orders/{purchaseOrder}/approve', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'approve'])->name('inventory.purchase-orders.approve');
+        Route::get('/inventory/purchase-orders/{purchaseOrder}/pdf', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'generatePdf'])->name('inventory.purchase-orders.pdf');
+        
+        // Stock Take Sheet
+        Route::get('/inventory/stock-take', [InventoryController::class, 'stockTake'])->name('inventory.stock-take');
         
         // Stock Movements
         Route::get('/inventory/stock-movements', [\App\Http\Controllers\Hms\StockMovementsController::class, 'index'])->name('inventory.stock-movements.index');
@@ -1033,6 +1043,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/hr/training-programs/{trainingProgram}/enrollments', [TrainingProgramsController::class, 'enrollments'])->name('hr.training-programs.enrollments');
         Route::post('/hr/training-enrollments/{enrollment}/complete', [TrainingProgramsController::class, 'markComplete'])->name('hr.training-enrollments.complete');
         Route::post('/hr/training-enrollments/{enrollment}/certificate', [TrainingProgramsController::class, 'issueCertificate'])->name('hr.training-enrollments.certificate');
+        Route::get('/hr/training/{enrollment}/certificate', [TrainingProgramsController::class, 'certificate'])->name('hr.training.certificate');
         
         // HR - Announcements & Notices
         Route::resource('hr/announcements', HrAnnouncementsController::class)->names('hr.announcements');
@@ -1041,6 +1052,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('hr/shifts', ShiftsController::class)->names('hr.shifts');
         Route::get('/hr/shifts/{shift}/roster', [ShiftsController::class, 'roster'])->name('hr.shifts.roster');
         Route::post('/hr/employee-shifts', [ShiftsController::class, 'assignShift'])->name('hr.employee-shifts.assign');
+        Route::get('/hr/shifts/roster-pdf', [ShiftsController::class, 'rosterPdf'])->name('hr.shifts.roster-pdf');
         
         // HR - Public Holidays
         Route::resource('hr/public-holidays', PublicHolidaysController::class)->names('hr.public-holidays');

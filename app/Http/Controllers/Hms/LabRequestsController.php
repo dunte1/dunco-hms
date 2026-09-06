@@ -10,6 +10,7 @@ use App\Models\Doctor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LabRequestsController extends Controller
 {
@@ -97,5 +98,12 @@ class LabRequestsController extends Controller
         $labRequest->items()->delete();
         $labRequest->delete();
         return redirect()->route('hms.laboratory.requests.index')->with('status', 'Lab request deleted');
+    }
+
+    public function reportPdf(LabRequest $labRequest)
+    {
+        $labRequest->load(['patient', 'doctor', 'items.labTest']);
+        $pdf = PDF::loadView('hms.laboratory.lab-report-pdf', compact('labRequest'));
+        return $pdf->download("Lab-Report-{$labRequest->request_number}.pdf");
     }
 }

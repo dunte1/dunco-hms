@@ -284,36 +284,36 @@
         <div class="total-section">
             <div class="total-row">
                 <span>Subtotal:</span>
-                <span>KSh {{ number_format($invoice->subtotal, 2) }}</span>
+                <span>{{ \App\Models\SystemSetting::get('currency_symbol', 'KSh') }} {{ number_format($invoice->subtotal, 2) }}</span>
             </div>
             
             @if($invoice->tax_amount > 0)
             <div class="total-row">
                 <span>Tax:</span>
-                <span>KSh {{ number_format($invoice->tax_amount, 2) }}</span>
+                <span>{{ \App\Models\SystemSetting::get('currency_symbol', 'KSh') }} {{ number_format($invoice->tax_amount, 2) }}</span>
             </div>
             @endif
             
             @if($invoice->discount_amount > 0)
             <div class="total-row">
                 <span>Discount:</span>
-                <span>-KSh {{ number_format($invoice->discount_amount, 2) }}</span>
+                <span>-{{ \App\Models\SystemSetting::get('currency_symbol', 'KSh') }} {{ number_format($invoice->discount_amount, 2) }}</span>
             </div>
             @endif
             
             <div class="total-row grand-total">
                 <span>TOTAL:</span>
-                <span>KSh {{ number_format($invoice->total_amount, 2) }}</span>
+                <span>{{ \App\Models\SystemSetting::get('currency_symbol', 'KSh') }} {{ number_format($invoice->total_amount, 2) }}</span>
             </div>
             
             <div class="total-row">
                 <span>Paid:</span>
-                <span>KSh {{ number_format($invoice->paid_amount, 2) }}</span>
+                <span>{{ \App\Models\SystemSetting::get('currency_symbol', 'KSh') }} {{ number_format($invoice->paid_amount, 2) }}</span>
             </div>
             
             <div class="total-row" style="font-weight: bold;">
                 <span>Balance:</span>
-                <span>KSh {{ number_format($invoice->balance_amount, 2) }}</span>
+                <span>{{ \App\Models\SystemSetting::get('currency_symbol', 'KSh') }} {{ number_format($invoice->balance_amount, 2) }}</span>
             </div>
         </div>
         
@@ -325,7 +325,7 @@
             @foreach($invoice->payments as $payment)
             <div class="info-row" style="font-size: 10px;">
                 <span>{{ $payment->payment_date->format('d/m/Y') }}</span>
-                <span>KSh {{ number_format($payment->amount, 2) }}</span>
+                <span>{{ \App\Models\SystemSetting::get('currency_symbol', 'KSh') }} {{ number_format($payment->amount, 2) }}</span>
             </div>
             @endforeach
         </div>

@@ -30,7 +30,7 @@
         <div style="background: white; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #f5576c;">
             <h3 style="margin-top: 0; color: #f5576c;">Invoice Details</h3>
             <p><strong>Invoice Number:</strong> {{ $invoice->invoice_number }}</p>
-            <p><strong>Total Amount:</strong> {{ number_format($invoice->total_amount, 2) }}</p>
+            <p><strong>Total Amount:</strong> {{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($invoice->total_amount, 2) }}</p>
             <p><strong>Due Date:</strong> {{ $invoice->due_date->format('M d, Y') }}</p>
             <p><strong>Status:</strong> 
                 <span style="padding: 3px 10px; border-radius: 3px; 
@@ -49,7 +49,7 @@
         <p>Thank you for choosing our services!</p>
         
         <p>Best regards,<br>
-        <strong>{{ config('app.name') }} Team</strong></p>
+        <strong>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }} Team</strong></p>
     </div>
     
     <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">

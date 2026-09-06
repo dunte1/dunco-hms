@@ -19,10 +19,23 @@
         tr:nth-child(even) { background: #f9fafb; }
         .text-right { text-align: right; }
         .footer { margin-top: 30px; padding-top: 10px; border-top: 1px solid #e5e7eb; text-align: center; color: #999; font-size: 9px; }
+        @media print {
+            @page { size: A4; margin: 15mm; }
+            body { padding: 0; margin: 0; }
+            .no-print { display: none !important; }
+            table { page-break-inside: avoid; }
+            tr { page-break-inside: avoid; }
+        }
     </style>
 </head>
 <body>
+    @php
+        $themeSettings = \App\Models\SystemSetting::getThemeSettings();
+    @endphp
     <div class="header">
+        @if(isset($themeSettings) && !empty($themeSettings['hospital_logo']))
+            <img src="data:image/png;base64,{{ $themeSettings['hospital_logo'] }}" style="height: 50px; margin-right: 10px;">
+        @endif
         <h1>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }}</h1>
         <p>{{ \App\Models\SystemSetting::get('hospital_address', '') }}</p>
         <p>Tel: {{ \App\Models\SystemSetting::get('hospital_phone', '') }} | Email: {{ \App\Models\SystemSetting::get('hospital_email', '') }}</p>
@@ -38,7 +51,7 @@
             <div class="label">Total Payments</div>
         </div>
         <div class="summary-box">
-            <div class="amount">{{ number_format($totalAmount, 2) }}</div>
+            <div class="amount">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($totalAmount, 2) }}</div>
             <div class="label">Total Revenue</div>
         </div>
     </div>
@@ -60,7 +73,7 @@
                 <td>{{ $payment->invoice->patient->full_name ?? 'N/A' }}</td>
                 <td>{{ $payment->invoice->invoice_number ?? 'N/A' }}</td>
                 <td>{{ ucwords(str_replace('_', ' ', $payment->payment_method)) }}</td>
-                <td class="text-right">{{ number_format($payment->amount, 2) }}</td>
+                <td class="text-right">{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($payment->amount, 2) }}</td>
             </tr>
             @empty
             <tr>
@@ -71,8 +84,8 @@
     </table>
 
     <div class="footer">
-        <p>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }} &mdash; {{ \App\Models\SystemSetting::get('hospital_address', '') }}</p>
-        <p>Tel: {{ \App\Models\SystemSetting::get('hospital_phone', '') }} | This is a computer-generated report.</p>
+        <p>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }} | {{ \App\Models\SystemSetting::get('hospital_address', '') }} | {{ \App\Models\SystemSetting::get('hospital_phone', '') }}</p>
+        <p>Generated on {{ now()->format('F d, Y \a\t H:i') }}</p>
     </div>
 </body>
 </html>

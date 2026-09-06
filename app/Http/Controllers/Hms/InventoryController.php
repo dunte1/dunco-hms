@@ -9,6 +9,7 @@ use App\Models\PurchaseOrder;
 use App\Models\StockMovement;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InventoryController extends Controller
 {
@@ -79,6 +80,13 @@ class InventoryController extends Controller
             'topSuppliers',
             'pendingOrders'
         ));
+    }
+
+    public function stockTake()
+    {
+        $stockItems = \App\Models\StoreStock::with(['medicine', 'store'])->get();
+        $pdf = PDF::loadView('hms.inventory.stock-take', compact('stockItems'));
+        return $pdf->download('stock-take-sheet.pdf');
     }
 }
 

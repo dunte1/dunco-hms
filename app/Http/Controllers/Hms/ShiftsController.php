@@ -10,6 +10,7 @@ use App\Models\EmployeeDepartment;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ShiftsController extends Controller
 {
@@ -175,5 +176,12 @@ class ShiftsController extends Controller
 
         return redirect()->back()
             ->with('success', 'Shift assigned successfully.');
+    }
+
+    public function rosterPdf()
+    {
+        $shifts = \App\Models\EmployeeShift::with(['employee', 'shift'])->get();
+        $pdf = PDF::loadView('hms.hr.shift-roster-pdf', compact('shifts'));
+        return $pdf->download('shift-roster.pdf');
     }
 }

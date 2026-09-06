@@ -208,4 +208,11 @@ class TrainingProgramsController extends Controller
 
         return $pdf->download('Training_Certificate_' . $enrollment->employee->employee_id . '.pdf');
     }
+
+    public function certificate(TrainingEnrollment $enrollment)
+    {
+        $enrollment->load(['employee', 'trainingProgram']);
+        $pdf = PDF::loadView('hms.hr.training-certificate', compact('enrollment'));
+        return $pdf->download("Training-Certificate-{$enrollment->id}.pdf");
+    }
 }

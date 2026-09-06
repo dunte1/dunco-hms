@@ -16,10 +16,23 @@
         th { background: #f3f4f6; font-weight: bold; }
         .signature { margin-top: 50px; text-align: right; }
         .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #e5e7eb; padding-top: 10px; }
+        @media print {
+            @page { size: A4; margin: 15mm; }
+            body { padding: 0; margin: 0; }
+            .no-print { display: none !important; }
+            table { page-break-inside: avoid; }
+            tr { page-break-inside: avoid; }
+        }
     </style>
 </head>
 <body>
+    @php
+        $themeSettings = \App\Models\SystemSetting::getThemeSettings();
+    @endphp
     <div class="header">
+        @if(isset($themeSettings) && !empty($themeSettings['hospital_logo']))
+            <img src="data:image/png;base64,{{ $themeSettings['hospital_logo'] }}" style="height: 50px; margin-right: 10px;">
+        @endif
         <h1>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }}</h1>
         <p>{{ \App\Models\SystemSetting::get('hospital_address', '') }}</p>
         <p>Tel: {{ \App\Models\SystemSetting::get('hospital_phone', '') }} | Email: {{ \App\Models\SystemSetting::get('hospital_email', '') }}</p>

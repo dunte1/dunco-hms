@@ -9,6 +9,7 @@ use App\Models\Doctor;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DischargeSummaryController extends Controller
 {
@@ -146,5 +147,12 @@ class DischargeSummaryController extends Controller
 
         $discharge->delete();
         return redirect()->route('hms.discharge-summary.index')->with('success', 'Discharge summary deleted!');
+    }
+
+    public function generatePdf(IpdAdmission $discharge)
+    {
+        $discharge->load(['patient', 'doctor', 'bed']);
+        $pdf = PDF::loadView('hms.discharge-summary.discharge-pdf', compact('discharge'));
+        return $pdf->download("Discharge-Summary-{$discharge->id}.pdf");
     }
 }
