@@ -16,6 +16,11 @@ class DoctorDepartmentsController extends Controller
         return view('hms.doctors.departments.index', compact('departments'));
     }
 
+    public function create(): View
+    {
+        return view('hms.doctors.departments.create');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([

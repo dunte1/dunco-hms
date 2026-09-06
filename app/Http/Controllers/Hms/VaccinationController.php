@@ -63,4 +63,36 @@ class VaccinationController extends Controller
 
         return redirect()->route('hms.vaccination.index')->with('status', 'Vaccination recorded');
     }
+
+    public function showVaccine(Vaccine $vaccine): View
+    {
+        $vaccine->load('vaccinationRecords.patient');
+        return view('hms.vaccination.show', compact('vaccine'));
+    }
+
+    public function editVaccine(Vaccine $vaccine): View
+    {
+        return view('hms.vaccination.edit', compact('vaccine'));
+    }
+
+    public function updateVaccine(Request $request, Vaccine $vaccine): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string',
+            'manufacturer' => 'nullable|string',
+            'dose_count' => 'nullable|integer|min:1',
+            'stock_quantity' => 'nullable|integer|min:0',
+            'expiry_date' => 'nullable|date',
+            'batch_number' => 'nullable|string',
+            'cost' => 'nullable|numeric|min:0',
+        ]);
+        $vaccine->update($data);
+        return redirect()->route('hms.vaccination.index')->with('status', 'Vaccine updated');
+    }
+
+    public function destroyVaccine(Vaccine $vaccine): RedirectResponse
+    {
+        $vaccine->delete();
+        return redirect()->route('hms.vaccination.index')->with('status', 'Vaccine deleted');
+    }
 }

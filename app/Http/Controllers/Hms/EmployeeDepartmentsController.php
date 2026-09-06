@@ -57,5 +57,10 @@ class EmployeeDepartmentsController extends Controller
     {
         return view('hms.hr.departments.create');
     }
+
+    public function edit(EmployeeDepartment $department): View
+    {
+        return view('hms.hr.departments.edit', compact('department'));
+    }
 }
 

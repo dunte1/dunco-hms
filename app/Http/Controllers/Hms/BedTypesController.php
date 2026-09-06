@@ -16,6 +16,11 @@ class BedTypesController extends Controller
         return view('hms.beds.types.index', compact('bedTypes'));
     }
 
+    public function create(): View
+    {
+        return view('hms.beds.types.create');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([

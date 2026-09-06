@@ -59,4 +59,29 @@ class RemindersController extends Controller
 
         return back()->with('success', 'Reminder sent successfully!');
     }
+
+    public function create(): View
+    {
+        return view('hms.communication.reminders.create');
+    }
+
+    public function show($id): View
+    {
+        return view('hms.communication.reminders.show', ['id' => $id]);
+    }
+
+    public function edit($id): View
+    {
+        return view('hms.communication.reminders.edit', ['id' => $id]);
+    }
+
+    public function update(Request $request, $id): RedirectResponse
+    {
+        return redirect()->route('hms.reminders.index')->with('status', 'Reminder updated');
+    }
+
+    public function destroy($id): RedirectResponse
+    {
+        return redirect()->route('hms.reminders.index')->with('status', 'Reminder deleted');
+    }
 }

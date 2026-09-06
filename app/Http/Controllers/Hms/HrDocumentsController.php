@@ -78,4 +78,41 @@ class HrDocumentsController extends Controller
 
         return back()->with('error', 'File upload failed.');
     }
+
+    public function create(): View
+    {
+        $employees = Employee::orderBy('first_name')->get();
+        $documentTypes = DocumentType::orderBy('name')->pluck('name', 'id');
+        return view('hms.hr.documents.create', compact('employees', 'documentTypes'));
+    }
+
+    public function show(Document $document): View
+    {
+        $document->load('employee');
+        return view('hms.hr.documents.show', compact('document'));
+    }
+
+    public function edit(Document $document): View
+    {
+        $employees = Employee::orderBy('first_name')->get();
+        $documentTypes = DocumentType::orderBy('name')->pluck('name', 'id');
+        return view('hms.hr.documents.edit', compact('document', 'employees', 'documentTypes'));
+    }
+
+    public function update(Request $request, Document $document): RedirectResponse
+    {
+        $data = $request->validate([
+            'title' => 'required|string',
+            'document_type_id' => 'nullable|exists:document_types,id',
+            'description' => 'nullable|string',
+        ]);
+        $document->update($data);
+        return redirect()->route('hms.hr.documents.index')->with('status', 'Document updated');
+    }
+
+    public function destroy(Document $document): RedirectResponse
+    {
+        $document->delete();
+        return redirect()->route('hms.hr.documents.index')->with('status', 'Document deleted');
+    }
 }

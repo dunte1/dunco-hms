@@ -49,4 +49,38 @@ class PayrollsController extends Controller
         Payroll::create($data);
         return redirect()->route('hms.hr.payrolls.index')->with('status', 'Payroll created');
     }
+
+    public function show(Payroll $payroll): View
+    {
+        $payroll->load('employee');
+        return view('hms.hr.payrolls.show', compact('payroll'));
+    }
+
+    public function edit(Payroll $payroll): View
+    {
+        $employees = Employee::orderBy('first_name')->get();
+        return view('hms.hr.payrolls.edit', compact('payroll', 'employees'));
+    }
+
+    public function update(Request $request, Payroll $payroll): RedirectResponse
+    {
+        $data = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'period_start' => 'required|date',
+            'period_end' => 'required|date|after_or_equal:period_start',
+            'basic_salary' => 'required|numeric|min:0',
+            'allowances' => 'nullable|numeric|min:0',
+            'deductions' => 'nullable|numeric|min:0',
+            'net_salary' => 'required|numeric|min:0',
+            'status' => 'required|in:pending,paid,cancelled',
+        ]);
+        $payroll->update($data);
+        return redirect()->route('hms.hr.payrolls.index')->with('status', 'Payroll updated');
+    }
+
+    public function destroy(Payroll $payroll): RedirectResponse
+    {
+        $payroll->delete();
+        return redirect()->route('hms.hr.payrolls.index')->with('status', 'Payroll deleted');
+    }
 }

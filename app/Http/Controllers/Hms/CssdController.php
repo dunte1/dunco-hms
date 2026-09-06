@@ -62,4 +62,37 @@ class CssdController extends Controller
         $batch->update(['status' => 'sterilized', 'completed_at' => now(), 'expiry_date' => now()->addHours(24)]);
         return back()->with('status', 'Batch marked as sterilized');
     }
+
+    public function createInstrument(): View
+    {
+        return view('hms.cssd.create-instrument');
+    }
+
+    public function showInstrument(CssdInstrument $instrument): View
+    {
+        return view('hms.cssd.show-instrument', compact('instrument'));
+    }
+
+    public function editInstrument(CssdInstrument $instrument): View
+    {
+        return view('hms.cssd.edit-instrument', compact('instrument'));
+    }
+
+    public function updateInstrumentFull(Request $request, CssdInstrument $instrument): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string',
+            'category' => 'nullable|string',
+            'description' => 'nullable|string',
+            'quantity' => 'nullable|integer|min:1',
+        ]);
+        $instrument->update($data);
+        return redirect()->route('hms.cssd.index')->with('status', 'Instrument updated');
+    }
+
+    public function destroyInstrument(CssdInstrument $instrument): RedirectResponse
+    {
+        $instrument->delete();
+        return redirect()->route('hms.cssd.index')->with('status', 'Instrument deleted');
+    }
 }

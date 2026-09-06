@@ -48,6 +48,27 @@ class ConsentController extends Controller
         return view('hms.consent.show', compact('consent'));
     }
 
+    public function edit(ConsentForm $consent): View
+    {
+        $patients = Patient::orderBy('first_name')->pluck(function ($p) { return $p->first_name . ' ' . $p->last_name; }, 'id');
+        $doctors = Doctor::orderBy('first_name')->pluck(function ($d) { return $d->first_name . ' ' . $d->last_name; }, 'id');
+        return view('hms.consent.edit', compact('consent', 'patients', 'doctors'));
+    }
+
+    public function update(Request $request, ConsentForm $consent): RedirectResponse
+    {
+        $data = $request->validate([
+            'consent_type' => 'required|in:procedure,anesthesia,blood_transfusion,data_sharing,research',
+            'procedure_name' => 'nullable|string',
+            'description' => 'nullable|string',
+            'risks_disclosed' => 'nullable|string',
+            'alternatives_disclosed' => 'nullable|string',
+            'notes' => 'nullable|string',
+        ]);
+        $consent->update($data);
+        return redirect()->route('hms.consent.show', $consent)->with('status', 'Consent updated');
+    }
+
     public function sign(ConsentForm $consent): RedirectResponse
     {
         $consent->update([

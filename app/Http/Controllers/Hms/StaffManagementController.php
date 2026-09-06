@@ -223,4 +223,70 @@ class StaffManagementController extends Controller
         Accountant::create($data);
         return redirect()->route('hms.staff.accountants')->with('status', 'Accountant registered');
     }
+
+    public function showPharmacist(Pharmacist $pharmacist): View
+    {
+        return view('hms.staff.show-pharmacist', compact('pharmacist'));
+    }
+
+    public function editPharmacist(Pharmacist $pharmacist): View
+    {
+        return view('hms.staff.edit-pharmacist', compact('pharmacist'));
+    }
+
+    public function updatePharmacist(Request $request, Pharmacist $pharmacist): RedirectResponse
+    {
+        $data = $request->validate([
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'email' => 'nullable|email',
+            'phone' => 'nullable|string',
+        ]);
+        $pharmacist->update($data);
+        return redirect()->route('hms.staff.pharmacists')->with('status', 'Pharmacist updated');
+    }
+
+    public function showLabTechnician(LabTechnician $technician): View
+    {
+        return view('hms.staff.show-lab-technician', compact('technician'));
+    }
+
+    public function editLabTechnician(LabTechnician $technician): View
+    {
+        return view('hms.staff.edit-lab-technician', compact('technician'));
+    }
+
+    public function updateLabTechnician(Request $request, LabTechnician $technician): RedirectResponse
+    {
+        $data = $request->validate([
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'email' => 'nullable|email',
+            'phone' => 'nullable|string',
+        ]);
+        $technician->update($data);
+        return redirect()->route('hms.staff.lab-technicians')->with('status', 'Technician updated');
+    }
+
+    public function showAccountant(Accountant $accountant): View
+    {
+        return view('hms.staff.show-accountant', compact('accountant'));
+    }
+
+    public function editAccountant(Accountant $accountant): View
+    {
+        return view('hms.staff.edit-accountant', compact('accountant'));
+    }
+
+    public function updateAccountant(Request $request, Accountant $accountant): RedirectResponse
+    {
+        $data = $request->validate([
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'email' => 'nullable|email',
+            'phone' => 'nullable|string',
+        ]);
+        $accountant->update($data);
+        return redirect()->route('hms.staff.accountants')->with('status', 'Accountant updated');
+    }
 }

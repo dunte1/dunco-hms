@@ -73,4 +73,33 @@ class MrdController extends Controller
         ]);
         return back()->with('status', 'File returned');
     }
+
+    public function create(): View
+    {
+        $patients = Patient::orderBy('first_name')->pluck(function ($p) { return $p->first_name . ' ' . $p->last_name; }, 'id');
+        return view('hms.mrd.create', compact('patients'));
+    }
+
+    public function edit(MrdFile $file): View
+    {
+        $patients = Patient::orderBy('first_name')->pluck(function ($p) { return $p->first_name . ' ' . $p->last_name; }, 'id');
+        return view('hms.mrd.edit', compact('file', 'patients'));
+    }
+
+    public function update(Request $request, MrdFile $file): RedirectResponse
+    {
+        $data = $request->validate([
+            'file_type' => 'required|in:discharge_summary,lab_report,imaging,consent,operation_note,correspondence,other',
+            'physical_location' => 'nullable|string',
+            'notes' => 'nullable|string',
+        ]);
+        $file->update($data);
+        return redirect()->route('hms.mrd.show', $file)->with('status', 'File updated');
+    }
+
+    public function destroy(MrdFile $file): RedirectResponse
+    {
+        $file->delete();
+        return redirect()->route('hms.mrd.index')->with('status', 'File deleted');
+    }
 }

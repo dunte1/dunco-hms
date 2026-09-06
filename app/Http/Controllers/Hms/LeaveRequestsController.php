@@ -73,4 +73,37 @@ class LeaveRequestsController extends Controller
 
         return back()->with('status', 'Leave request rejected');
     }
+
+    public function show(LeaveRequest $leaveRequest): View
+    {
+        $leaveRequest->load(['employee', 'leaveType']);
+        return view('hms.hr.leave-requests.show', compact('leaveRequest'));
+    }
+
+    public function edit(LeaveRequest $leaveRequest): View
+    {
+        $leaveTypes = \App\Models\LeaveType::orderBy('name')->pluck('name', 'id');
+        $employees = Employee::orderBy('first_name')->get();
+        return view('hms.hr.leave-requests.edit', compact('leaveRequest', 'leaveTypes', 'employees'));
+    }
+
+    public function update(Request $request, LeaveRequest $leaveRequest): RedirectResponse
+    {
+        $data = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'leave_type_id' => 'required|exists:leave_types,id',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'reason' => 'required|string',
+            'status' => 'required|in:pending,approved,rejected',
+        ]);
+        $leaveRequest->update($data);
+        return redirect()->route('hms.hr.leave-requests.index')->with('status', 'Leave request updated');
+    }
+
+    public function destroy(LeaveRequest $leaveRequest): RedirectResponse
+    {
+        $leaveRequest->delete();
+        return redirect()->route('hms.hr.leave-requests.index')->with('status', 'Leave request deleted');
+    }
 }

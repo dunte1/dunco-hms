@@ -46,4 +46,34 @@ class AttendanceController extends Controller
         Attendance::create($data);
         return redirect()->route('hms.hr.attendance.index')->with('status', 'Attendance recorded');
     }
+
+    public function show(Attendance $attendance): View
+    {
+        return view('hms.hr.attendance.show', compact('attendance'));
+    }
+
+    public function edit(Attendance $attendance): View
+    {
+        $employees = Employee::orderBy('first_name')->get();
+        return view('hms.hr.attendance.edit', compact('attendance', 'employees'));
+    }
+
+    public function update(Request $request, Attendance $attendance): RedirectResponse
+    {
+        $data = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date',
+            'status' => 'required|in:present,absent,late,leave,holiday',
+            'check_in' => 'nullable|date_format:H:i',
+            'check_out' => 'nullable|date_format:H:i|after:check_in',
+        ]);
+        $attendance->update($data);
+        return redirect()->route('hms.hr.attendance.index')->with('status', 'Attendance updated');
+    }
+
+    public function destroy(Attendance $attendance): RedirectResponse
+    {
+        $attendance->delete();
+        return redirect()->route('hms.hr.attendance.index')->with('status', 'Attendance record deleted');
+    }
 }

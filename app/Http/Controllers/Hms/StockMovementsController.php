@@ -284,5 +284,28 @@ class StockMovementsController extends Controller
         
         return view('hms.inventory.stock-report', compact('medicines', 'lowStock', 'expiringMedicines', 'expiredMedicines'));
     }
+
+    public function edit(StockMovement $stockMovement): View
+    {
+        $medicines = Medicine::orderBy('name')->pluck('name', 'id');
+        return view('hms.inventory.stock-movements.edit', compact('stockMovement', 'medicines'));
+    }
+
+    public function update(Request $request, StockMovement $stockMovement): RedirectResponse
+    {
+        $data = $request->validate([
+            'quantity' => 'required|integer|min:1',
+            'unit_cost' => 'nullable|numeric|min:0',
+            'notes' => 'nullable|string',
+        ]);
+        $stockMovement->update($data);
+        return redirect()->route('hms.inventory.stock-movements.show', $stockMovement)->with('status', 'Movement updated');
+    }
+
+    public function destroy(StockMovement $stockMovement): RedirectResponse
+    {
+        $stockMovement->delete();
+        return redirect()->route('hms.inventory.stock-movements.index')->with('status', 'Movement deleted');
+    }
 }
 

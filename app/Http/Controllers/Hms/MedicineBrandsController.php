@@ -35,4 +35,41 @@ class MedicineBrandsController extends Controller
 
         return back()->with('success', 'Medicine brand added successfully!');
     }
+
+    public function create(): View
+    {
+        return view('hms.pharmacy.medicine-brands.create');
+    }
+
+    public function show(MedicineBrand $brand): View
+    {
+        $brand->loadCount('medicines');
+        return view('hms.pharmacy.medicine-brands.show', compact('brand'));
+    }
+
+    public function edit(MedicineBrand $brand): View
+    {
+        return view('hms.pharmacy.medicine-brands.edit', compact('brand'));
+    }
+
+    public function update(Request $request, MedicineBrand $brand): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string|unique:medicine_brands,name,' . $brand->id,
+            'manufacturer' => 'nullable|string',
+            'country' => 'nullable|string',
+            'description' => 'nullable|string',
+        ]);
+        $brand->update($data);
+        return redirect()->route('hms.pharmacy.medicine-brands.index')->with('status', 'Brand updated');
+    }
+
+    public function destroy(MedicineBrand $brand): RedirectResponse
+    {
+        if ($brand->medicines()->count() > 0) {
+            return back()->with('error', 'Cannot delete brand with medicines');
+        }
+        $brand->delete();
+        return redirect()->route('hms.pharmacy.medicine-brands.index')->with('status', 'Brand deleted');
+    }
 }

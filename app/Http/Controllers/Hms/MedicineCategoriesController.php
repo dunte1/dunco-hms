@@ -33,4 +33,39 @@ class MedicineCategoriesController extends Controller
 
         return back()->with('success', 'Medicine category added successfully!');
     }
+
+    public function create(): View
+    {
+        return view('hms.pharmacy.medicine-categories.create');
+    }
+
+    public function show(MedicineCategory $category): View
+    {
+        $category->loadCount('medicines');
+        return view('hms.pharmacy.medicine-categories.show', compact('category'));
+    }
+
+    public function edit(MedicineCategory $category): View
+    {
+        return view('hms.pharmacy.medicine-categories.edit', compact('category'));
+    }
+
+    public function update(Request $request, MedicineCategory $category): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string|unique:medicine_categories,name,' . $category->id,
+            'description' => 'nullable|string',
+        ]);
+        $category->update($data);
+        return redirect()->route('hms.pharmacy.medicine-categories.index')->with('status', 'Category updated');
+    }
+
+    public function destroy(MedicineCategory $category): RedirectResponse
+    {
+        if ($category->medicines()->count() > 0) {
+            return back()->with('error', 'Cannot delete category with medicines');
+        }
+        $category->delete();
+        return redirect()->route('hms.pharmacy.medicine-categories.index')->with('status', 'Category deleted');
+    }
 }

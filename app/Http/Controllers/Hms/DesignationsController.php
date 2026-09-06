@@ -66,4 +66,20 @@ class DesignationsController extends Controller
         return redirect()->route('hms.hr.designations.index')
             ->with('success', 'Designation deleted successfully.');
     }
+
+    public function create()
+    {
+        return view('hms.hr.designations.create');
+    }
+
+    public function show(Designation $designation)
+    {
+        $designation->loadCount('employees');
+        return view('hms.hr.designations.show', compact('designation'));
+    }
+
+    public function edit(Designation $designation)
+    {
+        return view('hms.hr.designations.edit', compact('designation'));
+    }
 }

@@ -57,4 +57,28 @@ class MortuaryController extends Controller
         $record->update(['status' => 'released']);
         return back()->with('status', 'Body released from mortuary');
     }
+
+    public function edit(MortuaryRecord $record): View
+    {
+        return view('hms.mortuary.edit', compact('record'));
+    }
+
+    public function update(Request $request, MortuaryRecord $record): RedirectResponse
+    {
+        $data = $request->validate([
+            'storage_location' => 'nullable|string',
+            'cause_of_death' => 'nullable|string',
+            'family_contact_name' => 'nullable|string',
+            'family_contact_phone' => 'nullable|string',
+            'status' => 'required|in:stored,released,autopsied',
+        ]);
+        $record->update($data);
+        return redirect()->route('hms.mortuary.show', $record)->with('status', 'Record updated');
+    }
+
+    public function destroy(MortuaryRecord $record): RedirectResponse
+    {
+        $record->delete();
+        return redirect()->route('hms.mortuary.index')->with('status', 'Record deleted');
+    }
 }

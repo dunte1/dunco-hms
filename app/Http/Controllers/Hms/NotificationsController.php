@@ -42,4 +42,36 @@ class NotificationsController extends Controller
         
         return back()->with('success', 'Notification deleted');
     }
+
+    public function create(): View
+    {
+        $users = \App\Models\User::orderBy('name')->pluck('name', 'id');
+        return view('hms.notifications.create', compact('users'));
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'title' => 'required|string',
+            'message' => 'required|string',
+        ]);
+        \App\Models\User::find($data['user_id'])->notify(new \App\Notifications\GenericNotification($data['title'], $data['message']));
+        return redirect()->route('hms.dashboard.notifications')->with('status', 'Notification sent');
+    }
+
+    public function show($id): View
+    {
+        return view('hms.notifications.show', ['id' => $id]);
+    }
+
+    public function edit($id): View
+    {
+        return view('hms.notifications.edit', ['id' => $id]);
+    }
+
+    public function update(Request $request, $id): RedirectResponse
+    {
+        return redirect()->route('hms.dashboard.notifications')->with('status', 'Notification updated');
+    }
 }

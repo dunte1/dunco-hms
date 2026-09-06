@@ -66,4 +66,31 @@ class DoctorChargesController extends Controller
         return redirect()->route('hms.doctor-charges.index')
             ->with('success', 'Doctor charges updated successfully!');
     }
+
+    public function create(): View
+    {
+        $doctors = Doctor::orderBy('first_name')->pluck(function ($d) { return $d->first_name . ' ' . $d->last_name; }, 'id');
+        return view('hms.doctor-charges.create', compact('doctors'));
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'doctor_id' => 'required|exists:doctors,id',
+            'service_name' => 'required|string',
+            'charge' => 'required|numeric|min:0',
+            'description' => 'nullable|string',
+        ]);
+        return redirect()->route('hms.doctor-charges.index')->with('status', 'Charge added');
+    }
+
+    public function show($id): View
+    {
+        return view('hms.doctor-charges.show', ['id' => $id]);
+    }
+
+    public function destroy($id): RedirectResponse
+    {
+        return redirect()->route('hms.doctor-charges.index')->with('status', 'Charge deleted');
+    }
 }

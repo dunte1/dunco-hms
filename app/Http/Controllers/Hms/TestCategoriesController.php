@@ -63,4 +63,38 @@ class TestCategoriesController extends Controller
 
         return view('hms.investigation-reports.index', compact('labRequests', 'radiologyRequests', 'stats'));
     }
+
+    public function create(): View
+    {
+        return view('hms.test-categories.create');
+    }
+
+    public function show($id): View
+    {
+        $category = LabCategory::findOrFail($id);
+        return view('hms.test-categories.show', compact('category'));
+    }
+
+    public function edit($id): View
+    {
+        $category = LabCategory::findOrFail($id);
+        return view('hms.test-categories.edit', compact('category'));
+    }
+
+    public function update(Request $request, $id): RedirectResponse
+    {
+        $category = LabCategory::findOrFail($id);
+        $data = $request->validate([
+            'name' => 'required|string|unique:lab_categories,name,' . $id,
+            'description' => 'nullable|string',
+        ]);
+        $category->update($data);
+        return redirect()->route('hms.test-categories.index')->with('status', 'Category updated');
+    }
+
+    public function destroy($id): RedirectResponse
+    {
+        LabCategory::findOrFail($id)->delete();
+        return redirect()->route('hms.test-categories.index')->with('status', 'Category deleted');
+    }
 }

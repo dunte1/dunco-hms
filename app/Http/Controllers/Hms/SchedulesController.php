@@ -80,4 +80,34 @@ class SchedulesController extends Controller
         Schedule::create($data);
         return redirect()->route('hms.hr.schedules.index')->with('status', 'Schedule created');
     }
+
+    public function show(Schedule $schedule): View
+    {
+        $schedule->load('employee');
+        return view('hms.hr.schedules.show', compact('schedule'));
+    }
+
+    public function edit(Schedule $schedule): View
+    {
+        $employees = Employee::orderBy('first_name')->get();
+        return view('hms.hr.schedules.edit', compact('schedule', 'employees'));
+    }
+
+    public function update(Request $request, Schedule $schedule): RedirectResponse
+    {
+        $data = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'day_of_week' => 'required|string',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+        ]);
+        $schedule->update($data);
+        return redirect()->route('hms.hr.schedules.index')->with('status', 'Schedule updated');
+    }
+
+    public function destroy(Schedule $schedule): RedirectResponse
+    {
+        $schedule->delete();
+        return redirect()->route('hms.hr.schedules.index')->with('status', 'Schedule deleted');
+    }
 }
