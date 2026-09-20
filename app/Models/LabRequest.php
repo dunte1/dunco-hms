@@ -12,7 +12,7 @@ class LabRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'request_number', 'patient_id', 'doctor_id', 'opd_visit_id',
+        'request_number', 'patient_id', 'doctor_id', 'opd_visit_id', 'payment_id',
         'request_date', 'clinical_notes', 'status', 'results_notes'
     ];
 

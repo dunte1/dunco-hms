@@ -12,7 +12,7 @@ class Prescription extends Model
     use HasFactory;
 
     protected $fillable = [
-        'patient_id', 'doctor_id', 'opd_visit_id', 'prescription_date',
+        'patient_id', 'doctor_id', 'opd_visit_id', 'payment_id', 'prescription_date',
         'symptoms', 'diagnosis', 'notes', 'status',
         'digital_signature', 'signed_at', 'signed_by', 'template_id', 'metadata'
     ];

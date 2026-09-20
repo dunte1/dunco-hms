@@ -125,6 +125,17 @@ Route::prefix('hms')->middleware(['auth'])->group(function () {
     Route::post('/integration/insurance/submit-claim', [\App\Http\Controllers\Integration\InsuranceApiController::class, 'submitClaim'])->name('integration.insurance.submit-claim');
     Route::post('/integration/insurance/check-eligibility', [\App\Http\Controllers\Integration\InsuranceApiController::class, 'checkEligibility'])->name('integration.insurance.check-eligibility');
     
+    // DHA - Digital Health Superhighway (Client Registry, Facility & Provider Registries, Afyalink)
+    Route::middleware('module:dha-integration')->group(function () {
+        Route::get('/integration/dha', [\App\Http\Controllers\Integration\DhaIntegrationController::class, 'index'])->name('integration.dha.index');
+        Route::post('/integration/dha/client-registry/search', [\App\Http\Controllers\Integration\DhaIntegrationController::class, 'searchClientRegistry'])->name('integration.dha.client-registry.search');
+        Route::post('/integration/dha/verify-patient', [\App\Http\Controllers\Integration\DhaIntegrationController::class, 'verifyPatient'])->name('integration.dha.verify');
+        Route::post('/integration/dha/facility-lookup', [\App\Http\Controllers\Integration\DhaIntegrationController::class, 'lookupFacility'])->name('integration.dha.facility-lookup');
+        Route::post('/integration/dha/provider-search', [\App\Http\Controllers\Integration\DhaIntegrationController::class, 'searchProvider'])->name('integration.dha.provider-search');
+        Route::post('/integration/dha/transmit-document', [\App\Http\Controllers\Integration\DhaIntegrationController::class, 'transmitDocument'])->name('integration.dha.transmit-document');
+        Route::post('/integration/dha/biometric-verify', [\App\Http\Controllers\Integration\DhaIntegrationController::class, 'verifyBiometric'])->name('integration.dha.biometric-verify');
+    });
+    
     // Analytics & BI
     Route::get('/analytics/bi-dashboard', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'index'])->name('analytics.bi-dashboard');
     Route::post('/analytics/generate', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'generateAnalytics'])->name('analytics.generate');
@@ -316,17 +327,20 @@ Route::middleware('auth')->group(function () {
         Route::delete('/appointments/{appointment}', [AppointmentsController::class, 'destroy'])->name('appointments.destroy');
 
         // SHA/SHIF Module Routes
-        Route::get('/sha', [ShaController::class, 'index'])->name('sha.index');
-        Route::get('/sha/members', [ShaController::class, 'members'])->name('sha.members');
-        Route::post('/sha/verify', [ShaController::class, 'verify'])->name('sha.verify');
-        Route::post('/sha/members', [ShaController::class, 'storeMember'])->name('sha.member.store');
-        Route::get('/sha/members/{member}', [ShaController::class, 'memberShow'])->name('sha.member.show');
-        Route::get('/sha/authorizations', [ShaController::class, 'authorizations'])->name('sha.authorizations');
-        Route::post('/sha/authorizations', [ShaController::class, 'requestAuthorization'])->name('sha.authorization.request');
-        Route::get('/sha/authorizations/{authorization}', [ShaController::class, 'authorizationShow'])->name('sha.authorization.show');
-        Route::get('/sha/providers', [ShaController::class, 'providers'])->name('sha.providers');
-        Route::post('/sha/providers', [ShaController::class, 'storeProvider'])->name('sha.provider.store');
-        Route::get('/sha/service-codes', [ShaController::class, 'serviceCodes'])->name('sha.service-codes');
+        Route::middleware('module:sha-shif')->group(function () {
+            Route::get('/sha', [ShaController::class, 'index'])->name('sha.index');
+            Route::get('/sha/members', [ShaController::class, 'members'])->name('sha.members');
+            Route::post('/sha/verify', [ShaController::class, 'verify'])->name('sha.verify');
+            Route::post('/sha/members', [ShaController::class, 'storeMember'])->name('sha.member.store');
+            Route::get('/sha/members/{member}', [ShaController::class, 'memberShow'])->name('sha.member.show');
+            Route::get('/sha/authorizations', [ShaController::class, 'authorizations'])->name('sha.authorizations');
+            Route::post('/sha/authorizations', [ShaController::class, 'requestAuthorization'])->name('sha.authorization.request');
+            Route::get('/sha/authorizations/{authorization}', [ShaController::class, 'authorizationShow'])->name('sha.authorization.show');
+            Route::get('/sha/providers', [ShaController::class, 'providers'])->name('sha.providers');
+            Route::post('/sha/providers', [ShaController::class, 'storeProvider'])->name('sha.provider.store');
+            Route::put('/sha/providers/{provider}', [ShaController::class, 'updateProvider'])->name('sha.provider.update');
+            Route::get('/sha/service-codes', [ShaController::class, 'serviceCodes'])->name('sha.service-codes');
+        });
 
         // ICD-10 Module Routes
         Route::get('/icd10', [ICD10Controller::class, 'index'])->name('icd10.index');
@@ -485,6 +499,12 @@ Route::middleware('auth')->group(function () {
         Route::delete('/billing/payments/{payment}', [PaymentsController::class, 'destroy'])->name('billing.payments.destroy');
         Route::get('/billing/payments/{payment}/thermal-receipt', [PaymentsController::class, 'thermalReceipt'])->name('billing.payments.thermal-receipt');
         Route::get('/billing/invoices/{invoice}/thermal-receipt', [PaymentsController::class, 'invoiceThermalReceipt'])->name('billing.invoices.thermal-receipt');
+
+        // M-Pesa Payments (STK push initiation, status polling, SHA coverage check)
+        Route::post('/mpesa/initiate', [\App\Http\Controllers\Hms\MpesaPaymentsController::class, 'initiate'])->name('mpesa.initiate');
+        Route::get('/mpesa/status/{payment}', [\App\Http\Controllers\Hms\MpesaPaymentsController::class, 'status'])->name('mpesa.status');
+        Route::post('/mpesa/coverage', [\App\Http\Controllers\Hms\MpesaPaymentsController::class, 'coverage'])->name('mpesa.coverage');
+        Route::get('/mpesa/receipt/{payment}', [\App\Http\Controllers\Hms\MpesaPaymentsController::class, 'receipt'])->name('mpesa.receipt');
         
         // Insurance Management
         Route::get('/insurance/providers', [\App\Http\Controllers\Hms\InsuranceProvidersController::class, 'index'])->name('insurance.providers.index');
@@ -525,6 +545,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/pharmacy/prescriptions/{prescription}/edit', [PrescriptionsController::class, 'edit'])->name('pharmacy.prescriptions.edit');
         Route::put('/pharmacy/prescriptions/{prescription}', [PrescriptionsController::class, 'update'])->name('pharmacy.prescriptions.update');
         Route::delete('/pharmacy/prescriptions/{prescription}', [PrescriptionsController::class, 'destroy'])->name('pharmacy.prescriptions.destroy');
+        Route::post('/pharmacy/prescriptions/{prescription}/dispense', [\App\Http\Controllers\Hms\PharmacyController::class, 'dispensePrescription'])->name('pharmacy.prescriptions.dispense');
         
         // E-Prescription Routes
         Route::prefix('prescriptions/e-prescription')->name('prescriptions.e-prescription.')->group(function () {
@@ -1222,6 +1243,10 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/modules', [\App\Http\Controllers\Admin\ModulesController::class, 'index'])->name('modules.index');
         Route::get('/modules/{slug}', [\App\Http\Controllers\Admin\ModulesController::class, 'show'])->name('modules.show');
+        Route::post('/modules/{module}/toggle', [\App\Http\Controllers\Admin\ModulesController::class, 'toggle'])->name('modules.toggle');
+        Route::post('/modules/{module}/enable', [\App\Http\Controllers\Admin\ModulesController::class, 'enable'])->name('modules.enable');
+        Route::post('/modules/{module}/disable', [\App\Http\Controllers\Admin\ModulesController::class, 'disable'])->name('modules.disable');
+        Route::post('/modules/enable-all', [\App\Http\Controllers\Admin\ModulesController::class, 'enableAll'])->name('modules.enable-all');
         
         // Multi-Currency Management Routes
         Route::prefix('modules/multi-currency')->name('modules.multi-currency.')->group(function () {

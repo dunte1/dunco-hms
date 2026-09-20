@@ -26,16 +26,32 @@
         <p>Hello {{ $payment->invoice->patient->first_name ?? 'Valued Customer' }},</p>
         
         <p>Thank you for your payment. Your transaction has been processed successfully:</p>
+
+        @php
+            $mpesaTxn = \App\Models\MpesaTransaction::where('payment_id', $payment->id)->first();
+            $currency = \App\Models\SystemSetting::get('currency_symbol', 'KSh ');
+        @endphp
         
         <div style="background: white; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #06b6d4;">
             <h3 style="margin-top: 0; color: #06b6d4;">Payment Details</h3>
-            <p><strong>Payment ID:</strong> {{ $payment->payment_reference ?? 'N/A' }}</p>
-            <p><strong>Invoice Number:</strong> {{ $payment->invoice->invoice_number }}</p>
-            <p><strong>Amount Paid:</strong> {{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($payment->amount, 2) }}</p>
+            @if($mpesaTxn?->fee_type)
+                <p><strong>Fee Type:</strong> {{ \App\Services\MpesaService::feeLabelStatic($mpesaTxn->fee_type) }}</p>
+            @endif
+            @if($mpesaTxn?->item_name)
+                <p><strong>Item:</strong> {{ $mpesaTxn->item_name }}</p>
+            @endif
+            <p><strong>Amount Paid:</strong> {{ $currency }}{{ number_format($payment->amount, 2) }}</p>
             <p><strong>Payment Method:</strong> {{ ucfirst($payment->payment_method ?? 'N/A') }}</p>
+            @if($payment->payment_method === 'mpesa')
+                <p><strong>M-Pesa Receipt:</strong> {{ $mpesaTxn?->mpesa_receipt ?? 'N/A' }}</p>
+                <p><strong>Phone:</strong> {{ $mpesaTxn?->phone ?? 'N/A' }}</p>
+                <p><strong>Payment Reference:</strong> {{ $payment->payment_reference ?? 'N/A' }}</p>
+                <p><strong>Transaction Status:</strong> {{ ucfirst($mpesaTxn?->status ?? 'completed') }}</p>
+            @endif
+            <p><strong>Invoice Number:</strong> {{ $payment->invoice->invoice_number }}</p>
             <p><strong>Date:</strong> {{ $payment->created_at->format('M d, Y h:i A') }}</p>
             @if($payment->invoice->balance_amount > 0)
-            <p><strong>Remaining Balance:</strong> {{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($payment->invoice->balance_amount, 2) }}</p>
+            <p><strong>Remaining Balance:</strong> {{ $currency }}{{ number_format($payment->invoice->balance_amount, 2) }}</p>
             @endif
         </div>
         
@@ -43,7 +59,7 @@
             <a href="{{ route('hms.billing.invoices.show', $payment->invoice_id) }}" style="background: #06b6d4; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">View Invoice</a>
         </div>
         
-        <p>Thank you for your payment. Keep this receipt for your records.</p>
+        <p style="font-size: 12px; color: #888;">Keep this receipt for your records. This receipt was issued automatically for your {{ $payment->payment_method === 'mpesa' ? 'M-Pesa' : 'payment' }} transaction.</p>
         
         <p>Best regards,<br>
         <strong>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }} Team</strong></p>

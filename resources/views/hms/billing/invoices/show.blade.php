@@ -152,6 +152,9 @@
                             <button onclick="recordPayment()" class="mt-4 w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition">
                                 <i class="fa fa-credit-card mr-2"></i> Record Payment
                             </button>
+                            <button onclick="startInvoiceMpesaPayment()" class="mt-2 w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
+                                <i class="fa fa-mobile-alt mr-2"></i> Pay with M-Pesa
+                            </button>
                             @endif
                         </div>
                     </div>
@@ -220,7 +223,26 @@
         function recordPayment() {
             window.location.href = '{{ route("hms.billing.payments.create", ["invoice" => $invoice->id]) }}';
         }
+
+        window.startInvoiceMpesaPayment = function () {
+            @if($invoice->balance_amount > 0)
+            openMpesaModal({
+                patientId: {{ $invoice->patient_id }},
+                phone: '{{ $invoice->patient->phone ?? "" }}',
+                feeType: 'invoice_payment',
+                feeLabel: 'Invoice Payment',
+                itemName: '{{ $invoice->invoice_number }}',
+                amount: {{ $invoice->balance_amount }},
+                invoiceId: {{ $invoice->id }},
+                sourceType: 'invoice',
+                sourceId: {{ $invoice->id }},
+                onSuccess: function () { setTimeout(function () { location.reload(); }, 1800); }
+            });
+            @endif
+        };
     </script>
+
+    @include('hms.partials.mpesa-payment-modal')
 </x-app-layout>
 
 

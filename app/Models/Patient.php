@@ -4,13 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class Patient extends Model
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
-        'patient_no','first_name','last_name','dob','gender','email','phone','address'
+        'patient_no','first_name','last_name','dob','gender','email','phone','address',
+        'national_id','dha_cr_id','dha_verified_at'
+    ];
+
+    protected $casts = [
+        'dob' => 'date',
+        'dha_verified_at' => 'datetime',
     ];
 
     protected static function boot()

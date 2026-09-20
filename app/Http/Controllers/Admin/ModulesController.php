@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Module;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -44,52 +45,134 @@ class ModulesController extends Controller
 
     public function index(): View
     {
-        $modules = self::registry();
-        return view('admin.modules.index', compact('modules'));
+        $modules = Module::orderBy('category')->orderBy('sort_order')->orderBy('name')->get();
+
+        $categories = $modules->groupBy('category');
+        $registry = self::registry();
+
+        // Ensure modules from the legacy registry that are not yet in the DB get seeded.
+        $this->syncRegistryToDb($registry, $modules);
+
+        $enabledCount = Module::where('is_enabled', true)->count();
+        $disabledCount = Module::where('is_enabled', false)->count();
+
+        return view('admin.modules.index', compact('modules', 'categories', 'enabledCount', 'disabledCount'));
+    }
+
+    public function enable(Module $module): RedirectResponse
+    {
+        $module->update(['is_enabled' => true]);
+
+        return back()->with('success', "Module '{$module->name}' enabled.");
+    }
+
+    public function disable(Request $request, Module $module): RedirectResponse
+    {
+        $request->validate(['confirm' => 'required|in:1']);
+
+        if (in_array($module->slug, Module::alwaysEnabledSlugs(), true)) {
+            return back()->withErrors(['confirm' => "Core module '{$module->name}' cannot be disabled."]);
+        }
+
+        $module->update(['is_enabled' => false]);
+
+        return back()->with('success', "Module '{$module->name}' disabled.");
+    }
+
+    public function toggle(Module $module): RedirectResponse
+    {
+        if (in_array($module->slug, Module::alwaysEnabledSlugs(), true)) {
+            return back()->withErrors(['module' => "Core module '{$module->name}' cannot be disabled."]);
+        }
+
+        $module->update(['is_enabled' => !$module->is_enabled]);
+
+        return back()->with('success', "Module '{$module->name}' " . ($module->is_enabled ? 'enabled' : 'disabled') . '.');
+    }
+
+    public function enableAll(): RedirectResponse
+    {
+        Module::query()->whereNotIn('slug', Module::alwaysEnabledSlugs())
+            ->update(['is_enabled' => true]);
+
+        Module::resetCache();
+
+        return back()->with('success', 'All modules enabled.');
     }
 
     public function show(string $slug): View|RedirectResponse
     {
+        $categoryName = $slug;
+
         $modules = collect(self::registry());
         $name = $modules->first(function ($m) use ($slug) {
             return str($m)->slug('-') == $slug;
         });
-        abort_unless($name, 404);
-        
-        // Handle specific modules with custom logic
+
+        if (!$name) {
+            $dbModule = Module::where('slug', $slug)->first();
+            if ($dbModule) {
+                $name = $dbModule->name;
+            } else {
+                abort(404);
+            }
+        }
+
         if ($slug === 'multi-currency') {
             return redirect()->route('admin.modules.multi-currency.index');
         }
-        
-        // Handle Dashboard module with real data
+
         if ($slug === 'dashboard' || $name === 'Dashboard') {
             return $this->showDashboard();
         }
-        
-        // Get route mapping for the module
+
         $route = $this->getModuleRoute($name);
-        
-        if ($route) {
-            // Redirect to existing route if available
-            return redirect()->route($route);
+
+        if ($route && \Route::has($route)) {
+            // Only redirect if the module is enabled, else show module info.
+            $dbModule = Module::where('slug', str($name)->slug('-'))->first();
+            if (!$dbModule || $dbModule->is_enabled) {
+                return redirect()->route($route);
+            }
+            return view('admin.modules.module-info', [
+                'module' => $name,
+                'route' => $route,
+                'disabled' => true,
+            ]);
         }
-        
-        // Otherwise show module-specific view if it exists
+
         $viewPath = 'admin.modules.' . str($slug)->kebab();
         if (view()->exists($viewPath)) {
-            return view($viewPath, ['module' => $name]);
+            return view($viewPath, ['module' => $name, 'category' => $categoryName]);
         }
-        
-        // Show module information page instead of placeholder
+
         return view('admin.modules.module-info', [
             'module' => $name,
-            'route' => $this->getModuleRoute($name)
+            'route' => $this->getModuleRoute($name),
         ]);
     }
-    
-    /**
-     * Map module names to their corresponding routes
-     */
+
+    private function syncRegistryToDb(array $registry, $modules): void
+    {
+        $existingSlugs = $modules->pluck('slug')->map(fn ($s) => (string) $s)->all();
+
+        $missing = array_filter($registry, function ($m) use ($existingSlugs) {
+            return !in_array(str($m)->slug('-')->toString(), $existingSlugs, true);
+        });
+
+        if (!empty($missing)) {
+            \App\Models\Module::unguarded(function () use ($missing) {
+                foreach ($missing as $name) {
+                    \App\Models\Module::firstOrCreate(
+                        ['slug' => str($name)->slug('-')->toString()],
+                        ['name' => $name, 'category' => 'Other', 'is_enabled' => true, 'sort_order' => 900]
+                    );
+                }
+            });
+            \App\Models\Module::resetCache();
+        }
+    }
+
     private function getModuleRoute(string $moduleName): ?string
     {
         $routeMap = [
@@ -132,7 +215,7 @@ class ModulesController extends Controller
             'Income Management' => 'hms.finance.income.index',
             'Hospital Charges' => 'hms.billing.index',
             'Hospital Charges Categories' => 'hms.billing.index',
-            'Insurance Management' => 'hms.insurance.index',
+            'Insurance Management' => 'hms.insurance.claims.index',
             'Packages Management' => 'hms.packages.index',
             'Lab Technician' => 'hms.staff.lab-technicians',
             'Nurses Management' => 'hms.nurses.index',
@@ -158,14 +241,18 @@ class ModulesController extends Controller
             'Multi-Lingual' => 'hms.system.localization',
             'Export of Everything' => 'hms.reports.index',
             'Roles + ALC for 8 Different Departments' => 'admin.roles.index',
+            'SHA / SHIF' => 'hms.sha.index',
+            'Biometric Security' => 'biometric.index',
+            'Telemedicine' => 'telemedicine.index',
+            'Queue Management' => 'hms.queue.index',
+            'Visitor Management' => 'hms.visitors.index',
+            'RFID & IoT' => 'rfid.index',
+            'Documents' => 'hms.hr.documents.index',
         ];
         
         return $routeMap[$moduleName] ?? null;
     }
-    
-    /**
-     * Safely count users with a specific role without throwing exceptions
-     */
+
     private function countUsersWithRole(string $roleName): int
     {
         try {
@@ -178,10 +265,9 @@ class ModulesController extends Controller
             return 0;
         }
     }
-    
+
     private function showDashboard(): View
     {
-        // Calculate real metrics from database
         $metrics = [
             'invoiceAmount' => \App\Models\Invoice::sum('total_amount') ?? 0,
             'billAmount' => \App\Models\Invoice::where('status', '!=', 'paid')->sum('balance_amount') ?? 0,
@@ -202,37 +288,33 @@ class ModulesController extends Controller
             'totalBeds' => \App\Models\Bed::count(),
             'occupiedBeds' => \App\Models\Bed::where('is_available', false)->count(),
         ];
-        
-        // Calculate monthly income and expenses for chart
+
         $currentYear = now()->year;
         $monthlyIncome = [];
         $monthlyExpenses = [];
-        
+
         for ($i = 1; $i <= 12; $i++) {
             $monthlyIncome[] = \App\Models\Payment::whereYear('payment_date', $currentYear)
                 ->whereMonth('payment_date', $i)
                 ->sum('amount') ?? 0;
-            
+
             $monthlyExpenses[] = \App\Models\Expense::whereYear('expense_date', $currentYear)
                 ->whereMonth('expense_date', $i)
                 ->sum('amount') ?? 0;
         }
-        
+
         $chart = [
             'labels' => ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
             'income' => $monthlyIncome,
             'expenses' => $monthlyExpenses,
         ];
-        
-        // Recent data
+
         $notices = \App\Models\Notice::latest()->take(5)->get();
         $enquiries = \App\Models\Enquiry::latest()->take(5)->get();
         $appointments = \App\Models\AppointmentRequest::latest()->take(5)->get();
         $recentPatients = \App\Models\Patient::latest()->take(5)->get();
         $recentAppointments = \App\Models\Appointment::with(['patient', 'doctor'])->latest()->take(5)->get();
-        
+
         return view('admin.modules.dashboard', compact('metrics', 'chart', 'notices', 'enquiries', 'appointments', 'recentPatients', 'recentAppointments'));
     }
 }
-
-

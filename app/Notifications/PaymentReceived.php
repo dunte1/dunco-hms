@@ -43,19 +43,9 @@ class PaymentReceived extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $invoice = $this->payment->invoice;
-        
         return (new MailMessage)
-            ->subject('Payment Received - Thank You!')
-            ->greeting('Hello ' . $notifiable->first_name . ',')
-            ->line('We have received your payment. Thank you!')
-            ->line('Payment Amount: ' . ($invoice->currency_symbol ?? config('app.currency_symbol', 'KSh')) . ' ' . number_format($this->payment->amount, 2))
-            ->line('Payment Method: ' . ucwords(str_replace('_', ' ', $this->payment->payment_method)))
-            ->line('Invoice: ' . $invoice->invoice_number)
-            ->line('Payment Reference: ' . ($this->payment->payment_reference ?? 'N/A'))
-            ->line('Remaining Balance: ' . ($invoice->currency_symbol ?? config('app.currency_symbol', 'KSh')) . ' ' . number_format($invoice->balance_amount, 2))
-            ->action('View Receipt', route('hms.billing.payments.index'))
-            ->line('Thank you for your prompt payment!');
+            ->subject('Payment Receipt - Thank You!')
+            ->view('emails.payment-receipt', ['payment' => $this->payment]);
     }
 
     /**

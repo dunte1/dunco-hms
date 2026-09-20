@@ -30,7 +30,10 @@ return [
 
     'facility_id' => env('EHA_FACILITY_ID', ''),
 
-    'facility_id_type' => env('EHA_FACILITY_ID_TYPE', 'FRN'),
+    // Only supported value for the HIE is "fr-code"; the X-Facility-Id headers
+    // are only sent when EHA_FACILITY_ID is set (a facility-scoped token already
+    // carries the facility in its JWT claims and headers would override it).
+    'facility_id_type' => env('EHA_FACILITY_ID_TYPE', 'fr-code'),
 
     'timeout' => (int) env('EHA_TIMEOUT', 30),
 

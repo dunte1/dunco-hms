@@ -11,7 +11,7 @@ class IpdAdmission extends Model
     use HasFactory;
 
     protected $fillable = [
-        'patient_id', 'doctor_id', 'bed_id', 'admission_date', 'discharge_date', 
+        'patient_id', 'doctor_id', 'bed_id', 'payment_id', 'admission_date', 'discharge_date', 
         'status', 'diagnosis', 'treatment_plan'
     ];
 

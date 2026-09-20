@@ -106,7 +106,7 @@ class AdvancePaymentsController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no', 'phone']);
         return view('hms.billing.advance-payments.create', compact('patients'));
     }
 
@@ -115,16 +115,36 @@ class AdvancePaymentsController extends Controller
         $data = $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'amount' => 'required|numeric|min:0.01',
-            'payment_method' => 'required|string',
+            'payment_method' => 'required|in:cash,card,bank_transfer,insurance,mpesa',
+            'payment_id' => 'nullable|integer|exists:payments,id',
             'payment_date' => 'required|date',
             'notes' => 'nullable|string',
         ]);
+
+        $mpesa = app(\App\Services\MpesaService::class);
+
+        if ($data['payment_method'] === 'mpesa') {
+            if (empty($data['payment_id']) || !$mpesa->hasConfirmedPayment($data['patient_id'], $data['payment_id'], $data['amount'])) {
+                return back()->withErrors(['payment_id' => 'A completed M-Pesa payment for this deposit is required before recording the advance payment.'])
+                    ->withInput();
+            }
+        }
 
         $data['balance_amount'] = $data['amount'];
         $data['used_amount'] = 0;
         $data['status'] = 'active';
 
-        AdvancePayment::create($data);
+        $advancePayment = AdvancePayment::create($data);
+
+        if ($data['payment_method'] === 'mpesa') {
+            $payment = \App\Models\Payment::find($data['payment_id']);
+            $advancePayment->update([
+                'payment_reference' => $payment?->payment_reference,
+                'payment_date' => $payment?->payment_date?->toDateString() ?? $data['payment_date'],
+            ]);
+            $mpesa->attachSource($data['payment_id'], 'advance_payment', $advancePayment->id);
+        }
+
         return redirect()->route('hms.advance-payments.index')->with('status', 'Advance payment recorded');
     }
 

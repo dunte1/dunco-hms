@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'permission' => \App\Http\Middleware\PermissionMiddleware::class,
+            'module' => \App\Http\Middleware\CheckModule::class,
         ]);
 
         // Allow JSON POST /login without CSRF for API-driven tests/clients

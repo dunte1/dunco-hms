@@ -6,11 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\PatientInsurance;
 use App\Models\InsuranceApiLog;
 use App\Models\InsuranceProvider;
+use App\Models\ShaMember;
+use App\Services\ShaService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class InsuranceApiController extends Controller
 {
+    public function __construct(protected ShaService $shaService) {}
+
     public function index()
     {
         $providers = InsuranceProvider::with('patientInsurances')->latest()->paginate(20);
@@ -39,16 +43,35 @@ class InsuranceApiController extends Controller
         }
 
         try {
-            // Simulate API call to insurance provider
-            $verificationResult = $this->callInsuranceApi($provider, $patientInsurance, 'verification');
-            
-            // Log the API call
+            $shaMember = ShaMember::where('patient_id', $patientInsurance->patient_id)->first();
+
+            if ($this->shaService->isConfigured() && $shaMember) {
+                $verificationResult = $this->shaService->verifyMember(
+                    $shaMember->sha_member_number
+                );
+
+                $this->logApiCall($patientInsurance, $provider, 'verification', $verificationResult);
+
+                return response()->json([
+                    'success' => $verificationResult['verified'] ?? false,
+                    'data' => $verificationResult,
+                    'message' => $verificationResult['verified'] ? 'SHA member verified successfully' : 'SHA member verification failed'
+                ]);
+            }
+
+            $verificationResult = $this->simulateVerificationResponse([
+                'patient_id' => $patientInsurance->patient->id,
+                'policy_number' => $patientInsurance->policy_number,
+                'member_id' => $patientInsurance->member_id,
+                'provider_name' => $provider->name,
+            ]);
+
             $this->logApiCall($patientInsurance, $provider, 'verification', $verificationResult);
 
             return response()->json([
                 'success' => true,
                 'data' => $verificationResult,
-                'message' => 'Insurance verification completed'
+                'message' => 'Insurance verification completed (simulated — EHA not configured)'
             ]);
         } catch (\Exception $e) {
             $this->logApiCall($patientInsurance, $provider, 'verification', [
@@ -76,16 +99,35 @@ class InsuranceApiController extends Controller
         $provider = InsuranceProvider::find($patientInsurance->insurance_provider_id);
 
         try {
-            // Simulate claim submission
-            $claimResult = $this->callInsuranceApi($provider, $patientInsurance, 'claim', $data);
-            
-            // Log the API call
+            if ($this->shaService->isConfigured()) {
+                $claimResult = $this->shaService->submitClaim([
+                    'patient_id' => $patientInsurance->patient->id,
+                    'claim_amount' => $data['claim_amount'],
+                    'service_codes' => $data['service_codes'],
+                    'diagnosis_codes' => $data['diagnosis_codes'],
+                ]);
+
+                $this->logApiCall($patientInsurance, $provider, 'claim', $claimResult);
+
+                return response()->json([
+                    'success' => $claimResult['success'] ?? false,
+                    'data' => $claimResult['data'] ?? null,
+                    'message' => $claimResult['success'] ? 'SHA claim submitted successfully' : 'SHA claim submission failed: ' . ($claimResult['message'] ?? 'Unknown error')
+                ]);
+            }
+
+            $claimResult = $this->simulateClaimResponse([
+                'patient_id' => $patientInsurance->patient->id,
+                'policy_number' => $patientInsurance->policy_number,
+                'claim_amount' => $data['claim_amount'],
+            ]);
+
             $this->logApiCall($patientInsurance, $provider, 'claim', $claimResult);
 
             return response()->json([
                 'success' => true,
                 'data' => $claimResult,
-                'message' => 'Insurance claim submitted successfully'
+                'message' => 'Insurance claim submitted (simulated — EHA not configured)'
             ]);
         } catch (\Exception $e) {
             $this->logApiCall($patientInsurance, $provider, 'claim', [
@@ -111,16 +153,44 @@ class InsuranceApiController extends Controller
         $provider = InsuranceProvider::find($patientInsurance->insurance_provider_id);
 
         try {
-            // Simulate eligibility check
-            $eligibilityResult = $this->callInsuranceApi($provider, $patientInsurance, 'eligibility', $data);
-            
-            // Log the API call
+            if ($this->shaService->isConfigured()) {
+                $shaMember = ShaMember::where('patient_id', $patientInsurance->patient_id)->first();
+
+                if ($shaMember && $shaMember->cr_id) {
+                    $eligibilityResult = $this->shaService->checkEligibility($shaMember->cr_id);
+
+                    $this->logApiCall($patientInsurance, $provider, 'eligibility', $eligibilityResult);
+
+                    return response()->json([
+                        'success' => $eligibilityResult['success'] ?? false,
+                        'data' => $eligibilityResult['data'] ?? null,
+                        'message' => $eligibilityResult['success'] ? 'SHA eligibility check completed' : 'SHA eligibility check failed: ' . ($eligibilityResult['message'] ?? 'Unknown error')
+                    ]);
+                }
+
+                $eligibilityResult = $this->shaService->verifyMember($shaMember->sha_member_number ?? $patientInsurance->member_id);
+
+                $this->logApiCall($patientInsurance, $provider, 'eligibility', $eligibilityResult);
+
+                return response()->json([
+                    'success' => $eligibilityResult['verified'] ?? false,
+                    'data' => $eligibilityResult,
+                    'message' => $eligibilityResult['verified'] ? 'SHA member verified for eligibility' : 'SHA member not found'
+                ]);
+            }
+
+            $eligibilityResult = $this->simulateEligibilityResponse([
+                'patient_id' => $patientInsurance->patient->id,
+                'policy_number' => $patientInsurance->policy_number,
+                'service_type' => $data['service_type'],
+            ]);
+
             $this->logApiCall($patientInsurance, $provider, 'eligibility', $eligibilityResult);
 
             return response()->json([
                 'success' => true,
                 'data' => $eligibilityResult,
-                'message' => 'Eligibility check completed'
+                'message' => 'Eligibility check completed (simulated — EHA not configured)'
             ]);
         } catch (\Exception $e) {
             $this->logApiCall($patientInsurance, $provider, 'eligibility', [
@@ -135,34 +205,8 @@ class InsuranceApiController extends Controller
         }
     }
 
-    private function callInsuranceApi(InsuranceProvider $provider, PatientInsurance $patientInsurance, string $type, array $additionalData = []): array
-    {
-        // Simulate API call based on provider and type
-        $baseData = [
-            'patient_id' => $patientInsurance->patient->id,
-            'policy_number' => $patientInsurance->policy_number,
-            'member_id' => $patientInsurance->member_id,
-            'provider_name' => $provider->name,
-        ];
-
-        $requestData = array_merge($baseData, $additionalData);
-
-        // Simulate different responses based on type
-        switch ($type) {
-            case 'verification':
-                return $this->simulateVerificationResponse($requestData);
-            case 'claim':
-                return $this->simulateClaimResponse($requestData);
-            case 'eligibility':
-                return $this->simulateEligibilityResponse($requestData);
-            default:
-                return ['success' => false, 'error' => 'Unknown API type'];
-        }
-    }
-
     private function simulateVerificationResponse(array $data): array
     {
-        // Simulate verification response
         return [
             'success' => true,
             'verified' => true,
@@ -176,13 +220,12 @@ class InsuranceApiController extends Controller
 
     private function simulateClaimResponse(array $data): array
     {
-        // Simulate claim response
         return [
             'success' => true,
             'claim_id' => 'CLM-' . strtoupper(uniqid()),
             'status' => 'submitted',
             'estimated_processing_time' => '5-7 business days',
-            'covered_amount' => $data['claim_amount'] * 0.8, // 80% coverage
+            'covered_amount' => $data['claim_amount'] * 0.8,
             'patient_responsibility' => $data['claim_amount'] * 0.2,
             'response_time' => now()->toISOString()
         ];
@@ -190,7 +233,6 @@ class InsuranceApiController extends Controller
 
     private function simulateEligibilityResponse(array $data): array
     {
-        // Simulate eligibility response
         return [
             'success' => true,
             'eligible' => true,
@@ -206,7 +248,7 @@ class InsuranceApiController extends Controller
     {
         InsuranceApiLog::create([
             'patient_insurance_id' => $patientInsurance->id,
-            'api_provider' => $provider->name,
+            'api_provider' => $provider->name ?? 'EHA_SHA',
             'request_type' => $type,
             'request_data' => [
                 'patient_id' => $patientInsurance->patient->id,
@@ -214,9 +256,9 @@ class InsuranceApiController extends Controller
                 'member_id' => $patientInsurance->member_id,
             ],
             'response_data' => $result,
-            'response_code' => $result['success'] ? 200 : 400,
-            'status' => $result['success'] ? 'success' : 'failed',
-            'error_message' => $result['error'] ?? null,
+            'response_code' => $result['success'] ?? $result['verified'] ?? false ? 200 : 400,
+            'status' => ($result['success'] ?? $result['verified'] ?? false) ? 'success' : 'failed',
+            'error_message' => $result['error'] ?? $result['message'] ?? null,
         ]);
     }
 }

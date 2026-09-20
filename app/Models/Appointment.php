@@ -12,10 +12,14 @@ class Appointment extends Model
 
     protected $fillable = [
         'patient_id','doctor_id','scheduled_at','status','note',
-        'appointment_type','patient_name','patient_phone'
+        'appointment_type','patient_name','patient_phone',
+        'payment_id','consultation_fee'
     ];
 
-    protected $casts = ['scheduled_at' => 'datetime'];
+    protected $casts = [
+        'scheduled_at' => 'datetime',
+        'consultation_fee' => 'decimal:2',
+    ];
 
     public function patient(): BelongsTo
     {

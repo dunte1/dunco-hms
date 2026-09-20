@@ -8,6 +8,7 @@ use App\Models\PatientInsurance;
 use App\Models\InsuranceProvider;
 use App\Models\Patient;
 use App\Models\Invoice;
+use App\Services\ShaService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -15,6 +16,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class InsuranceClaimsController extends Controller
 {
+    public function __construct(protected ShaService $shaService) {}
     public function index(Request $request): View
     {
         $query = InsuranceClaim::with(['patient', 'patientInsurance.insuranceProvider', 'invoice']);
@@ -152,10 +154,34 @@ class InsuranceClaimsController extends Controller
 
     public function submit(InsuranceClaim $claim): RedirectResponse
     {
-        $claim->update([
-            'status' => 'submitted',
-            'submission_date' => now(),
-        ]);
+        $claim->load(['patient', 'patientInsurance.insuranceProvider']);
+
+        if ($this->shaService->isConfigured() && $claim->sha_authorization_number) {
+            $result = $this->shaService->submitClaim([
+                'authorization_number' => $claim->sha_authorization_number,
+                'patient_id' => $claim->patient->id,
+                'claim_number' => $claim->claim_number,
+                'claimed_amount' => $claim->claimed_amount,
+                'service_codes' => $claim->sha_service_codes ?? [],
+                'diagnosis_code' => $claim->diagnosis_code,
+                'treatment_details' => $claim->treatment_details,
+            ]);
+
+            $claim->update([
+                'status' => $result['success'] ? 'submitted' : 'pending',
+                'submission_date' => now(),
+                'submission_response' => $result['data'],
+            ]);
+
+            if (!$result['success']) {
+                return back()->with('status', 'Claim submission to SHA failed: ' . ($result['message'] ?? 'Unknown error'));
+            }
+        } else {
+            $claim->update([
+                'status' => 'submitted',
+                'submission_date' => now(),
+            ]);
+        }
 
         return back()->with('status', 'Claim submitted successfully');
     }

@@ -59,8 +59,8 @@ class TestMpesaStk extends Command
             return Command::FAILURE;
         }
         $this->info('✅ M-Pesa configuration OK');
-        $this->info("   Shortcode: " . config('services.mpesa.shortcode'));
-        $this->info("   STK URL: " . config('services.mpesa.stk_push_url'));
+        $this->info("   Shortcode: " . config('mpesa.shortcode'));
+        $this->info("   STK URL: " . config('mpesa.stk_push_url'));
         $this->newLine();
 
         // Get or create test invoice
@@ -110,7 +110,7 @@ class TestMpesaStk extends Command
                 $this->info('   You should receive an M-Pesa prompt on: ' . $phone);
                 $this->newLine();
                 $this->info('🔄 Waiting for callback...');
-                $this->info('   Callback URL: ' . url('/api/mpesa/callback'));
+                $this->info('   Callback URL: ' . config('mpesa.callback_url'));
                 $this->newLine();
                 $this->info('💡 To check callback logs:');
                 $this->info('   tail -f storage/logs/laravel.log | grep -i mpesa');
@@ -166,10 +166,10 @@ class TestMpesaStk extends Command
     protected function checkMpesaConfig(): array
     {
         $required = [
-            'MPESA_CONSUMER_KEY' => config('services.mpesa.consumer_key'),
-            'MPESA_CONSUMER_SECRET' => config('services.mpesa.consumer_secret'),
-            'MPESA_SHORTCODE' => config('services.mpesa.shortcode'),
-            'MPESA_PASSKEY' => config('services.mpesa.passkey'),
+            'MPESA_CONSUMER_KEY' => config('mpesa.consumer_key'),
+            'MPESA_CONSUMER_SECRET' => config('mpesa.consumer_secret'),
+            'MPESA_SHORTCODE' => config('mpesa.shortcode'),
+            'MPESA_PASSKEY' => config('mpesa.passkey'),
         ];
 
         $missing = [];
@@ -194,9 +194,9 @@ class TestMpesaStk extends Command
      */
     protected function getMpesaAccessToken(): ?string
     {
-        $consumerKey = config('services.mpesa.consumer_key');
-        $consumerSecret = config('services.mpesa.consumer_secret');
-        $oauthUrl = config('services.mpesa.oauth_url');
+        $consumerKey = config('mpesa.consumer_key');
+        $consumerSecret = config('mpesa.consumer_secret');
+        $oauthUrl = config('mpesa.oauth_url');
 
         try {
             $response = \Illuminate\Support\Facades\Http::withOptions([

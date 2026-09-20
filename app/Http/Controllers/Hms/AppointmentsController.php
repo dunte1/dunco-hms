@@ -46,10 +46,11 @@ class AppointmentsController extends Controller
     public function create(): View
     {
         $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no', 'phone']);
-        $doctors = Doctor::with('department')->orderBy('first_name')->get();
+        $doctors = Doctor::with('department')->orderBy('first_name')->get(['id', 'first_name', 'last_name', 'doctor_department_id', 'consultation_fee']);
         $departments = \App\Models\DoctorDepartment::orderBy('name')->get();
+        $defaultConsultationFee = (float) \App\Models\SystemSetting::get('consultation_fee', 0);
 
-        return view('hms.appointments.create', compact('patients', 'doctors', 'departments'));
+        return view('hms.appointments.create', compact('patients', 'doctors', 'departments', 'defaultConsultationFee'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -63,22 +64,51 @@ class AppointmentsController extends Controller
             'note' => 'nullable|string',
             'patient_name' => 'nullable|string',
             'patient_phone' => 'nullable|string',
+            'consultation_fee' => 'nullable|numeric|min:0',
+            'billing_mode' => 'required|in:sha,mpesa,cash,none',
+            'payment_id' => 'nullable|integer|exists:payments,id',
         ]);
 
         if (!isset($data['status'])) {
             $data['status'] = 'scheduled';
         }
 
-        $appointmentData = [
+        $fee = (float) ($data['consultation_fee'] ?? 0);
+        $mpesa = app(\App\Services\MpesaService::class);
+
+        if ($fee > 0) {
+            if ($data['billing_mode'] === 'mpesa') {
+                if (empty($data['payment_id']) || !$mpesa->hasConfirmedPayment($data['patient_id'], $data['payment_id'], $fee)) {
+                    return back()->withErrors(['payment_id' => 'A completed M-Pesa payment for the consultation fee is required before scheduling the appointment.'])
+                        ->withInput();
+                }
+            } elseif ($data['billing_mode'] === 'sha') {
+                $coverage = $mpesa->coverage(Patient::findOrFail($data['patient_id']), 'consultation_fee');
+                if (!$coverage['covered']) {
+                    return back()->withErrors(['billing_mode' => 'This patient is not covered under SHA for consultation. Please collect M-Pesa or cash payment instead.'])
+                        ->withInput();
+                }
+            }
+        } else {
+            $data['billing_mode'] = 'none';
+        }
+
+        $appointment = Appointment::create([
             'patient_id' => $data['patient_id'],
             'doctor_id' => $data['doctor_id'],
             'scheduled_at' => $data['scheduled_at'],
             'status' => $data['status'],
             'note' => $data['note'] ?? null,
-        ];
+            'consultation_fee' => $fee > 0 ? $fee : null,
+            'payment_id' => ($data['billing_mode'] === 'mpesa' && !empty($data['payment_id'])) ? $data['payment_id'] : null,
+        ]);
 
-        Appointment::create($appointmentData);
-        return redirect()->route('hms.appointments.index')->with('success', 'Appointment scheduled successfully!');
+        if ($data['billing_mode'] === 'mpesa') {
+            $mpesa->attachSource($data['payment_id'], 'appointment', $appointment->id);
+        }
+
+        return redirect()->route('hms.appointments.index')
+            ->with('success', 'Appointment scheduled successfully!');
     }
 
     public function show(Appointment $appointment): View

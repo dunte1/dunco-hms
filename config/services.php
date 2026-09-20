@@ -83,9 +83,11 @@ return [
         'consumer_secret' => env('MPESA_CONSUMER_SECRET'),
         'shortcode' => env('MPESA_SHORTCODE'),
         'passkey' => env('MPESA_PASSKEY'),
-        'oauth_url' => env('MPESA_OAUTH_URL', 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'),
-        'stk_push_url' => env('MPESA_STK_PUSH_URL', 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'),
-        'query_url' => env('MPESA_QUERY_URL', 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query'),
+        'oauth_url' => env('MPESA_OAUTH_URL'),
+        'stk_push_url' => env('MPESA_STK_PUSH_URL'),
+        'query_url' => env('MPESA_QUERY_URL'),
+        'environment' => env('MPESA_ENVIRONMENT', 'sandbox'),
+        'callback_url' => env('MPESA_CALLBACK_URL'),
     ],
 
     'stripe' => [

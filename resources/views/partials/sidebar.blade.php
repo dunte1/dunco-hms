@@ -84,6 +84,7 @@
             <li class="menu-divider"></li>
 
             {{-- 🏥 2. HOSPITAL MANAGEMENT --}}
+            @if(\App\Models\Module::isEnabled('patients-management') || \App\Models\Module::isEnabled('doctors-management') || \App\Models\Module::isEnabled('nurses-management'))
             @canany(['view patients', 'add patients', 'edit patients', 'delete patients', 'view doctors', 'manage staff profiles', 'manage nurses', 'manage ambulances'])
                 <li class="mb-1">
                     <div class="menu-item menu-item-blue" @click="toggleMenu('hospital-management', true)">
@@ -282,8 +283,10 @@
                     </ul>
                 </li>
             @endcanany
+            @endif
 
             {{-- 🧬 3. CLINICAL MODULES --}}
+            @if(\App\Models\Module::isEnabled('prescriptions-management') || \App\Models\Module::isEnabled('beds-management') || \App\Models\Module::isEnabled('telemedicine'))
             @canany(['view prescriptions', 'manage case handlers', 'generate operation reports', 'manage bed assignments'])
                 <li class="mb-1">
                     <div class="menu-item menu-item-purple" @click="toggleMenu('clinical', true)">
@@ -383,8 +386,10 @@
                     </ul>
                 </li>
             @endcanany
+            @endif
 
             {{-- 🧪 4. DIAGNOSTICS & LABORATORY --}}
+            @if(\App\Models\Module::isEnabled('pathology-tests') || \App\Models\Module::isEnabled('radiology-tests') || \App\Models\Module::isEnabled('blood-bank'))
             @canany(['manage test categories', 'add test requests', 'enter test results', 'manage blood bank'])
                 <li class="mb-1">
                     <div class="menu-item menu-item-rose" @click="toggleMenu('diagnostics', true)">
@@ -534,8 +539,10 @@
                     </ul>
                 </li>
             @endcanany
+            @endif
 
             {{-- 💊 5. PHARMACY & INVENTORY --}}
+            @if(\App\Models\Module::isEnabled('medicines-inventory') || \App\Models\Module::isEnabled('full-inventory-management'))
             @canany(['view prescriptions', 'dispense medicines', 'manage medicine inventory', 'manage packages'])
                 <li class="mb-1">
                     <div class="menu-item menu-item-amber" @click="toggleMenu('pharmacy-inventory', true)">
@@ -652,8 +659,10 @@
                     </ul>
                 </li>
             @endcanany
+            @endif
 
             {{-- 💰 6. FINANCE & ACCOUNTING --}}
+            @if(\App\Models\Module::isEnabled('billing') || \App\Models\Module::isEnabled('payments') || \App\Models\Module::isEnabled('accounts') || \App\Models\Module::isEnabled('insurance-management'))
             @canany(['create invoices', 'edit invoices', 'add payments', 'view payment reports'])
                 <li class="mb-1">
                     <div class="menu-item menu-item-cyan" @click="toggleMenu('finance', true)">
@@ -932,13 +941,23 @@
                                         <i class="fa fa-clipboard-check mr-2 w-4"></i> Policy Management
                                     </a>
                                 </li>
+                                @if(\App\Models\Module::isEnabled('sha-shif'))
+                                <li>
+                                    <a @click.stop href="{{ route('hms.sha.index') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.sha.*') ? 'active' : '' }}">
+                                        <i class="fa fa-id-card mr-2 w-4"></i> SHA / SHIF
+                                    </a>
+                                </li>
+                                @endif
                             </ul>
                         </li>
                     </ul>
                 </li>
             @endcanany
+            @endif
 
             {{-- 👥 7. HUMAN RESOURCE (HR) --}}
+            @if(\App\Models\Module::isEnabled('hr-management'))
             @canany(['manage staff profiles', 'view attendance', 'manage payrolls'])
                 <li class="mb-1">
                     <div class="menu-item menu-item-orange" @click="toggleMenu('hr', true)">
@@ -1250,8 +1269,10 @@
                     </ul>
                 </li>
             @endcanany
+            @endif
 
             {{-- 📊 8. REPORTS & ANALYTICS --}}
+            @if(\App\Models\Module::isEnabled('reports-analytics'))
             @canany(['generate patient reports', 'generate billing reports', 'view dashboard analytics'])
                 <li class="mb-1">
                     <div class="menu-item menu-item-green" @click="toggleMenu('reports', true)">
@@ -1360,8 +1381,10 @@
                     </ul>
                 </li>
             @endcanany
+            @endif
 
             {{-- 📨 9. COMMUNICATION & FRONTDESK --}}
+            @if(\App\Models\Module::isEnabled('communication-frontdesk'))
             @canany(['create appointments', 'manage appointments', 'view appointments'])
                 <li class="mb-1">
                     <div class="menu-item menu-item-red" @click="toggleMenu('communication', true)">
@@ -1575,6 +1598,7 @@
                     </ul>
                 </li>
             @endcanany
+            @endif
 
             {{-- ⚙️ 10. SYSTEM ADMINISTRATION --}}
             @canany(['manage system settings', 'manage roles', 'manage permissions', 'view audit logs'])
@@ -1959,6 +1983,12 @@
                                        class="nested-link {{ request()->routeIs('hms.integration.ehr.*') ? 'active' : '' }}">
                                         <i class="fa fa-network-wired mr-2 w-4"></i> EHR Integration (HL7/FHIR)
                                         <span class="badge badge-warning ml-2">Premium</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('integration.dha.index') }}" 
+                                       class="nested-link {{ request()->routeIs('integration.dha.*') ? 'active' : '' }}">
+                                        <i class="fa fa-university mr-2 w-4"></i> DHA Digital Health Superhighway
                                     </a>
                                 </li>
                             </ul>

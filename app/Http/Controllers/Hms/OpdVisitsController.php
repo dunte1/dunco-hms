@@ -58,9 +58,10 @@ class OpdVisitsController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        return view('hms.opd.create', compact('patients', 'doctors'));
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no', 'phone']);
+        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'consultation_fee']);
+        $defaultConsultationFee = (float) \App\Models\SystemSetting::get('consultation_fee', 0);
+        return view('hms.opd.create', compact('patients', 'doctors', 'defaultConsultationFee'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -74,9 +75,36 @@ class OpdVisitsController extends Controller
             'diagnosis' => 'nullable|string',
             'prescription' => 'nullable|string',
             'consultation_fee' => 'nullable|numeric|min:0',
+            'billing_mode' => 'required|in:sha,mpesa,cash,none',
+            'payment_id' => 'nullable|integer|exists:payments,id',
         ]);
-        
-        OpdVisit::create($data);
+
+        $fee = (float) ($data['consultation_fee'] ?? 0);
+        $mpesa = app(\App\Services\MpesaService::class);
+
+        if ($fee > 0) {
+            if ($data['billing_mode'] === 'mpesa') {
+                if (empty($data['payment_id']) || !$mpesa->hasConfirmedPayment($data['patient_id'], $data['payment_id'], $fee)) {
+                    return back()->withErrors(['payment_id' => 'A completed M-Pesa payment for the consultation fee is required before recording the visit.'])
+                        ->withInput();
+                }
+            } elseif ($data['billing_mode'] === 'sha') {
+                $coverage = $mpesa->coverage(Patient::findOrFail($data['patient_id']), 'consultation_fee');
+                if (!$coverage['covered']) {
+                    return back()->withErrors(['billing_mode' => 'This patient is not covered under SHA for consultation. Please collect M-Pesa or cash payment instead.'])
+                        ->withInput();
+                }
+            }
+        } else {
+            $data['billing_mode'] = 'none';
+        }
+
+        $visit = OpdVisit::create($data);
+
+        if ($data['billing_mode'] === 'mpesa') {
+            $mpesa->attachSource($data['payment_id'], 'opd_visit', $visit->id);
+        }
+
         return redirect()->route('hms.opd.index')->with('success', 'OPD visit recorded successfully!');
     }
     

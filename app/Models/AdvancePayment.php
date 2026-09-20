@@ -11,7 +11,7 @@ class AdvancePayment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'patient_id', 'amount', 'payment_method', 'payment_reference',
+        'patient_id', 'payment_id', 'amount', 'payment_method', 'payment_reference',
         'payment_date', 'purpose', 'used_amount', 'balance_amount',
         'status', 'notes'
     ];

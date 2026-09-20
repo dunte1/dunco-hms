@@ -38,6 +38,26 @@
                 </div>
             @endif
 
+            <!-- Pending Registration Fee -->
+            @if(isset($registrationInvoice) && $registrationInvoice)
+                <div class="mb-6 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-700 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-start">
+                        <i class="fa fa-money-bill-wave text-amber-600 dark:text-amber-400 text-2xl mt-1 mr-3"></i>
+                        <div>
+                            <h3 class="text-lg font-bold text-amber-800 dark:text-amber-300">Registration Fee Pending</h3>
+                            <p class="text-sm text-amber-700 dark:text-amber-400">
+                                Amount due: <strong>{{ \App\Models\SystemSetting::get('currency_symbol', 'KSh ') }}{{ number_format($registrationInvoice->balance_amount, 2) }}</strong><br>
+                                Invoice: {{ $registrationInvoice->invoice_number }}
+                            </p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="startRegistrationMpesaPayment()"
+                            class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium whitespace-nowrap">
+                        <i class="fa fa-mobile-alt mr-2"></i> Pay with M-Pesa
+                    </button>
+                </div>
+            @endif
+
             <!-- Insurance & Biometric Notice -->
             @php
                 $hasInsurance = \App\Models\PatientInsurance::where('patient_id', $patient->id)->where('is_active', true)->exists();
@@ -262,5 +282,26 @@
             </div>
         </div>
     </div>
+
+    @include('hms.partials.mpesa-payment-modal')
+
+    @push('scripts')
+    <script>
+        @if(isset($registrationInvoice) && $registrationInvoice)
+        window.startRegistrationMpesaPayment = function () {
+            openMpesaModal({
+                patientId: {{ $patient->id }},
+                phone: '{{ $patient->phone ?? "" }}',
+                feeType: 'registration_fee',
+                feeLabel: 'Registration Fee',
+                itemName: 'Patient Registration - {{ $patient->full_name }}',
+                amount: {{ $registrationInvoice->balance_amount }},
+                invoiceId: {{ $registrationInvoice->id }},
+                onSuccess: function () { setTimeout(function () { location.reload(); }, 1800); }
+            });
+        };
+        @endif
+    </script>
+    @endpush
 </x-app-layout>
 

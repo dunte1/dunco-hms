@@ -25,6 +25,8 @@ class DatabaseSeeder extends Seeder
         $this->call(CurrencySeeder::class);
         $this->call(ThemeSettingsSeeder::class);
         $this->call(ICD10CodeSeeder::class);
+        $this->call(ShaServiceCodeSeeder::class);
+        $this->call(ModuleSeeder::class);
 
         $this->command->info('');
         $this->command->info('==============================================');

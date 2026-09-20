@@ -172,7 +172,7 @@ class InvoiceService
     /**
      * Apply discount to invoice
      */
-    public function applyDiscount(Invoice $invoice, float $discountAmount, string $reason = null): Invoice
+    public function applyDiscount(Invoice $invoice, float $discountAmount, ?string $reason = null): Invoice
     {
         $invoice->update([
             'discount_amount' => $discountAmount,

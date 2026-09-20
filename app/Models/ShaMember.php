@@ -13,7 +13,7 @@ class ShaMember extends Model
         'patient_id', 'sha_member_number', 'national_id', 'first_name',
         'last_name', 'date_of_birth', 'gender', 'phone', 'tier_level',
         'employer_name', 'contribution_status', 'eligibility_status',
-        'remaining_benefits', 'last_verified_at',
+        'remaining_benefits', 'last_verified_at', 'cr_id',
     ];
 
     protected $casts = [

@@ -118,23 +118,28 @@ class PaymentGatewayService
                 throw new \Exception('Failed to get M-Pesa access token');
             }
 
+            $callbackUrl = config('mpesa.callback_url');
+            $shortcode = config('mpesa.shortcode');
+            $businessName = strtoupper(config('mpesa.business_name', 'DUNCOHMS'));
+            $timestamp = now()->format('YmdHis');
+
             $response = Http::withOptions([
                 'verify' => app()->environment('production'),
                 'timeout' => 30,
             ])
             ->withToken($token)
-            ->post(config('services.mpesa.stk_push_url'), [
-                    'BusinessShortCode' => config('services.mpesa.shortcode'),
+            ->post(config('mpesa.stk_push_url'), [
+                    'BusinessShortCode' => $shortcode,
                     'Password' => $this->generateMpesaPassword(),
-                    'Timestamp' => now()->format('YmdHis'),
+                    'Timestamp' => $timestamp,
                     'TransactionType' => 'CustomerPayBillOnline',
                     'Amount' => $amount,
                     'PartyA' => $phone,
-                    'PartyB' => config('services.mpesa.shortcode'),
+                    'PartyB' => $shortcode,
                     'PhoneNumber' => $phone,
-                    'CallBackURL' => url('/api/mpesa/callback'),
-                    'AccountReference' => $invoice->invoice_number,
-                    'TransactionDesc' => 'Payment for invoice ' . $invoice->invoice_number,
+                    'CallBackURL' => $callbackUrl,
+                    'AccountReference' => $businessName . ' - ' . $invoice->invoice_number,
+                    'TransactionDesc' => $businessName . ' Payment for ' . $invoice->invoice_number,
                 ]);
 
             $result = $response->json();
@@ -217,15 +222,15 @@ class PaymentGatewayService
     protected function getMpesaAccessToken(): ?string
     {
         try {
-            $consumerKey = config('services.mpesa.consumer_key');
-            $consumerSecret = config('services.mpesa.consumer_secret');
+            $consumerKey = config('mpesa.consumer_key');
+            $consumerSecret = config('mpesa.consumer_secret');
             
             $response = Http::withOptions([
                 'verify' => app()->environment('production'),
                 'timeout' => 30,
             ])
             ->withBasicAuth($consumerKey, $consumerSecret)
-            ->get(config('services.mpesa.oauth_url'));
+            ->get(config('mpesa.oauth_url'));
 
             if (!$response->successful()) {
                 Log::error('M-Pesa OAuth failed', [
@@ -249,8 +254,8 @@ class PaymentGatewayService
      */
     protected function generateMpesaPassword(): string
     {
-        $shortcode = config('services.mpesa.shortcode');
-        $passkey = config('services.mpesa.passkey');
+        $shortcode = config('mpesa.shortcode');
+        $passkey = config('mpesa.passkey');
         $timestamp = now()->format('YmdHis');
         
         return base64_encode($shortcode . $passkey . $timestamp);
@@ -304,8 +309,8 @@ class PaymentGatewayService
             $token = $this->getMpesaAccessToken();
             
             $response = Http::withToken($token)
-                ->post(config('services.mpesa.query_url'), [
-                    'BusinessShortCode' => config('services.mpesa.shortcode'),
+                ->post(config('mpesa.query_url'), [
+                    'BusinessShortCode' => config('mpesa.shortcode'),
                     'Password' => $this->generateMpesaPassword(),
                     'Timestamp' => now()->format('YmdHis'),
                     'CheckoutRequestID' => $transactionId,
@@ -327,7 +332,7 @@ class PaymentGatewayService
     /**
      * Process refund
      */
-    public function processRefund(Payment $payment, float $amount, string $reason = null): array
+    public function processRefund(Payment $payment, float $amount, ?string $reason = null): array
     {
         try {
             $gateway = $payment->payment_method;

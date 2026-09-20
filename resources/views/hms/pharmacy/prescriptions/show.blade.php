@@ -288,6 +288,76 @@
                         </div>
                     </div>
 
+                    <!-- Pharmacy Billing & Dispense -->
+                    @if($prescription->status !== 'dispensed')
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border-2 border-green-500">
+                        <div class="bg-gradient-to-r from-green-600 to-emerald-600 h-2"></div>
+                        <div class="p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                                <i class="fa fa-cash-register text-green-600 mr-2"></i>
+                                Pharmacy Billing &amp; Dispense
+                            </h3>
+
+                            @php
+                                $pharmacyCharge = $prescription->items->sum(fn ($it) => ($it->medicine->unit_price ?? 0) * $it->quantity);
+                                $currency = \App\Models\SystemSetting::get('currency_symbol', 'KSh ');
+                            @endphp
+
+                            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Total Medication Charge</span>
+                                    <span class="text-xl font-bold text-green-600">{{ $currency }}{{ number_format($pharmacyCharge, 2) }}</span>
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    @foreach($prescription->items as $item)
+                                        <div>{{ $item->medicine->name ?? 'Medicine' }} &times; {{ $item->quantity }} @ {{ $currency }}{{ number_format($item->medicine->unit_price ?? 0, 2) }}</div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div id="pharmacy-coverage-badge" class="text-sm mb-3"></div>
+
+                            <form method="POST" action="{{ route('hms.pharmacy.prescriptions.dispense', $prescription) }}" id="pharmacy-dispense-form">
+                                @csrf
+                                <input type="hidden" name="billing_mode" id="pharmacy-billing-mode" value="">
+                                <input type="hidden" name="payment_id" id="pharmacy-payment-id" value="">
+
+                                <div class="space-y-2 mb-4">
+                                    <label class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900">
+                                        <input type="radio" name="pharmacy_billing" value="sha" class="text-green-600">
+                                        <span class="text-sm text-gray-800 dark:text-gray-200">SHA (covered)</span>
+                                    </label>
+                                    @if($pharmacyCharge > 0)
+                                    <label class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900">
+                                        <input type="radio" name="pharmacy_billing" value="mpesa" class="text-green-600">
+                                        <span class="text-sm text-gray-800 dark:text-gray-200">M-Pesa</span>
+                                    </label>
+                                    @endif
+                                    <label class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900">
+                                        <input type="radio" name="pharmacy_billing" value="cash" class="text-green-600">
+                                        <span class="text-sm text-gray-800 dark:text-gray-200">Cash at Pharmacy</span>
+                                    </label>
+                                </div>
+
+                                <div id="pharmacy-mpesa-action" style="display:none;" class="mb-4">
+                                    <button type="button" onclick="startPharmacyMpesaPayment()"
+                                            class="w-full flex items-center justify-center p-3 bg-green-600 hover:bg-green-700 text-white rounded-lg mb-2">
+                                        <i class="fa fa-mobile-alt text-white mr-2"></i> Pay with M-Pesa
+                                    </button>
+                                    <div id="pharmacy-mpesa-status" class="text-center text-green-700 dark:text-green-400 text-sm font-medium" style="display:none;">
+                                        <i class="fa fa-check-circle mr-1"></i> Payment confirmed
+                                    </div>
+                                </div>
+
+                                <button type="button" onclick="submitPharmacyDispense()"
+                                        class="w-full p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
+                                    <i class="fa fa-flask mr-2"></i> Dispense Prescription
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @endif
+
                     <!-- Patient Medical History -->
                     @if($prescription->patient)
                         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
@@ -331,4 +401,68 @@
             .border-gray-200, .border-gray-300, .border-gray-400, .border-gray-500, .border-gray-600, .border-gray-700 { border-color: black !important; }
         }
     </style>
+</div>
+@include('hms.partials.mpesa-payment-modal')
+@push('scripts')
+<script>
+(function () {
+    var currency = '{{ \App\Models\SystemSetting::get("currency_symbol", "KSh ") }}';
+    var charge = {{ $pharmacyCharge ?? 0 }};
+    var patientId = {{ $prescription->patient_id }};
+    var patientPhone = '{{ $prescription->patient->phone ?? "" }}';
+
+    // SHA coverage hint
+    var csrf = document.querySelector('meta[name="csrf-token"]');
+    fetch('{{ route("hms.mpesa.coverage") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrf ? csrf.getAttribute('content') : '',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ patient_id: patientId, fee_type: 'pharmacy' })
+    }).then(function (r) { return r.json(); }).then(function (resp) {
+        var badge = document.getElementById('pharmacy-coverage-badge');
+        badge.textContent = resp.covered ? '\u2713 SHA covered for pharmacy services' : 'Not covered under SHA for this service';
+        badge.className = 'text-sm mb-3 ' + (resp.covered ? 'text-green-700 dark:text-green-400' : 'text-red-600 dark:text-red-400');
+    });
+
+    document.querySelectorAll('input[name="pharmacy_billing"]').forEach(function (r) {
+        r.addEventListener('change', function () {
+            document.getElementById('pharmacy-mpesa-action').style.display = (this.value === 'mpesa') ? 'block' : 'none';
+        });
+    });
+
+    window.startPharmacyMpesaPayment = function () {
+        if (charge <= 0) { alert('No charge to pay via M-Pesa.'); return; }
+        openMpesaModal({
+            patientId: patientId,
+            phone: patientPhone,
+            feeType: 'pharmacy',
+            feeLabel: 'Pharmacy / Prescription Fee',
+            itemName: 'Prescription #' + {{ $prescription->id }},
+            amount: charge,
+            sourceType: 'prescription',
+            sourceId: {{ $prescription->id }},
+            onSuccess: function (config, resp) {
+                document.getElementById('pharmacy-payment-id').value = config.paymentId;
+                document.getElementById('pharmacy-mpesa-status').style.display = 'block';
+            }
+        });
+    };
+
+    window.submitPharmacyDispense = function () {
+        var checked = document.querySelector('input[name="pharmacy_billing"]:checked');
+        if (!checked) { alert('Choose a billing option: SHA, M-Pesa or Cash.'); return; }
+        document.getElementById('pharmacy-billing-mode').value = checked.value;
+        if (checked.value === 'mpesa' && !document.getElementById('pharmacy-payment-id').value) {
+            alert('Complete the M-Pesa payment before dispensing.');
+            return;
+        }
+        document.getElementById('pharmacy-dispense-form').submit();
+    };
+})();
+</script>
+@endpush
 </x-app-layout>

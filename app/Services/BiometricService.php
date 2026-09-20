@@ -44,9 +44,40 @@ class BiometricService
     }
     
     /**
-     * Verify biometric against stored templates
+     * Verify biometric against stored templates OR against the DHA national
+     * registry via the Digital Health Superhighway.
      */
-    public function verifyBiometric(string $userId, string $biometricType, array $biometricData): array
+    public function verifyBiometric(string $userId, string $biometricType, array $biometricData, ?string $nationalId = null): array
+    {
+        // Prefer national (DHA) verification when credentials are configured.
+        if (filled(config('dha.client_id')) && filled(config('dha.client_secret'))) {
+            try {
+                $dha = app(\App\Services\DhaService::class);
+                $template = base64_encode(collect($biometricData)->flatten()->implode(','));
+                $dhaResult = $dha->verifyBiometric($template, $biometricType, $nationalId);
+
+                if (!empty($dhaResult['verified'])) {
+                    $this->logBiometricVerification($userId, $biometricType, true, 100.0);
+                    return [
+                        'success' => true,
+                        'verified' => true,
+                        'provider' => 'dha',
+                        'confidence' => 100.0,
+                        'message' => 'Biometric verification successful (national registry)'
+                    ];
+                }
+            } catch (\Exception $e) {
+                Log::warning('DHA biometric verification attempted but failed', ['message' => $e->getMessage()]);
+            }
+        }
+
+        return $this->verifyLocally($userId, $biometricType, $biometricData);
+    }
+
+    /**
+     * Verify biometric against locally stored templates.
+     */
+    protected function verifyLocally(string $userId, string $biometricType, array $biometricData): array
     {
         try {
             $hashedTemplate = $this->hashBiometricTemplate($biometricData);

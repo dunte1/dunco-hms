@@ -30,8 +30,9 @@
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Payment Details</h3>
             </div>
             
-            <form action="{{ route('hms.billing.payments.store') }}" method="POST" class="p-6">
+            <form action="{{ route('hms.billing.payments.store') }}" method="POST" class="p-6" id="payment-form">
                 @csrf
+                <input type="hidden" name="mpesa_payment_id" id="mpesa_payment_id" value="">
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Invoice Selection -->
@@ -46,7 +47,9 @@
                             @foreach($invoices as $invoice)
                             <option value="{{ $invoice->id }}" 
                                     data-balance="{{ $invoice->balance_amount }}"
-                                    data-patient="{{ $invoice->patient->first_name }} {{ $invoice->patient->last_name }}">
+                                    data-patient="{{ $invoice->patient->first_name }} {{ $invoice->patient->last_name }}"
+                                    data-patient-id="{{ $invoice->patient_id }}"
+                                    data-phone="{{ $invoice->patient->phone }}">
                                 {{ $invoice->invoice_number }} - {{ $invoice->patient->first_name }} {{ $invoice->patient->last_name }} 
                                 (Balance: ${{ number_format($invoice->balance_amount, 2) }})
                             </option>
@@ -95,6 +98,7 @@
                             <option value="insurance">Insurance</option>
                             <option value="check">Check</option>
                             <option value="mobile_money">Mobile Money</option>
+                            <option value="mpesa">M-Pesa (Mobile)</option>
                         </select>
                         @error('payment_method')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -165,7 +169,7 @@
                        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                         Cancel
                     </a>
-                    <button type="submit" 
+                    <button type="button" onclick="submitPaymentForm()" 
                             class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition flex items-center">
                         <i class="fa fa-save mr-2"></i>
                         Record Payment
@@ -211,6 +215,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    window.submitPaymentForm = function () {
+        const method = document.getElementById('payment_method').value;
+        if (method === 'mpesa') {
+            startMpesaPayment();
+            return;
+        }
+        if (!document.getElementById('payment-form').checkValidity()) {
+            document.getElementById('payment-form').reportValidity();
+            return;
+        }
+        document.getElementById('payment-form').submit();
+    };
+
+    window.startMpesaPayment = function () {
+        const selectedOption = invoiceSelect.options[invoiceSelect.selectedIndex];
+        if (!selectedOption || !selectedOption.value) { alert('Select an invoice first.'); return; }
+
+        const balance = parseFloat(selectedOption.dataset.balance);
+        const amount = parseFloat(amountInput.value);
+        if (!amount || amount <= 0) { alert('Enter a payment amount.'); return; }
+        if (amount > balance) { alert('Payment amount cannot exceed the invoice balance.'); return; }
+
+        openMpesaModal({
+            patientId: selectedOption.dataset.patientId,
+            phone: selectedOption.dataset.phone || '',
+            feeType: 'invoice_payment',
+            feeLabel: 'Invoice Payment',
+            itemName: selectedOption.textContent.trim().split(' - ')[0],
+            amount: amount,
+            invoiceId: selectedOption.value,
+            sourceType: 'invoice',
+            sourceId: selectedOption.value,
+            onSuccess: function () {
+                window.location.href = '{{ route("hms.billing.payments.index") }}';
+            }
+        });
+    };
 });
 </script>
+
+@include('hms.partials.mpesa-payment-modal')
 @endsection

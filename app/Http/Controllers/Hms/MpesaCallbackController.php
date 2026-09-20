@@ -64,66 +64,122 @@ class MpesaCallbackController extends Controller
                 }
             }
 
-            // ResultCode 0 means success
-            if ($resultCode == 0 && $mpesaReceiptNumber) {
-                // Find payment by checkout request ID
-                $payment = Payment::where('payment_reference', $checkoutRequestId)
-                    ->where('payment_method', 'mpesa')
-                    ->first();
+            // Find payment by checkout request ID
+            $payment = Payment::where('payment_reference', $checkoutRequestId)
+                ->where('payment_method', 'mpesa')
+                ->first();
 
-                if ($payment) {
-                    // Check if payment was already pending (not yet applied to invoice)
-                    $wasPending = $payment->status === 'pending';
-                    
-                    // Update payment with M-Pesa receipt number
-                    $payment->update([
-                        'payment_reference' => $mpesaReceiptNumber,
-                        'status' => 'completed',
-                        'transaction_data' => [
-                            'mpesa_receipt' => $mpesaReceiptNumber,
-                            'transaction_date' => $transactionDate,
-                            'phone_number' => $phoneNumber,
-                            'amount' => $amount,
-                        ]
-                    ]);
-
-                    // If payment was pending, now update the invoice status
-                    if ($wasPending) {
-                        $invoice = $payment->invoice;
-                        if ($invoice) {
-                            // Update invoice payment status automatically
-                            $invoice->paid_amount += $payment->amount;
-                            $invoice->balance_amount = $invoice->total_amount - $invoice->paid_amount;
-                            
-                            // Update invoice status automatically
-                            if ($invoice->balance_amount <= 0) {
-                                $invoice->status = 'paid';
-                            } elseif ($invoice->paid_amount > 0) {
-                                $invoice->status = 'partial';
-                            }
-                            
-                            $invoice->save();
-                            
-                            Log::info('Invoice status updated automatically after M-Pesa payment', [
-                                'invoice_id' => $invoice->id,
-                                'invoice_number' => $invoice->invoice_number,
-                                'status' => $invoice->status,
-                                'balance_amount' => $invoice->balance_amount
-                            ]);
-                        }
-                    }
-
-                    // Send receipt notifications
-                    $this->sendReceiptNotifications($payment);
-
-                    return response()->json([
-                        'ResultCode' => 0,
-                        'ResultDesc' => 'Accepted'
-                    ]);
-                }
+            // Locate the linked M-Pesa transaction row
+            $transaction = \App\Models\MpesaTransaction::where('checkout_request_id', $checkoutRequestId)->first();
+            if (!$transaction && $payment) {
+                $transaction = \App\Models\MpesaTransaction::where('payment_id', $payment->id)->first();
             }
 
-            Log::warning('M-Pesa callback failed or payment not found', [
+            if ($payment && $resultCode == 0 && $mpesaReceiptNumber) {
+                // Success: complete the transaction chain
+                $wasPending = $payment->status === 'pending';
+
+                $payment->update([
+                    'payment_reference' => $mpesaReceiptNumber,
+                    'status' => 'completed',
+                    'transaction_data' => [
+                        'mpesa_receipt' => $mpesaReceiptNumber,
+                        'transaction_date' => $transactionDate,
+                        'phone_number' => $phoneNumber ?: ($transaction?->phone ?? null),
+                        'amount' => $amount,
+                        'checkout_request_id' => $checkoutRequestId,
+                    ]
+                ]);
+
+                if ($transaction) {
+                    $transaction->update([
+                        'status' => 'completed',
+                        'mpesa_receipt' => $mpesaReceiptNumber,
+                        'result_code' => '0',
+                        'result_desc' => $resultDesc,
+                        'phone' => $phoneNumber ?: $transaction->phone,
+                        'completed_at' => now(),
+                        'transaction_data' => array_merge($transaction->transaction_data ?? [], [
+                            'mpesa_receipt' => $mpesaReceiptNumber,
+                            'transaction_date' => $transactionDate,
+                            'amount' => $amount,
+                        ]),
+                    ]);
+                }
+
+                // If payment was pending, now update the invoice status
+                if ($wasPending) {
+                    $invoice = $payment->invoice;
+                    if ($invoice) {
+                        $invoice->paid_amount += $payment->amount;
+                        $invoice->balance_amount = $invoice->total_amount - $invoice->paid_amount;
+
+                        if ($invoice->balance_amount <= 0) {
+                            $invoice->status = 'paid';
+                        } elseif ($invoice->paid_amount > 0) {
+                            $invoice->status = 'partial';
+                        }
+
+                        $invoice->save();
+
+                        Log::info('Invoice status updated automatically after M-Pesa payment', [
+                            'invoice_id' => $invoice->id,
+                            'invoice_number' => $invoice->invoice_number,
+                            'status' => $invoice->status,
+                            'balance_amount' => $invoice->balance_amount
+                        ]);
+                    }
+                }
+
+                // Send receipt notifications
+                $this->sendReceiptNotifications($payment);
+
+                return response()->json([
+                    'ResultCode' => 0,
+                    'ResultDesc' => 'Accepted'
+                ]);
+            }
+
+            // Non-zero result code => persist the failure state (cancelled/timeout/failed)
+            if ($payment) {
+                $status = config("mpesa.result_code_map.{$resultCode}", 'failed');
+                if (!in_array($status, ['cancelled', 'timeout', 'failed'], true)) {
+                    $status = 'failed';
+                }
+
+                $payment->update([
+                    'status' => $status,
+                    'transaction_data' => array_merge($payment->transaction_data ?? [], [
+                        'checkout_request_id' => $checkoutRequestId,
+                        'result_code' => $resultCode,
+                        'result_desc' => $resultDesc,
+                    ]),
+                ]);
+
+                if ($transaction) {
+                    $transaction->update([
+                        'status' => $status,
+                        'result_code' => (string) $resultCode,
+                        'result_desc' => $resultDesc,
+                        'completed_at' => now(),
+                    ]);
+                }
+
+                Log::warning('M-Pesa payment not completed', [
+                    'payment_id' => $payment->id,
+                    'status' => $status,
+                    'result_code' => $resultCode,
+                    'result_desc' => $resultDesc,
+                    'checkout_request_id' => $checkoutRequestId
+                ]);
+
+                return response()->json([
+                    'ResultCode' => 1,
+                    'ResultDesc' => 'Not completed'
+                ]);
+            }
+
+            Log::warning('M-Pesa callback: payment not found', [
                 'result_code' => $resultCode,
                 'result_desc' => $resultDesc,
                 'checkout_request_id' => $checkoutRequestId

@@ -78,6 +78,7 @@ class PatientsController extends Controller
             'date_of_birth' => 'nullable|date|before:today', // Accept both for compatibility
             'gender' => 'nullable|in:male,female,other',
             'address' => 'nullable|string|max:500',
+            'national_id' => 'nullable|string|max:255',
             'has_insurance' => 'nullable|boolean',
             'insurance_provider_id' => 'nullable|string',
             'insurance_policy_number' => 'nullable|string|max:255',
@@ -92,8 +93,48 @@ class PatientsController extends Controller
         
         DB::beginTransaction();
         try {
+            // Optionally verify against the DHA Client Registry (national ID)
+            $dhaCrId = null;
+            if (!empty($data['national_id'])) {
+                try {
+                    $verified = app(\App\Services\DhaService::class)->verifyPatient($data['national_id']);
+                    if (!empty($verified['cr_id'])) {
+                        $data['dha_cr_id'] = $verified['cr_id'];
+                        $data['dha_verified_at'] = now();
+                    }
+                } catch (\Exception $e) {
+                    // Fall back to local-only registration; DHA verification is best-effort.
+                }
+            }
+            
             // Create patient
             $patient = Patient::create($data);
+            
+            // Create a registration fee invoice if a fee is configured
+            $registrationFee = (float) \App\Models\SystemSetting::get('registration_fee', 0);
+            if ($registrationFee > 0) {
+                \App\Models\Invoice::create([
+                    'invoice_number' => 'INV-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(6)),
+                    'patient_id' => $patient->id,
+                    'invoice_date' => now(),
+                    'due_date' => now()->addDays(7),
+                    'subtotal' => $registrationFee,
+                    'tax_amount' => 0,
+                    'discount_amount' => 0,
+                    'total_amount' => $registrationFee,
+                    'paid_amount' => 0,
+                    'balance_amount' => $registrationFee,
+                    'status' => 'pending',
+                    'notes' => 'New patient registration fee',
+                ])->items()->create([
+                    'item_type' => 'registration_fee',
+                    'item_name' => 'Patient Registration',
+                    'description' => 'New patient registration fee',
+                    'quantity' => 1,
+                    'unit_price' => $registrationFee,
+                    'total_price' => $registrationFee,
+                ]);
+            }
             
             // Handle insurance information if provided
             if ($request->has('has_insurance') && $request->has_insurance) {
@@ -150,7 +191,13 @@ class PatientsController extends Controller
      */
     public function show(Patient $patient): View
     {
-        return view('hms.patients.show', compact('patient'));
+        $registrationInvoice = \App\Models\Invoice::where('patient_id', $patient->id)
+            ->where('balance_amount', '>', 0)
+            ->whereHas('items', fn ($q) => $q->where('item_type', 'registration_fee'))
+            ->orderByDesc('created_at')
+            ->first();
+
+        return view('hms.patients.show', compact('patient', 'registrationInvoice'));
     }
 
     /**
@@ -175,9 +222,25 @@ class PatientsController extends Controller
             'dob' => 'nullable|date|before:today',
             'gender' => 'nullable|in:male,female,other',
             'address' => 'nullable|string|max:500',
+            'national_id' => 'nullable|string|max:255',
         ]);
         
         $patient->update($data);
+        
+        // Re-verify against DHA when a national ID is provided or changed
+        if (!empty($data['national_id']) && $data['national_id'] !== $patient->getOriginal('national_id')) {
+            try {
+                $verified = app(\App\Services\DhaService::class)->verifyPatient($data['national_id']);
+                if (!empty($verified['cr_id'])) {
+                    $patient->update([
+                        'dha_cr_id' => $verified['cr_id'],
+                        'dha_verified_at' => now(),
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // Best-effort; keep existing local verification data.
+            }
+        }
         
         return redirect()->route('hms.patients.index')
             ->with('success', 'Patient updated successfully!');

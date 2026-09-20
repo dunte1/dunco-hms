@@ -60,10 +60,11 @@ class IpdAdmissionsController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no', 'phone']);
         $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         $beds = Bed::where('is_available', true)->with('bedType')->get(['id', 'bed_number', 'ward_name', 'bed_type_id']);
-        return view('hms.ipd.create', compact('patients', 'doctors', 'beds'));
+        $admissionFee = (float) \App\Models\SystemSetting::get('admission_fee', 0);
+        return view('hms.ipd.create', compact('patients', 'doctors', 'beds', 'admissionFee'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -75,19 +76,53 @@ class IpdAdmissionsController extends Controller
             'admission_date' => 'required|date',
             'diagnosis' => 'nullable|string',
             'treatment_plan' => 'nullable|string',
+            'billing_mode' => 'required|in:sha,mpesa,cash,none',
+            'payment_id' => 'nullable|integer|exists:payments,id',
         ]);
-        
+
+        $admissionFee = (float) \App\Models\SystemSetting::get('admission_fee', 0);
+        $mpesa = app(\App\Services\MpesaService::class);
+
+        if ($admissionFee > 0) {
+            if ($data['billing_mode'] === 'mpesa') {
+                if (empty($data['payment_id']) || !$mpesa->hasConfirmedPayment($data['patient_id'], $data['payment_id'], $admissionFee)) {
+                    return back()->withErrors(['payment_id' => 'A completed M-Pesa payment for the admission fee is required to admit the patient.'])
+                        ->withInput();
+                }
+            } elseif ($data['billing_mode'] === 'sha') {
+                $coverage = $mpesa->coverage(Patient::findOrFail($data['patient_id']), 'admission_fee');
+                if (!$coverage['covered']) {
+                    return back()->withErrors(['billing_mode' => 'This patient is not covered under SHA for admission. Please collect M-Pesa or cash payment instead.'])
+                        ->withInput();
+                }
+            } elseif ($data['billing_mode'] === 'cash') {
+                // Cash collected at the front desk; payment can be recorded after admission.
+            }
+        } else {
+            $data['billing_mode'] = 'none';
+        }
+
         // Generate admission number
         $data['admission_number'] = 'IPD-' . date('Y') . '-' . str_pad(IpdAdmission::count() + 1, 6, '0', STR_PAD_LEFT);
         $data['status'] = 'admitted';
-        
+
+        if ($data['billing_mode'] === 'mpesa') {
+            $data['payment_id'] = $data['payment_id'];
+        } else {
+            $data['payment_id'] = null;
+        }
+
         $admission = IpdAdmission::create($data);
-        
+
         // Mark bed as unavailable if assigned
         if ($data['bed_id']) {
             Bed::where('id', $data['bed_id'])->update(['is_available' => false]);
         }
-        
+
+        if ($data['billing_mode'] === 'mpesa') {
+            $mpesa->attachSource($data['payment_id'], 'ipd_admission', $admission->id);
+        }
+
         return redirect()->route('hms.ipd.index')->with('success', 'Patient admitted successfully!');
     }
     

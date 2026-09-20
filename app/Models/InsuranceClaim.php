@@ -31,6 +31,13 @@ class InsuranceClaim extends Model
         'approval_date',
         'payment_date',
         'insurance_reference',
+        'sha_authorization_number',
+        'sha_service_codes',
+        'sha_tariff_amount',
+        'sha_patient_amount',
+        'submission_response',
+        'remittance_date',
+        'remittance_reference',
     ];
 
     protected $casts = [
@@ -39,11 +46,21 @@ class InsuranceClaim extends Model
         'submission_date' => 'date',
         'approval_date' => 'date',
         'payment_date' => 'date',
+        'remittance_date' => 'date',
         'claimed_amount' => 'decimal:2',
         'approved_amount' => 'decimal:2',
         'paid_amount' => 'decimal:2',
+        'sha_tariff_amount' => 'decimal:2',
+        'sha_patient_amount' => 'decimal:2',
         'documents' => 'array',
+        'sha_service_codes' => 'array',
+        'submission_response' => 'array',
     ];
+
+    public function shaAuthorization()
+    {
+        return $this->belongsTo(ShaAuthorization::class, 'sha_authorization_number', 'authorization_number');
+    }
 
     public function patient(): BelongsTo
     {

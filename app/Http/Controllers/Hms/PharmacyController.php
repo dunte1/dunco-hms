@@ -131,22 +131,57 @@ class PharmacyController extends Controller
         return view('hms.pharmacy.prescriptions.show', compact('prescription'));
     }
 
-    public function dispensePrescription(Prescription $prescription): RedirectResponse
+    public function dispensePrescription(Request $request, Prescription $prescription): RedirectResponse
     {
-        DB::transaction(function () use ($prescription) {
+        if ($prescription->status === 'dispensed') {
+            return back()->with('error', 'This prescription has already been dispensed.');
+        }
+
+        $validated = $request->validate([
+            'billing_mode' => 'required|in:sha,mpesa,cash',
+            'payment_id' => 'nullable|integer|exists:payments,id',
+        ]);
+
+        $prescription->load('items.medicine');
+        $total = $prescription->items->sum(fn ($item) => ($item->medicine->unit_price ?? 0) * $item->quantity);
+
+        $mpesa = app(\App\Services\MpesaService::class);
+
+        if ($validated['billing_mode'] === 'mpesa') {
+            if ($total <= 0) {
+                return back()->with('error', 'Nothing to charge. Set medicine unit prices or use cash/SHA billing.');
+            }
+            if (empty($validated['payment_id']) || !$mpesa->hasConfirmedPayment($prescription->patient_id, $validated['payment_id'], $total)) {
+                return back()->with('error', 'A completed M-Pesa payment for the full medication amount is required to dispense.')
+                    ->withInput();
+            }
+        } elseif ($validated['billing_mode'] === 'sha') {
+            $coverage = $mpesa->coverage($prescription->patient, 'pharmacy');
+            if (!$coverage['covered']) {
+                return back()->with('error', 'This patient is not covered under SHA for pharmacy services. Please collect M-Pesa or cash payment instead.');
+            }
+        }
+
+        DB::transaction(function () use ($prescription, $validated, $mpesa) {
+            $paymentId = $validated['billing_mode'] === 'mpesa' ? $validated['payment_id'] : null;
+
             // Update prescription status
-            $prescription->update(['status' => 'dispensed']);
+            $prescription->update(['status' => 'dispensed', 'payment_id' => $paymentId]);
 
             // Update medicine stock quantities
             foreach ($prescription->items as $item) {
                 $medicine = $item->medicine;
                 $newStock = $medicine->stock_quantity - $item->quantity;
-                
+
                 if ($newStock < 0) {
                     throw new \Exception("Insufficient stock for {$medicine->name}");
                 }
-                
+
                 $medicine->update(['stock_quantity' => $newStock]);
+            }
+
+            if ($paymentId) {
+                $mpesa->attachSource($paymentId, 'prescription', $prescription->id);
             }
         });
 

@@ -93,7 +93,7 @@
 
                         <!-- Claim Amount -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Claim Amount ($) *</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Claim Amount (KES) *</label>
                             <input type="number" name="claim_amount" step="0.01" required value="{{ old('claim_amount') }}"
                                    class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-purple-500">
                             @error('claim_amount') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror

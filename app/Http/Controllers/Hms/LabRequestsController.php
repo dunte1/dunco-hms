@@ -22,7 +22,7 @@ class LabRequestsController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'phone']);
         $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         $labTests = LabTest::where('is_active', true)->orderBy('test_name')->get(['id', 'test_name', 'price']);
         return view('hms.laboratory.requests.create', compact('patients', 'doctors', 'labTests'));
@@ -37,7 +37,29 @@ class LabRequestsController extends Controller
             'clinical_notes' => 'nullable|string',
             'lab_tests' => 'required|array|min:1',
             'lab_tests.*' => 'exists:lab_tests,id',
+            'billing_mode' => 'required|in:sha,mpesa,cash',
+            'payment_id' => 'nullable|integer|exists:payments,id',
         ]);
+
+        $total = LabTest::whereIn('id', $data['lab_tests'])->sum('price');
+
+        $mpesa = app(\App\Services\MpesaService::class);
+
+        if ($data['billing_mode'] === 'mpesa') {
+            if (empty($data['payment_id']) || !$mpesa->hasConfirmedPayment($data['patient_id'], $data['payment_id'], $total)) {
+                return back()->withErrors(['payment_id' => 'A completed M-Pesa payment for the full lab amount is required to create the request.'])
+                    ->withInput();
+            }
+        } elseif ($data['billing_mode'] === 'sha') {
+            $coverage = $mpesa->coverage(Patient::findOrFail($data['patient_id']), 'lab_test');
+            if (!$coverage['covered']) {
+                return back()->withErrors(['billing_mode' => 'This patient is not covered under SHA for lab tests. Please collect M-Pesa or cash payment instead.'])
+                    ->withInput();
+            }
+            $data['payment_id'] = null;
+        } else {
+            $data['payment_id'] = null;
+        }
 
         // Generate request number
         $data['request_number'] = 'LAB-' . date('Y') . '-' . str_pad(LabRequest::count() + 1, 6, '0', STR_PAD_LEFT);
@@ -49,6 +71,10 @@ class LabRequestsController extends Controller
             $labRequest->items()->create([
                 'lab_test_id' => $testId,
             ]);
+        }
+
+        if (!empty($data['payment_id'])) {
+            $mpesa->attachSource($data['payment_id'], 'lab_request', $labRequest->id);
         }
 
         return redirect()->route('hms.laboratory.requests.index')->with('status', 'Lab request created');

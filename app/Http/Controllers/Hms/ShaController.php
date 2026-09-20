@@ -71,7 +71,7 @@ class ShaController extends Controller
             'national_id' => $data['national_id'] ?? $patient->national_id ?? null,
             'first_name' => $patient->first_name,
             'last_name' => $patient->last_name,
-            'date_of_birth' => $patient->date_of_birth ?? null,
+            'date_of_birth' => $patient->dob ?? null,
             'gender' => $patient->gender ?? null,
             'phone' => $patient->phone ?? null,
             'contribution_status' => $data['contributor_status'] ?? 'active',
@@ -110,6 +110,7 @@ class ShaController extends Controller
         $member = ShaMember::findOrFail($data['sha_member_id']);
 
         $result = $this->shaService->requestAuthorization([
+            'cr_id' => $member->cr_id,
             'member_number' => $member->sha_member_number,
             'service_code' => $data['service_code'],
             'diagnosis_code' => $data['diagnosis_code'] ?? null,
