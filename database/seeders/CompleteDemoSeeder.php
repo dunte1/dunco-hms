@@ -40,16 +40,22 @@ class CompleteDemoSeeder extends Seeder
         $this->seedDrugInteractions();
 
         echo "Seeding Consent Forms...\n";
-        $this->seedConsentForms($patient, $doctor);
+        if ($patient && $doctor) {
+            $this->seedConsentForms($patient, $doctor);
+        }
 
         echo "Seeding MRD Files...\n";
-        $this->seedMrdFiles($patient);
+        if ($patient) {
+            $this->seedMrdFiles($patient);
+        }
 
         echo "Seeding Vaccines...\n";
         $this->seedVaccines();
 
         echo "Seeding Mortuary Records...\n";
-        $this->seedMortuaryRecords($patient, $admin);
+        if ($patient && $admin) {
+            $this->seedMortuaryRecords($patient, $admin);
+        }
 
         echo "Seeding Medical Equipment...\n";
         $this->seedMedicalEquipment();
