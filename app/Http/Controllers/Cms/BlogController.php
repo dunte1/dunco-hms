@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Cms;
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
 use App\Models\BlogCategory;
+use App\Traits\SeoTrait;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class BlogController extends Controller
 {
+    use SeoTrait;
     public function index(Request $request): View
     {
         $query = BlogPost::with(['category', 'author'])
@@ -36,7 +38,13 @@ class BlogController extends Controller
             ->limit(3)
             ->get();
 
-        return view('site.blog.index', compact('posts', 'categories', 'featuredPosts'));
+        $seo = $this->seo([
+            'title' => 'Blog - ' . config('app.name', 'Dunco Hospital'),
+            'description' => 'Health articles, news, and updates from ' . config('app.name', 'Dunco Hospital') . '.',
+            'keywords' => 'health blog, medical articles, hospital news, health tips',
+        ]);
+
+        return view('site.blog.index', compact('posts', 'categories', 'featuredPosts', 'seo'));
     }
 
     public function show(BlogPost $post): View
@@ -51,7 +59,9 @@ class BlogController extends Controller
             ->limit(3)
             ->get();
 
-        return view('site.blog.show', compact('post', 'relatedPosts'));
+        $seo = $this->getBlogSeo($post);
+
+        return view('site.blog.show', compact('post', 'relatedPosts', 'seo'));
     }
 
     // Admin CRUD Methods

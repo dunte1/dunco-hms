@@ -4,8 +4,70 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        @yield('meta')
-        <title>{{ config('app.name', 'DuncoHMS') }}</title>
+
+        {{-- SEO Meta Tags --}}
+        @php
+            $seoTitle = $seo['title'] ?? config('app.name', 'Dunco Hospital');
+            $seoDescription = $seo['description'] ?? config('app.name', 'Dunco Hospital') . ' - Your trusted healthcare partner';
+            $seoKeywords = $seo['keywords'] ?? 'hospital, healthcare, medical, doctor, clinic';
+            $seoImage = $seo['image'] ?? asset('images/og-default.jpg');
+            $seoUrl = $seo['url'] ?? url()->current();
+            $seoType = $seo['type'] ?? 'website';
+        @endphp
+
+        <title>{{ $seoTitle }}</title>
+        <meta name="description" content="{{ Str::limit(strip_tags($seoDescription), 160) }}">
+        <meta name="keywords" content="{{ $seoKeywords }}">
+        <meta name="robots" content="index, follow">
+        <link rel="canonical" href="{{ $seoUrl }}">
+
+        {{-- Open Graph --}}
+        <meta property="og:type" content="{{ $seoType }}">
+        <meta property="og:title" content="{{ $seoTitle }}">
+        <meta property="og:description" content="{{ Str::limit(strip_tags($seoDescription), 200) }}">
+        <meta property="og:image" content="{{ $seoImage }}">
+        <meta property="og:url" content="{{ $seoUrl }}">
+        <meta property="og:site_name" content="{{ config('app.name', 'Dunco Hospital') }}">
+        <meta property="og:locale" content="en_US">
+
+        {{-- Twitter Card --}}
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ $seoTitle }}">
+        <meta name="twitter:description" content="{{ Str::limit(strip_tags($seoDescription), 200) }}">
+        <meta name="twitter:image" content="{{ $seoImage }}">
+
+        {{-- JSON-LD Structured Data --}}
+        @if(!empty($seo['schema']))
+            <script type="application/ld+json">{!! json_encode($seo['schema'], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!}</script>
+        @else
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "Hospital",
+                "name": "{{ config('app.name', 'Dunco Hospital') }}",
+                "description": "{{ Str::limit(strip_tags($seoDescription), 200) }}",
+                "url": "{{ url('/') }}",
+                "telephone": "{{ \App\Models\SystemSetting::get('header_emergency_phone', '+254700000000') }}",
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": "{{ \App\Models\SystemSetting::get('contact_city', 'Nairobi') }}",
+                    "addressCountry": "KE"
+                }
+            }
+            </script>
+        @endif
+
+        {{-- Google Analytics --}}
+        @php $gaId = \App\Models\SystemSetting::get('seo_google_analytics_id', ''); @endphp
+        @if($gaId)
+            <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '{{ $gaId }}');
+            </script>
+        @endif
 
         <!-- Favicon -->
         @if($themeSettings['favicon'] ?? false)

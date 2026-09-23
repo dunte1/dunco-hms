@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Enquiry;
 use App\Models\AppointmentRequest;
+use App\Traits\SeoTrait;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App as AppFacade;
@@ -11,60 +12,72 @@ use Illuminate\View\View;
 
 class SiteController extends Controller
 {
+    use SeoTrait;
+
     public function home(): View
     {
-        // Real metrics from database
         try {
             $stats = [
                 'patients' => \App\Models\Patient::count(),
                 'doctors' => \App\Models\Doctor::count(),
                 'nurses' => \App\Models\Nurse::where('is_active', true)->count(),
-                'happyPatients' => \App\Models\Patient::count(), // Using total patients as proxy for happy patients
-                'years' => 15, // Hospital established years - can be made dynamic from settings
-            ];
-            
-            // Get featured doctors for homepage
-            $featuredDoctors = \App\Models\Doctor::with('department')
-                ->take(6)
-                ->get();
-        } catch (\Exception $e) {
-            // Handle test environment where tables may not exist
-            $stats = [
-                'patients' => 0,
-                'doctors' => 0,
-                'nurses' => 0,
-                'happyPatients' => 0,
+                'happyPatients' => \App\Models\Patient::count(),
                 'years' => 15,
             ];
+            $featuredDoctors = \App\Models\Doctor::with('department')->take(6)->get();
+        } catch (\Exception $e) {
+            $stats = ['patients' => 0, 'doctors' => 0, 'nurses' => 0, 'happyPatients' => 0, 'years' => 15];
             $featuredDoctors = collect([]);
         }
-            
-        // Get recent testimonials
+
         try {
-            $testimonials = \App\Models\Testimonial::where('is_active', true)
-                ->latest()
-                ->take(3)
-                ->get();
+            $testimonials = \App\Models\Testimonial::where('is_active', true)->latest()->take(3)->get();
         } catch (\Exception $e) {
             $testimonials = collect([]);
         }
-            
-        return view('site.home', compact('stats', 'featuredDoctors', 'testimonials'));
+
+        $seo = $this->getCmsSeo('home');
+        $seo['schema'] = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Hospital',
+            'name' => config('app.name', 'Dunco Hospital'),
+            'description' => $seo['description'],
+            'url' => url('/'),
+            'telephone' => \App\Models\SystemSetting::get('header_emergency_phone', '+254700000000'),
+            'address' => ['@type' => 'PostalAddress', 'addressLocality' => \App\Models\SystemSetting::get('contact_city', 'Nairobi'), 'addressCountry' => 'KE'],
+            'medicalSpecialty' => ['General Medicine', 'Surgery', 'Pediatrics', 'Obstetrics'],
+        ];
+
+        return view('site.home', compact('stats', 'featuredDoctors', 'testimonials', 'seo'));
     }
 
     public function services(): View
     {
-        return view('site.services');
+        $seo = $this->getCmsSeo('services');
+        $seo['schema'] = [
+            '@context' => 'https://schema.org',
+            '@type' => 'MedicalBusiness',
+            'name' => config('app.name', 'Dunco Hospital') . ' Services',
+            'description' => $seo['description'],
+            'url' => url('/services'),
+        ];
+        return view('site.services', compact('seo'));
     }
 
     public function doctors(): View
     {
-        $doctors = \App\Models\Doctor::with('department')
-            ->paginate(12);
-            
+        $doctors = \App\Models\Doctor::with('department')->paginate(12);
         $departments = \App\Models\DoctorDepartment::all();
-        
-        return view('site.doctors', compact('doctors', 'departments'));
+
+        $seo = $this->getCmsSeo('doctors');
+        $seo['schema'] = [
+            '@context' => 'https://schema.org',
+            '@type' => 'MedicalBusiness',
+            'name' => config('app.name', 'Dunco Hospital') . ' - Our Doctors',
+            'description' => $seo['description'],
+            'url' => url('/doctors'),
+        ];
+        return view('site.doctors', compact('doctors', 'departments', 'seo'));
     }
 
     public function about(): View
@@ -76,12 +89,20 @@ class SiteController extends Controller
             'happyPatients' => \App\Models\Patient::count(),
             'years' => 15,
         ];
-        return view('site.about', compact('stats'));
+        $seo = $this->getCmsSeo('about');
+        return view('site.about', compact('stats', 'seo'));
     }
 
     public function contact(): View
     {
-        return view('site.contact');
+        $seo = $this->getCmsSeo('contact');
+        $seo['schema'] = [
+            '@context' => 'https://schema.org',
+            '@type' => 'ContactPage',
+            'name' => config('app.name', 'Dunco Hospital') . ' - Contact Us',
+            'url' => url('/contact'),
+        ];
+        return view('site.contact', compact('seo'));
     }
 
     public function submitContact(Request $request): RedirectResponse
@@ -99,12 +120,19 @@ class SiteController extends Controller
 
     public function features(): View
     {
-        return view('site.features');
+        $seo = $this->getCmsSeo('features');
+        return view('site.features', compact('seo'));
     }
 
     public function bookAppointment(): View
     {
-        return view('site.book-appointment');
+        $doctors = \App\Models\Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'consultation_fee']);
+        $seo = $this->seo([
+            'title' => 'Book Appointment - ' . config('app.name', 'Dunco Hospital'),
+            'description' => 'Book an appointment online at ' . config('app.name', 'Dunco Hospital'). '. Choose your doctor and preferred date.',
+            'keywords' => 'book appointment, hospital appointment, doctor appointment, online booking',
+        ]);
+        return view('site.book-appointment', compact('doctors', 'seo'));
     }
 
     public function submitAppointment(Request $request): RedirectResponse
@@ -130,5 +158,3 @@ class SiteController extends Controller
         return back();
     }
 }
-
-

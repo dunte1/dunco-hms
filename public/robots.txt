@@ -1,2 +1,28 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /cms/
+Disallow: /hms/
+Disallow: /patient-portal/
+Disallow: /marketing/
+Disallow: /security/
+Disallow: /profile
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /confirm-password
+Disallow: /email/verify
+Disallow: /api/
+Disallow: /storage/
+Disallow: /dashboard
+
+Allow: /
+Allow: /services
+Allow: /doctors
+Allow: /about
+Allow: /contact
+Allow: /features
+Allow: /book-appointment
+Allow: /blog/
+
+Sitemap: https://hmse.duncowebsolutions.co.ke/sitemap.xml

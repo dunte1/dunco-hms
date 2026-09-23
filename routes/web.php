@@ -77,6 +77,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ApiController;
 
 Route::get('/', [SiteController::class, 'home'])->name('home');
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('/services', [SiteController::class, 'services'])->name('services');
 Route::get('/doctors', [SiteController::class, 'doctors'])->name('doctors');
 Route::get('/about', [SiteController::class, 'about'])->name('about');
