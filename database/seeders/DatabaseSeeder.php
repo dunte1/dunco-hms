@@ -18,7 +18,10 @@ class DatabaseSeeder extends Seeder
         $this->command->info('');
 
         // Seed roles, permissions, and all demo data
+        $this->call(RolesAndPermissionsSeeder::class);
         $this->call(CompleteDemoSeeder::class);
+        $this->call(AssignUserRolesSeeder::class);
+        $this->call(GrantAdminAllPermissions::class);
 
         // Seed supplementary data
         $this->command->info('[+] Seeding supplementary data...');
