@@ -22,6 +22,11 @@ class DatabaseSeeder extends Seeder
         $this->call(CompleteDemoSeeder::class);
         $this->call(AssignUserRolesSeeder::class);
         $this->call(GrantAdminAllPermissions::class);
+        $this->call(SamplePatientsSeeder::class);
+        $this->call(StoreSeeder::class);
+        $this->call(SidebarPermissionsSeeder::class);
+        $this->call(SampleNotificationsSeeder::class);
+        $this->call(SampleAttendanceSeeder::class);
 
         // Seed supplementary data
         $this->command->info('[+] Seeding supplementary data...');
