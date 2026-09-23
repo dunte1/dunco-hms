@@ -13,7 +13,7 @@ class Medicine extends Model
 
     protected $fillable = [
         'name', 'generic_name', 'category_id', 'brand_id', 'manufacturer', 'dosage_form',
-        'strength', 'unit_price', 'stock_quantity', 'minimum_stock',
+        'strength', 'unit_price', 'stock_quantity', 'minimum_stock', 'reorder_quantity',
         'expiry_date', 'description'
     ];
 

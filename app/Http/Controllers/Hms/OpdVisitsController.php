@@ -16,7 +16,6 @@ class OpdVisitsController extends Controller
     {
         $query = OpdVisit::with(['patient', 'doctor']);
         
-        // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -30,12 +29,14 @@ class OpdVisitsController extends Controller
             });
         }
         
-        // Filter by visit type
         if ($request->filled('visit_type')) {
             $query->where('visit_type', $request->visit_type);
         }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
         
-        // Filter by date range
         if ($request->filled('date_from')) {
             $query->whereDate('visit_date', '>=', $request->date_from);
         }
@@ -45,7 +46,6 @@ class OpdVisitsController extends Controller
         
         $visits = $query->latest('visit_date')->paginate(15)->withQueryString();
         
-        // Statistics
         $stats = [
             'total' => OpdVisit::count(),
             'today' => OpdVisit::whereDate('visit_date', today())->count(),
@@ -99,6 +99,7 @@ class OpdVisitsController extends Controller
             $data['billing_mode'] = 'none';
         }
 
+        $data['status'] = 'registered';
         $visit = OpdVisit::create($data);
 
         if ($data['billing_mode'] === 'mpesa') {
@@ -110,7 +111,7 @@ class OpdVisitsController extends Controller
     
     public function show(OpdVisit $opd): View
     {
-        $opd->load(['patient', 'doctor']);
+        $opd->load(['patient', 'doctor', 'triage', 'vitals', 'labRequests.items.labTest', 'prescriptions.items.medicine', 'referrals']);
         return view('hms.opd.show', compact('opd'));
     }
     
@@ -128,6 +129,7 @@ class OpdVisitsController extends Controller
             'doctor_id' => 'nullable|exists:doctors,id',
             'visit_date' => 'required|date',
             'visit_type' => 'required|string',
+            'status' => 'nullable|string|in:registered,triaged,in_consultation,lab_pending,pharmacy_pending,billing_pending,completed,discharged',
             'chief_complaint' => 'nullable|string',
             'diagnosis' => 'nullable|string',
             'prescription' => 'nullable|string',
@@ -136,6 +138,18 @@ class OpdVisitsController extends Controller
         
         $opd->update($data);
         return redirect()->route('hms.opd.show', $opd)->with('success', 'OPD visit updated successfully!');
+    }
+
+    public function updateStatus(Request $request, OpdVisit $opd): RedirectResponse
+    {
+        $data = $request->validate([
+            'status' => 'required|string|in:registered,triaged,in_consultation,lab_pending,pharmacy_pending,billing_pending,completed,discharged',
+            'triage_notes' => 'nullable|string',
+        ]);
+
+        $opd->update($data);
+
+        return back()->with('success', 'Visit status updated to ' . $opd->status_label . '.');
     }
     
     public function destroy(OpdVisit $opd): RedirectResponse

@@ -173,6 +173,8 @@ class StoreController extends Controller
                 'movement_date' => now(),
                 'notes' => $data['reason'],
             ]);
+
+            \App\Models\AuditLog::log('user', auth()->id(), 'stock_adjusted', 'StoreStock', $stock->id, ['quantity' => $oldQty], ['quantity' => $stock->quantity], 'Stock adjusted at store');
         });
 
         return back()->with('status', 'Stock adjusted successfully');
@@ -333,6 +335,8 @@ class StoreController extends Controller
             // Update medicine total_stock
             $medicine = Medicine::find($data['medicine_id']);
             $medicine->update(['stock_quantity' => $medicine->storeStocks()->sum('quantity')]);
+
+            \App\Models\AuditLog::log('user', auth()->id(), 'stock_transferred', 'StoreStock', $fromStock->id, ['quantity' => $fromOld], ['quantity' => $fromStock->quantity], 'Stock transferred between stores');
         });
 
         return redirect()->route('hms.stores.transfer')->with('status', 'Transfer completed successfully');

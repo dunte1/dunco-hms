@@ -141,9 +141,11 @@ class ShiftsController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
 
+        $conflicts = [];
+
         foreach ($validated['employee_ids'] as $employeeId) {
-            // Check for overlapping shifts
-            $existing = EmployeeShift::where('employee_id', $employeeId)
+            $existing = EmployeeShift::with('shift', 'employee')
+                ->where('employee_id', $employeeId)
                 ->where('is_active', true)
                 ->where(function($q) use ($validated) {
                     $q->whereBetween('start_date', [$validated['start_date'], $validated['end_date'] ?? '9999-12-31'])
@@ -156,15 +158,21 @@ class ShiftsController extends Controller
                       });
                 })
                 ->first();
-            
+
             if ($existing) {
-                // End the existing shift before the new one starts
+                $conflicts[] = [
+                    'employee' => $existing->employee->full_name ?? "Employee #{$employeeId}",
+                    'shift' => $existing->shift->name ?? 'Unknown',
+                    'start_date' => $existing->start_date->format('Y-m-d'),
+                    'end_date' => $existing->end_date ? $existing->end_date->format('Y-m-d') : 'Ongoing',
+                ];
+
                 $existing->update([
                     'end_date' => date('Y-m-d', strtotime($validated['start_date'] . ' -1 day')),
                     'is_active' => false,
                 ]);
             }
-            
+
             EmployeeShift::create([
                 'employee_id' => $employeeId,
                 'shift_id' => $validated['shift_id'],
@@ -174,8 +182,16 @@ class ShiftsController extends Controller
             ]);
         }
 
-        return redirect()->back()
-            ->with('success', 'Shift assigned successfully.');
+        $redirect = redirect()->back();
+
+        if (!empty($conflicts)) {
+            $redirect->with('conflicts', $conflicts)
+                ->with('warning', count($conflicts) . ' employee(s) had existing shifts that were auto-ended.');
+        } else {
+            $redirect->with('success', 'Shift assigned successfully.');
+        }
+
+        return $redirect;
     }
 
     public function rosterPdf()

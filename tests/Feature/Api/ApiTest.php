@@ -49,8 +49,8 @@ class ApiTest extends TestCase
             'password' => 'wrong-password',
         ]);
 
-        $response->assertStatus(422); // Laravel returns 422 for validation errors
-        $response->assertJsonStructure(['message', 'errors']);
+        $response->assertStatus(401); // API returns 401 for invalid credentials
+        $response->assertJsonStructure(['success', 'message']);
     }
 
     /** @test */

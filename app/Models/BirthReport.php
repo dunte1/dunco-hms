@@ -11,11 +11,11 @@ class BirthReport extends Model
     use HasFactory;
 
     protected $fillable = [
-        'report_number', 'baby_name', 'mother_name', 'father_name',
-        'mother_phone', 'father_phone', 'birth_date', 'birth_time',
-        'gender', 'birth_weight', 'birth_length', 'delivery_type',
-        'attending_doctor_id', 'attending_nurse_id', 'complications',
-        'notes', 'status'
+        'report_number', 'baby_name', 'mother_patient_id', 'baby_patient_id',
+        'mother_name', 'father_name', 'mother_phone', 'father_phone',
+        'birth_date', 'birth_time', 'gender', 'birth_weight', 'birth_length',
+        'delivery_type', 'attending_doctor_id', 'attending_nurse_id',
+        'ipd_admission_id', 'complications', 'notes', 'status'
     ];
 
     protected $casts = [
@@ -33,5 +33,20 @@ class BirthReport extends Model
     public function attendingNurse(): BelongsTo
     {
         return $this->belongsTo(Nurse::class, 'attending_nurse_id');
+    }
+
+    public function motherPatient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class, 'mother_patient_id');
+    }
+
+    public function babyPatient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class, 'baby_patient_id');
+    }
+
+    public function ipdAdmission(): BelongsTo
+    {
+        return $this->belongsTo(IpdAdmission::class);
     }
 }

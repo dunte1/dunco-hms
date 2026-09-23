@@ -11,7 +11,7 @@ class QueueManagement extends Model
     use HasFactory;
 
     protected $fillable = [
-        'queue_number', 'patient_id', 'patient_name', 'patient_phone',
+        'queue_number', 'patient_id', 'opd_visit_id', 'token_number', 'patient_name', 'patient_phone',
         'doctor_id', 'department', 'queue_type', 'priority', 'status',
         'check_in_time', 'called_time', 'completed_time', 'estimated_wait_time',
         'notes'
@@ -31,5 +31,23 @@ class QueueManagement extends Model
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(Doctor::class);
+    }
+
+    public function opdVisit(): BelongsTo
+    {
+        return $this->belongsTo(OpdVisit::class);
+    }
+
+    public function getWaitTimeAttribute(): ?int
+    {
+        if ($this->called_time && $this->check_in_time) {
+            return $this->check_in_time->diffInMinutes($this->called_time);
+        }
+        return null;
+    }
+
+    public function getDisplayTokenAttribute(): string
+    {
+        return $this->token_number ?? $this->queue_number;
     }
 }

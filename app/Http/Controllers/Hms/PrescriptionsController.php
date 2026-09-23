@@ -7,6 +7,7 @@ use App\Models\Prescription;
 use App\Models\Patient;
 use App\Models\Doctor;
 use App\Models\Medicine;
+use App\Models\OpdVisit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -73,6 +74,7 @@ class PrescriptionsController extends Controller
         $data = $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'doctor_id' => 'required|exists:doctors,id',
+            'opd_visit_id' => 'nullable|exists:opd_visits,id',
             'prescription_date' => 'required|date',
             'symptoms' => 'nullable|string',
             'diagnosis' => 'nullable|string',
@@ -89,11 +91,17 @@ class PrescriptionsController extends Controller
         $prescription = Prescription::create([
             'patient_id' => $data['patient_id'],
             'doctor_id' => $data['doctor_id'],
+            'opd_visit_id' => $data['opd_visit_id'] ?? null,
             'prescription_date' => $data['prescription_date'],
             'symptoms' => $data['symptoms'],
             'diagnosis' => $data['diagnosis'],
             'notes' => $data['notes'],
         ]);
+
+        // Update OPD visit status if linked
+        if (!empty($data['opd_visit_id'])) {
+            OpdVisit::where('id', $data['opd_visit_id'])->update(['status' => 'pharmacy_pending']);
+        }
 
         // Create prescription items
         foreach ($data['medicines'] as $medicine) {

@@ -26,6 +26,9 @@ use App\Http\Controllers\Hms\VaccinationController;
 use App\Http\Controllers\Hms\MortuaryController;
 use App\Http\Controllers\Hms\EquipmentMaintenanceController;
 use App\Http\Controllers\Hms\StoreController;
+use App\Http\Controllers\Hms\RequisitionController;
+use App\Http\Controllers\Hms\StocktakeController;
+use App\Http\Controllers\Hms\StockAdjustmentController;
 use App\Http\Controllers\Hms\IpdAdmissionsController;
 use App\Http\Controllers\Hms\OpdVisitsController;
 use App\Http\Controllers\Hms\InvoicesController;
@@ -421,10 +424,66 @@ Route::middleware('auth')->group(function () {
         Route::delete('/stores/{store}', [StoreController::class, 'destroy'])->name('stores.destroy');
         Route::get('/stores/{store}/stock', [StoreController::class, 'stock'])->name('stores.stock');
         Route::post('/stores/{store}/adjust-stock', [StoreController::class, 'adjustStock'])->name('stores.adjust-stock');
+        Route::get('/stores/{store}/stock', [StoreController::class, 'stock'])->name('stores.stock');
         Route::get('/stores/{store}/batches', [StoreController::class, 'batches'])->name('stores.batches');
-        Route::post('/stores/{store}/batches', [StoreController::class, 'storeBatch'])->name('stores.batch-store');
+        Route::post('/stores/{store}/batches', [StoreController::class, 'storeBatch'])->name('stores.batches.store');
         Route::get('/stores/{store}/reports', [StoreController::class, 'reports'])->name('stores.reports');
-        
+
+        // Requisitions
+        Route::get('/requisitions', [\App\Http\Controllers\Hms\RequisitionController::class, 'index'])->name('requisitions.index');
+        Route::get('/requisitions/create', [\App\Http\Controllers\Hms\RequisitionController::class, 'create'])->name('requisitions.create');
+        Route::post('/requisitions', [\App\Http\Controllers\Hms\RequisitionController::class, 'store'])->name('requisitions.store');
+        Route::get('/requisitions/{requisition}', [\App\Http\Controllers\Hms\RequisitionController::class, 'show'])->name('requisitions.show');
+        Route::post('/requisitions/{requisition}/approve', [\App\Http\Controllers\Hms\RequisitionController::class, 'approve'])->name('requisitions.approve');
+        Route::post('/requisitions/{requisition}/reject', [\App\Http\Controllers\Hms\RequisitionController::class, 'reject'])->name('requisitions.reject');
+        Route::post('/requisitions/{requisition}/fulfill', [\App\Http\Controllers\Hms\RequisitionController::class, 'fulfill'])->name('requisitions.fulfill');
+        Route::post('/requisitions/{requisition}/cancel', [\App\Http\Controllers\Hms\RequisitionController::class, 'cancel'])->name('requisitions.cancel');
+
+        // Stocktakes
+        Route::get('/stocktakes', [\App\Http\Controllers\Hms\StocktakeController::class, 'index'])->name('stocktakes.index');
+        Route::get('/stocktakes/create', [\App\Http\Controllers\Hms\StocktakeController::class, 'create'])->name('stocktakes.create');
+        Route::post('/stocktakes', [\App\Http\Controllers\Hms\StocktakeController::class, 'store'])->name('stocktakes.store');
+        Route::get('/stocktakes/{stocktake}', [\App\Http\Controllers\Hms\StocktakeController::class, 'show'])->name('stocktakes.show');
+        Route::post('/stocktakes/{stocktake}/items', [\App\Http\Controllers\Hms\StocktakeController::class, 'updateItems'])->name('stocktakes.items.update');
+        Route::post('/stocktakes/{stocktake}/complete', [\App\Http\Controllers\Hms\StocktakeController::class, 'complete'])->name('stocktakes.complete');
+        Route::post('/stocktakes/{stocktake}/approve', [\App\Http\Controllers\Hms\StocktakeController::class, 'approve'])->name('stocktakes.approve');
+        Route::post('/stocktakes/{stocktake}/adjust', [\App\Http\Controllers\Hms\StocktakeController::class, 'adjust'])->name('stocktakes.adjust');
+
+        // Stock Adjustments
+        Route::get('/stock-adjustments', [\App\Http\Controllers\Hms\StockAdjustmentController::class, 'index'])->name('stock-adjustments.index');
+        Route::get('/stock-adjustments/create', [\App\Http\Controllers\Hms\StockAdjustmentController::class, 'create'])->name('stock-adjustments.create');
+        Route::post('/stock-adjustments', [\App\Http\Controllers\Hms\StockAdjustmentController::class, 'store'])->name('stock-adjustments.store');
+        Route::get('/stock-adjustments/{stockAdjustment}', [\App\Http\Controllers\Hms\StockAdjustmentController::class, 'show'])->name('stock-adjustments.show');
+        Route::post('/stock-adjustments/{stockAdjustment}/approve', [\App\Http\Controllers\Hms\StockAdjustmentController::class, 'approve'])->name('stock-adjustments.approve');
+        Route::post('/stock-adjustments/{stockAdjustment}/reject', [\App\Http\Controllers\Hms\StockAdjustmentController::class, 'reject'])->name('stock-adjustments.reject');
+
+        // Requisitions (Sub-Store → Main Store)
+        Route::get('/requisitions', [RequisitionController::class, 'index'])->name('requisitions.index');
+        Route::get('/requisitions/create', [RequisitionController::class, 'create'])->name('requisitions.create');
+        Route::post('/requisitions', [RequisitionController::class, 'store'])->name('requisitions.store');
+        Route::get('/requisitions/{requisition}', [RequisitionController::class, 'show'])->name('requisitions.show');
+        Route::post('/requisitions/{requisition}/approve', [RequisitionController::class, 'approve'])->name('requisitions.approve');
+        Route::post('/requisitions/{requisition}/reject', [RequisitionController::class, 'reject'])->name('requisitions.reject');
+        Route::post('/requisitions/{requisition}/fulfill', [RequisitionController::class, 'fulfill'])->name('requisitions.fulfill');
+        Route::post('/requisitions/{requisition}/cancel', [RequisitionController::class, 'cancel'])->name('requisitions.cancel');
+
+        // Stocktakes
+        Route::get('/stocktakes', [StocktakeController::class, 'index'])->name('stocktakes.index');
+        Route::get('/stocktakes/create', [StocktakeController::class, 'create'])->name('stocktakes.create');
+        Route::post('/stocktakes', [StocktakeController::class, 'store'])->name('stocktakes.store');
+        Route::get('/stocktakes/{stocktake}', [StocktakeController::class, 'show'])->name('stocktakes.show');
+        Route::post('/stocktakes/{stocktake}/items', [StocktakeController::class, 'updateItems'])->name('stocktakes.update-items');
+        Route::post('/stocktakes/{stocktake}/complete', [StocktakeController::class, 'complete'])->name('stocktakes.complete');
+        Route::post('/stocktakes/{stocktake}/approve', [StocktakeController::class, 'approve'])->name('stocktakes.approve');
+        Route::post('/stocktakes/{stocktake}/adjust', [StocktakeController::class, 'adjust'])->name('stocktakes.adjust');
+
+        // Stock Adjustments
+        Route::get('/stock-adjustments', [StockAdjustmentController::class, 'index'])->name('stock-adjustments.index');
+        Route::get('/stock-adjustments/create', [StockAdjustmentController::class, 'create'])->name('stock-adjustments.create');
+        Route::post('/stock-adjustments', [StockAdjustmentController::class, 'store'])->name('stock-adjustments.store');
+        Route::post('/stock-adjustments/{stockAdjustment}/approve', [StockAdjustmentController::class, 'approve'])->name('stock-adjustments.approve');
+        Route::post('/stock-adjustments/{stockAdjustment}/reject', [StockAdjustmentController::class, 'reject'])->name('stock-adjustments.reject');
+
         Route::get('/hr', [HrController::class, 'index'])->name('hr.index');
         
         // Bed Management
@@ -478,6 +537,56 @@ Route::middleware('auth')->group(function () {
         Route::get('/opd/{opd}/edit', [OpdVisitsController::class, 'edit'])->name('opd.edit');
         Route::put('/opd/{opd}', [OpdVisitsController::class, 'update'])->name('opd.update');
         Route::delete('/opd/{opd}', [OpdVisitsController::class, 'destroy'])->name('opd.destroy');
+        Route::post('/opd/{opd}/status', [OpdVisitsController::class, 'updateStatus'])->name('opd.update-status');
+        
+        // Triage
+        Route::get('/triage', [\App\Http\Controllers\Hms\TriageController::class, 'index'])->name('triage.index');
+        Route::get('/triage/create', [\App\Http\Controllers\Hms\TriageController::class, 'create'])->name('triage.create');
+        Route::post('/triage', [\App\Http\Controllers\Hms\TriageController::class, 'store'])->name('triage.store');
+        Route::get('/triage/{triage}', [\App\Http\Controllers\Hms\TriageController::class, 'show'])->name('triage.show');
+        Route::get('/triage/{triage}/edit', [\App\Http\Controllers\Hms\TriageController::class, 'edit'])->name('triage.edit');
+        Route::put('/triage/{triage}', [\App\Http\Controllers\Hms\TriageController::class, 'update'])->name('triage.update');
+        Route::delete('/triage/{triage}', [\App\Http\Controllers\Hms\TriageController::class, 'destroy'])->name('triage.destroy');
+
+        // Vitals
+        Route::get('/vitals', [\App\Http\Controllers\Hms\VitalsController::class, 'index'])->name('vitals.index');
+        Route::get('/vitals/create', [\App\Http\Controllers\Hms\VitalsController::class, 'create'])->name('vitals.create');
+        Route::post('/vitals', [\App\Http\Controllers\Hms\VitalsController::class, 'store'])->name('vitals.store');
+        Route::get('/vitals/{vital}', [\App\Http\Controllers\Hms\VitalsController::class, 'show'])->name('vitals.show');
+        Route::get('/vitals/{vital}/edit', [\App\Http\Controllers\Hms\VitalsController::class, 'edit'])->name('vitals.edit');
+        Route::put('/vitals/{vital}', [\App\Http\Controllers\Hms\VitalsController::class, 'update'])->name('vitals.update');
+        Route::delete('/vitals/{vital}', [\App\Http\Controllers\Hms\VitalsController::class, 'destroy'])->name('vitals.destroy');
+        Route::get('/vitals/patient/{patient}', [\App\Http\Controllers\Hms\VitalsController::class, 'patientHistory'])->name('vitals.patient-history');
+
+        // Wards
+        Route::get('/wards', [\App\Http\Controllers\Hms\WardController::class, 'index'])->name('wards.index');
+        Route::get('/wards/create', [\App\Http\Controllers\Hms\WardController::class, 'create'])->name('wards.create');
+        Route::post('/wards', [\App\Http\Controllers\Hms\WardController::class, 'store'])->name('wards.store');
+        Route::get('/wards/{ward}', [\App\Http\Controllers\Hms\WardController::class, 'show'])->name('wards.show');
+        Route::get('/wards/{ward}/edit', [\App\Http\Controllers\Hms\WardController::class, 'edit'])->name('wards.edit');
+        Route::put('/wards/{ward}', [\App\Http\Controllers\Hms\WardController::class, 'update'])->name('wards.update');
+        Route::delete('/wards/{ward}', [\App\Http\Controllers\Hms\WardController::class, 'destroy'])->name('wards.destroy');
+
+        // Referrals
+        Route::get('/referrals', [\App\Http\Controllers\Hms\ReferralController::class, 'index'])->name('referrals.index');
+        Route::get('/referrals/create', [\App\Http\Controllers\Hms\ReferralController::class, 'create'])->name('referrals.create');
+        Route::post('/referrals', [\App\Http\Controllers\Hms\ReferralController::class, 'store'])->name('referrals.store');
+        Route::get('/referrals/{referral}', [\App\Http\Controllers\Hms\ReferralController::class, 'show'])->name('referrals.show');
+        Route::get('/referrals/{referral}/edit', [\App\Http\Controllers\Hms\ReferralController::class, 'edit'])->name('referrals.edit');
+        Route::put('/referrals/{referral}', [\App\Http\Controllers\Hms\ReferralController::class, 'update'])->name('referrals.update');
+        Route::delete('/referrals/{referral}', [\App\Http\Controllers\Hms\ReferralController::class, 'destroy'])->name('referrals.destroy');
+        Route::post('/referrals/{referral}/accept', [\App\Http\Controllers\Hms\ReferralController::class, 'accept'])->name('referrals.accept');
+        Route::post('/referrals/{referral}/complete', [\App\Http\Controllers\Hms\ReferralController::class, 'complete'])->name('referrals.complete');
+        Route::post('/referrals/{referral}/reject', [\App\Http\Controllers\Hms\ReferralController::class, 'reject'])->name('referrals.reject');
+
+        // Nursing Care Plans
+        Route::get('/nursing-care-plans', [\App\Http\Controllers\Hms\NursingCarePlanController::class, 'index'])->name('nursing-care-plans.index');
+        Route::get('/nursing-care-plans/create', [\App\Http\Controllers\Hms\NursingCarePlanController::class, 'create'])->name('nursing-care-plans.create');
+        Route::post('/nursing-care-plans', [\App\Http\Controllers\Hms\NursingCarePlanController::class, 'store'])->name('nursing-care-plans.store');
+        Route::get('/nursing-care-plans/{carePlan}', [\App\Http\Controllers\Hms\NursingCarePlanController::class, 'show'])->name('nursing-care-plans.show');
+        Route::get('/nursing-care-plans/{carePlan}/edit', [\App\Http\Controllers\Hms\NursingCarePlanController::class, 'edit'])->name('nursing-care-plans.edit');
+        Route::put('/nursing-care-plans/{carePlan}', [\App\Http\Controllers\Hms\NursingCarePlanController::class, 'update'])->name('nursing-care-plans.update');
+        Route::delete('/nursing-care-plans/{carePlan}', [\App\Http\Controllers\Hms\NursingCarePlanController::class, 'destroy'])->name('nursing-care-plans.destroy');
         
         // Billing
         Route::get('/billing/invoices', [InvoicesController::class, 'index'])->name('billing.invoices.index');
@@ -652,6 +761,32 @@ Route::middleware('auth')->group(function () {
         Route::delete('/hr/leave-requests/{leaveRequest}', [LeaveRequestsController::class, 'destroy'])->name('hr.leave-requests.destroy');
         Route::post('/hr/leave-requests/{leaveRequest}/approve', [LeaveRequestsController::class, 'approve'])->name('hr.leave-requests.approve');
         Route::post('/hr/leave-requests/{leaveRequest}/reject', [LeaveRequestsController::class, 'reject'])->name('hr.leave-requests.reject');
+
+        // Leave Balances
+        Route::get('/hr/leave-balances', [\App\Http\Controllers\Hms\LeaveBalanceController::class, 'index'])->name('hr.leave-balances.index');
+        Route::get('/hr/leave-balances/employee/{employee}', [\App\Http\Controllers\Hms\LeaveBalanceController::class, 'employeeBalance'])->name('hr.leave-balances.employee');
+        Route::post('/hr/leave-balances', [\App\Http\Controllers\Hms\LeaveBalanceController::class, 'store'])->name('hr.leave-balances.store');
+        Route::post('/hr/leave-balances/seed', [\App\Http\Controllers\Hms\LeaveBalanceController::class, 'seedBalances'])->name('hr.leave-balances.seed');
+
+        // Student Rotations
+        Route::get('/hr/student-rotations', [\App\Http\Controllers\Hms\StudentRotationController::class, 'index'])->name('hr.student-rotations.index');
+        Route::get('/hr/student-rotations/create', [\App\Http\Controllers\Hms\StudentRotationController::class, 'create'])->name('hr.student-rotations.create');
+        Route::post('/hr/student-rotations', [\App\Http\Controllers\Hms\StudentRotationController::class, 'store'])->name('hr.student-rotations.store');
+        Route::get('/hr/student-rotations/{studentRotation}', [\App\Http\Controllers\Hms\StudentRotationController::class, 'show'])->name('hr.student-rotations.show');
+        Route::get('/hr/student-rotations/{studentRotation}/edit', [\App\Http\Controllers\Hms\StudentRotationController::class, 'edit'])->name('hr.student-rotations.edit');
+        Route::put('/hr/student-rotations/{studentRotation}', [\App\Http\Controllers\Hms\StudentRotationController::class, 'update'])->name('hr.student-rotations.update');
+        Route::post('/hr/student-rotations/{studentRotation}/evaluate', [\App\Http\Controllers\Hms\StudentRotationController::class, 'evaluate'])->name('hr.student-rotations.evaluate');
+        Route::delete('/hr/student-rotations/{studentRotation}', [\App\Http\Controllers\Hms\StudentRotationController::class, 'destroy'])->name('hr.student-rotations.destroy');
+
+        // Internships
+        Route::get('/hr/internships', [\App\Http\Controllers\Hms\InternshipController::class, 'index'])->name('hr.internships.index');
+        Route::get('/hr/internships/create', [\App\Http\Controllers\Hms\InternshipController::class, 'create'])->name('hr.internships.create');
+        Route::post('/hr/internships', [\App\Http\Controllers\Hms\InternshipController::class, 'store'])->name('hr.internships.store');
+        Route::get('/hr/internships/{internship}', [\App\Http\Controllers\Hms\InternshipController::class, 'show'])->name('hr.internships.show');
+        Route::get('/hr/internships/{internship}/edit', [\App\Http\Controllers\Hms\InternshipController::class, 'edit'])->name('hr.internships.edit');
+        Route::put('/hr/internships/{internship}', [\App\Http\Controllers\Hms\InternshipController::class, 'update'])->name('hr.internships.update');
+        Route::post('/hr/internships/{internship}/complete', [\App\Http\Controllers\Hms\InternshipController::class, 'complete'])->name('hr.internships.complete');
+        Route::delete('/hr/internships/{internship}', [\App\Http\Controllers\Hms\InternshipController::class, 'destroy'])->name('hr.internships.destroy');
         
         // Blood Bank
         Route::get('/bloodbank', [BloodBankController::class, 'index'])->name('bloodbank.index');
@@ -767,6 +902,17 @@ Route::middleware('auth')->group(function () {
         Route::put('/death-reports/{report}', [BirthDeathReportsController::class, 'updateDeathReport'])->name('death-reports.update');
         Route::delete('/death-reports/{report}', [BirthDeathReportsController::class, 'destroyDeathReport'])->name('death-reports.destroy');
         Route::get('/death-reports/{report}/certificate', [BirthDeathReportsController::class, 'deathCertificate'])->name('death-reports.certificate');
+        Route::post('/death-reports/{report}/transfer-to-mortuary', [BirthDeathReportsController::class, 'transferToMortuary'])->name('death-reports.transfer-to-mortuary');
+
+        // MOH / Regulatory Reports
+        Route::get('/moh-reports', [\App\Http\Controllers\Hms\MohReportsController::class, 'index'])->name('moh-reports.index');
+        Route::get('/moh-reports/opd-summary', [\App\Http\Controllers\Hms\MohReportsController::class, 'opdSummary'])->name('moh-reports.opd-summary');
+        Route::get('/moh-reports/ipd-summary', [\App\Http\Controllers\Hms\MohReportsController::class, 'ipdSummary'])->name('moh-reports.ipd-summary');
+        Route::get('/moh-reports/disease-surveillance', [\App\Http\Controllers\Hms\MohReportsController::class, 'diseaseSurveillance'])->name('moh-reports.disease-surveillance');
+        Route::get('/moh-reports/maternal-health', [\App\Http\Controllers\Hms\MohReportsController::class, 'maternalHealth'])->name('moh-reports.maternal-health');
+        Route::get('/moh-reports/pharmacy-consumption', [\App\Http\Controllers\Hms\MohReportsController::class, 'pharmacyConsumption'])->name('moh-reports.pharmacy-consumption');
+        Route::get('/moh-reports/revenue-collection', [\App\Http\Controllers\Hms\MohReportsController::class, 'revenueCollection'])->name('moh-reports.revenue-collection');
+        Route::get('/moh-reports/{type}/pdf', [\App\Http\Controllers\Hms\MohReportsController::class, 'generatePdf'])->name('moh-reports.pdf');
         
         // Operation Reports & Surgery
         Route::get('/operations', [OperationReportsController::class, 'index'])->name('operations.index');
@@ -921,6 +1067,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/inventory/purchase-orders/{purchaseOrder}', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'destroy'])->name('inventory.purchase-orders.destroy');
         Route::post('/inventory/purchase-orders/{purchaseOrder}/submit', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'submit'])->name('inventory.purchase-orders.submit');
         Route::post('/inventory/purchase-orders/{purchaseOrder}/approve', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'approve'])->name('inventory.purchase-orders.approve');
+        Route::post('/inventory/purchase-orders/{purchaseOrder}/reject', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'reject'])->name('inventory.purchase-orders.reject');
         Route::get('/inventory/purchase-orders/{purchaseOrder}/pdf', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'generatePdf'])->name('inventory.purchase-orders.pdf');
         
         // Stock Take Sheet

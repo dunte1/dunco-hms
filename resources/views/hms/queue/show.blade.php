@@ -1,36 +1,146 @@
-<x-app-layout>
-    <div class="py-6">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        <a href="{{ route('hms.queue.index') }}" class="hover:text-indigo-600">Queue Management</a>
-                        <i class="fa fa-chevron-right text-xs"></i>
-                        <span>{{ $queue->queue_number }}</span>
-                    </div>
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><i class="fa fa-ticket-alt text-indigo-600 mr-3"></i>{{ $queue->queue_number }}</h1>
+@extends('admin.layouts.app')
+
+@section('content')
+<div class="container-fluid">
+    <div class="mb-4">
+        <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+            <a href="{{ route('hms.queue.index') }}" class="hover:text-primary">Queue Management</a>
+            <i class="fa fa-chevron-right text-xs"></i>
+            <span>{{ $queue->queue_number }}</span>
+        </div>
+        <h1 class="h3 mb-0"><i class="fa fa-ticket-alt text-primary me-2"></i>{{ $queue->queue_number }}</h1>
+    </div>
+
+    @if(session('status'))
+        <div class="alert alert-success"><i class="fa fa-check-circle me-2"></i>{{ session('status') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger"><i class="fa fa-exclamation-circle me-2"></i>{{ session('error') }}</div>
+    @endif
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Queue Details</h6>
                 </div>
-                <div class="flex gap-3">
-                    <a href="{{ route('hms.queue.edit', $queue) }}" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg"><i class="fa fa-edit mr-1"></i> Edit</a>
-                    <a href="{{ route('hms.queue.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"><i class="fa fa-arrow-left mr-1"></i> Back</a>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Queue Number:</div>
+                        <div class="col-sm-8 fw-bold text-primary fs-5">{{ $queue->queue_number }}</div>
+                    </div>
+                    @if($queue->token_number)
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Token Number:</div>
+                        <div class="col-sm-8 fw-bold">{{ $queue->token_number }}</div>
+                    </div>
+                    @endif
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Status:</div>
+                        <div class="col-sm-8">
+                            @php
+                                $statusClass = match($queue->status) {
+                                    'waiting' => 'warning',
+                                    'called' => 'success',
+                                    'in_progress' => 'info',
+                                    'completed' => 'secondary',
+                                    'cancelled' => 'danger',
+                                    default => 'secondary'
+                                };
+                            @endphp
+                            <span class="badge bg-{{ $statusClass }}">{{ ucfirst(str_replace('_', ' ', $queue->status)) }}</span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Patient:</div>
+                        <div class="col-sm-8 fw-bold">{{ $queue->patient_name }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Phone:</div>
+                        <div class="col-sm-8">{{ $queue->patient_phone ?? 'N/A' }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Department:</div>
+                        <div class="col-sm-8">{{ $queue->department }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Type:</div>
+                        <div class="col-sm-8">{{ ucfirst(str_replace('_', ' ', $queue->queue_type)) }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Priority:</div>
+                        <div class="col-sm-8">
+                            @php
+                                $priClass = match($queue->priority) {
+                                    'emergency' => 'danger',
+                                    'high' => 'warning',
+                                    'normal' => 'primary',
+                                    'low' => 'secondary',
+                                    default => 'secondary'
+                                };
+                            @endphp
+                            <span class="badge bg-{{ $priClass }}">{{ ucfirst($queue->priority) }}</span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Check-in Time:</div>
+                        <div class="col-sm-8">{{ $queue->check_in_time->format('M d, Y h:i A') }}</div>
+                    </div>
+                    @if($queue->called_time)
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Called Time:</div>
+                        <div class="col-sm-8">{{ $queue->called_time->format('M d, Y h:i A') }}</div>
+                    </div>
+                    @endif
+                    @if($queue->completed_time)
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Completed Time:</div>
+                        <div class="col-sm-8">{{ $queue->completed_time->format('M d, Y h:i A') }}</div>
+                    </div>
+                    @endif
+                    @if($queue->notes)
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Notes:</div>
+                        <div class="col-sm-8">{{ $queue->notes }}</div>
+                    </div>
+                    @endif
                 </div>
             </div>
-            @if(session('status'))
-                <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg"><i class="fa fa-check-circle mr-2"></i>{{ session('status') }}</div>
-            @endif
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Queue Details</h3>
-                <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div><span class="text-gray-500">Queue #:</span> <span class="font-bold text-indigo-600 text-lg">{{ $queue->queue_number }}</span></div>
-                    <div><span class="text-gray-500">Status:</span> <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $queue->status === 'waiting' ? 'bg-yellow-100 text-yellow-800' : ($queue->status === 'called' ? 'bg-green-100 text-green-800' : ($queue->status === 'in_progress' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800')) }}">{{ ucfirst(str_replace('_', ' ', $queue->status)) }}</span></div>
-                    <div><span class="text-gray-500">Patient:</span> <span class="font-medium text-gray-900 dark:text-white">{{ $queue->patient_name }}</span></div>
-                    <div><span class="text-gray-500">Phone:</span> <span class="font-medium text-gray-900 dark:text-white">{{ $queue->patient_phone ?? 'N/A' }}</span></div>
-                    <div><span class="text-gray-500">Department:</span> <span class="font-medium text-gray-900 dark:text-white">{{ $queue->department }}</span></div>
-                    <div><span class="text-gray-500">Type:</span> <span class="font-medium text-gray-900 dark:text-white">{{ ucfirst(str_replace('_', ' ', $queue->queue_type)) }}</span></div>
-                    <div><span class="text-gray-500">Priority:</span> <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $queue->priority === 'emergency' ? 'bg-red-100 text-red-800' : ($queue->priority === 'high' ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800') }}">{{ ucfirst($queue->priority) }}</span></div>
-                    <div><span class="text-gray-500">Check-in:</span> <span class="font-medium text-gray-900 dark:text-white">{{ $queue->check_in_time->format('M d, Y h:i A') }}</span></div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <a href="{{ route('hms.queue.edit', $queue) }}" class="btn btn-warning btn-block mb-2">
+                        <i class="fa fa-edit me-1"></i> Edit Queue
+                    </a>
+                    @if($queue->status === 'waiting')
+                        <form action="{{ route('hms.queue.call', $queue) }}" method="POST" class="mb-2">
+                            @csrf
+                            <button type="submit" class="btn btn-success btn-block w-100"><i class="fa fa-bullhorn me-1"></i> Call Patient</button>
+                        </form>
+                    @endif
+                    @if($queue->status === 'called')
+                        <form action="{{ route('hms.queue.start-service', $queue) }}" method="POST" class="mb-2">
+                            @csrf
+                            <button type="submit" class="btn btn-info btn-block w-100"><i class="fa fa-play me-1"></i> Start Service</button>
+                        </form>
+                    @endif
+                    @if(in_array($queue->status, ['called', 'in_progress']))
+                        <form action="{{ route('hms.queue.complete', $queue) }}" method="POST" class="mb-2">
+                            @csrf
+                            <button type="submit" class="btn btn-primary btn-block w-100"><i class="fa fa-check me-1"></i> Complete</button>
+                        </form>
+                    @endif
+                    <a href="{{ route('hms.queue.index') }}" class="btn btn-secondary btn-block">
+                        <i class="fa fa-arrow-left me-1"></i> Back to Queue
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-</x-app-layout>
+</div>
+@endsection

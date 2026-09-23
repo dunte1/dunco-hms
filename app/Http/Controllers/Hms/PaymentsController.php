@@ -80,6 +80,8 @@ class PaymentsController extends Controller
 
         $payment = Payment::create($data);
 
+        \App\Models\AuditLog::log('user', auth()->id(), 'payment_recorded', 'Payment', $payment->id, null, $payment->toArray(), 'Payment recorded: $' . number_format($payment->amount));
+
         // Update invoice payment status automatically (only for non-pending payments)
         if (!isset($data['status']) || $data['status'] !== 'pending') {
             $invoice->paid_amount += $data['amount'];

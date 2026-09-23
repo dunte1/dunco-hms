@@ -307,6 +307,10 @@ class PurchaseOrdersController extends Controller
         if ($purchaseOrder->status !== 'pending') {
             return back()->withErrors(['error' => 'Only pending purchase orders can be approved']);
         }
+
+        if (!auth()->user()->hasAnyRole(['Super Admin', 'Hospital Admin', 'Procurement Officer'])) {
+            return back()->withErrors(['error' => 'Only Procurement Officers or Administrators can approve purchase orders']);
+        }
         
         $purchaseOrder->update([
             'status' => 'approved',
@@ -314,6 +318,28 @@ class PurchaseOrdersController extends Controller
         ]);
         
         return back()->with('status', 'Purchase Order approved successfully');
+    }
+
+    public function reject(Request $request, PurchaseOrder $purchaseOrder): RedirectResponse
+    {
+        if ($purchaseOrder->status !== 'pending') {
+            return back()->withErrors(['error' => 'Only pending purchase orders can be rejected']);
+        }
+
+        if (!auth()->user()->hasAnyRole(['Super Admin', 'Hospital Admin', 'Procurement Officer'])) {
+            return back()->withErrors(['error' => 'Only Procurement Officers or Administrators can reject purchase orders']);
+        }
+
+        $data = $request->validate([
+            'rejection_reason' => 'required|string',
+        ]);
+
+        $purchaseOrder->update([
+            'status' => 'cancelled',
+            'rejection_reason' => $data['rejection_reason'],
+        ]);
+
+        return back()->with('status', 'Purchase Order rejected');
     }
 
     public function submit(PurchaseOrder $purchaseOrder): RedirectResponse

@@ -13,6 +13,7 @@
         "laravel/socialite": "^5.15",
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "^3.1",
+        "phpoffice/phpword": "*",
         "spatie/laravel-activitylog": "^4.7",
         "spatie/laravel-backup": "^9.0",
         "spatie/laravel-permission": "^6.21",

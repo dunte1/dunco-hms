@@ -19,21 +19,25 @@ class SystemSetting extends Model
 
     public static function get($key, $default = null)
     {
-        $setting = static::where('key', $key)->first();
-        
-        if (!$setting) {
-            return $default;
-        }
+        try {
+            $setting = static::where('key', $key)->first();
+            
+            if (!$setting) {
+                return $default;
+            }
 
-        switch ($setting->type) {
-            case 'boolean':
-                return (bool) $setting->value;
-            case 'number':
-                return is_numeric($setting->value) ? (float) $setting->value : $default;
-            case 'json':
-                return json_decode($setting->value, true) ?? $default;
-            default:
-                return $setting->value ?? $default;
+            switch ($setting->type) {
+                case 'boolean':
+                    return (bool) $setting->value;
+                case 'number':
+                    return is_numeric($setting->value) ? (float) $setting->value : $default;
+                case 'json':
+                    return json_decode($setting->value, true) ?? $default;
+                default:
+                    return $setting->value ?? $default;
+            }
+        } catch (\Throwable $e) {
+            return $default;
         }
     }
 

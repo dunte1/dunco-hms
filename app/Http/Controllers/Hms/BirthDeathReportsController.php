@@ -8,6 +8,7 @@ use App\Models\DeathReport;
 use App\Models\Doctor;
 use App\Models\Nurse;
 use App\Models\Patient;
+use App\Models\MortuaryRecord;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -42,6 +43,8 @@ class BirthDeathReportsController extends Controller
     {
         $data = $request->validate([
             'baby_name' => 'required|string',
+            'mother_patient_id' => 'nullable|exists:patients,id',
+            'baby_patient_id' => 'nullable|exists:patients,id',
             'mother_name' => 'required|string',
             'father_name' => 'required|string',
             'mother_phone' => 'nullable|string',
@@ -54,11 +57,24 @@ class BirthDeathReportsController extends Controller
             'delivery_type' => 'required|in:normal,cesarean,assisted',
             'attending_doctor_id' => 'required|exists:doctors,id',
             'attending_nurse_id' => 'nullable|exists:nurses,id',
+            'ipd_admission_id' => 'nullable|exists:ipd_admissions,id',
             'complications' => 'nullable|string',
             'notes' => 'nullable|string',
         ]);
 
         $data['report_number'] = 'BR-' . date('Y') . '-' . str_pad(BirthReport::count() + 1, 6, '0', STR_PAD_LEFT);
+
+        // Auto-register newborn as patient if not linked
+        if (empty($data['baby_patient_id'])) {
+            $baby = Patient::create([
+                'first_name' => $data['baby_name'],
+                'last_name' => '',
+                'date_of_birth' => $data['birth_date'],
+                'gender' => $data['gender'],
+                'phone' => '',
+            ]);
+            $data['baby_patient_id'] = $baby->id;
+        }
 
         BirthReport::create($data);
         return redirect()->route('hms.reports.birth')->with('status', 'Birth report created');
@@ -98,7 +114,7 @@ class BirthDeathReportsController extends Controller
 
     public function showBirthReport(BirthReport $report): View
     {
-        $report->load(['attendingDoctor', 'attendingNurse']);
+        $report->load(['attendingDoctor', 'attendingNurse', 'motherPatient', 'babyPatient', 'ipdAdmission']);
         return view('hms.reports.show-birth', compact('report'));
     }
 
@@ -141,7 +157,7 @@ class BirthDeathReportsController extends Controller
 
     public function showDeathReport(DeathReport $report): View
     {
-        $report->load(['patient', 'attendingDoctor', 'attendingNurse']);
+        $report->load(['patient', 'attendingDoctor', 'attendingNurse', 'mortuaryRecord']);
         return view('hms.reports.show-death', compact('report'));
     }
 
@@ -193,5 +209,24 @@ class BirthDeathReportsController extends Controller
         $report->load('patient');
         $pdf = PDF::loadView('hms.birth-death.death-certificate', compact('report'));
         return $pdf->download("Death-Certificate-{$report->id}.pdf");
+    }
+
+    public function transferToMortuary(DeathReport $report)
+    {
+        if ($report->mortuaryRecord) {
+            return back()->with('error', 'This death report already has a mortuary record.');
+        }
+
+        $mortuary = MortuaryRecord::create([
+            'death_report_id' => $report->id,
+            'body_id' => 'MORT-' . date('Y') . '-' . str_pad(MortuaryRecord::count() + 1, 6, '0', STR_PAD_LEFT),
+            'received_at' => now(),
+            'received_by' => auth()->id(),
+            'cause_of_death' => $report->cause_of_death,
+            'family_contact_name' => $report->deceased_name,
+            'status' => 'stored',
+        ]);
+
+        return redirect()->route('hms.mortuary.show', $mortuary)->with('success', 'Body transferred to mortuary. Please update storage details.');
     }
 }

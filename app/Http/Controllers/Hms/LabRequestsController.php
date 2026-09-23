@@ -7,6 +7,7 @@ use App\Models\LabRequest;
 use App\Models\LabTest;
 use App\Models\Patient;
 use App\Models\Doctor;
+use App\Models\OpdVisit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -33,6 +34,7 @@ class LabRequestsController extends Controller
         $data = $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'doctor_id' => 'nullable|exists:doctors,id',
+            'opd_visit_id' => 'nullable|exists:opd_visits,id',
             'request_date' => 'required|date',
             'clinical_notes' => 'nullable|string',
             'lab_tests' => 'required|array|min:1',
@@ -65,6 +67,11 @@ class LabRequestsController extends Controller
         $data['request_number'] = 'LAB-' . date('Y') . '-' . str_pad(LabRequest::count() + 1, 6, '0', STR_PAD_LEFT);
 
         $labRequest = LabRequest::create($data);
+
+        // Update OPD visit status if linked
+        if (!empty($data['opd_visit_id'])) {
+            OpdVisit::where('id', $data['opd_visit_id'])->update(['status' => 'lab_pending']);
+        }
 
         // Create lab request items
         foreach ($data['lab_tests'] as $testId) {

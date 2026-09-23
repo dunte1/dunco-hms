@@ -78,6 +78,7 @@ class QueueManagementController extends Controller
             : 1;
 
         $data['queue_number'] = $departmentCode . '-' . $date . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        $data['token_number'] = str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
         $data['status'] = 'waiting';
         $data['check_in_time'] = now();
         $data['priority'] = $data['priority'] ?? 'normal';
@@ -272,6 +273,7 @@ class QueueManagementController extends Controller
             : 1;
 
         $data['queue_number'] = $departmentCode . '-' . $date . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        $data['token_number'] = str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
         $data['status'] = 'waiting';
         $data['check_in_time'] = now();
         $data['priority'] = $data['queue_type'] === 'emergency' ? 'emergency' : 'normal';

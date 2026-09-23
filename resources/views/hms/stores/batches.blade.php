@@ -74,7 +74,7 @@
     <div id="addBatchModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[80vh] overflow-y-auto">
             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4"><i class="fa fa-plus text-green-600 mr-2"></i>Add Medicine Batch</h3>
-            <form action="{{ route('hms.stores.batch-store', $store) }}" method="POST" class="space-y-4">
+            <form action="{{ route('hms.stores.batches.store', $store) }}" method="POST" class="space-y-4">
                 @csrf
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Medicine *</label>

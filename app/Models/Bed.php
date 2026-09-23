@@ -12,11 +12,16 @@ class Bed extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['bed_number', 'ward', 'room', 'ward_name', 'bed_type_id', 'is_available'];
+    protected $fillable = ['bed_number', 'ward', 'room', 'ward_name', 'ward_id', 'bed_type_id', 'is_available'];
 
     public function bedType(): BelongsTo
     {
         return $this->belongsTo(BedType::class);
+    }
+
+    public function ward(): BelongsTo
+    {
+        return $this->belongsTo(Ward::class);
     }
 
     public function assignments(): HasMany

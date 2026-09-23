@@ -31,6 +31,7 @@ class PurchaseOrder extends Model
         'notes',
         'terms_and_conditions',
         'reference_number',
+        'rejection_reason',
     ];
 
     protected $casts = [

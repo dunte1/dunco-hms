@@ -1,0 +1,673 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<meta name="ProgId" content="Word.Document">
+<meta name="Generator" content="Microsoft Word 15">
+<meta name="Originator" content="Microsoft Word 15">
+<!--[if gte mso 9]>
+<xml>
+ <o:DocumentProperties>
+  <o:Author>Dunco Web Solutions</o:Author>
+  <o:LastAuthor>Dunco Web Solutions</o:LastAuthor>
+  <o:Company>Dunco Web Solutions</o:Company>
+  <o:Subject>Hospital Management System Implementation Proposal</o:Subject>
+  <o:Title>Dunco HMS Proposal</o:Title>
+ </o:DocumentProperties>
+ <w:WordDocument>
+  <w:View>Print</w:View>
+  <w:Zoom>100</w:Zoom>
+  <w:DoNotOptimizeForBrowser/>
+ </w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+    body { font-family: Calibri, sans-serif; font-size: 11pt; color: #1a1a1a; line-height: 1.5; margin: 40px; }
+    .cover { text-align: center; padding-top: 140px; page-break-after: always; }
+    .cover h1 { font-size: 36pt; color: #0f766e; margin-bottom: 5px; }
+    .cover h2 { font-size: 18pt; color: #555; font-weight: 400; }
+    .cover .badge { display: inline-block; background: #0f766e; color: white; padding: 10px 30px; font-size: 13pt; margin-top: 30px; letter-spacing: 1px; }
+    .cover .subtitle { font-size: 13pt; color: #666; margin-top: 40px; line-height: 1.8; }
+    .cover .meta { margin-top: 80px; font-size: 12pt; color: #555; }
+    .cover .meta p { margin: 5px 0; }
+    h1 { font-size: 20pt; color: #0f766e; border-bottom: 2pt solid #0f766e; padding-bottom: 6px; margin-top: 30px; }
+    h2 { font-size: 14pt; color: #0f766e; margin-top: 24px; }
+    h3 { font-size: 12pt; color: #333; margin-top: 18px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px 0; font-size: 10pt; mso-table-layout-alt: fixed; }
+    th { background: #0f766e; color: white; text-align: left; padding: 7px 10px; font-weight: 600; border: 1px solid #0f766e; mso-background-themecolor: accent1; }
+    td { padding: 6px 10px; border: 1px solid #D1D5DB; vertical-align: top; }
+    tr:nth-child(even) td { background: #f9fafb; }
+    .highlight { background: #f0fdfa; border-left: 4px solid #0f766e; padding: 12px 16px; margin: 12px 0; }
+    .highlight strong { color: #0f766e; }
+    .free-badge { background: #dc2626; color: white; padding: 2px 8px; font-size: 9pt; font-weight: 600; }
+    ul { padding-left: 24px; }
+    li { margin: 3px 0; }
+    .page-break { page-break-before: always; }
+    .pricing-title { font-size: 16pt; font-weight: 700; color: #0f766e; margin: 8px 0; }
+    .pricing-sub { font-size: 11pt; color: #666666; margin: 2px 0; }
+    .footer { text-align: center; font-size: 9pt; color: #999; margin-top: 40px; border-top: 1px solid #e5e7eb; padding-top: 8px; }
+    .sign-line { border-bottom: 1px solid #333; height: 35px; }
+    .sign-label { font-size: 9pt; color: #666; }
+    @page { size: A4; margin: 2.5cm; }
+    @page Section1 { margin: 1.0in 1.0in 1.0in 1.0in; mso-header-margin: 0.5in; mso-footer-margin: 0.5in; mso-paper-source: 0; }
+    div.Section1 { page: Section1; }
+</style>
+</head><body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+    <h1>DUNCO HMS</h1>
+    <h2>Hospital Management System</h2>
+    <div class="badge">COMPREHENSIVE IMPLEMENTATION PROPOSAL</div>
+    <div class="subtitle">
+        A complete, Kenya-ready hospital management solution with<br>
+        <strong>M-Pesa Payments</strong> &bull; <strong>SHA/SHIF Integration</strong> &bull; <strong>DHA Connectivity</strong> &bull; <strong>AI Assistants</strong>
+    </div>
+    <div class="meta">
+        <p><strong>Prepared for:</strong> [Hospital Name]</p>
+        <p><strong>Prepared by:</strong> Dunco Web Solutions</p>
+        <p><strong>Date:</strong> September 2026</p>
+        <p><strong>Version:</strong> 3.1</p>
+    </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<h1>Table of Contents</h1>
+<ol style="font-size: 12pt; line-height: 2.2;">
+    <li>Executive Summary</li>
+    <li>About Dunco HMS</li>
+    <li>Kenya-Specific Integrations</li>
+    <li>Modules &amp; Capabilities</li>
+    <li>Pricing Packages</li>
+    <li>Domain &amp; Professional Email</li>
+    <li>Infrastructure &amp; Hosting</li>
+    <li>Implementation Timeline</li>
+    <li>User Training</li>
+    <li>Security &amp; Data Protection</li>
+    <li>Support &amp; Maintenance</li>
+    <li>Payment Terms</li>
+    <li>Licensing &amp; Ownership</li>
+    <li>Client Responsibilities</li>
+    <li>Acceptance &amp; Sign-off</li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- 1. EXECUTIVE SUMMARY -->
+<h1>1. Executive Summary</h1>
+
+<p>Dunco HMS is a comprehensive, web-based Hospital Management System designed to centralize and streamline all hospital operations &mdash; from patient registration and clinical care to billing, pharmacy, laboratory, HR, and management reporting.</p>
+
+<div class="highlight">
+    <strong>Built for Kenya. Ready for Africa.</strong><br>
+    Dunco HMS is purpose-built for the Kenyan healthcare environment with deep integration into M-Pesa, SHA/SHIF, DHA, and AI-powered clinical support.
+</div>
+
+<p><strong>Kenya-Specific Integrations:</strong></p>
+<ul>
+    <li><strong>M-Pesa (Safaricom Daraja API)</strong> &mdash; Accept payments via STK Push. Patients pay consultation fees, pharmacy bills, and lab charges directly from their phone. Real-time callbacks and automatic invoice reconciliation.</li>
+    <li><strong>SHA / SHIF (Social Health Authority)</strong> &mdash; Full eligibility verification, member lookup, authorization requests, claims submission, and coverage tracking through the DHA Health Interoperability Gateway.</li>
+    <li><strong>DHA (Digital Health Agency)</strong> &mdash; Patient verification against the national Client Registry, facility lookup, provider verification, and clinical document exchange via the Digital Health Superhighway.</li>
+    <li><strong>AI-Powered Healthcare</strong> &mdash; Built-in AI assistants (Elliana D Virtual Nurse) for patient queries, appointment suggestions, diagnosis support, and predictive analytics &mdash; available in English and Swahili.</li>
+</ul>
+
+<p><strong>Core Capabilities:</strong></p>
+<ul>
+    <li>Centralized patient management across OPD, IPD, and emergency</li>
+    <li>Integrated billing with M-Pesa, insurance, cash, and card support</li>
+    <li>Pharmacy and inventory control with expiry tracking and stock management</li>
+    <li>Laboratory and radiology with test requests, results, and PDF reports</li>
+    <li>Human resources management including payroll, attendance, leave, and appraisals</li>
+    <li>Insurance and claims management with SHA integration</li>
+    <li>Telemedicine via Zoom integration</li>
+    <li>Patient self-service portal for appointments, results, and billing</li>
+    <li>Marketing suite with social media, SEO, AI content writer, and campaigns</li>
+    <li>Comprehensive reporting with custom report builder and BI dashboard</li>
+</ul>
+
+<div class="highlight">
+    <strong>All packages include FREE domain registration (.or.ke or .co.ke) for Year 1 and UNLIMITED professional email accounts</strong> (e.g., info@hospital.or.ke, doctor@hospital.or.ke, pharmacy@hospital.or.ke) &mdash; no per-user charges, no hidden email costs.
+</div>
+
+<div class="page-break"></div>
+
+<!-- 2. ABOUT DUNCO HMS -->
+<h1>2. About Dunco HMS</h1>
+
+<p>Dunco HMS is developed by <strong>Dunco Web Solutions</strong>, a Kenyan software company specializing in healthcare technology. The system is purpose-built for the Kenyan market with deep integration into local payment systems, insurance frameworks, and health data infrastructure.</p>
+
+<h3>Technology</h3>
+<table>
+    <tr><th>Component</th><th>Technology</th></tr>
+    <tr><td>Backend</td><td>Laravel 12 (PHP 8.2+)</td></tr>
+    <tr><td>Frontend</td><td>Blade, Alpine.js, Tailwind CSS</td></tr>
+    <tr><td>Database</td><td>MySQL 8.0+ with Redis</td></tr>
+    <tr><td>Authentication</td><td>Laravel Breeze + Sanctum</td></tr>
+    <tr><td>Authorization</td><td>Spatie Permission (21 roles, 95+ permissions)</td></tr>
+    <tr><td>PDF</td><td>DomPDF</td></tr>
+    <tr><td>Excel</td><td>Maatwebsite Excel</td></tr>
+    <tr><td>Backups</td><td>Spatie Laravel Backup</td></tr>
+</table>
+
+<h3>Scale</h3>
+<table>
+    <tr><th>Metric</th><th>Count</th></tr>
+    <tr><td>Controllers</td><td>153</td></tr>
+    <tr><td>Models</td><td>131</td></tr>
+    <tr><td>Blade Views</td><td>457</td></tr>
+    <tr><td>Database Migrations</td><td>163</td></tr>
+    <tr><td>Configurable Modules</td><td>75+</td></tr>
+    <tr><td>Granular Permissions</td><td>95+</td></tr>
+    <tr><td>User Roles</td><td>21</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 3. KENYA-SPECIFIC INTEGRATIONS -->
+<h1>3. Kenya-Specific Integrations</h1>
+
+<div class="highlight">
+    <strong>Dunco HMS is the only hospital management system built from the ground up for the Kenyan healthcare environment.</strong> No other HMS in the market offers this combination of M-Pesa payments, SHA/SHIF insurance, DHA national connectivity, and AI-powered clinical support.
+</div>
+
+<h2>M-Pesa Payment Integration (Safaricom Daraja API)</h2>
+<ul>
+    <li><strong>STK Push</strong> &mdash; Patients receive a payment prompt on their phone and enter their M-Pesa PIN</li>
+    <li><strong>Real-Time Callbacks</strong> &mdash; System receives instant confirmation from Safaricom</li>
+    <li><strong>Automatic Reconciliation</strong> &mdash; Payments automatically linked to invoices</li>
+    <li><strong>Transaction Tracking</strong> &mdash; Full M-Pesa transaction history visible in the system</li>
+    <li><strong>Multi-Fee Support</strong> &mdash; Consultation fees, lab tests, pharmacy, admissions, deposits</li>
+    <li><strong>Coverage Checks</strong> &mdash; Verify SHA coverage before processing patient payments</li>
+</ul>
+
+<h2>SHA / SHIF Integration (Social Health Authority)</h2>
+<ul>
+    <li><strong>Patient Eligibility Verification</strong> &mdash; Real-time check via DHA Health Interoperability Gateway</li>
+    <li><strong>Member Lookup</strong> &mdash; Find patients by National ID, CR ID, or SHA number</li>
+    <li><strong>Authorization Requests</strong> &mdash; Submit pre-authorization for procedures</li>
+    <li><strong>Claims Submission</strong> &mdash; Submit claims directly to SHA for reimbursement</li>
+    <li><strong>Coverage Tracking</strong> &mdash; Monitor claim status, approvals, and payments</li>
+    <li><strong>Service Codes</strong> &mdash; Complete Kenya SHA procedure and service code database</li>
+    <li><strong>ICD-10 Codes</strong> &mdash; Standard diagnostic codes for claims and reporting</li>
+</ul>
+
+<h2>DHA Integration (Digital Health Agency)</h2>
+<ul>
+    <li><strong>National Client Registry</strong> &mdash; Verify patients against Kenya's national health database</li>
+    <li><strong>Facility Registry</strong> &mdash; Look up facility details and FRN codes</li>
+    <li><strong>Provider Registry</strong> &mdash; Verify healthcare provider credentials</li>
+    <li><strong>Document Interchange</strong> &mdash; Send and receive clinical documents (HL7/FHIR)</li>
+    <li><strong>Biometric Verification</strong> &mdash; Fingerprint and facial recognition against national database</li>
+    <li><strong>Emergency Access</strong> &mdash; Emergency access tokens for urgent patient care</li>
+</ul>
+
+<h2>AI-Powered Healthcare</h2>
+<ul>
+    <li><strong>Elliana D Virtual Nurse</strong> &mdash; 24/7 AI chatbot handling patient queries, appointment booking, and medical information in English and Swahili</li>
+    <li><strong>AI Appointment Suggestions</strong> &mdash; Intelligent scheduling based on doctor availability and department load</li>
+    <li><strong>AI Diagnosis Support</strong> &mdash; Symptom-based condition matching to assist clinicians</li>
+    <li><strong>AI Predictive Analytics</strong> &mdash; Bed occupancy forecasting and revenue projections</li>
+    <li><strong>AI Content Writer</strong> &mdash; Generates hospital marketing content and social media posts</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- 4. MODULES -->
+<h1>4. Modules &amp; Capabilities</h1>
+
+<div class="highlight">
+    <strong>All three tiers include ALL modules</strong> &mdash; clinical, pharmacy, lab, radiology, billing, HR, insurance/SHA, AI, telemedicine, CMS, marketing, IoT/RFID, reporting, and analytics. No features are locked or restricted in any tier.
+</div>
+
+<h3>Clinical Operations</h3>
+<table>
+    <tr><th>Module</th><th>Description</th></tr>
+    <tr><td>Patient Registration</td><td>Full CRUD, search, DHA verification, auto-invoicing</td></tr>
+    <tr><td>OPD / IPD</td><td>Outpatient and inpatient management with bed assignment</td></tr>
+    <tr><td>Doctors &amp; Scheduling</td><td>Profiles, departments, schedules, availability</td></tr>
+    <tr><td>Nurses</td><td>Duty roster, ward assignments, departments</td></tr>
+    <tr><td>Appointments</td><td>Walk-in + online booking with M-Pesa/SHA payment</td></tr>
+    <tr><td>Queue Management</td><td>Token generation, display boards, kiosk mode</td></tr>
+    <tr><td>Prescriptions</td><td>E-prescriptions, templates, PDF, dispensing</td></tr>
+    <tr><td>Medical History</td><td>Vitals, allergies, drug interactions</td></tr>
+    <tr><td>Diagnosis</td><td>ICD-10 codes, categories, patient diagnoses</td></tr>
+    <tr><td>Discharge Summary</td><td>PDF generation, workflow management</td></tr>
+    <tr><td>Birth / Death Reports</td><td>Certificates, statistical reports</td></tr>
+    <tr><td>Operation Theatre</td><td>Rooms, scheduling, instruments, sterilization</td></tr>
+    <tr><td>Blood Bank</td><td>Donors, inventory, requests, stock levels</td></tr>
+    <tr><td>Ambulance &amp; Emergency</td><td>Fleet management, call tracking, emergency admissions</td></tr>
+    <tr><td>Bed Management</td><td>Types, assignments, visualization, IoT sensors</td></tr>
+    <tr><td>Consent / Vaccination / Mortuary / CSSD / MRD</td><td>Complete clinical support modules</td></tr>
+</table>
+
+<h3>Diagnostics</h3>
+<table>
+    <tr><th>Module</th><th>Description</th></tr>
+    <tr><td>Laboratory</td><td>Tests, requests, results, technicians, PDF reports</td></tr>
+    <tr><td>Radiology</td><td>Tests, requests, results, PDF reports</td></tr>
+    <tr><td>Investigation Reports</td><td>Cross-module investigation tracking</td></tr>
+</table>
+
+<h3>Pharmacy &amp; Inventory</h3>
+<table>
+    <tr><th>Module</th><th>Description</th></tr>
+    <tr><td>Medicines</td><td>Catalog, categories, brands, stock tracking</td></tr>
+    <tr><td>Prescription Dispensing</td><td>Stock deduction, billing integration</td></tr>
+    <tr><td>Drug Interactions</td><td>Real-time interaction checking</td></tr>
+    <tr><td>Inventory Management</td><td>Multi-store, stock movements, transfers</td></tr>
+    <tr><td>Suppliers &amp; Purchase Orders</td><td>Supplier management, approval workflow</td></tr>
+    <tr><td>Expiry Tracking</td><td>Automated expiry alerts</td></tr>
+</table>
+
+<h3>Billing &amp; Finance</h3>
+<table>
+    <tr><th>Module</th><th>Description</th></tr>
+    <tr><td>M-Pesa Payments</td><td>STK Push, callbacks, reconciliation</td></tr>
+    <tr><td>Invoices &amp; Receipts</td><td>Line items, PDF, thermal printing</td></tr>
+    <tr><td>Payments</td><td>Cash, card, M-Pesa, insurance</td></tr>
+    <tr><td>Chart of Accounts</td><td>Ledger, trial balance, P&amp;L, balance sheet</td></tr>
+    <tr><td>Expenses &amp; Income</td><td>Categories, reports, tracking</td></tr>
+    <tr><td>Multi-Currency</td><td>Live exchange rates, conversion</td></tr>
+    <tr><td>Insurance Claims</td><td>Submit, approve, reject, SHA integration</td></tr>
+</table>
+
+<h3>Insurance &amp; SHA</h3>
+<table>
+    <tr><th>Module</th><th>Description</th></tr>
+    <tr><td>Insurance Providers</td><td>Company management, coverage settings</td></tr>
+    <tr><td>Patient Insurance</td><td>Policy tracking, eligibility</td></tr>
+    <tr><td>Claims Management</td><td>Full claims lifecycle with PDF</td></tr>
+    <tr><td>SHA Member Management</td><td>Registration, verification, authorization</td></tr>
+    <tr><td>SHA Service Codes</td><td>Kenya SHA procedure codes</td></tr>
+    <tr><td>ICD-10 Database</td><td>Diagnostic codes for claims</td></tr>
+</table>
+
+<h3>Human Resources</h3>
+<table>
+    <tr><th>Module</th><th>Description</th></tr>
+    <tr><td>Employees</td><td>Profiles, photo upload, user account creation</td></tr>
+    <tr><td>Departments &amp; Designations</td><td>Organization structure</td></tr>
+    <tr><td>Attendance</td><td>Daily tracking, reports</td></tr>
+    <tr><td>Leave Management</td><td>Types, requests, approval workflow</td></tr>
+    <tr><td>Payroll</td><td>Salary generation, reports</td></tr>
+    <tr><td>Shifts &amp; Roster</td><td>Shift types, roster builder</td></tr>
+    <tr><td>Appraisals</td><td>Performance reviews</td></tr>
+    <tr><td>Training</td><td>Programs, enrollments, certificates</td></tr>
+    <tr><td>Recruitment</td><td>Job postings, applications</td></tr>
+    <tr><td>HR Reports</td><td>8+ report types with PDF export</td></tr>
+</table>
+
+<h3>AI Features</h3>
+<table>
+    <tr><th>Feature</th><th>Description</th></tr>
+    <tr><td>Elliana D Virtual Nurse</td><td>AI chatbot for patient queries (English + Swahili)</td></tr>
+    <tr><td>AI Appointment Suggestions</td><td>Intelligent scheduling optimization</td></tr>
+    <tr><td>AI Diagnosis Support</td><td>Symptom-based condition matching</td></tr>
+    <tr><td>AI Predictive Analytics</td><td>Bed occupancy and revenue forecasting</td></tr>
+    <tr><td>AI Content Writer</td><td>Marketing content generation</td></tr>
+</table>
+
+<h3>Additional Modules</h3>
+<table>
+    <tr><th>Module</th><th>Description</th></tr>
+    <tr><td>Telemedicine</td><td>Video consultations via Zoom</td></tr>
+    <tr><td>Patient Portal</td><td>Self-service booking, results, billing</td></tr>
+    <tr><td>Marketing Suite</td><td>CMS, blog, social media, campaigns, SEO</td></tr>
+    <tr><td>RFID / IoT</td><td>Tag management, bed monitoring sensors</td></tr>
+    <tr><td>Biometric Security</td><td>Fingerprint/face enrollment and verification</td></tr>
+    <tr><td>ID Cards</td><td>Patient and employee cards with QR codes</td></tr>
+    <tr><td>Custom Report Builder</td><td>Create, schedule, and generate custom reports</td></tr>
+    <tr><td>BI Dashboard</td><td>Interactive charts and analytics</td></tr>
+    <tr><td>Multi-Branch</td><td>Manage multiple hospital locations</td></tr>
+    <tr><td>Module Manager</td><td>Enable/disable features per department</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 5. PRICING -->
+<h1>5. Pricing Packages</h1>
+
+<div class="highlight">
+    <strong>All three tiers include ALL modules</strong> &mdash; clinical, pharmacy, lab, radiology, billing, HR, insurance/SHA, AI, telemedicine, CMS, marketing, IoT/RFID, reporting, and analytics. No features are locked or restricted in any tier.
+</div>
+
+<table>
+    <tr><th style="width:33%;">Tier 1: Clinic</th><th style="width:34%;">Tier 2: Hospital</th><th style="width:33%;">Tier 3: Enterprise</th></tr>
+    <tr>
+        <td style="text-align:center; vertical-align:top;">
+            <p style="font-size:9pt; color:#666;">1-3 departments, &lt;20 staff</p>
+            <p class="pricing-title">KES 300,000</p>
+            <p class="pricing-sub">One-time implementation</p>
+            <p class="pricing-sub">Annual renewal: KES 120,000/year</p>
+        </td>
+        <td style="text-align:center; vertical-align:top;">
+            <p style="font-size:9pt; color:#666;">4-10 departments, 20-100 staff</p>
+            <p class="pricing-title">KES 550,000</p>
+            <p class="pricing-sub">One-time implementation</p>
+            <p class="pricing-sub">Annual renewal: KES 180,000/year</p>
+        </td>
+        <td style="text-align:center; vertical-align:top;">
+            <p style="font-size:9pt; color:#666;">10+ departments, 100+ staff, multi-branch</p>
+            <p class="pricing-title">KES 800,000</p>
+            <p class="pricing-sub">One-time implementation</p>
+            <p class="pricing-sub">Annual renewal: KES 300,000/year</p>
+        </td>
+    </tr>
+    <tr>
+        <td style="vertical-align:top;">
+            <ul>
+                <li>All modules included</li>
+                <li>Installation &amp; setup</li>
+                <li>Configuration &amp; branding</li>
+                <li>Data migration</li>
+                <li>User training</li>
+                <li>FREE domain (.or.ke)</li>
+                <li>UNLIMITED email accounts</li>
+            </ul>
+        </td>
+        <td style="vertical-align:top;">
+            <ul>
+                <li>All modules included</li>
+                <li>Extended implementation</li>
+                <li>Comprehensive training</li>
+                <li>Priority support</li>
+                <li>FREE domain (.or.ke)</li>
+                <li>UNLIMITED email accounts</li>
+            </ul>
+        </td>
+        <td style="vertical-align:top;">
+            <ul>
+                <li>All modules included</li>
+                <li>Enterprise implementation</li>
+                <li>Full training program</li>
+                <li>Premium SLA (2-hr response)</li>
+                <li>FREE domain (.or.ke)</li>
+                <li>UNLIMITED email accounts</li>
+            </ul>
+        </td>
+    </tr>
+</table>
+
+<h3>Total First-Year Investment</h3>
+<table>
+    <tr><th>Package</th><th>One-Time</th><th>Annual</th><th>Total Year 1</th></tr>
+    <tr><td><strong>Tier 1 (Clinic)</strong></td><td>KES 300,000</td><td>KES 120,000</td><td><strong>KES 420,000</strong></td></tr>
+    <tr><td><strong>Tier 2 (Hospital)</strong></td><td>KES 550,000</td><td>KES 180,000</td><td><strong>KES 730,000</strong></td></tr>
+    <tr><td><strong>Tier 3 (Enterprise)</strong></td><td>KES 800,000</td><td>KES 300,000</td><td><strong>KES 1,100,000</strong></td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 6. DOMAIN & EMAIL -->
+<h1>6. Domain &amp; Professional Email</h1>
+
+<h2>FREE Domain Registration (Year 1)</h2>
+<table>
+    <tr><th>Item</th><th>Details</th></tr>
+    <tr><td>Domain Options</td><td><strong>.or.ke</strong> (recommended for organisations), .co.ke (commercial), .ac.ke (academic), .go.ke (government)</td></tr>
+    <tr><td>Year 1 Cost</td><td><span class="free-badge">FREE</span> &mdash; registered and managed by Dunco Web Solutions</td></tr>
+    <tr><td>Year 2+ Cost</td><td>KES 2,000/year (renewed annually)</td></tr>
+    <tr><td>DNS Management</td><td>Included</td></tr>
+    <tr><td>SSL Certificate</td><td>FREE (Let's Encrypt, auto-renewed)</td></tr>
+</table>
+
+<h2>UNLIMITED Professional Email</h2>
+<table>
+    <tr><th>Feature</th><th>Details</th></tr>
+    <tr><td>Email Accounts</td><td><strong>UNLIMITED</strong> &mdash; create as many as you need</td></tr>
+    <tr><td>Domain</td><td><strong>yourhospital.or.ke</strong> (or .co.ke)</td></tr>
+    <tr><td>Examples</td><td>info@hospital.or.ke, doctor@hospital.or.ke, pharmacy@hospital.or.ke, reception@hospital.or.ke, billing@hospital.or.ke, lab@hospital.or.ke</td></tr>
+    <tr><td>Webmail</td><td>Yes &mdash; access from any browser</td></tr>
+    <tr><td>Mobile Access</td><td>Yes &mdash; Android, iPhone, Outlook, Thunderbird</td></tr>
+    <tr><td>Storage</td><td>10 GB per account</td></tr>
+    <tr><td>IMAP/SMTP</td><td>Yes &mdash; works with any email client</td></tr>
+    <tr><td>Calendar</td><td>Included</td></tr>
+    <tr><td>Admin Panel</td><td>Create, delete, manage accounts</td></tr>
+    <tr><td>Spam Protection</td><td>Included</td></tr>
+    <tr><td>Annual Cost</td><td><span class="free-badge">FREE</span> &mdash; hosted on your included server, no per-user charges</td></tr>
+</table>
+
+<div class="highlight">
+    <strong>Your hospital email addresses will look professional:</strong><br>
+    admin@hospital.or.ke &bull; reception@hospital.or.ke &bull; dr.mwangi@hospital.or.ke &bull; pharmacy@hospital.or.ke &bull; billing@hospital.or.ke &bull; lab@hospital.or.ke
+</div>
+
+<div class="page-break"></div>
+
+<!-- 7. INFRASTRUCTURE -->
+<h1>7. Infrastructure &amp; Hosting</h1>
+
+<table>
+    <tr><th>Component</th><th>Tier 1</th><th>Tier 2</th><th>Tier 3</th></tr>
+    <tr><td>CPU</td><td>2 vCPU</td><td>4 vCPU</td><td>8 vCPU</td></tr>
+    <tr><td>RAM</td><td>4 GB</td><td>8 GB</td><td>16 GB</td></tr>
+    <tr><td>Storage</td><td>80 GB SSD</td><td>160 GB NVMe</td><td>320 GB NVMe</td></tr>
+    <tr><td>Database</td><td>MySQL 8.0</td><td>MySQL 8.0 + Redis</td><td>MySQL 8.0 + Redis</td></tr>
+    <tr><td>Bandwidth</td><td>Unmetered</td><td>Unmetered</td><td>Unmetered</td></tr>
+    <tr><td>Backup Storage</td><td>30 GB</td><td>100 GB</td><td>500 GB</td></tr>
+    <tr><td>Monthly Hosting</td><td>KES 4,000</td><td>KES 6,000</td><td>KES 10,000</td></tr>
+</table>
+
+<p><strong>Why healthcare needs reliable hosting:</strong> Patient data availability is critical. Downtime affects patient care. Data loss is unacceptable. Security breaches have legal consequences. Performance affects user adoption.</p>
+
+<div class="page-break"></div>
+
+<!-- 8. TIMELINE -->
+<h1>8. Implementation Timeline</h1>
+
+<table>
+    <tr><th>Phase</th><th>Duration</th><th>Milestone</th></tr>
+    <tr><td>Infrastructure Setup</td><td>Week 1</td><td>Server ready, domain registered</td></tr>
+    <tr><td>Application Deployment</td><td>Weeks 1-2</td><td>System accessible online</td></tr>
+    <tr><td>Third-Party Integration</td><td>Weeks 2-3</td><td>M-Pesa, SMS, SHA/DHA live</td></tr>
+    <tr><td>Hospital Configuration</td><td>Weeks 3-4</td><td>Branding, departments, services loaded</td></tr>
+    <tr><td>Data Migration</td><td>Weeks 4-5</td><td>Historical data imported and verified</td></tr>
+    <tr><td>Training</td><td>Weeks 5-6</td><td>All user groups trained</td></tr>
+    <tr><td>Testing / UAT</td><td>Weeks 6-7</td><td>UAT sign-off</td></tr>
+    <tr><td>Go-Live</td><td>Week 7</td><td>System operational</td></tr>
+    <tr><td>Post-Go-Live Support</td><td>Weeks 8-12</td><td>Stabilization and optimization</td></tr>
+</table>
+
+<p><strong>Total: 12 weeks from contract signing to full stabilization</strong></p>
+
+<div class="page-break"></div>
+
+<!-- 9. TRAINING -->
+<h1>9. User Training</h1>
+
+<table>
+    <tr><th>User Group</th><th>Sessions</th><th>Duration</th><th>Key Topics</th></tr>
+    <tr><td>System Administrators</td><td>4</td><td>3 hrs each</td><td>System config, users, roles, backups, troubleshooting</td></tr>
+    <tr><td>IT Staff</td><td>3</td><td>3 hrs each</td><td>Server management, deployment, monitoring</td></tr>
+    <tr><td>Reception / Front Desk</td><td>3</td><td>2 hrs each</td><td>Patient registration, appointments, queue management</td></tr>
+    <tr><td>Doctors</td><td>2</td><td>2 hrs each</td><td>Patient records, prescriptions, scheduling, telemedicine</td></tr>
+    <tr><td>Nurses</td><td>2</td><td>2 hrs each</td><td>Patient care, vitals, ward management, duty roster</td></tr>
+    <tr><td>Pharmacy</td><td>3</td><td>2 hrs each</td><td>Medicine management, dispensing, inventory, prescriptions</td></tr>
+    <tr><td>Laboratory</td><td>3</td><td>2 hrs each</td><td>Test requests, results entry, reports</td></tr>
+    <tr><td>Radiology</td><td>2</td><td>2 hrs each</td><td>Test requests, results, reports</td></tr>
+    <tr><td>Billing / Cashiers</td><td>3</td><td>2 hrs each</td><td>Invoices, payments, M-Pesa, receipts</td></tr>
+    <tr><td>Finance / Accounts</td><td>3</td><td>2 hrs each</td><td>Chart of accounts, ledger, P&amp;L, expenses</td></tr>
+    <tr><td>HR</td><td>3</td><td>2 hrs each</td><td>Employees, attendance, leave, payroll</td></tr>
+    <tr><td>Insurance / SHA Desk</td><td>2</td><td>2 hrs each</td><td>Claims, SHA verification, authorization</td></tr>
+    <tr><td>Management</td><td>2</td><td>2 hrs each</td><td>Dashboards, reports, analytics, KPIs</td></tr>
+    <tr><td>Marketing / CMS</td><td>2</td><td>2 hrs each</td><td>Website, blog, social media, campaigns</td></tr>
+</table>
+
+<p><strong>Total: 39 training sessions across 14 user groups</strong></p>
+
+<div class="page-break"></div>
+
+<!-- 10. SECURITY -->
+<h1>10. Security &amp; Data Protection</h1>
+
+<h3>Implemented Security Measures</h3>
+<ul>
+    <li>Password hashing (bcrypt, 12 rounds)</li>
+    <li>Role-based access control (21 roles, 95+ permissions)</li>
+    <li>CSRF protection on all forms</li>
+    <li>XSS protection via Blade auto-escaping</li>
+    <li>SQL injection prevention via Eloquent ORM</li>
+    <li>Session management with regeneration on login</li>
+    <li>Audit logging of all critical actions</li>
+    <li>Module-level access control</li>
+    <li>Biometric data encryption (AES-256-CBC)</li>
+    <li>Secure file upload handling</li>
+</ul>
+
+<h3>Data Protection</h3>
+<ul>
+    <li>Daily automated backups with 30-day retention</li>
+    <li>Database and file backups included</li>
+    <li>Restore capability on demand</li>
+    <li>Audit trail on all patient data access</li>
+    <li>Role-based data visibility controls</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- 11. SUPPORT -->
+<h1>11. Support &amp; Maintenance</h1>
+
+<table>
+    <tr><th>Feature</th><th>Basic<br>KES 58,000/yr</th><th>Standard<br>KES 82,000/yr</th><th>Premium<br>KES 120,000/yr</th></tr>
+    <tr><td>Response Time</td><td>24 hours</td><td>8 hours</td><td>2 hours</td></tr>
+    <tr><td>Support Hours</td><td>Business hours</td><td>Extended hours</td><td>24/7</td></tr>
+    <tr><td>Remote Support</td><td>Email only</td><td>Email + phone</td><td>Email + phone + remote</td></tr>
+    <tr><td>On-Site Support</td><td>&mdash;</td><td>&mdash;</td><td>Monthly visits</td></tr>
+    <tr><td>Emergency Support</td><td>&mdash;</td><td>&mdash;</td><td>24/7 included</td></tr>
+    <tr><td>Bug Fixes</td><td>Yes</td><td>Yes</td><td>Yes (priority)</td></tr>
+    <tr><td>Security Updates</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Application Updates</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Database Maintenance</td><td>&mdash;</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Performance Monitoring</td><td>&mdash;</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Quarterly Review</td><td>&mdash;</td><td>Yes</td><td>Yes</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 12. PAYMENT TERMS -->
+<h1>12. Payment Terms</h1>
+
+<h3>Tier 1 (Clinic) &mdash; KES 300,000</h3>
+<table>
+    <tr><th>Milestone</th><th>%</th><th>Amount</th><th>Due</th></tr>
+    <tr><td>Contract Signing</td><td>50%</td><td>KES 150,000</td><td>Day 0</td></tr>
+    <tr><td>UAT Sign-off</td><td>30%</td><td>KES 90,000</td><td>Week 7</td></tr>
+    <tr><td>Go-Live + 30 days</td><td>20%</td><td>KES 60,000</td><td>Week 11</td></tr>
+</table>
+
+<h3>Tier 2 (Hospital) &mdash; KES 550,000</h3>
+<table>
+    <tr><th>Milestone</th><th>%</th><th>Amount</th><th>Due</th></tr>
+    <tr><td>Contract Signing</td><td>40%</td><td>KES 220,000</td><td>Day 0</td></tr>
+    <tr><td>Infrastructure Ready</td><td>20%</td><td>KES 110,000</td><td>Week 2</td></tr>
+    <tr><td>UAT Sign-off</td><td>25%</td><td>KES 137,500</td><td>Week 7</td></tr>
+    <tr><td>Go-Live + 30 days</td><td>15%</td><td>KES 82,500</td><td>Week 11</td></tr>
+</table>
+
+<h3>Tier 3 (Enterprise) &mdash; KES 800,000</h3>
+<table>
+    <tr><th>Milestone</th><th>%</th><th>Amount</th><th>Due</th></tr>
+    <tr><td>Contract Signing</td><td>35%</td><td>KES 280,000</td><td>Day 0</td></tr>
+    <tr><td>Infrastructure Ready</td><td>20%</td><td>KES 160,000</td><td>Week 2</td></tr>
+    <tr><td>UAT Sign-off</td><td>25%</td><td>KES 200,000</td><td>Week 7</td></tr>
+    <tr><td>Go-Live + 30 days</td><td>20%</td><td>KES 160,000</td><td>Week 11</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 13. LICENSING -->
+<h1>13. Licensing &amp; Ownership</h1>
+<ul>
+    <li><strong>Software License:</strong> Perpetual, non-exclusive, non-transferable license to use Dunco HMS at the licensed facility</li>
+    <li><strong>Source Code:</strong> Remains property of Dunco Web Solutions. NOT transferred to client</li>
+    <li><strong>Customizations:</strong> Custom work performed for the client becomes part of the licensed system</li>
+    <li><strong>Data:</strong> All hospital data remains property of the hospital</li>
+    <li><strong>Intellectual Property:</strong> Dunco Web Solutions retains all IP rights</li>
+    <li><strong>Restrictions:</strong> Client may not redistribute, resell, or sublicense the software</li>
+</ul>
+
+<h3>Warranty</h3>
+<ul>
+    <li>30-day warranty from go-live date</li>
+    <li>Covers bugs and defects in delivered functionality</li>
+    <li>Does not cover client modifications or third-party outages</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- 14. CLIENT RESPONSIBILITIES -->
+<h1>14. Client Responsibilities</h1>
+<ol>
+    <li>Provide hospital data (departments, services, fees, staff list) within 2 weeks of contract signing</li>
+    <li>Obtain and provide M-Pesa production credentials from Safaricom</li>
+    <li>Obtain and provide SHA/DHA facility credentials from Kenya Ministry of Health</li>
+    <li>Designate a project coordinator</li>
+    <li>Ensure stakeholder availability for training</li>
+    <li>Provide feedback during UAT within 5 business days</li>
+    <li>Ensure reliable internet connectivity (minimum 10 Mbps)</li>
+    <li>Provide computers/tablets for system access</li>
+    <li>Make payment milestones on time</li>
+</ol>
+
+<h3>Exclusions</h3>
+<ul>
+    <li>Third-party subscription fees (M-Pesa transaction fees, SMS charges, AI API usage, Zoom)</li>
+    <li>Hardware procurement (computers, tablets, printers)</li>
+    <li>Network infrastructure (LAN, WiFi, cabling)</li>
+    <li>RFID hardware and IoT sensors</li>
+    <li>Biometric hardware</li>
+    <li>Legal and regulatory compliance consultation</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- 15. ACCEPTANCE -->
+<h1>15. Acceptance &amp; Sign-off</h1>
+
+<table>
+    <tr><th>Item</th><th>Client Sign-off</th><th>Date</th></tr>
+    <tr><td>Infrastructure Setup</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>Application Deployment</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>Third-Party Integration</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>Hospital Configuration</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>Data Migration</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>Training Completion</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>UAT Sign-off</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>Go-Live Approval</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+</table>
+
+<br><br>
+
+<table>
+    <tr>
+        <td style="width:50%; border:none;">
+            <p><strong>Authorized Client Representative</strong></p>
+            <div class="sign-line"></div>
+            <p class="sign-label">Name</p>
+            <div class="sign-line"></div>
+            <p class="sign-label">Title</p>
+            <div class="sign-line"></div>
+            <p class="sign-label">Signature</p>
+            <div class="sign-line"></div>
+            <p class="sign-label">Date</p>
+        </td>
+        <td style="width:50%; border:none;">
+            <p><strong>Dunco Web Solutions</strong></p>
+            <div class="sign-line"></div>
+            <p class="sign-label">Name</p>
+            <div class="sign-line"></div>
+            <p class="sign-label">Title</p>
+            <div class="sign-line"></div>
+            <p class="sign-label">Signature</p>
+            <div class="sign-line"></div>
+            <p class="sign-label">Date</p>
+        </td>
+    </tr>
+</table>
+
+<div class="footer">
+    <p>Dunco HMS &mdash; Hospital Management System &mdash; Prepared by Dunco Web Solutions &mdash; September 2026</p>
+    <p>For questions, contact: info@duncowebsolutions.co.ke</p>
+</div>
+
+</body></html>

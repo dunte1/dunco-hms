@@ -7,6 +7,7 @@ use App\Models\IpdAdmission;
 use App\Models\Patient;
 use App\Models\Doctor;
 use App\Models\Bed;
+use App\Models\Ward;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -63,8 +64,9 @@ class IpdAdmissionsController extends Controller
         $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no', 'phone']);
         $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         $beds = Bed::where('is_available', true)->with('bedType')->get(['id', 'bed_number', 'ward_name', 'bed_type_id']);
+        $wards = Ward::where('is_active', true)->orderBy('name')->get(['id', 'name', 'code', 'ward_type']);
         $admissionFee = (float) \App\Models\SystemSetting::get('admission_fee', 0);
-        return view('hms.ipd.create', compact('patients', 'doctors', 'beds', 'admissionFee'));
+        return view('hms.ipd.create', compact('patients', 'doctors', 'beds', 'wards', 'admissionFee'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -73,6 +75,7 @@ class IpdAdmissionsController extends Controller
             'patient_id' => 'required|exists:patients,id',
             'doctor_id' => 'nullable|exists:doctors,id',
             'bed_id' => 'nullable|exists:beds,id',
+            'ward_id' => 'nullable|exists:wards,id',
             'admission_date' => 'required|date',
             'diagnosis' => 'nullable|string',
             'treatment_plan' => 'nullable|string',
@@ -114,6 +117,8 @@ class IpdAdmissionsController extends Controller
 
         $admission = IpdAdmission::create($data);
 
+        \App\Models\AuditLog::log('user', auth()->id(), 'admission_created', 'IpdAdmission', $admission->id, null, $admission->toArray(), 'Patient admitted: ' . $admission->patient_id);
+
         // Mark bed as unavailable if assigned
         if ($data['bed_id']) {
             Bed::where('id', $data['bed_id'])->update(['is_available' => false]);
@@ -150,12 +155,21 @@ class IpdAdmissionsController extends Controller
             'patient_id' => 'required|exists:patients,id',
             'doctor_id' => 'nullable|exists:doctors,id',
             'bed_id' => 'nullable|exists:beds,id',
+            'ward_id' => 'nullable|exists:wards,id',
             'admission_date' => 'required|date',
             'discharge_date' => 'nullable|date|after_or_equal:admission_date',
             'diagnosis' => 'nullable|string',
             'treatment_plan' => 'nullable|string',
-            'status' => 'required|in:admitted,discharged,transferred',
+            'status' => 'required|in:admitted,discharged,transferred,ama',
+            'ama_reason' => 'nullable|string',
+            'ama_signed' => 'boolean',
         ]);
+
+        // Handle AMA discharge
+        if ($data['status'] === 'ama') {
+            $data['status'] = 'discharged';
+            $data['discharge_date'] = $data['discharge_date'] ?? now();
+        }
         
         // Handle bed changes
         if ($data['bed_id'] != $ipd->bed_id) {
@@ -174,8 +188,12 @@ class IpdAdmissionsController extends Controller
             Bed::where('id', $ipd->bed_id)->update(['is_available' => true]);
         }
         
+        $oldValues = $ipd->toArray();
+
         $ipd->update($data);
-        
+
+        \App\Models\AuditLog::log('user', auth()->id(), 'admission_' . $data['status'], 'IpdAdmission', $ipd->id, $oldValues, $ipd->toArray(), 'Admission status changed to ' . $data['status']);
+
         return redirect()->route('hms.ipd.show', $ipd)->with('success', 'Admission updated successfully!');
     }
     

@@ -12,7 +12,7 @@ class StoreStock extends Model
 
     protected $table = 'store_stock';
 
-    protected $fillable = ['store_id', 'medicine_id', 'quantity', 'minimum_stock', 'maximum_stock', 'average_cost'];
+    protected $fillable = ['store_id', 'medicine_id', 'quantity', 'minimum_stock', 'reorder_quantity', 'maximum_stock', 'average_cost'];
 
     protected $casts = ['average_cost' => 'decimal:2'];
 

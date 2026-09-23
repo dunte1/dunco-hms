@@ -92,3 +92,20 @@ Schedule::call(function () {
         }
     }
 })->weekly()->description('Clean up old backups (keep 30 days)');
+
+// Stock Alerts - Check daily at 7 AM for expiry and low stock
+Schedule::job(new \App\Jobs\CheckStockAlerts)
+    ->dailyAt('07:00')
+    ->timezone('UTC')
+    ->description('Check for stock expiry and low stock alerts');
+
+// Pending Approvals - Check daily at 8 AM
+Schedule::command('approvals:check')
+    ->dailyAt('08:00')
+    ->timezone('UTC')
+    ->description('Check for pending approvals and send notifications');
+
+// Pending Approvals - Check daily at 8 AM and notify approvers
+Schedule::command('approvals:check')
+    ->dailyAt('08:00')
+    ->description('Check for pending approvals and send notifications');
