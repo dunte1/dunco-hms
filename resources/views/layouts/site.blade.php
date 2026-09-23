@@ -7,12 +7,12 @@
 
         {{-- SEO Meta Tags --}}
         @php
-            $seoTitle = $seo['title'] ?? config('app.name', 'Dunco Hospital');
-            $seoDescription = $seo['description'] ?? config('app.name', 'Dunco Hospital') . ' - Your trusted healthcare partner';
-            $seoKeywords = $seo['keywords'] ?? 'hospital, healthcare, medical, doctor, clinic';
-            $seoImage = $seo['image'] ?? asset('images/og-default.jpg');
-            $seoUrl = $seo['url'] ?? url()->current();
-            $seoType = $seo['type'] ?? 'website';
+            $seoTitle = isset($seo['title']) ? $seo['title'] : config('app.name', 'Dunco Hospital');
+            $seoDescription = isset($seo['description']) ? $seo['description'] : config('app.name', 'Dunco Hospital') . ' - Your trusted healthcare partner';
+            $seoKeywords = isset($seo['keywords']) ? $seo['keywords'] : 'hospital, healthcare, medical, doctor, clinic';
+            $seoImage = isset($seo['image']) ? $seo['image'] : asset('images/og-default.jpg');
+            $seoUrl = isset($seo['url']) ? $seo['url'] : url()->current();
+            $seoType = isset($seo['type']) ? $seo['type'] : 'website';
         @endphp
 
         <title>{{ $seoTitle }}</title>
@@ -37,20 +37,20 @@
         <meta name="twitter:image" content="{{ $seoImage }}">
 
         {{-- JSON-LD Structured Data --}}
-        @if(!empty($seo['schema']))
+        @if(isset($seo['schema']) && !empty($seo['schema']))
             <script type="application/ld+json">{!! json_encode($seo['schema'], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!}</script>
         @else
             <script type="application/ld+json">
             {
                 "@context": "https://schema.org",
                 "@type": "Hospital",
-                "name": "{{ config('app.name', 'Dunco Hospital') }}",
-                "description": "{{ Str::limit(strip_tags($seoDescription), 200) }}",
+                "name": "{{ addslashes(config('app.name', 'Dunco Hospital')) }}",
+                "description": "{{ addslashes(Str::limit(strip_tags($seoDescription), 200)) }}",
                 "url": "{{ url('/') }}",
-                "telephone": "{{ \App\Models\SystemSetting::get('header_emergency_phone', '+254700000000') }}",
+                "telephone": "{{ addslashes(\App\Models\SystemSetting::get('header_emergency_phone', '+254700000000')) }}",
                 "address": {
                     "@type": "PostalAddress",
-                    "addressLocality": "{{ \App\Models\SystemSetting::get('contact_city', 'Nairobi') }}",
+                    "addressLocality": "{{ addslashes(\App\Models\SystemSetting::get('contact_city', 'Nairobi')) }}",
                     "addressCountry": "KE"
                 }
             }
