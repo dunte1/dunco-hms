@@ -41,20 +41,19 @@
             <script type="application/ld+json">{!! json_encode($seo['schema'], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!}</script>
         @else
             <script type="application/ld+json">
-            {
+            {!! '{
                 "@context": "https://schema.org",
                 "@type": "Hospital",
-                "name": "{{ addslashes(config('app.name', 'Dunco Hospital')) }}",
-                "description": "{{ addslashes(Str::limit(strip_tags($seoDescription), 200)) }}",
-                "url": "{{ url('/') }}",
-                "telephone": "{{ addslashes(\App\Models\SystemSetting::get('header_emergency_phone', '+254700000000')) }}",
+                "name": "' . addslashes(config('app.name', 'Dunco Hospital')) . '",
+                "description": "' . addslashes(Str::limit(strip_tags($seoDescription), 200)) . '",
+                "url": "' . url('/') . '",
+                "telephone": "' . addslashes(\App\Models\SystemSetting::get('header_emergency_phone', '+254700000000')) . '",
                 "address": {
                     "@type": "PostalAddress",
-                    "addressLocality": "{{ addslashes(\App\Models\SystemSetting::get('contact_city', 'Nairobi')) }}",
+                    "addressLocality": "' . addslashes(\App\Models\SystemSetting::get('contact_city', 'Nairobi')) . '",
                     "addressCountry": "KE"
                 }
-            }
-            </script>
+            }' !!}</script>
         @endif
 
         {{-- Google Analytics --}}
