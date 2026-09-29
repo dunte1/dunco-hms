@@ -10,6 +10,8 @@ class BloodInventory extends Model
 {
     use HasFactory;
 
+    protected $table = 'blood_inventory';
+
     protected $fillable = [
         'blood_group_id', 'donor_id', 'bag_number', 'collection_date',
         'expiry_date', 'status', 'notes'

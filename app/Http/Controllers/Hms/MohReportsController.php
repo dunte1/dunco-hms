@@ -347,7 +347,7 @@ class MohReportsController extends Controller
     {
         $diseases = PatientDiagnosis::query()
             ->when($request->filled('date_from'), fn($q) => $q->whereDate('diagnosis_date', '>=', $request->date_from))
-            ->when($request->filled('date_to'), fn($q) -> $q->whereDate('diagnosis_date', '<=', $request->date_to))
+            ->when($request->filled('date_to'), fn($q) => $q->whereDate('diagnosis_date', '<=', $request->date_to))
             ->selectRaw('diagnosis, COUNT(*) as count')
             ->groupBy('diagnosis')->orderByDesc('count')->get();
 

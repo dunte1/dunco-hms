@@ -7,6 +7,7 @@ use App\Models\Triage;
 use App\Models\Patient;
 use App\Models\OpdVisit;
 use App\Models\IpdAdmission;
+use App\Models\TriageCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -55,7 +56,8 @@ class TriageController extends Controller
     {
         $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
         $opdVisits = OpdVisit::where('status', '!=', 'discharged')->with('patient')->latest()->get();
-        return view('hms.triage.create', compact('patients', 'opdVisits'));
+        $categories = TriageCategory::where('is_active', true)->orderBy('priority_level')->get();
+        return view('hms.triage.create', compact('patients', 'opdVisits', 'categories'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -65,6 +67,10 @@ class TriageController extends Controller
             'opd_visit_id' => 'nullable|exists:opd_visits,id',
             'ipd_admission_id' => 'nullable|exists:ipd_admissions,id',
             'priority_level' => 'required|in:emergency,urgent,semi_urgent,non_urgent',
+            'category_id' => 'nullable|exists:triage_categories,id',
+            'pain_score' => 'nullable|integer|min:0|max:10',
+            'gcs_score' => 'nullable|integer|min:3|max:15',
+            'pregnancy_status' => 'nullable|in:yes,no,unknown',
             'temperature' => 'nullable|numeric|min:30|max:45',
             'pulse_rate' => 'nullable|integer|min:30|max:250',
             'systolic_bp' => 'nullable|integer|min:50|max:300',
@@ -81,6 +87,7 @@ class TriageController extends Controller
         $data['triage_number'] = 'TRI-' . date('Y') . '-' . str_pad(Triage::count() + 1, 6, '0', STR_PAD_LEFT);
         $data['triaged_by'] = auth()->id();
         $data['triaged_at'] = now();
+        $data['pregnancy_status'] = $data['pregnancy_status'] ?? 'unknown';
 
         $triage = Triage::create($data);
 
@@ -97,7 +104,7 @@ class TriageController extends Controller
 
     public function show(Triage $triage): View
     {
-        $triage->load(['patient', 'opdVisit', 'ipdAdmission', 'triager']);
+        $triage->load(['patient', 'opdVisit', 'ipdAdmission', 'triager', 'category', 'escalations']);
         return view('hms.triage.show', compact('triage'));
     }
 
@@ -111,6 +118,10 @@ class TriageController extends Controller
     {
         $data = $request->validate([
             'priority_level' => 'required|in:emergency,urgent,semi_urgent,non_urgent',
+            'category_id' => 'nullable|exists:triage_categories,id',
+            'pain_score' => 'nullable|integer|min:0|max:10',
+            'gcs_score' => 'nullable|integer|min:3|max:15',
+            'pregnancy_status' => 'nullable|in:yes,no,unknown',
             'temperature' => 'nullable|numeric|min:30|max:45',
             'pulse_rate' => 'nullable|integer|min:30|max:250',
             'systolic_bp' => 'nullable|integer|min:50|max:300',

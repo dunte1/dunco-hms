@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use App\Models\PatientInsurance;
 use App\Models\InsuranceProvider;
+use App\Models\PatientMergeLog;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -273,5 +275,45 @@ class PatientsController extends Controller
         
         return redirect()->route('hms.patients.index')
             ->with('success', 'Patient deleted successfully!');
+    }
+
+    /**
+     * Emergency registration — creates a patient with a temporary MRN.
+     */
+    public function emergencyRegistration(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'required|string|max:255',
+            'dob'        => 'nullable|date',
+            'gender'     => 'nullable|in:male,female,other',
+            'phone'      => 'nullable|string|max:20',
+            'address'    => 'nullable|string|max:500',
+        ]);
+
+        $data['patient_no'] = 'EMG-' . strtoupper(uniqid());
+        $data['created_by'] = auth()->id();
+
+        $patient = Patient::create($data);
+
+        return redirect()->route('hms.patients.show', $patient)
+            ->with('success', 'Emergency patient registered with temporary MRN: ' . $data['patient_no']);
+    }
+
+    /**
+     * Merge a duplicate patient into a primary patient.
+     */
+    public function merge(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'primary_id'  => 'required|exists:patients,id',
+            'duplicate_id' => 'required|exists:patients,id|different:primary_id',
+        ]);
+
+        $primary = Patient::findOrFail($data['primary_id']);
+        $primary->mergeWith($data['duplicate_id']);
+
+        return redirect()->route('hms.patients.show', $primary)
+            ->with('success', 'Patient records merged successfully.');
     }
 }

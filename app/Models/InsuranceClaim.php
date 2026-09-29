@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class InsuranceClaim extends Model
 {
@@ -15,6 +16,7 @@ class InsuranceClaim extends Model
         'patient_id',
         'patient_insurance_id',
         'invoice_id',
+        'batch_id',
         'claim_date',
         'service_date',
         'claimed_amount',
@@ -60,6 +62,16 @@ class InsuranceClaim extends Model
     public function shaAuthorization()
     {
         return $this->belongsTo(ShaAuthorization::class, 'sha_authorization_number', 'authorization_number');
+    }
+
+    public function batch(): BelongsTo
+    {
+        return $this->belongsTo(ClaimBatch::class);
+    }
+
+    public function claimItems()
+    {
+        return $this->hasMany(ClaimItem::class);
     }
 
     public function patient(): BelongsTo

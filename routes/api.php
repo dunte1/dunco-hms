@@ -3,6 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Api\V1\PatientController;
+use App\Http\Controllers\Api\V1\PrescriptionController;
+use App\Http\Controllers\Api\V1\LabRequestController;
+use App\Http\Controllers\Api\V1\RadiologyRequestController;
+use App\Http\Controllers\Api\V1\ImagingScheduleController;
+use App\Http\Controllers\Api\V1\ModalityWorklistController as ApiModalityWorklistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +32,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         return $request->user();
     });
     
-    // Patient management
+    // Legacy API routes (monolithic controller)
     Route::get('/patients', [ApiController::class, 'getPatients'])->name('api.patients');
     Route::get('/patients/{patient}', [ApiController::class, 'getPatient'])->name('api.patient');
     Route::post('/patients', [ApiController::class, 'createPatient'])->name('api.patients.create');
@@ -69,6 +75,105 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     // Logout
     Route::post('/logout', [ApiController::class, 'logout'])->name('api.logout');
+
+    // ── V1 Resource API ─────────────────────────────────────────────────
+    Route::prefix('v1')->group(function () {
+        // Patients
+        Route::get('/patients', [PatientController::class, 'index'])
+            ->middleware('permission:view patients')
+            ->name('v1.patients.index');
+        Route::post('/patients', [PatientController::class, 'store'])
+            ->middleware('permission:add patients')
+            ->name('v1.patients.store');
+        Route::get('/patients/{patient}', [PatientController::class, 'show'])
+            ->middleware('permission:view patients')
+            ->name('v1.patients.show');
+        Route::put('/patients/{patient}', [PatientController::class, 'update'])
+            ->middleware('permission:edit patients')
+            ->name('v1.patients.update');
+        Route::delete('/patients/{patient}', [PatientController::class, 'destroy'])
+            ->middleware('permission:delete patients')
+            ->name('v1.patients.destroy');
+
+        // Prescriptions
+        Route::get('/prescriptions', [PrescriptionController::class, 'index'])
+            ->middleware('permission:view prescriptions')
+            ->name('v1.prescriptions.index');
+        Route::post('/prescriptions', [PrescriptionController::class, 'store'])
+            ->middleware('permission:create prescriptions')
+            ->name('v1.prescriptions.store');
+        Route::get('/prescriptions/{prescription}', [PrescriptionController::class, 'show'])
+            ->middleware('permission:view prescriptions')
+            ->name('v1.prescriptions.show');
+        Route::put('/prescriptions/{prescription}', [PrescriptionController::class, 'update'])
+            ->middleware('permission:edit prescriptions')
+            ->name('v1.prescriptions.update');
+
+        // Lab Requests
+        Route::get('/lab-requests', [LabRequestController::class, 'index'])
+            ->middleware('permission:view patients')
+            ->name('v1.lab-requests.index');
+        Route::post('/lab-requests', [LabRequestController::class, 'store'])
+            ->middleware('permission:add patients')
+            ->name('v1.lab-requests.store');
+        Route::get('/lab-requests/{labRequest}', [LabRequestController::class, 'show'])
+            ->middleware('permission:view patients')
+            ->name('v1.lab-requests.show');
+        Route::put('/lab-requests/{labRequest}', [LabRequestController::class, 'update'])
+            ->middleware('permission:edit patients')
+            ->name('v1.lab-requests.update');
+
+        // Lab Specimens
+        Route::post('/lab/specimens', [\App\Http\Controllers\Hms\LabSpecimenController::class, 'store'])
+            ->middleware('permission:add patients')
+            ->name('v1.lab-specimens.store');
+
+        // Lab Worklists
+        Route::post('/lab/worklists', [\App\Http\Controllers\Hms\LabWorklistController::class, 'store'])
+            ->middleware('permission:add patients')
+            ->name('v1.lab-worklists.store');
+
+        // Blood Bank
+        Route::post('/blood-bank/units', [\App\Http\Controllers\Api\V1\BloodBankApiController::class, 'storeUnit'])
+            ->middleware('permission:add patients')
+            ->name('v1.blood-bank.units.store');
+        Route::post('/blood-bank/transfusions', [\App\Http\Controllers\Api\V1\BloodBankApiController::class, 'storeTransfusion'])
+            ->middleware('permission:add patients')
+            ->name('v1.blood-bank.transfusions.store');
+
+        // Radiology Requests
+        Route::get('/radiology-requests', [RadiologyRequestController::class, 'index'])
+            ->middleware('permission:view patients')
+            ->name('v1.radiology-requests.index');
+        Route::post('/radiology-requests', [RadiologyRequestController::class, 'store'])
+            ->middleware('permission:add patients')
+            ->name('v1.radiology-requests.store');
+        Route::get('/radiology-requests/{radiologyRequest}', [RadiologyRequestController::class, 'show'])
+            ->middleware('permission:view patients')
+            ->name('v1.radiology-requests.show');
+        Route::put('/radiology-requests/{radiologyRequest}', [RadiologyRequestController::class, 'update'])
+            ->middleware('permission:edit patients')
+            ->name('v1.radiology-requests.update');
+
+        // Radiology Scheduling & Worklist (G028-G030)
+        Route::post('/radiology/schedules', [ImagingScheduleController::class, 'store'])
+            ->middleware('permission:add patients')
+            ->name('v1.radiology-schedules.store');
+        Route::get('/radiology/schedules', [ImagingScheduleController::class, 'index'])
+            ->middleware('permission:view patients')
+            ->name('v1.radiology-schedules.index');
+        Route::get('/radiology/worklist', [ApiModalityWorklistController::class, 'index'])
+            ->middleware('permission:view patients')
+            ->name('v1.radiology-worklist.index');
+
+        // Triage
+        Route::post('/triage', [\App\Http\Controllers\Api\V1\TriageController::class, 'store'])
+            ->middleware('permission:add patients')
+            ->name('v1.triage.store');
+        Route::get('/triage/queue', [\App\Http\Controllers\Api\V1\TriageController::class, 'queue'])
+            ->middleware('permission:view patients')
+            ->name('v1.triage.queue');
+    });
 });
 
 // M-Pesa Webhooks (no auth required - webhooks from Safaricom)

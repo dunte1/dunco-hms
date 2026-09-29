@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\Invoice;
 use App\Models\Patient;
+use App\Models\Refund;
+use App\Models\AuditLog;
 use App\Notifications\PaymentReceived;
 use App\Services\PaymentGatewayService;
 use App\Services\SmsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PaymentsController extends Controller
@@ -157,6 +160,31 @@ class PaymentsController extends Controller
         return redirect()->route('hms.billing.payments.index')->with('status', 'Payment deleted');
     }
     
+    public function requestRefund(Request $request, Payment $payment): RedirectResponse
+    {
+        $data = $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'reason' => 'required|string',
+        ]);
+
+        if ($data['amount'] > $payment->amount) {
+            return back()->withErrors(['amount' => 'Refund amount cannot exceed payment amount.']);
+        }
+
+        $refund = Refund::create([
+            'payment_id' => $payment->id,
+            'invoice_id' => $payment->invoice_id,
+            'amount' => $data['amount'],
+            'reason' => $data['reason'],
+            'status' => 'pending',
+            'requested_by' => auth()->id(),
+        ]);
+
+        AuditLog::log('user', auth()->id(), 'refund_requested', 'Refund', $refund->id, null, $refund->toArray(), 'Refund requested: $' . number_format($refund->amount));
+
+        return back()->with('status', 'Refund request submitted for approval');
+    }
+
     /**
      * Display thermal receipt for a payment
      */

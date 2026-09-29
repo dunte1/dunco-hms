@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ICD10CodeSeeder::class);
         $this->call(ShaServiceCodeSeeder::class);
         $this->call(ModuleSeeder::class);
+        $this->call(DefaultConfigSeeder::class);
 
         $this->command->info('');
         $this->command->info('==============================================');

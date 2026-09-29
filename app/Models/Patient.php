@@ -4,15 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 
 class Patient extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'patient_no','first_name','last_name','dob','gender','email','phone','address',
-        'national_id','dha_cr_id','dha_verified_at'
+        'national_id','dha_cr_id','dha_verified_at',
+        'created_by','updated_by','facility_id',
     ];
 
     protected $casts = [
@@ -76,6 +79,80 @@ class Patient extends Model
     public function hasInsurance(): bool
     {
         return $this->insurance()->where('is_active', true)->exists();
+    }
+
+    public function identifiers(): HasMany
+    {
+        return $this->hasMany(PatientIdentifier::class);
+    }
+
+    public function contacts(): HasMany
+    {
+        return $this->hasMany(PatientContact::class);
+    }
+
+    public function mergeLogPrimary(): HasMany
+    {
+        return $this->hasMany(PatientMergeLog::class, 'primary_patient_id');
+    }
+
+    public function mergeLogDuplicates(): HasMany
+    {
+        return $this->hasMany(PatientMergeLog::class, 'duplicate_patient_id');
+    }
+
+    public function mergeWith(int $duplicateId): PatientMergeLog
+    {
+        $duplicate = static::findOrFail($duplicateId);
+
+        $relatedTables = [
+            'appointments' => 'patient_id',
+            'ipd_admissions' => 'patient_id',
+            'opd_visits' => 'patient_id',
+            'prescriptions' => 'patient_id',
+            'patient_insurances' => 'patient_id',
+            'medical_histories' => 'patient_id',
+            'patient_identifiers' => 'patient_id',
+            'patient_contacts' => 'patient_id',
+        ];
+
+        foreach ($relatedTables as $table => $column) {
+            if (\Illuminate\Support\Facades\Schema::hasTable($table)) {
+                \Illuminate\Support\Facades\DB::table($table)
+                    ->where($column, $duplicate->id)
+                    ->update([$column => $this->id]);
+            }
+        }
+
+        $duplicate->delete();
+
+        return PatientMergeLog::create([
+            'primary_patient_id' => $this->id,
+            'duplicate_patient_id' => $duplicateId,
+            'merged_by' => auth()->id(),
+            'merge_reason' => 'Duplicate patient merged into primary',
+            'data_migrated' => true,
+            'merged_at' => now(),
+        ]);
+    }
+
+    public function detectDuplicates(array $attributes): \Illuminate\Database\Eloquent\Collection
+    {
+        $query = static::query()->where('id', '!=', $this->id ?? 0);
+
+        if (!empty($attributes['first_name']) && !empty($attributes['last_name']) && !empty($attributes['dob'])) {
+            $query->where(function ($q) use ($attributes) {
+                $q->where('first_name', $attributes['first_name'])
+                  ->where('last_name', $attributes['last_name'])
+                  ->where('dob', $attributes['dob']);
+            });
+        }
+
+        if (!empty($attributes['national_id'])) {
+            $query->orWhere('national_id', $attributes['national_id']);
+        }
+
+        return $query->get();
     }
 }
 

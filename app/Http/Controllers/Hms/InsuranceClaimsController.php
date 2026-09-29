@@ -8,6 +8,7 @@ use App\Models\PatientInsurance;
 use App\Models\InsuranceProvider;
 use App\Models\Patient;
 use App\Models\Invoice;
+use App\Models\ClaimBatch;
 use App\Services\ShaService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -89,6 +90,7 @@ class InsuranceClaimsController extends Controller
             'patient_id' => 'required|exists:patients,id',
             'patient_insurance_id' => 'required|exists:patient_insurance,id',
             'invoice_id' => 'nullable|exists:invoices,id',
+            'batch_id' => 'nullable|exists:claim_batches,id',
             'claim_date' => 'required|date',
             'service_date' => 'required|date',
             'claimed_amount' => 'required|numeric|min:0',

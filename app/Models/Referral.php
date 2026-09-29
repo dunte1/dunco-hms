@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Referral extends Model
 {
@@ -52,6 +54,21 @@ class Referral extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(ReferralDocument::class);
+    }
+
+    public function statusHistory(): HasMany
+    {
+        return $this->hasMany(ReferralStatusHistory::class);
+    }
+
+    public function feedback(): HasOne
+    {
+        return $this->hasOne(ReferralFeedback::class);
     }
 
     protected static function boot(): void

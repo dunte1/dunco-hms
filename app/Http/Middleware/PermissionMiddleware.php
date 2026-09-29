@@ -11,18 +11,41 @@ class PermissionMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Accepts one or more permission names separated by "|".
+     * The user must have AT LEAST ONE of the listed permissions.
+     *
+     * Usage:
+     *   Route::middleware('permission:view patients')
+     *   Route::middleware('permission:view patients|add patients')
      */
-    public function handle(Request $request, Closure $next, string $permission): Response
+    public function handle(Request $request, Closure $next, string ...$permissions): Response
     {
         if (!auth()->check()) {
             return redirect()->route('login');
         }
 
-        if (!auth()->user()->can($permission)) {
-            abort(403, 'Access denied. Insufficient permissions.');
+        // Flatten pipe-separated permissions: "permission:view patients|add patients"
+        $required = [];
+        foreach ($permissions as $permission) {
+            foreach (explode('|', $permission) as $perm) {
+                $trimmed = trim($perm);
+                if ($trimmed !== '') {
+                    $required[] = $trimmed;
+                }
+            }
         }
 
-        return $next($request);
+        if (empty($required)) {
+            return $next($request);
+        }
+
+        // User must have at least ONE of the required permissions (OR logic)
+        foreach ($required as $permission) {
+            if (auth()->user()->can($permission)) {
+                return $next($request);
+            }
+        }
+
+        abort(403, 'Access denied. Required permission: ' . implode(' or ', $required));
     }
 }

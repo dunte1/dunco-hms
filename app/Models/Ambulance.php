@@ -28,4 +28,24 @@ class Ambulance extends Model
     {
         return $this->hasMany(EmergencyAdmission::class);
     }
+
+    public function crews(): HasMany
+    {
+        return $this->hasMany(AmbulanceCrew::class);
+    }
+
+    public function trips(): HasMany
+    {
+        return $this->hasMany(AmbulanceTrip::class);
+    }
+
+    public function fuelLogs(): HasMany
+    {
+        return $this->hasMany(AmbulanceFuelLog::class);
+    }
+
+    public function maintenanceRecords(): HasMany
+    {
+        return $this->hasMany(AmbulanceMaintenanceRecord::class);
+    }
 }

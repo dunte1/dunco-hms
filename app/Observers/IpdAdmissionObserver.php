@@ -27,8 +27,7 @@ class IpdAdmissionObserver
         // Mark bed as occupied
         if ($admission->bed_id) {
             Bed::where('id', $admission->bed_id)->update([
-                'status' => 'occupied',
-                'patient_id' => $admission->patient_id
+                'is_available' => false,
             ]);
         }
     }
