@@ -46,11 +46,13 @@ class AuthenticatedSessionController extends Controller
                 'timestamp' => now()
             ]);
 
-            // Skip email verification check for development/testing
-            // For production, you may want to re-enable this check
             // Check if user needs to verify email (only in production)
             if (config('app.env') === 'production' && !Auth::user()->hasVerifiedEmail()) {
-                return redirect()->route('verification.notice');
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return redirect()->route('otp.verify.form', ['email' => $request->email])
+                    ->with('info', 'Please verify your email address before logging in.');
             }
 
             // Auto-verify email in development/testing environment

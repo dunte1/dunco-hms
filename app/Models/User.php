@@ -33,6 +33,8 @@ class User extends Authenticatable
         'approved_by',
         'approved_at',
         'status_notes',
+        'verification_code',
+        'verification_code_expires_at',
     ];
 
     /**
@@ -56,7 +58,63 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'approved_at' => 'datetime',
+            'verification_code_expires_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Generate a 6-digit verification code and set expiry (10 minutes)
+     */
+    public function generateVerificationCode(): string
+    {
+        $code = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+        
+        $this->update([
+            'verification_code' => $code,
+            'verification_code_expires_at' => now()->addMinutes(10),
+        ]);
+
+        return $code;
+    }
+
+    /**
+     * Verify the OTP code
+     */
+    public function verifyCode(string $code): bool
+    {
+        if ($this->verification_code !== $code) {
+            return false;
+        }
+
+        if ($this->verification_code_expires_at && $this->verification_code_expires_at->isPast()) {
+            return false;
+        }
+
+        $this->update([
+            'email_verified_at' => now(),
+            'verification_code' => null,
+            'verification_code_expires_at' => null,
+            'status' => 'active',
+            'approved_at' => now(),
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Check if verification code is expired
+     */
+    public function isCodeExpired(): bool
+    {
+        return $this->verification_code_expires_at && $this->verification_code_expires_at->isPast();
+    }
+
+    /**
+     * Check if user has a pending verification code
+     */
+    public function hasPendingVerification(): bool
+    {
+        return !$this->email_verified_at && $this->verification_code !== null;
     }
 
     /**

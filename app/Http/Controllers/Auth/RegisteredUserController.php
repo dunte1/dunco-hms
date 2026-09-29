@@ -41,10 +41,17 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Generate and send OTP
+        $code = $user->generateVerificationCode();
+        \Illuminate\Support\Facades\Mail::raw("Your DuncoHMS verification code is: {$code}\n\nThis code expires in 10 minutes.", function ($message) use ($user, $code) {
+            $message->to($user->email)
+                    ->subject("DuncoHMS Verification Code: {$code}")
+                    ->from(config('mail.from.address'), config('mail.from.name'));
+        });
+
         event(new Registered($user));
 
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('otp.verify.form', ['email' => $user->email])
+            ->with('success', 'Registration successful! Please check your email for the verification code.');
     }
 }
