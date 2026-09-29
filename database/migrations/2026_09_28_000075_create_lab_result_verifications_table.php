@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('lab_request_item_id')->constrained('lab_request_items')->cascadeOnDelete();
             $table->foreignId('verified_by')->constrained('users')->cascadeOnDelete();
-            $table->timestamp('verified_at');
+            $table->timestamp('verified_at')->nullable();
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('approved_at')->nullable();
             $table->string('status', 20)->default('pending'); // pending, verified, approved, rejected

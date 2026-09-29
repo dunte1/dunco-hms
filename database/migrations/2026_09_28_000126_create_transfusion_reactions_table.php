@@ -14,10 +14,10 @@ return new class extends Migration {
             $table->enum('reaction_type', ['febrile', 'allergic', 'hemolytic', 'trx', 'TRALI', 'TACO', 'other']);
             $table->enum('severity', ['mild', 'moderate', 'severe', 'life_threatening']);
             $table->text('symptoms');
-            $table->timestamp('onset_time');
+            $table->timestamp('onset_time')->nullable();
             $table->text('treatment_given')->nullable();
             $table->foreignId('reported_by')->constrained('users')->cascadeOnDelete();
-            $table->timestamp('reported_at');
+            $table->timestamp('reported_at')->nullable();
             $table->timestamps();
         });
     }

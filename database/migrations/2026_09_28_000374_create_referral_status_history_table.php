@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->foreignId('referral_id')->constrained('referrals')->cascadeOnDelete();
             $table->string('from_status', 30)->nullable();
             $table->string('to_status', 30);
-            $table->foreignId('changed_by')->constrained('users')->nullOnDelete();
+            $table->foreignId('changed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->dateTime('changed_at');
             $table->text('notes')->nullable();
             $table->timestamps();

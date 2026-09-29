@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->string('batch_number')->nullable();
             $table->date('expiry_date')->nullable();
             $table->foreignId('recorded_by')->constrained('users');
-            $table->timestamp('recorded_at');
+            $table->timestamp('recorded_at')->nullable();
             $table->timestamps();
         });
     }

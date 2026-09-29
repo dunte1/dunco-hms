@@ -12,13 +12,13 @@ return new class extends Migration {
             $table->enum('backup_type', ['full', 'incremental', 'differential']);
             $table->string('backup_location');
             $table->decimal('file_size_mb', 10, 2)->nullable();
-            $table->timestamp('started_at');
+            $table->timestamp('started_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->enum('status', ['running', 'completed', 'failed'])->default('running');
             $table->boolean('verified')->default(false);
             $table->timestamp('verified_at')->nullable();
             $table->text('notes')->nullable();
-            $table->timestamp('created_at');
+            $table->timestamp('created_at')->nullable();
         });
     }
 

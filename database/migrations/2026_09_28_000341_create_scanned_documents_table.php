@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('file_size')->nullable();
             $table->string('mime_type')->nullable();
             $table->foreignId('uploaded_by')->constrained('users')->cascadeOnDelete();
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('created_at')->nullable()->useCurrent();
         });
     }
 

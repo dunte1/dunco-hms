@@ -1421,6 +1421,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/settings/backup/restore', [\App\Http\Controllers\Hms\SettingsController::class, 'restoreBackup'])->name('settings.backup.restore');
         Route::get('/settings/backup/download/{filename}', [\App\Http\Controllers\Hms\SettingsController::class, 'downloadBackup'])->name('settings.backup.download');
         
+        // Emergency Contacts Settings
+        Route::get('/settings/emergency-contacts', [\App\Http\Controllers\Hms\SettingsController::class, 'emergencyContacts'])->name('settings.emergency-contacts');
+        Route::post('/settings/emergency-contacts', [\App\Http\Controllers\Hms\SettingsController::class, 'updateEmergencyContacts'])->name('settings.emergency-contacts.update');
+        
         // Dashboard Features
         Route::get('/dashboard/notifications', [\App\Http\Controllers\Hms\NotificationsController::class, 'index'])->name('dashboard.notifications');
         Route::get('/notifications/create', [\App\Http\Controllers\Hms\NotificationsController::class, 'create'])->name('notifications.create');

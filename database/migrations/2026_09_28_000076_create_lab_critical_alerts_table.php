@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->foreignId('acknowledged_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('acknowledged_at')->nullable();
             $table->boolean('is_acknowledged')->default(false);
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('created_at')->nullable()->useCurrent();
         });
     }
 

@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->string('sterilizer_name');
             $table->integer('load_number');
-            $table->timestamp('start_time');
+            $table->timestamp('start_time')->nullable();
             $table->timestamp('end_time')->nullable();
             $table->decimal('temperature', 5, 1)->nullable();
             $table->decimal('pressure', 6, 1)->nullable();

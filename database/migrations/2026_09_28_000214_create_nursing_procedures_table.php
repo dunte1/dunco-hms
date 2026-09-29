@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->string('outcome')->nullable();
             $table->text('complications')->nullable();
             $table->foreignId('performed_by')->constrained('users')->cascadeOnDelete();
-            $table->timestamp('performed_at');
+            $table->timestamp('performed_at')->nullable();
             $table->timestamps();
         });
     }

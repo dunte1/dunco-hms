@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->text('areas_for_improvement')->nullable();
             $table->text('comments')->nullable();
             $table->foreignId('assessed_by')->constrained('users');
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('created_at')->nullable()->useCurrent();
         });
     }
 

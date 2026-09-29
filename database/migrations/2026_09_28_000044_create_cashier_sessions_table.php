@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('cashier_sessions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->timestamp('opened_at');
+            $table->timestamp('opened_at')->nullable();
             $table->timestamp('closed_at')->nullable();
             $table->decimal('opening_balance', 12, 2)->default(0);
             $table->decimal('closing_balance', 12, 2)->nullable();

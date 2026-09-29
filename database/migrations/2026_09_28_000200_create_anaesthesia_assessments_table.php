@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->text('airway_plan');
             $table->text('anaesthesia_plan');
             $table->text('risk_assessment')->nullable();
-            $table->timestamp('assessed_at');
+            $table->timestamp('assessed_at')->nullable();
             $table->timestamps();
         });
     }

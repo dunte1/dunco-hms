@@ -70,6 +70,37 @@ class SettingsController extends Controller
         return redirect()->route('hms.settings.general')->with('status', 'General settings updated successfully');
     }
 
+    public function emergencyContacts(): View
+    {
+        $contacts = [
+            'emergency_phone_1' => SystemSetting::get('emergency_phone_1', '+254 700 000 000'),
+            'emergency_phone_2' => SystemSetting::get('emergency_phone_2', '+254 700 000 001'),
+            'emergency_email' => SystemSetting::get('emergency_email', 'emergency@duncohms.co.ke'),
+            'ambulance_phone' => SystemSetting::get('ambulance_phone', '+254 700 000 002'),
+            'emergency_department_phone' => SystemSetting::get('emergency_department_phone', '+254 700 000 003'),
+            'hospital_phone' => SystemSetting::get('hospital_phone', '+254 700 000 000'),
+        ];
+        return view('hms.settings.emergency-contacts', compact('contacts'));
+    }
+
+    public function updateEmergencyContacts(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'emergency_phone_1' => 'required|string',
+            'emergency_phone_2' => 'nullable|string',
+            'emergency_email' => 'nullable|email',
+            'ambulance_phone' => 'required|string',
+            'emergency_department_phone' => 'nullable|string',
+            'hospital_phone' => 'required|string',
+        ]);
+
+        foreach ($data as $key => $value) {
+            SystemSetting::set($key, $value, 'string', ucwords(str_replace('_', ' ', $key)), true);
+        }
+
+        return redirect()->route('hms.settings.emergency-contacts')->with('status', 'Emergency contacts updated successfully');
+    }
+
     public function branches(): View
     {
         $branches = HospitalBranch::orderBy('name')->paginate(10);

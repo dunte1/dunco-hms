@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->json('procedure_codes')->nullable();
             $table->enum('coding_status', ['pending', 'reviewed', 'approved'])->default('pending');
             $table->foreignId('coded_by')->constrained('users')->cascadeOnDelete();
-            $table->timestamp('coded_at');
+            $table->timestamp('coded_at')->nullable();
             $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();

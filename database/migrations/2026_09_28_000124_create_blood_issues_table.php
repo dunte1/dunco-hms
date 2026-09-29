@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->foreignId('blood_request_id')->constrained('blood_requests')->cascadeOnDelete();
             $table->foreignId('patient_id')->constrained('patients')->cascadeOnDelete();
             $table->foreignId('issued_by')->constrained('users')->cascadeOnDelete();
-            $table->timestamp('issued_at');
+            $table->timestamp('issued_at')->nullable();
             $table->timestamp('returned_at')->nullable();
             $table->text('return_reason')->nullable();
             $table->timestamps();

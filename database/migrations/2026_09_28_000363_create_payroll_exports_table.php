@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('employee_count');
             $table->enum('status', ['draft', 'finalized', 'submitted'])->default('draft');
             $table->foreignId('exported_by')->constrained('users');
-            $table->timestamp('exported_at');
+            $table->timestamp('exported_at')->nullable();
             $table->string('file_path')->nullable();
             $table->timestamps();
         });

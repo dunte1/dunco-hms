@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\FacilityProfile;
 use App\Models\NumberSequence;
 use App\Models\PaymentMethod;
+use App\Models\SystemSetting;
 use App\Models\TaxRate;
 use Illuminate\Database\Seeder;
 
@@ -80,5 +81,14 @@ class DefaultConfigSeeder extends Seeder
                 $method + ['is_active' => true, 'sort_order' => $i]
             );
         }
+
+        // Emergency contacts
+        SystemSetting::set('emergency_phone_1', '+254 700 000 000', 'string', 'Primary emergency phone number', true);
+        SystemSetting::set('emergency_phone_2', '+254 700 000 001', 'string', 'Secondary emergency phone number', true);
+        SystemSetting::set('emergency_email', 'emergency@duncohms.co.ke', 'string', 'Emergency email address', true);
+        SystemSetting::set('ambulance_phone', '+254 700 000 002', 'string', 'Ambulance dispatch phone number', true);
+        SystemSetting::set('emergency_department_phone', '+254 700 000 003', 'string', 'Emergency department direct line', true);
+        SystemSetting::set('hospital_phone', '+254 700 000 000', 'string', 'Main hospital phone number', true);
+        SystemSetting::set('hospital_name', 'Dunco HMS', 'string', 'Hospital name for display', true);
     }
 }

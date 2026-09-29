@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->foreignId('blood_issue_id')->constrained('blood_issues')->cascadeOnDelete();
             $table->foreignId('patient_id')->constrained('patients')->cascadeOnDelete();
             $table->foreignId('blood_unit_id')->constrained('blood_units')->cascadeOnDelete();
-            $table->timestamp('started_at');
+            $table->timestamp('started_at')->nullable();
             $table->timestamp('ended_at')->nullable();
             $table->integer('duration_minutes')->nullable();
             $table->integer('volume_transfused_ml')->nullable();

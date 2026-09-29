@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->string('document_type', 50); // referral_letter, clinical_summary, lab_results, imaging, other
             $table->string('file_path');
             $table->string('file_name');
-            $table->foreignId('uploaded_by')->constrained('users')->nullOnDelete();
+            $table->foreignId('uploaded_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }

@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->foreignId('purchase_order_id')->nullable()->constrained('purchase_orders')->nullOnDelete();
             $table->foreignId('store_id')->constrained('stores')->cascadeOnDelete();
             $table->foreignId('received_by')->constrained('users')->cascadeOnDelete();
-            $table->timestamp('received_at');
+            $table->timestamp('received_at')->nullable();
             $table->decimal('total_amount', 14, 2)->default(0);
             $table->enum('status', ['draft', 'verified', 'accepted'])->default('draft');
             $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();

@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->text('description');
             $table->text('treatment');
             $table->text('outcome')->nullable();
-            $table->timestamp('occurred_at');
+            $table->timestamp('occurred_at')->nullable();
             $table->foreignId('reported_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });

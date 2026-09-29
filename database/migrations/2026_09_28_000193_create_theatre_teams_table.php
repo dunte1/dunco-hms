@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->foreignId('ot_schedule_id')->constrained('ot_schedules')->cascadeOnDelete();
             $table->enum('role', ['surgeon', 'anaesthetist', 'assistant_surgeon', 'theatre_nurse', 'scrub_nurse', 'circulator']);
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->timestamp('assigned_at');
+            $table->timestamp('assigned_at')->nullable();
             $table->timestamp('released_at')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();

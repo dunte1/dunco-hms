@@ -75,6 +75,22 @@
                             <i class="fas fa-sign-out-alt me-2"></i>Logout
                         </a>
                     </nav>
+                    
+                    @php
+                        $emergencyPhone = \App\Models\SystemSetting::get('emergency_phone_1', '+254 700 000 000');
+                        $ambulancePhone = \App\Models\SystemSetting::get('ambulance_phone', '+254 700 000 002');
+                        $emergencyClean = preg_replace('/[^0-9+]/', '', $emergencyPhone);
+                        $ambulanceClean = preg_replace('/[^0-9+]/', '', $ambulancePhone);
+                    @endphp
+                    <div class="mt-4 p-3 bg-danger bg-opacity-10 rounded">
+                        <h6 class="text-danger mb-2"><i class="fas fa-phone-alt me-1"></i> Emergency</h6>
+                        <a href="tel:{{ $emergencyClean }}" class="d-block text-danger text-decoration-none mb-1">
+                            <i class="fas fa-phone me-1"></i> Emergency: {{ $emergencyPhone }}
+                        </a>
+                        <a href="tel:{{ $ambulanceClean }}" class="d-block text-warning text-decoration-none">
+                            <i class="fas fa-ambulance me-1"></i> Ambulance: {{ $ambulancePhone }}
+                        </a>
+                    </div>
                 </div>
             </div>
             

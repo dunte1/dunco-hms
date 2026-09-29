@@ -15,7 +15,7 @@ return new class extends Migration
             $table->foreignId('merged_by')->constrained('users')->cascadeOnDelete();
             $table->string('merge_reason')->nullable();
             $table->boolean('data_migrated')->default(false);
-            $table->timestamp('merged_at');
+            $table->timestamp('merged_at')->nullable();
             $table->timestamp('reversed_at')->nullable();
             $table->foreignId('reversed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();

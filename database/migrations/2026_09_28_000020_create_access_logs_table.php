@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('user_agent')->nullable();
             $table->string('url')->nullable();
             $table->string('method')->nullable();
-            $table->timestamp('timestamp');
+            $table->timestamp('timestamp')->nullable();
             $table->timestamps();
 
             $table->index(['auditable_type', 'auditable_id']);

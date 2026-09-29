@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->integer('days_off');
             $table->string('diagnosis');
             $table->text('restrictions')->nullable();
-            $table->timestamp('issued_at');
+            $table->timestamp('issued_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

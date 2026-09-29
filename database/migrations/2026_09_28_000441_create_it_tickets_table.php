@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->enum('status', ['open', 'in_progress', 'on_hold', 'resolved', 'closed'])->default('open');
             $table->foreignId('reported_by')->constrained('users');
             $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('reported_at');
+            $table->timestamp('reported_at')->nullable();
             $table->timestamp('first_response_at')->nullable();
             $table->timestamp('resolved_at')->nullable();
             $table->text('resolution_notes')->nullable();

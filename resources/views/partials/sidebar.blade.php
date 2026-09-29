@@ -1656,6 +1656,12 @@
                                             <span class="badge badge-warning ml-2">Premium</span>
                                         </a>
                                     </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.settings.emergency-contacts') }}" 
+                                           class="nested-link {{ request()->routeIs('hms.settings.emergency-contacts*') ? 'active' : '' }}">
+                                            <i class="fa fa-phone-alt mr-2 w-4 text-red-500"></i> Emergency Contacts
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                         @endcan

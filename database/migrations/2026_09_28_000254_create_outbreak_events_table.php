@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->integer('total_deaths')->default(0);
             $table->string('status')->default('suspected');
             $table->foreignId('declared_by')->constrained('users')->cascadeOnDelete();
-            $table->timestamp('declared_at');
+            $table->timestamp('declared_at')->nullable();
             $table->timestamp('contained_at')->nullable();
             $table->timestamp('ended_at')->nullable();
             $table->text('investigation_notes')->nullable();

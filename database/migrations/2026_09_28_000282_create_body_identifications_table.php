@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->string('identifier_name');
             $table->string('identifier_relationship')->nullable();
             $table->enum('identification_method', ['visual', 'photo', 'belongings', 'fingerprint', 'dna']);
-            $table->timestamp('identified_at');
+            $table->timestamp('identified_at')->nullable();
             $table->foreignId('identified_by')->nullable()->constrained('users')->nullOnDelete();
             $table->text('notes')->nullable();
             $table->timestamps();

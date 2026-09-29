@@ -10,11 +10,11 @@ return new class extends Migration {
         Schema::create('blood_screening_results', function (Blueprint $table) {
             $table->id();
             $table->foreignId('donation_id')->constrained('blood_donations')->cascadeOnDelete();
-            $table->enum('hiv_test', ['negative', 'positive', 'inconclusive'])->default('pending');
-            $table->enum('hepatitis_b_test', ['negative', 'positive', 'inconclusive'])->default('pending');
-            $table->enum('hepatitis_c_test', ['negative', 'positive', 'inconclusive'])->default('pending');
-            $table->enum('syphilis_test', ['negative', 'positive', 'inconclusive'])->default('pending');
-            $table->enum('malaria_test', ['negative', 'positive', 'inconclusive'])->default('pending');
+            $table->enum('hiv_test', ['pending', 'negative', 'positive', 'inconclusive'])->default('pending');
+            $table->enum('hepatitis_b_test', ['pending', 'negative', 'positive', 'inconclusive'])->default('pending');
+            $table->enum('hepatitis_c_test', ['pending', 'negative', 'positive', 'inconclusive'])->default('pending');
+            $table->enum('syphilis_test', ['pending', 'negative', 'positive', 'inconclusive'])->default('pending');
+            $table->enum('malaria_test', ['pending', 'negative', 'positive', 'inconclusive'])->default('pending');
             $table->string('blood_group_confirmation')->nullable();
             $table->foreignId('screened_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('screened_at')->nullable();

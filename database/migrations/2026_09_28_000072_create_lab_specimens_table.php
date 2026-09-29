@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->string('specimen_type', 20); // blood, urine, stool, sputum, swab, tissue, csf, other
             $table->string('status', 20)->default('collected'); // collected, received, processing, completed, rejected
             $table->foreignId('collected_by')->constrained('users')->cascadeOnDelete();
-            $table->timestamp('collected_at');
+            $table->timestamp('collected_at')->nullable();
             $table->foreignId('received_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('received_at')->nullable();
             $table->text('rejection_reason')->nullable();

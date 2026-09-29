@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->foreignId('medicine_id')->constrained('medicines')->cascadeOnDelete();
             $table->string('dose');
             $table->enum('route', ['iv', 'im', 'sc', 'inhalation', 'topical']);
-            $table->timestamp('time_administered');
+            $table->timestamp('time_administered')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
         });

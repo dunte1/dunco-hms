@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('mortuary_record_id')->constrained('mortuary_records')->cascadeOnDelete();
             $table->integer('slot_number');
-            $table->timestamp('assigned_at');
+            $table->timestamp('assigned_at')->nullable();
             $table->timestamp('removed_at')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();

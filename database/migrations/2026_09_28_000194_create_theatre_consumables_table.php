@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->decimal('unit_cost', 12, 2)->nullable();
             $table->string('batch_number')->nullable();
             $table->foreignId('added_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('added_at');
+            $table->timestamp('added_at')->nullable();
             $table->timestamps();
         });
     }

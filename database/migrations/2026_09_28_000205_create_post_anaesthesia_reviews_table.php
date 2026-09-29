@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('anaesthesia_record_id')->constrained('anaesthesia_records')->cascadeOnDelete();
             $table->foreignId('patient_id')->constrained('patients')->cascadeOnDelete();
-            $table->timestamp('review_time');
+            $table->timestamp('review_time')->nullable();
             $table->tinyInteger('consciousness_level')->unsigned()->nullable();
             $table->boolean('airway_patent');
             $table->boolean('breathing_spontaneous');

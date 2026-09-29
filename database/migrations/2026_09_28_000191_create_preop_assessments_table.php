@@ -24,7 +24,7 @@ return new class extends Migration {
             $table->boolean('allergies_confirmed')->default(false);
             $table->text('risks_identified')->nullable();
             $table->text('plan')->nullable();
-            $table->timestamp('assessed_at');
+            $table->timestamp('assessed_at')->nullable();
             $table->timestamps();
         });
     }

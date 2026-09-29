@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->string('collection_site');
             $table->string('container_type');
             $table->foreignId('collected_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('collected_at');
+            $table->timestamp('collected_at')->nullable();
             $table->boolean('sent_to_lab')->default(false);
             $table->foreignId('lab_request_id')->nullable()->constrained('lab_requests')->nullOnDelete();
             $table->timestamps();

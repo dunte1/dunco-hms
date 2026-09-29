@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->text('treatment_provided');
             $table->text('outcome');
             $table->date('feedback_date');
-            $table->foreignId('feedback_by')->constrained('users')->nullOnDelete();
+            $table->foreignId('feedback_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }

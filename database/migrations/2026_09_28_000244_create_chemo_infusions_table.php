@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('chemo_cycle_id')->constrained('chemo_cycles')->cascadeOnDelete();
             $table->foreignId('patient_id')->constrained('patients')->cascadeOnDelete();
-            $table->timestamp('start_time');
+            $table->timestamp('start_time')->nullable();
             $table->timestamp('end_time')->nullable();
             $table->string('drug_name');
             $table->string('dose');

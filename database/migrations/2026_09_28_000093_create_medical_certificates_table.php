@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->string('certificate_type', 30);
             $table->text('findings')->nullable();
             $table->text('recommendations')->nullable();
-            $table->timestamp('issued_at');
+            $table->timestamp('issued_at')->nullable();
             $table->timestamp('valid_until')->nullable();
             $table->timestamps();
             $table->softDeletes();

@@ -99,6 +99,42 @@
                             
                             <!-- Right side of navbar -->
                             <div class="flex items-center space-x-4">
+                                <!-- Emergency Contact -->
+                                @php
+                                    $emergencyPhone = \App\Models\SystemSetting::get('emergency_phone_1', '+254 700 000 000');
+                                    $ambulancePhone = \App\Models\SystemSetting::get('ambulance_phone', '+254 700 000 002');
+                                    $emergencyClean = preg_replace('/[^0-9+]/', '', $emergencyPhone);
+                                    $ambulanceClean = preg_replace('/[^0-9+]/', '', $ambulancePhone);
+                                @endphp
+                                <div class="hidden lg:flex items-center space-x-3 text-xs">
+                                    <a href="tel:{{ $emergencyClean }}" 
+                                       class="flex items-center px-2 py-1 bg-red-50 text-red-700 rounded-md hover:bg-red-100 transition-colors"
+                                       title="Emergency Line">
+                                        <i class="fa fa-phone-alt mr-1 text-red-500"></i>
+                                        <span class="font-semibold">Emergency: {{ $emergencyPhone }}</span>
+                                    </a>
+                                    <a href="tel:{{ $ambulanceClean }}" 
+                                       class="flex items-center px-2 py-1 bg-orange-50 text-orange-700 rounded-md hover:bg-orange-100 transition-colors"
+                                       title="Ambulance Dispatch">
+                                        <i class="fa fa-ambulance mr-1 text-orange-500"></i>
+                                        <span class="font-semibold">Ambulance: {{ $ambulancePhone }}</span>
+                                    </a>
+                                </div>
+                                
+                                <!-- Mobile emergency (icon only) -->
+                                <div class="lg:hidden flex items-center space-x-2">
+                                    <a href="tel:{{ $emergencyClean }}" 
+                                       class="p-2 bg-red-50 text-red-600 rounded-full hover:bg-red-100"
+                                       title="Emergency: {{ $emergencyPhone }}">
+                                        <i class="fa fa-phone-alt"></i>
+                                    </a>
+                                    <a href="tel:{{ $ambulanceClean }}" 
+                                       class="p-2 bg-orange-50 text-orange-600 rounded-full hover:bg-orange-100"
+                                       title="Ambulance: {{ $ambulancePhone }}">
+                                        <i class="fa fa-ambulance"></i>
+                                    </a>
+                                </div>
+
                                 <!-- User dropdown -->
                                 <div class="relative" x-data="{ open: false }">
                                     <button @click="open = !open" 

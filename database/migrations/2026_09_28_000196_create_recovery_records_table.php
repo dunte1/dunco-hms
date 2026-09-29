@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('ot_schedule_id')->constrained('ot_schedules')->cascadeOnDelete();
             $table->foreignId('patient_id')->constrained('patients')->cascadeOnDelete();
-            $table->timestamp('admission_time');
+            $table->timestamp('admission_time')->nullable();
             $table->timestamp('discharge_time')->nullable();
             $table->foreignId('bed_id')->nullable()->constrained('beds')->nullOnDelete();
             $table->integer('gcs')->nullable();

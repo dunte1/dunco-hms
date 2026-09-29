@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('cssd_return_records', function (Blueprint $table) {
             $table->id();
             $table->foreignId('issue_record_id')->constrained('cssd_issue_records')->cascadeOnDelete();
-            $table->timestamp('returned_at');
+            $table->timestamp('returned_at')->nullable();
             $table->enum('condition', ['complete', 'damaged', 'missing']);
             $table->text('missing_items')->nullable();
             $table->foreignId('inspected_by')->constrained('users');

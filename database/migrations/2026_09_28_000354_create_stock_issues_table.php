@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->string('issued_to_department')->nullable();
             $table->json('items');
             $table->string('status', 30)->default('pending');
-            $table->timestamp('issued_at');
+            $table->timestamp('issued_at')->nullable();
             $table->timestamp('returned_at')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();

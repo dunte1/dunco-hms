@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
             $table->enum('request_type', ['access', 'rectification', 'erasure', 'portability', 'objection']);
             $table->enum('status', ['received', 'processing', 'completed', 'rejected'])->default('received');
-            $table->timestamp('requested_at');
+            $table->timestamp('requested_at')->nullable();
             $table->timestamp('deadline_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->text('notes')->nullable();

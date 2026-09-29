@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->foreignId('instrument_set_id')->constrained('instrument_sets');
             $table->foreignId('issued_to_user_id')->constrained('users');
             $table->foreignId('theatre_schedule_id')->nullable()->constrained('ot_schedules')->nullOnDelete();
-            $table->timestamp('issued_at');
+            $table->timestamp('issued_at')->nullable();
             $table->timestamp('expected_return_at')->nullable();
             $table->enum('status', ['issued', 'overdue', 'returned'])->default('issued');
             $table->text('notes')->nullable();
