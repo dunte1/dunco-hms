@@ -1613,7 +1613,7 @@
 
 
             {{-- âš™ï¸ 10. SYSTEM ADMINISTRATION --}}
-            @canany(['manage system settings', 'manage roles', 'manage permissions', 'view audit logs'])
+            @canany(['manage system settings', 'manage roles', 'manage permissions', 'view audit logs', 'manage hospital info', 'manage user accounts', 'manage staff profiles'])
                 <li class="mb-1">
                     <div class="menu-item menu-item-indigo" @click="toggleMenu('settings', true)">
                         <div class="flex items-center">
@@ -1626,7 +1626,7 @@
                            :class="isMenuOpen('settings') ? 'rotate-180' : ''"></i>
                     </div>
                     <ul x-show="isMenuOpen('settings')" x-transition class="submenu submenu-indigo">
-                        @can('manage system settings')
+                        @canany(['manage system settings', 'manage hospital info'])
                             <li>
                                 <div class="nested-menu-item" @click="toggleMenu('general-settings')">
                                     <div class="flex items-center text-sm">
@@ -1676,48 +1676,54 @@
                                     </li>
                                 </ul>
                             </li>
-                        @endcan
+                        @endcanany
 
                         {{-- User Management --}}
-                        @can('manage roles')
+                        @canany(['manage roles', 'manage user accounts', 'manage staff profiles'])
                             <li>
                                 <div class="nested-menu-item" @click="toggleMenu('user-management')">
                                     <div class="flex items-center text-sm">
                                         <i class="fa fa-users-cog mr-2 w-4 text-indigo-600"></i>
                                         <span>User Management</span>
                                     </div>
-                                    <i class="fa fa-chevron-down text-xs transition-transform" 
+                                    <i class="fa fa-chevron-down text-xs transition-transform"
                                        :class="isMenuOpen('user-management') ? 'rotate-180' : ''"></i>
                                 </div>
                                 <ul x-show="isMenuOpen('user-management')" x-transition class="nested-submenu">
                                     <li>
-                                        <a @click.stop href="{{ route('hms.system.users.index') }}" 
+                                        <a @click.stop href="{{ route('hms.system.users.index') }}"
                                            class="nested-link {{ request()->routeIs('hms.system.users.*') ? 'active' : '' }}">
                                             <i class="fa fa-users mr-2 w-4"></i> Users
                                         </a>
                                     </li>
-                                    <li>
-                                        <a @click.stop href="{{ route('admin.roles.index') }}" 
-                                           class="nested-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
-                                            <i class="fa fa-user-shield mr-2 w-4"></i> Roles & Permissions
-                                        </a>
-                                    </li>
+                                    @can('manage roles')
+                                        <li>
+                                            <a @click.stop href="{{ route('admin.roles.index') }}"
+                                               class="nested-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                                                <i class="fa fa-user-shield mr-2 w-4"></i> Roles & Permissions
+                                            </a>
+                                        </li>
+                                    @endcan
                                 </ul>
                             </li>
-                        @endcan
+                        @endcanany
 
-                        <li>
-                            <a @click.stop href="{{ route('admin.modules.index') }}" 
-                               class="submenu-link {{ request()->routeIs('admin.modules.*') ? 'active' : '' }}">
-                                <i class="fa fa-puzzle-piece mr-2 w-4"></i> Module Manager
-                            </a>
-                        </li>
-                        <li>
-                            <a @click.stop href="{{ route('hms.system.localization') }}" 
-                               class="submenu-link {{ request()->routeIs('hms.system.localization') ? 'active' : '' }}">
-                                <i class="fa fa-language mr-2 w-4"></i> Localization
-                            </a>
-                        </li>
+                        @can('manage roles')
+                            <li>
+                                <a @click.stop href="{{ route('admin.modules.index') }}"
+                                   class="submenu-link {{ request()->routeIs('admin.modules.*') ? 'active' : '' }}">
+                                    <i class="fa fa-puzzle-piece mr-2 w-4"></i> Module Manager
+                                </a>
+                            </li>
+                        @endcan
+                        @can('manage roles')
+                            <li>
+                                <a @click.stop href="{{ route('hms.system.localization') }}"
+                                   class="submenu-link {{ request()->routeIs('hms.system.localization') ? 'active' : '' }}">
+                                    <i class="fa fa-language mr-2 w-4"></i> Localization
+                                </a>
+                            </li>
+                        @endcan
                         @can('manage backups')
                             <li>
                                 <a @click.stop href="{{ route('hms.settings.backup') }}" 

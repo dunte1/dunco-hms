@@ -1422,10 +1422,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/settings/branches', [\App\Http\Controllers\Hms\SettingsController::class, 'branches'])->name('settings.branches');
         Route::get('/settings/branches/create', [\App\Http\Controllers\Hms\SettingsController::class, 'createBranch'])->name('settings.branches.create');
         Route::post('/settings/branches', [\App\Http\Controllers\Hms\SettingsController::class, 'storeBranch'])->name('settings.branches.store');
-        Route::get('/settings/audit-logs', [\App\Http\Controllers\Hms\SettingsController::class, 'auditLogs'])->name('settings.audit-logs');
-        Route::get('/settings/backup', [\App\Http\Controllers\Hms\SettingsController::class, 'backup'])->name('settings.backup');
-        Route::post('/settings/backup/create', [\App\Http\Controllers\Hms\SettingsController::class, 'createBackup'])->name('settings.backup.create');
-        Route::post('/settings/backup/restore', [\App\Http\Controllers\Hms\SettingsController::class, 'restoreBackup'])->name('settings.backup.restore');
+        Route::get('/settings/audit-logs', [\App\Http\Controllers\Hms\SettingsController::class, 'auditLogs'])->name('settings.audit-logs')->middleware('permission:view audit logs|manage break glass events');
+        Route::get('/settings/backup', [\App\Http\Controllers\Hms\SettingsController::class, 'backup'])->name('settings.backup')->middleware('permission:manage backups');
+        Route::post('/settings/backup/create', [\App\Http\Controllers\Hms\SettingsController::class, 'createBackup'])->name('settings.backup.create')->middleware('permission:manage backups');
+        Route::post('/settings/backup/restore', [\App\Http\Controllers\Hms\SettingsController::class, 'restoreBackup'])->name('settings.backup.restore')->middleware('permission:manage backups');
+        Route::get('/settings/backup/download/{filename}', [\App\Http\Controllers\Hms\SettingsController::class, 'downloadBackup'])->name('settings.backup.download')->middleware('permission:manage backups');
         Route::get('/settings/backup/download/{filename}', [\App\Http\Controllers\Hms\SettingsController::class, 'downloadBackup'])->name('settings.backup.download')->middleware('permission:manage backups');
         
         // Emergency Contacts Settings
