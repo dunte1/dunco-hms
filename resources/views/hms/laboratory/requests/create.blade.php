@@ -11,8 +11,9 @@
                 </div>
                 <div class="card-body">
                     <form action="{{ route('hms.laboratory.requests.store') }}" method="POST" id="lab-request-form">
-                        @csrf
-                        <input type="hidden" name="billing_mode" id="billing_mode" value="">
+@csrf
+<input type="hidden" name="billing_mode" id="billing_mode" value="">
+<input type="hidden" name="opd_visit_id" id="opd_visit_id" value="{{ request('opd_visit_id') }}">
                         <input type="hidden" name="payment_id" id="payment_id" value="">
                         <div class="row">
                             <div class="col-md-6">
@@ -21,7 +22,7 @@
                                     <select name="patient_id" id="lab_patient_id" class="form-control" required>
                                         <option value="">Select Patient</option>
                                         @foreach($patients as $patient)
-                                        <option value="{{ $patient->id }}" data-phone="{{ $patient->phone }}">{{ $patient->first_name }} {{ $patient->last_name }}</option>
+                                        <option value="{{ $patient->id }}" data-phone="{{ $patient->phone }}" @selected(request('patient_id') == $patient->id)>{{ $patient->first_name }} {{ $patient->last_name }}</option>
                                         @endforeach
                                     </select>
                                     <div id="lab-coverage-badge" class="form-text"></div>

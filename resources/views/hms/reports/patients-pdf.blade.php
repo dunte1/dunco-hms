@@ -1,49 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Patient Report</title>
-    <style>
-        body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 11px; color: #333; line-height: 1.5; margin: 0; padding: 20px; }
-        .header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #10b981; }
-        .header h1 { color: #10b981; font-size: 22px; margin-bottom: 5px; }
-        .header p { color: #666; font-size: 12px; margin: 3px 0; }
-        .header .subtitle { color: #999; font-size: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { background: #f3f4f6; padding: 8px 6px; text-align: left; font-weight: bold; border-bottom: 2px solid #10b981; font-size: 10px; }
-        td { padding: 6px; border-bottom: 1px solid #e5e7eb; font-size: 10px; }
-        tr:nth-child(even) { background: #f9fafb; }
-        .footer { margin-top: 30px; padding-top: 10px; border-top: 1px solid #e5e7eb; text-align: center; color: #999; font-size: 9px; }
-        @media print {
-            @page { size: A4; margin: 15mm; }
-            body { padding: 0; margin: 0; }
-            .no-print { display: none !important; }
-            table { page-break-inside: avoid; }
-            tr { page-break-inside: avoid; }
-        }
-    </style>
-</head>
-<body>
-    @php
-        $themeSettings = [
-            'primary_color' => \App\Models\SystemSetting::get('primary_color', '#10b981'),
-            'hospital_logo' => \App\Models\SystemSetting::get('hospital_logo', ''),
-            'hospital_name' => \App\Models\SystemSetting::get('hospital_name', config('app.name', 'DuncoHMS')),
-            'hospital_address' => \App\Models\SystemSetting::get('hospital_address', ''),
-            'hospital_phone' => \App\Models\SystemSetting::get('hospital_phone', ''),
-            'hospital_email' => \App\Models\SystemSetting::get('hospital_email', ''),
-        ];
-    @endphp
-    <div class="header">
-        @if(isset($themeSettings) && !empty($themeSettings['hospital_logo']))
-            <img src="data:image/png;base64,{{ $themeSettings['hospital_logo'] }}" style="height: 50px; margin-right: 10px;">
-        @endif
-        <h1>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }}</h1>
-        <p>{{ \App\Models\SystemSetting::get('hospital_address', '') }}</p>
-        <p>Tel: {{ \App\Models\SystemSetting::get('hospital_phone', '') }} | Email: {{ \App\Models\SystemSetting::get('hospital_email', '') }}</p>
-        <p class="subtitle">Patient Report | Generated: {{ now()->format('M d, Y h:i A') }}</p>
+<x-document title="Patient Report" subtitle="Complete Patient Registry" documentNumber="RPT-{{ now()->format('Ymd-His') }}">
+
+    <div class="summary">
+        <div class="summary-box">
+            <div class="amount">{{ $patients->count() }}</div>
+            <div class="label">Total Patients</div>
+        </div>
+        <div class="summary-box">
+            <div class="amount">{{ $patients->where('gender', 'male')->count() }}</div>
+            <div class="label">Male</div>
+        </div>
+        <div class="summary-box">
+            <div class="amount">{{ $patients->where('gender', 'female')->count() }}</div>
+            <div class="label">Female</div>
+        </div>
     </div>
 
+    <div class="section-title">Patient Registry</div>
     <table>
         <thead>
             <tr>
@@ -59,7 +31,7 @@
             @forelse($patients as $patient)
             <tr>
                 <td>{{ $patient->patient_no }}</td>
-                <td>{{ $patient->full_name }}</td>
+                <td><strong>{{ $patient->full_name }}</strong></td>
                 <td>{{ $patient->email ?? 'N/A' }}</td>
                 <td>{{ $patient->phone ?? 'N/A' }}</td>
                 <td>{{ $patient->dob ? date('M d, Y', strtotime($patient->dob)) : 'N/A' }}</td>
@@ -67,18 +39,10 @@
             </tr>
             @empty
             <tr>
-                <td colspan="6" style="text-align: center;">No patients found.</td>
+                <td colspan="6" style="text-align: center; padding: 20px;">No patients found.</td>
             </tr>
             @endforelse
         </tbody>
     </table>
 
-    <div class="footer">
-        <p>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }} | {{ \App\Models\SystemSetting::get('hospital_address', '') }} | {{ \App\Models\SystemSetting::get('hospital_phone', '') }}</p>
-        <p>Generated on {{ now()->format('F d, Y \a\t H:i') }}</p>
-    </div>
-</body>
-</html>
-
-
-
+</x-document>

@@ -15,6 +15,7 @@ use App\Models\MessageCampaign;
 use App\Models\MessageTemplate;
 use App\Models\MessageOptOut;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class G079TelemedicineCommsTest extends TestCase
@@ -26,7 +27,9 @@ class G079TelemedicineCommsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
         $this->user = User::factory()->create();
+        $this->user->assignRole('Telemedicine Doctor');
     }
 
     public function test_tele_participant_addition(): void

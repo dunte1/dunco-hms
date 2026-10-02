@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Offline - Dunco HMS</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #000075 0%, #00001A 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .container { max-width: 400px; }
+        .icon { font-size: 80px; margin-bottom: 20px; }
+        h1 { font-size: 24px; margin-bottom: 10px; }
+        p { color: rgba(255,255,255,0.7); margin-bottom: 30px; line-height: 1.6; }
+        .btn {
+            background: white;
+            color: #000075;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .footer { margin-top: 40px; color: rgba(255,255,255,0.4); font-size: 12px; }
+        .footer a { color: rgba(255,255,255,0.6); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📡</div>
+        <h1>You're Offline</h1>
+        <p>It looks like you've lost your internet connection. Please check your network and try again.</p>
+        <button class="btn" onclick="location.reload()">Retry</button>
+        <div class="footer">
+            <p><strong>Dunco HMS</strong> — Hospital Management System</p>
+            <p>Powered by <a href="https://duncowebsolutions.co.ke">Dunco Web Solutions</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60" viewBox="0 0 200 60">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#000075"/>
+      <stop offset="100%" style="stop-color:#00001A"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="60" rx="8" fill="url(#bg)"/>
+  <!-- Medical cross icon -->
+  <rect x="15" y="15" width="8" height="30" rx="2" fill="white"/>
+  <rect x="5" y="27" width="28" height="8" rx="2" fill="white"/>
+  <!-- Hospital name -->
+  <text x="45" y="28" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white">Dunco HMS</text>
+  <text x="45" y="42" font-family="Arial, sans-serif" font-size="9" fill="rgba(255,255,255,0.7)">Hospital Management System</text>
+</svg>

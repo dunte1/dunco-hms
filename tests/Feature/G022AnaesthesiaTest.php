@@ -17,6 +17,7 @@ use App\Models\IntraopVital;
 use App\Models\AnaesthesiaComplication;
 use App\Models\PostAnaesthesiaReview;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class G022AnaesthesiaTest extends TestCase
@@ -32,8 +33,10 @@ class G022AnaesthesiaTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
 
         $this->user = User::factory()->create();
+        $this->user->assignRole('Doctor');
         $this->patient = Patient::factory()->create();
         $this->doctor = Doctor::factory()->create();
         $category = MedicineCategory::create(['name' => 'Anaesthesia Drugs']);
@@ -288,3 +291,4 @@ class G022AnaesthesiaTest extends TestCase
         ]);
     }
 }
+

@@ -12,6 +12,7 @@ use App\Models\PepPrepRecord;
 use App\Models\PartnerNotification;
 use App\Models\HeiRecord;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class G037HivTest extends TestCase
@@ -26,8 +27,10 @@ class G037HivTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
 
         $this->user = User::factory()->create();
+        $this->user->assignRole('Doctor');
         $this->patient = Patient::factory()->create(['first_name' => 'James', 'last_name' => 'Mwangi']);
         $this->motherPatient = Patient::factory()->create(['first_name' => 'Jane', 'last_name' => 'Wanjiku']);
         $this->newbornPatient = Patient::factory()->create(['first_name' => 'Baby', 'last_name' => 'Wanjiku']);

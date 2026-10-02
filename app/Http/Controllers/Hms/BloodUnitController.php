@@ -60,6 +60,26 @@ class BloodUnitController extends Controller
             'patient_id' => 'required|exists:patients,id',
         ]);
 
+        // Crossmatch gate: require a compatible crossmatch for this patient before issue
+        $compatible = \App\Models\CrossmatchRequest::where('patient_id', $data['patient_id'])
+            ->whereIn('result', ['compatible', 'crossmatched', 'approved', 'negative', 'match'])
+            ->exists();
+
+        $hasAnyCrossmatch = \App\Models\CrossmatchRequest::where('patient_id', $data['patient_id'])->exists();
+
+        if ($hasAnyCrossmatch && !$compatible) {
+            return back()->withErrors([
+                'blood_unit_id' => 'A compatible crossmatch result is required for this patient before blood can be issued.',
+            ]);
+        }
+
+        if (!$hasAnyCrossmatch) {
+            \Illuminate\Support\Facades\Log::warning('Blood unit issued without recorded crossmatch for patient', [
+                'unit_id' => $unit->id,
+                'patient_id' => $data['patient_id'],
+            ]);
+        }
+
         BloodIssue::create([
             'blood_unit_id' => $unit->id,
             'blood_request_id' => $data['blood_request_id'],

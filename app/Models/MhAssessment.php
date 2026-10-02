@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class MhAssessment extends Model
 {
     use HasFactory;
+    use Auditable;
 
     protected $fillable = [
         'patient_id', 'assessment_date', 'presenting_complaint',
@@ -40,3 +43,4 @@ class MhAssessment extends Model
         return $this->hasMany(MhTreatmentPlan::class, 'mh_assessment_id');
     }
 }
+

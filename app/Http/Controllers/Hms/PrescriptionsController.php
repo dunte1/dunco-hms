@@ -179,7 +179,29 @@ class PrescriptionsController extends Controller
 
     public function destroy(Prescription $prescription): RedirectResponse
     {
-        $prescription->delete();
-        return redirect()->route('hms.pharmacy.prescriptions.index')->with('status', 'Prescription deleted successfully');
+        // Controlled void — never hard-delete finalized clinical records.
+        if (in_array($prescription->status, ['dispensed', 'completed', 'partially_dispensed'], true)) {
+            return redirect()
+                ->route('hms.pharmacy.prescriptions.index')
+                ->with('error', 'Cannot delete a dispensed prescription. Void it instead if required.');
+        }
+
+        $prescription->update([
+            'status' => 'cancelled',
+            'notes' => trim(($prescription->notes ? $prescription->notes . "\n" : '') . '[VOID] Cancelled by ' . (auth()->user()?->name ?? 'system') . ' at ' . now()->toDateTimeString()),
+        ]);
+
+        \App\Models\AuditLog::log(
+            'user',
+            auth()->id(),
+            'prescription.void',
+            'Prescription',
+            $prescription->id,
+            ['status' => 'active'],
+            ['status' => 'cancelled'],
+            'Prescription voided (not deleted)'
+        );
+
+        return redirect()->route('hms.pharmacy.prescriptions.index')->with('status', 'Prescription voided successfully');
     }
 }

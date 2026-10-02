@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Appointment extends Model
 {
     use HasFactory;
+    use Auditable;
 
     protected $fillable = [
         'patient_id','doctor_id','scheduled_at','status','note',
@@ -37,6 +40,7 @@ class Appointment extends Model
         return $this->hasMany(AppointmentReminder::class);
     }
 }
+
 
 
 

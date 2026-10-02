@@ -8,7 +8,7 @@
         
         <!-- Header -->
         <div class="mb-6">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
                         <i class="fa fa-file-invoice text-emerald-600 mr-3"></i>

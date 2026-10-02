@@ -151,7 +151,41 @@ class OpdVisitsController extends Controller
 
         return back()->with('success', 'Visit status updated to ' . $opd->status_label . '.');
     }
-    
+
+    /**
+     * Finalize / lock an OPD encounter after consultation.
+     */
+    public function finalize(Request $request, OpdVisit $opd): \Illuminate\Http\RedirectResponse
+    {
+        if (in_array($opd->status, ['completed', 'finalized'], true)) {
+            return redirect()->route('hms.opd.show', $opd)->with('status', 'Visit already finalized.');
+        }
+
+        if (empty($opd->diagnosis) && empty($opd->clinical_notes) && empty($opd->treatment_plan)) {
+            return redirect()->route('hms.opd.show', $opd)
+                ->with('error', 'Cannot finalize: add diagnosis or clinical notes before locking the encounter.');
+        }
+
+        $opd->update([
+            'status' => 'completed',
+            'finalized_at' => now(),
+            'finalized_by' => auth()->id(),
+        ]);
+
+        \App\Models\AuditLog::log(
+            'user',
+            auth()->id(),
+            'opd.visit.finalize',
+            'OpdVisit',
+            $opd->id,
+            null,
+            ['status' => 'completed'],
+            'OPD encounter finalized'
+        );
+
+        return redirect()->route('hms.opd.show', $opd)->with('status', 'Encounter finalized successfully.');
+    }
+
     public function destroy(OpdVisit $opd): RedirectResponse
     {
         $opd->delete();

@@ -59,11 +59,28 @@ class DispensationController extends Controller
                 ]);
 
                 $medicine = Medicine::findOrFail($item['medicine_id']);
+                $stockBefore = (int) $medicine->stock_quantity;
                 $newStock = $medicine->stock_quantity - $item['quantity'];
                 if ($newStock < 0) {
                     throw new \Exception("Insufficient stock for {$medicine->name}");
                 }
                 $medicine->update(['stock_quantity' => $newStock]);
+
+                // Stock movement ledger (dispensing out)
+                \App\Models\StockMovement::create([
+                    'movement_number' => 'DSP-' . $dispensation->id . '-' . $item['medicine_id'],
+                    'medicine_id' => $item['medicine_id'],
+                    'user_id' => auth()->id(),
+                    'batch_id' => $item['batch_id'] ?? null,
+                    'batch_number' => $item['batch_id'] ? optional(\App\Models\MedicineBatch::find($item['batch_id']))->batch_number : null,
+                    'movement_type' => 'dispensation',
+                    'direction' => 'out',
+                    'quantity' => $item['quantity'],
+                    'stock_before' => $stockBefore,
+                    'stock_after' => $newStock,
+                    'unit_cost' => $item['unit_price'],
+                    'total_cost' => $item['quantity'] * $item['unit_price'],
+                ]);
 
                 if (!empty($item['batch_id'])) {
                     $batch = MedicineBatch::findOrFail($item['batch_id']);

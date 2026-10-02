@@ -99,6 +99,9 @@ class PaymentsController extends Controller
                 'balance_amount' => $invoice->balance_amount,
                 'payment_method' => $data['payment_method']
             ]);
+
+            // Post payment to income + journal ledger (double-entry)
+            $this->postPaymentToLedger($payment, $invoice, $data);
         } else {
             Log::info('M-Pesa payment created as pending, invoice will be updated on callback', [
                 'payment_id' => $payment->id,
@@ -292,6 +295,82 @@ class PaymentsController extends Controller
             Log::error('Failed to send WhatsApp receipt', [
                 'payment_id' => $payment->id,
                 'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Post a completed payment to Income + double-entry Journal.
+     * Cash/bank accounts are resolved from Account model by type/name when possible.
+     */
+    protected function postPaymentToLedger(Payment $payment, Invoice $invoice, array $data): void
+    {
+        try {
+            $amount = (float) $payment->amount;
+            if ($amount <= 0) {
+                return;
+            }
+
+            $method = strtolower((string) ($data['payment_method'] ?? 'cash'));
+            $cashAccount = \App\Models\Account::where('name', 'like', '%Cash%')->first()
+                ?? \App\Models\Account::where('slug', 'cash')->first()
+                ?? \App\Models\Account::first();
+            $incomeAccount = \App\Models\Account::where('name', 'like', '%Revenue%')->first()
+                ?? \App\Models\Account::where('name', 'like', '%Income%')->first()
+                ?? $cashAccount;
+
+            $income = \App\Models\Income::create([
+                'income_number' => 'INC-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(5)),
+                'account_id' => $incomeAccount?->id,
+                'income_category' => 'patient_payment',
+                'source' => 'invoice',
+                'patient_id' => $invoice->patient_id,
+                'invoice_id' => $invoice->id,
+                'payment_id' => $payment->id,
+                'amount' => $amount,
+                'income_date' => $payment->payment_date ?? now()->toDateString(),
+                'payment_method' => $method,
+                'reference_number' => $payment->payment_reference ?? $payment->id,
+                'description' => "Payment {$payment->id} against invoice {$invoice->invoice_number}",
+                'recorded_by' => auth()->id(),
+            ]);
+
+            $entry = \App\Models\JournalEntry::create([
+                'entry_number' => 'JE-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(5)),
+                'date' => $payment->payment_date ?? now()->toDateString(),
+                'description' => "Patient payment {$payment->id} / {$invoice->invoice_number}",
+                'reference_type' => 'payment',
+                'reference_id' => $payment->id,
+                'status' => 'posted',
+                'posted_by' => auth()->id(),
+                'posted_at' => now(),
+            ]);
+
+            if ($cashAccount && $incomeAccount) {
+                $entry->lines()->create([
+                    'account_id' => $cashAccount->id,
+                    'debit' => $amount,
+                    'credit' => 0,
+                    'description' => "Cash/bank received ({$method})",
+                ]);
+                $entry->lines()->create([
+                    'account_id' => $incomeAccount->id,
+                    'debit' => 0,
+                    'credit' => $amount,
+                    'description' => "Patient revenue {$invoice->invoice_number}",
+                ]);
+            }
+
+            \Illuminate\Support\Facades\Log::info('Payment posted to ledger', [
+                'payment_id' => $payment->id,
+                'income_id' => $income->id,
+                'journal_entry_id' => $entry->id,
+            ]);
+        } catch (\Exception $e) {
+            // Ledger posting must not block payment capture; log for finance follow-up
+            \Illuminate\Support\Facades\Log::error('Payment ledger post failed', [
+                'payment_id' => $payment->id,
+                'error' => $e->getMessage(),
             ]);
         }
     }

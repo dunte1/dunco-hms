@@ -9,6 +9,7 @@ use App\Models\PatientDiagnosis;
 use App\Models\MedicalHistory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class PatientManagementTest extends TestCase
@@ -18,9 +19,10 @@ class PatientManagementTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        // Create test user
+
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
         $this->user = User::factory()->create();
+        $this->user->assignRole('Hospital Admin');
         $this->actingAs($this->user);
     }
 

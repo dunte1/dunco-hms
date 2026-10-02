@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SocialAssessment extends Model
 {
     use HasFactory;
+    use Auditable;
 
     protected $fillable = [
         'patient_id', 'assessment_date', 'living_situation',
@@ -33,3 +36,4 @@ class SocialAssessment extends Model
         return $this->belongsTo(User::class, 'assessed_by');
     }
 }
+

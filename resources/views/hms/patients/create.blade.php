@@ -2,7 +2,7 @@
     <div class="py-6">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
-            <div class="mb-6 flex items-center justify-between">
+            <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
                         <i class="fa fa-user-plus text-blue-600 mr-3"></i>
@@ -157,10 +157,90 @@
                                 </label>
                                 <textarea name="address" 
                                           id="address" 
-                                          rows="3"
-                                          placeholder="Street address, city, state, zip code"
+                                          rows="2"
+                                          placeholder="Street address"
                                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 @error('address') border-red-500 @enderror">{{ old('address') }}</textarea>
                                 @error('address')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Nationality -->
+                            <div>
+                                <label for="nationality" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Nationality
+                                </label>
+                                <select name="nationality" id="nationality"
+                                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 @error('nationality') border-red-500 @enderror">
+                                    <option value="Kenyan" {{ old('nationality', 'Kenyan') == 'Kenyan' ? 'selected' : '' }}>Kenyan</option>
+                                    <option value="Somali" {{ old('nationality') == 'Somali' ? 'selected' : '' }}>Somali</option>
+                                    <option value="Ugandan" {{ old('nationality') == 'Ugandan' ? 'selected' : '' }}>Ugandan</option>
+                                    <option value="Tanzanian" {{ old('nationality') == 'Tanzanian' ? 'selected' : '' }}>Tanzanian</option>
+                                    <option value="Other" {{ old('nationality') == 'Other' ? 'selected' : '' }}>Other</option>
+                                </select>
+                                @error('nationality')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- National ID -->
+                            <div>
+                                <label for="national_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    National ID / Passport
+                                </label>
+                                <input type="text" name="national_id" id="national_id"
+                                       value="{{ old('national_id') }}"
+                                       placeholder="e.g. 12345678"
+                                       class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 @error('national_id') border-red-500 @enderror">
+                                @error('national_id')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- County -->
+                            <div>
+                                <label for="county" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    County
+                                </label>
+                                <select name="county" id="county"
+                                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 @error('county') border-red-500 @enderror">
+                                    <option value="">Select County</option>
+                                    @php
+                                        $counties = ['Mombasa','Kwale','Kilifi','Tana River','Lamu','Taita/Taveta','Garissa','Wajir','Mandera','Marsabit','Isiolo','Meru','Tharaka-Nithi','Embu','Kitui','Machakos','Makueni','Nyandarua','Nyeri','Kirinyaga','Murang\'a','Kiambu','Turkana','West Pokot','Samburu','Trans Nzoia','Uasin Gishu','Elgeyo/Marakwet','Nandi','Baringo','Laikipia','Nakuru','Narok','Kajiado','Kericho','Bomet','Kakamega','Vihiga','Bungoma','Busia','Siaya','Kisumu','Homa Bay','Migori','Kisii','Nyamira','Nairobi'];
+                                    @endphp
+                                    @foreach($counties as $c)
+                                        <option value="{{ $c }}" {{ old('county') == $c ? 'selected' : '' }}>{{ $c }}</option>
+                                    @endforeach
+                                </select>
+                                @error('county')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Sub-County -->
+                            <div>
+                                <label for="sub_county" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Sub-County
+                                </label>
+                                <input type="text" name="sub_county" id="sub_county"
+                                       value="{{ old('sub_county') }}"
+                                       placeholder="e.g. Makadara"
+                                       class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 @error('sub_county') border-red-500 @enderror">
+                                @error('sub_county')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Ward -->
+                            <div>
+                                <label for="ward" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Ward
+                                </label>
+                                <input type="text" name="ward" id="ward"
+                                       value="{{ old('ward') }}"
+                                       placeholder="e.g. Pipeline"
+                                       class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 @error('ward') border-red-500 @enderror">
+                                @error('ward')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -262,12 +342,46 @@
                         </div>
                     </div>
 
+                    <!-- Next of Kin / Emergency Contact -->
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                        <div class="flex items-center mb-4">
+                            <i class="fa fa-user-friends text-rose-600 mr-2"></i>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Next of Kin / Emergency Contact</h2>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First name</label>
+                                <input type="text" name="nok_first_name" value="{{ old('nok_first_name') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last name</label>
+                                <input type="text" name="nok_last_name" value="{{ old('nok_last_name') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Relationship</label>
+                                <input type="text" name="nok_relationship" value="{{ old('nok_relationship') }}" placeholder="e.g. Spouse, Parent, Sibling" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone</label>
+                                <input type="text" name="nok_phone" value="{{ old('nok_phone') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                                <input type="email" name="nok_email" value="{{ old('nok_email') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Address</label>
+                                <input type="text" name="nok_address" value="{{ old('nok_address') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Form Actions -->
-                    <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <a href="{{ route('hms.patients.index') }}" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition">
+                    <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <a href="{{ route('hms.patients.index') }}" class="w-full sm:w-auto px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition text-center">
                             <i class="fa fa-times mr-2"></i> Cancel
                         </a>
-                        <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                        <button type="submit" class="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-center">
                             <i class="fa fa-save mr-2"></i> Register Patient
                         </button>
                     </div>

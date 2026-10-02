@@ -16,6 +16,11 @@ use App\Models\Medicine;
 use App\Models\MedicineBatch;
 use App\Models\InsuranceClaim;
 use App\Models\PatientDiagnosis;
+use App\Models\Employee;
+use App\Models\Attendance;
+use App\Models\Ward;
+use App\Models\Bed;
+use App\Models\EmployeeDepartment;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -268,6 +273,65 @@ class MohReportsController extends Controller
         ));
     }
 
+    public function staffAttendance(Request $request): View
+    {
+        $request->validate([
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date',
+        ]);
+
+        $query = Attendance::with('user');
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('date', '<=', $request->date_to);
+        }
+
+        $attendances = $query->latest('date')->paginate(20);
+
+        $totalStaff = Employee::where('status', 'active')->count();
+        $presentToday = Attendance::whereDate('date', now()->today())->where('status', 'present')->distinct('user_id')->count('user_id');
+        $onLeaveToday = Attendance::whereDate('date', now()->today())->where('status', 'leave')->distinct('user_id')->count('user_id');
+        $absentToday = Attendance::whereDate('date', now()->today())->where('status', 'absent')->distinct('user_id')->count('user_id');
+
+        $byDepartment = Employee::where('status', 'active')
+            ->join('employee_departments', 'employees.department_id', '=', 'employee_departments.id')
+            ->selectRaw('employee_departments.name as department_name, COUNT(*) as count')
+            ->groupBy('employee_departments.name')
+            ->orderByDesc('count')
+            ->get();
+
+        return view('hms.reports.moh-staff-attendance', compact(
+            'attendances', 'totalStaff', 'presentToday', 'onLeaveToday', 'absentToday', 'byDepartment'
+        ));
+    }
+
+    public function bedOccupancy(Request $request): View
+    {
+        $wards = Ward::withCount(['beds as total_beds'])
+            ->withCount(['beds as occupied_beds' => function ($q) {
+                $q->where('is_available', false);
+            }])
+            ->where('is_active', true)
+            ->get()
+            ->map(function ($ward) {
+                $ward->available_beds = $ward->total_beds - $ward->occupied_beds;
+                $ward->occupancy_rate = $ward->total_beds > 0 ? round(($ward->occupied_beds / $ward->total_beds) * 100, 1) : 0;
+                return $ward;
+            });
+
+        $totalBeds = Bed::count();
+        $occupiedBeds = Bed::where('is_available', false)->count();
+        $availableBeds = Bed::where('is_available', true)->count();
+        $overallOccupancy = $totalBeds > 0 ? round(($occupiedBeds / $totalBeds) * 100, 1) : 0;
+
+        return view('hms.reports.moh-bed-occupancy', compact(
+            'wards', 'totalBeds', 'occupiedBeds', 'availableBeds', 'overallOccupancy'
+        ));
+    }
+
     public function generatePdf(string $type, Request $request)
     {
         $viewMap = [
@@ -277,6 +341,8 @@ class MohReportsController extends Controller
             'maternal-health' => 'hms.reports.moh-maternal-health-pdf',
             'pharmacy-consumption' => 'hms.reports.moh-pharmacy-consumption-pdf',
             'revenue-collection' => 'hms.reports.moh-revenue-collection-pdf',
+            'staff-attendance' => 'hms.reports.moh-staff-attendance-pdf',
+            'bed-occupancy' => 'hms.reports.moh-bed-occupancy-pdf',
         ];
 
         if (!isset($viewMap[$type])) {
@@ -290,6 +356,8 @@ class MohReportsController extends Controller
             'maternal-health' => $this->getMaternalHealthData($request),
             'pharmacy-consumption' => $this->getPharmacyConsumptionData($request),
             'revenue-collection' => $this->getRevenueCollectionData($request),
+            'staff-attendance' => $this->getStaffAttendanceData($request),
+            'bed-occupancy' => $this->getBedOccupancyData($request),
         };
 
         $pdf = Pdf::loadView($viewMap[$type], $data);
@@ -424,6 +492,40 @@ class MohReportsController extends Controller
                 ->when($request->filled('date_from'), fn($q) => $q->whereDate('invoice_date', '>=', $request->date_from))
                 ->when($request->filled('date_to'), fn($q) => $q->whereDate('invoice_date', '<=', $request->date_to))
                 ->sum('balance_amount'),
+            'dateFrom' => $request->date_from,
+            'dateTo' => $request->date_to,
+        ];
+    }
+
+    private function getStaffAttendanceData(Request $request): array
+    {
+        $totalStaff = Employee::where('status', 'active')->count();
+        $presentToday = Attendance::whereDate('date', now()->today())->where('status', 'present')->distinct('user_id')->count('user_id');
+        $onLeaveToday = Attendance::whereDate('date', now()->today())->where('status', 'leave')->distinct('user_id')->count('user_id');
+        $absentToday = Attendance::whereDate('date', now()->today())->where('status', 'absent')->distinct('user_id')->count('user_id');
+
+        return [
+            'totalStaff' => $totalStaff,
+            'presentToday' => $presentToday,
+            'onLeaveToday' => $onLeaveToday,
+            'absentToday' => $absentToday,
+            'dateFrom' => $request->date_from,
+            'dateTo' => $request->date_to,
+        ];
+    }
+
+    private function getBedOccupancyData(Request $request): array
+    {
+        $totalBeds = Bed::count();
+        $occupiedBeds = Bed::where('is_available', false)->count();
+        $availableBeds = Bed::where('is_available', true)->count();
+        $overallOccupancy = $totalBeds > 0 ? round(($occupiedBeds / $totalBeds) * 100, 1) : 0;
+
+        return [
+            'totalBeds' => $totalBeds,
+            'occupiedBeds' => $occupiedBeds,
+            'availableBeds' => $availableBeds,
+            'overallOccupancy' => $overallOccupancy,
             'dateFrom' => $request->date_from,
             'dateTo' => $request->date_to,
         ];

@@ -12,6 +12,7 @@ use App\Models\WelfareWaiverRequest;
 use App\Models\WardDischargePlan;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class G042MentalHealthSocialWorkTest extends TestCase
@@ -24,10 +25,11 @@ class G042MentalHealthSocialWorkTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
 
         $this->user = User::factory()->create();
-        Permission::create(['name' => 'manage patients']);
-        $this->user->givePermissionTo('manage patients');
+        $this->user->assignRole('Mental Health Professional');
+        $this->user->assignRole('Social Worker');
 
         $this->patient = Patient::factory()->create();
     }

@@ -47,7 +47,14 @@ class PatientPortalController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $account,
+            'data' => [
+                'id' => $account->id,
+                'username' => $account->username,
+                'email' => $account->email,
+                'patient_id' => $account->patient_id,
+                'is_active' => $account->is_active,
+                'two_factor_enabled' => $account->two_factor_enabled,
+            ],
             'message' => 'Login successful'
         ]);
     }

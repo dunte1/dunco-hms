@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\BelongsToFacility;
+
+use App\Traits\Auditable;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class MrdFile extends Model
 {
     use HasFactory;
+    use BelongsToFacility;
+    use Auditable;
 
     protected $fillable = [
         'patient_id', 'file_number', 'file_type', 'physical_location',
@@ -44,3 +50,5 @@ class MrdFile extends Model
         return $prefix . str_pad($sequence, 5, '0', STR_PAD_LEFT);
     }
 }
+
+

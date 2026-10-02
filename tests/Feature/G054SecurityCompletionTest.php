@@ -10,6 +10,7 @@ use App\Models\LostFoundItem;
 use App\Models\AccessEvent;
 use App\Models\VehicleAccessRecord;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class G054SecurityCompletionTest extends TestCase
@@ -21,7 +22,9 @@ class G054SecurityCompletionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
         $this->user = User::factory()->create();
+        $this->user->assignRole('Security Officer');
     }
 
     public function test_visitor_pass_creation_with_check_in(): void

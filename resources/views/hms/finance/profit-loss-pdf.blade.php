@@ -87,8 +87,8 @@
             font-size: 11px;
             color: #666;
         }
+        @page { size: A4; margin: 15mm; }
         @media print {
-            @page { size: A4; margin: 15mm; }
             body { padding: 0; margin: 0; }
             .no-print { display: none !important; }
             table { page-break-inside: avoid; }

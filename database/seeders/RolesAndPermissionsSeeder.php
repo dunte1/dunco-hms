@@ -1,58 +1,105 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $this->createPermissions();
-        $this->createRoles();
+        $permissions = $this->permissionList();
+        $roles = $this->roleList();
+
+        $now = now();
+
+        // Bulk insert permissions (ignore duplicates)
+        $permissionRows = [];
+        foreach (array_values(array_unique($permissions)) as $name) {
+            $permissionRows[] = [
+                'name' => $name,
+                'guard_name' => 'web',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+        Permission::insertOrIgnore($permissionRows);
+
+        // Bulk insert roles
+        $roleRows = [];
+        foreach ($roles as $name) {
+            $roleRows[] = [
+                'name' => $name,
+                'guard_name' => 'web',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+        Role::insertOrIgnore($roleRows);
+
         $this->assignPermissionsToRoles();
+
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        $this->command->info('[OK] Seeded ' . count($permissionRows) . ' permissions and ' . count($roleRows) . ' roles.');
     }
 
-    private function createPermissions(): void
+    /**
+     * @return array<int, string>
+     */
+    private function permissionList(): array
     {
-        $permissions = [
+        return [
             // ── Patient Management ──
             'view patients', 'add patients', 'edit patients', 'delete patients',
-            'manage admissions', 'manage discharges', 'assign beds', 'upload documents',
             'merge patients', 'emergency register patients', 'manage patient biometrics',
+            'manage admissions', 'manage discharges', 'assign beds', 'update bed status',
+            'view bed status', 'create bed types', 'edit bed types',
+            'manage bed assignments', 'upload documents', 'manage patient diagnoses',
+            'manage patient cases', 'manage case handlers', 'manage patient insurance',
+            'manage referral documents', 'manage patient portal accounts',
 
-            // ── Appointments & Scheduling ──
-            'create appointments', 'manage appointments', 'reschedule appointments', 'cancel appointments',
-            'view doctor schedules', 'send appointment reminders',
+            // ── Appointments ──
+            'create appointments', 'manage appointments', 'reschedule appointments',
+            'cancel appointments', 'view appointments', 'view doctor schedules',
+            'send appointment reminders',
 
             // ── Triage ──
             'manage triage records', 'manage triage escalations', 'view triage queue',
+            'manage triage queue',
 
             // ── Consultation ──
             'create consultations', 'manage consultations', 'diagnose patients',
-            'manage clinical notes', 'manage procedure orders', 'issue sick notes', 'issue medical certificates',
+            'manage clinical notes', 'manage procedure orders', 'issue sick notes',
+            'issue medical certificates',
 
             // ── Emergency ──
-            'manage emergency visits', 'manage resuscitation', 'manage trauma assessments',
-            'manage observation stays', 'set emergency disposition', 'defer emergency billing',
+            'manage emergency visits', 'manage emergency admissions', 'manage resuscitation',
+            'manage trauma assessments', 'manage observation stays', 'set emergency disposition',
+            'defer emergency billing',
 
             // ── Inpatient / Ward ──
             'manage ward rounds', 'manage nursing notes', 'manage fluid balance',
-            'manage medication administration', 'manage diet orders', 'sign discharge summaries', 'manage inpatient transfers',
+            'manage medication administration', 'manage diet orders', 'sign discharge summaries',
+            'manage inpatient transfers', 'record patient handovers',
 
             // ── ICU/HDU ──
             'manage icu admissions', 'manage critical care charts', 'manage ventilators',
-            'record abg results', 'manage sedation scores', 'manage infusions',
+            'manage sedation scores', 'manage infusions', 'record abg results',
 
             // ── Theatre ──
             'manage theatre bookings', 'manage surgical waiting list', 'record preop assessments',
             'complete who checklists', 'manage theatre teams', 'manage theatre consumables',
-            'manage theatre specimens', 'manage recovery records',
+            'manage theatre specimens', 'manage recovery records', 'generate operation reports',
 
             // ── Anaesthesia ──
             'manage anaesthesia assessments', 'manage anaesthesia records', 'manage anaesthesia drugs',
@@ -60,52 +107,59 @@ class RolesAndPermissionsSeeder extends Seeder
 
             // ── Nursing ──
             'manage nurse allocations', 'manage duty rosters', 'manage shift handovers',
-            'manage nursing procedures',
+            'manage nursing procedures', 'manage nurse departments',
 
             // ── Prescriptions & Medicines ──
-            'create prescriptions', 'edit prescriptions', 'view prescriptions', 'dispense medicines',
-            'manage medicine categories', 'manage medicine brands', 'manage medicine inventory',
-            'generate expiry alerts', 'generate stock alerts', 'manage controlled drugs',
-            'process drug returns', 'manage goods received notes', 'verify dispensations',
+            'create prescriptions', 'edit prescriptions', 'view prescriptions',
+            'dispense medicines', 'verify dispensations', 'manage controlled drugs',
+            'process drug returns', 'manage medicine categories', 'manage medicine brands',
+            'manage medicine inventory', 'manage goods received notes',
+            'generate expiry alerts', 'generate stock alerts',
 
             // ── Lab & Radiology ──
-            'manage test categories', 'add test requests', 'enter test results', 'approve test results',
-            'print lab reports', 'download lab reports', 'view test results',
+            'add test requests', 'view test results', 'print lab reports', 'download lab reports',
             'manage lab specimens', 'manage lab worklists', 'verify lab results',
+            'manage test categories', 'manage lab management', 'manage lab technicians',
+            'manage lab equipment', 'manage lab integration',
             'manage radiology schedules', 'manage radiology worklist', 'approve radiology reports',
-            'record contrast administration',
+            'manage radiology tests', 'manage radiology categories', 'record contrast administration',
 
             // ── Blood Bank ──
             'manage blood bank', 'manage blood donations', 'manage blood units',
-            'perform crossmatch', 'issue blood units', 'manage transfusions', 'report transfusion reactions',
+            'perform crossmatch', 'manage blood requests', 'manage blood inventory',
+            'report transfusion reactions',
 
             // ── Billing & Finance ──
-            'create invoices', 'edit invoices', 'add payments', 'add refunds',
-            'manage charges', 'manage discounts', 'manage waivers', 'manage cashier sessions',
-            'manage expenses', 'manage income', 'view payment reports', 'manage insurance claims',
-            'manage packages',
+            'create invoices', 'edit invoices', 'view invoices', 'add payments',
+            'add refunds', 'view billing', 'view payments', 'manage payment methods',
+            'manage advance payments', 'defer emergency billing',
+            'manage expense categories', 'manage expenses', 'manage income',
+            'view payment reports', 'view financial reports', 'generate financial reports',
+            'generate billing reports', 'export journals', 'export ledgers', 'export reports',
+            'manage bank accounts', 'manage journals', 'manage budgets',
 
             // ── SHA / Insurance ──
-            'verify insurance', 'manage preauthorizations', 'manage claim batches',
-            'manage claim rejections', 'manage claim remittances', 'manage tariffs', 'manage benefit packages',
+            'verify insurance', 'manage preauthorizations', 'manage insurance claims',
+            'manage claim batches', 'manage claim rejections', 'manage claim remittances',
+            'manage tariffs', 'manage benefit packages', 'manage insurance providers',
+            'manage insurance API', 'manage insurance integration', 'manage insurance management',
 
             // ── Finance / Accounting ──
-            'manage journal entries', 'post journal entries', 'reverse journal entries',
-            'manage fiscal periods', 'manage bank accounts', 'reconcile bank accounts',
-            'manage budgets', 'view financial reports', 'export ledgers', 'export journals',
+            'manage account heads', 'manage ledgers', 'manage trial balance',
+            'manage chart of accounts', 'manage cash flow',
 
             // ── IPD/OPD ──
             'admit patients', 'manage patient vitals', 'manage patient notes',
-            'assign doctors', 'assign nurses', 'update bed status',
+            'assign nurses', 'manage discharge plans',
 
             // ── Maternity ──
             'manage anc registrations', 'manage pregnancies', 'manage labour records',
-            'manage partograph entries', 'record deliveries', 'manage postnatal visits',
-            'manage family planning visits',
+            'record deliveries', 'manage postnatal visits', 'manage family planning visits',
+            'manage fp visits',
 
             // ── Neonatal ──
             'manage newborns', 'manage nicu admissions', 'manage incubator assignments',
-            'manage phototherapy sessions', 'manage neonatal feeds', 'record neonatal assessments',
+            'manage neonatal feeds', 'record neonatal assessments', 'manage phototherapy',
 
             // ── Paediatrics ──
             'manage growth measurements', 'manage developmental assessments',
@@ -113,8 +167,8 @@ class RolesAndPermissionsSeeder extends Seeder
 
             // ── HIV ──
             'manage hts encounters', 'manage hiv care enrollments', 'manage art regimens',
-            'manage viral load results', 'manage pep prep records', 'manage partner notifications',
-            'manage hei records',
+            'manage viral load results', 'manage pep prep records', 'manage hei records',
+            'manage partner notifications',
 
             // ── TB ──
             'manage tb screenings', 'manage tb cases', 'manage tb treatments',
@@ -126,146 +180,171 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage adverse events',
 
             // ── Public Health ──
-            'manage immunization schedules', 'manage family planning visits',
-            'manage surveillance cases', 'manage notifiable disease reports', 'manage outbreak events',
+            'manage surveillance cases', 'manage notifiable disease reports',
+            'manage outbreak events', 'manage outbreak investigations',
 
             // ── Allied (Dental, Ophthalmology, ENT, Rehab, Nutrition) ──
             'manage dental records', 'manage eye examinations', 'manage ent records',
-            'manage rehab sessions', 'manage nutrition records',
+            'manage rehab sessions', 'manage nutrition records', 'manage meal orders',
+            'manage diet orders',
 
             // ── Mental Health ──
             'manage mh assessments', 'manage mh treatment plans', 'manage counselling sessions',
 
             // ── Social Work ──
             'manage social assessments', 'manage welfare waivers', 'manage discharge plans',
+            'manage family support',
 
             // ── Mortuary ──
             'manage mortuary records', 'manage mortuary slots', 'manage body identifications',
-            'manage postmortems', 'issue death certificates',
+            'manage postmortems', 'issue death certificates', 'manage death records',
 
             // ── Ambulance ──
-            'manage ambulances', 'manage ambulance crews', 'manage ambulance trips',
-            'manage ambulance fuel', 'manage ambulance maintenance', 'record patient handovers',
+            'manage ambulances', 'manage ambulance calls', 'manage ambulance trips',
+            'manage ambulance fuel', 'manage ambulance maintenance',
 
             // ── CSSD ──
             'manage cssd instruments', 'manage cssd cycles', 'manage sterilizer runs',
             'record sterility indicators', 'manage cssd issues', 'manage cssd returns',
+            'manage cssd batches',
 
             // ── IPC ──
-            'manage hai surveillance', 'manage isolation orders', 'record hand hygiene observations',
-            'manage ipc audits', 'manage outbreak investigations', 'record antibiotic usage',
+            'manage hai surveillance', 'manage isolation orders',
+            'record hand hygiene observations', 'manage ipc audits',
+            'record antibiotic usage',
 
             // ── Maintenance ──
             'manage maintenance requests', 'manage work orders', 'manage calibrations',
-            'manage assets', 'transfer assets', 'dispose assets',
-
-            // ── Linen / Kitchen ──
-            'manage linen records', 'manage laundry batches', 'manage meal orders',
-            'manage kitchen inventory',
+            'manage assets', 'transfer assets', 'dispose assets', 'manage medical equipment',
 
             // ── Security ──
             'manage security incidents', 'manage lost found items', 'manage access events',
-            'manage vehicle access', 'manage visitor passes',
-
-            // ── Fire / Safety ──
-            'manage safety incidents', 'manage fire equipment', 'record fire inspections',
-            'record emergency drills', 'manage risk assessments',
+            'manage visitor passes', 'manage visitor logs', 'manage vehicle access',
+            'record emergency drills', 'manage risk assessments', 'manage safety incidents',
+            'record fire inspections',
 
             // ── Medical Records ──
-            'manage record requests', 'upload scanned documents', 'manage icd coding',
-            'manage khis reports', 'manage data quality issues',
+            'manage record requests', 'manage icd coding', 'upload scanned documents',
+            'manage medical records', 'manage document templates', 'manage document types',
+            'manage documents', 'manage mrd',
 
             // ── Doctors & Staff ──
-            'manage staff profiles', 'assign departments', 'view attendance', 'manage salaries',
-            'manage payrolls', 'view doctors', 'manage nurses', 'manage case handlers',
-
-            // ── Bed & Room Management ──
-            'create bed types', 'edit bed types', 'view bed status', 'manage bed assignments',
-
-            // ── Credentialing ──
+            'manage staff profiles', 'view staff profiles', 'manage doctors',
+            'manage nurses', 'manage receptionists', 'manage pharmacists',
+            'manage lab technicians', 'manage accountants',
             'manage practitioner qualifications', 'manage practitioner licences',
             'manage privileges', 'manage oncall schedules', 'manage cme records',
+            'manage staff documents',
+
+            // ── Credentialing ──
+            'manage credentials', 'manage licence renewals',
 
             // ── HR ──
-            'manage employee contracts', 'manage disciplinary records', 'manage staff licences',
-            'manage payroll exports', 'manage staff documents',
-
-            // ── Appointments / Queue ──
-            'manage schedule slots', 'manage appointment reminders',
+            'manage employees', 'manage employee contracts', 'manage disciplinary records',
+            'manage leave requests', 'manage leave types', 'manage payrolls',
+            'manage payroll exports', 'view attendance', 'view payrolls',
+            'manage recruitment', 'manage job postings', 'manage job applications',
+            'manage training programs', 'manage appraisals',
+            'manage shift types', 'manage roster builder',
+            'manage hr reports', 'manage staff documents',
 
             // ── Referrals ──
-            'manage referrals', 'manage referring facilities', 'manage referral documents',
-            'manage referral feedback',
+            'manage referrals', 'manage referral documents',
 
             // ── Telemedicine ──
             'use telemedicine', 'manage tele participants',
+            'manage telemedicine sessions', 'manage telemedicine integration',
+            'manage telemedicine management',
 
             // ── Patient Portal ──
-            'manage portal dependants', 'send portal messages', 'view portal access logs',
+            'manage patient portal accounts', 'view patient portal',
 
             // ── Communication ──
-            'send outbound messages', 'manage message campaigns', 'manage message opt outs',
+            'send mass mails', 'send mass sms', 'manage notification templates',
+            'manage notice board', 'manage contact messages', 'manage inquiries',
+            'manage complaints', 'manage incidents',
 
             // ── Research ──
-            'manage trainees', 'manage trainee assessments', 'manage research projects',
-            'manage ethics approvals', 'manage publications',
+            'manage research protocols', 'manage research data',
 
             // ── Quality ──
-            'manage complaints', 'manage incidents', 'manage mortality reviews',
-            'manage quality indicators', 'manage indicator values', 'manage corrective actions',
+            'manage quality indicators', 'manage indicator values',
+            'manage corrective actions', 'manage compliance checklists',
+            'manage quality reports', 'manage kpi snapshots', 'manage data quality issues',
+            'manage mortality reviews',
 
             // ── Audit / Compliance ──
-            'view audit logs', 'manage break glass events', 'manage compliance checklists',
-            'manage compliance responses', 'manage data subject requests',
+            'view audit logs', 'manage break glass events', 'view system logs',
 
             // ── ICT ──
-            'manage it assets', 'manage it tickets', 'manage backups', 'manage software licences',
+            'manage it assets', 'manage it tickets', 'raise it tickets',
+            'manage backups', 'manage software licences',
+            'manage api tokens', 'manage API integration', 'manage API management',
 
             // ── Dashboard ──
-            'manage dashboard definitions', 'manage kpi definitions', 'record kpi snapshots',
-            'manage saved reports', 'manage report schedules',
+            'view dashboard', 'view dashboard analytics', 'view analytics',
+            'view branch analytics', 'manage dashboard definitions',
 
             // ── Config ──
-            'manage hospital info', 'manage notification templates', 'manage roles', 'manage permissions',
-            'manage system settings', 'manage user accounts', 'manage integrations', 'manage feature flags',
-            'manage number sequences', 'manage services', 'manage price lists', 'manage tax rates',
-            'manage payment methods', 'manage document templates',
+            'manage hospital info', 'manage hospital branches',
+            'manage system settings', 'manage user accounts', 'manage roles',
+            'manage permissions', 'manage modules', 'manage feature flags',
+            'manage integrations', 'manage settings',
 
             // ── Reports ──
-            'generate patient reports', 'generate billing reports', 'generate pathology reports',
-            'generate operation reports', 'generate birth reports', 'generate death reports',
-            'generate financial reports', 'export reports', 'view dashboard analytics',
+            'view reports', 'generate patient reports', 'generate birth reports',
+            'generate death reports', 'generate pathology reports',
+            'manage report schedules', 'manage saved reports',
+            'manage custom reports', 'manage khis reports',
 
-            // ── CMS & Communication ──
-            'manage homepage', 'manage services listing', 'manage doctors listing', 'send mass mails',
-            'send mass sms', 'manage inquiries', 'manage contact messages', 'manage notice board',
+            // ── CMS ──
+            'manage homepage', 'manage services', 'manage doctors listing',
+            'manage blog posts', 'manage blog categories', 'manage gallery items',
+            'manage gallery categories', 'manage testimonials', 'manage careers',
+            'manage inquiries', 'manage seo', 'manage header footer',
+            'manage features', 'manage about', 'manage contact',
 
             // ── Multi-Hospital / Tenancy ──
-            'manage hospital branches', 'assign staff per branch', 'view branch analytics',
+            'manage branches', 'assign staff per branch',
 
-            // ── AI & Advanced Features ──
-            'use ai assistant', 'manage ai suggestions', 'view analytics',
-            'manage rfid tags', 'monitor iot sensors',
+            // ── AI & Advanced ──
+            'use ai assistant', 'manage ai suggestions', 'manage AI features',
+            'manage ai features', 'view ai insights', 'manage predictive analytics',
 
             // ── Marketing Suite ──
-            'manage marketing', 'create marketing posts', 'edit marketing posts', 'delete marketing posts',
-            'approve marketing posts', 'manage campaigns', 'manage social accounts', 'schedule posts',
-            'manage comment replies', 'manage graphic assets', 'access marketing analytics', 'manage seo',
+            'manage marketing', 'create marketing posts', 'edit marketing posts',
+            'delete marketing posts', 'approve marketing posts', 'manage campaigns',
+            'manage social accounts', 'schedule posts', 'manage comment replies',
+            'manage graphic assets', 'access marketing analytics', 'manage seo',
 
-            // ── IT Tickets (cross-cutting — all users can raise) ──
-            'raise it tickets',
+            // ── Restored original permissions (sidebar/routes/tests depend on these) ──
+            'approve test results', 'assign departments', 'assign doctors',
+            'enter test results', 'issue blood units', 'manage ambulance crews',
+            'manage appointment reminders', 'manage cashier sessions', 'manage charges',
+            'manage compliance responses', 'manage data subject requests', 'manage discounts',
+            'manage ethics approvals', 'manage fire equipment', 'manage fiscal periods',
+            'manage journal entries', 'manage kitchen inventory', 'manage kpi definitions',
+            'manage laundry batches', 'manage linen records', 'manage message campaigns',
+            'manage message opt outs', 'manage number sequences', 'manage packages',
+            'manage partograph entries', 'manage phototherapy sessions', 'manage portal dependants',
+            'manage price lists', 'manage publications', 'manage referral feedback',
+            'manage referring facilities', 'manage research projects', 'manage rfid tags',
+            'manage salaries', 'manage schedule slots', 'manage services listing',
+            'manage staff licences', 'manage tax rates', 'manage trainee assessments',
+            'manage trainees', 'manage transfusions', 'manage waivers',
+            'monitor iot sensors', 'post journal entries', 'reconcile bank accounts',
+            'record kpi snapshots', 'reverse journal entries', 'send outbound messages',
+            'send portal messages', 'view doctors', 'view portal access logs',
+            'manage queue',
         ];
-
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
-        }
-
-        $this->command->info('[OK] Seeded ' . count($permissions) . ' permissions.');
     }
 
-    private function createRoles(): void
+    /**
+     * @return array<int, string>
+     */
+    private function roleList(): array
     {
-        $roles = [
+        return [
             'Super Admin',
             'Hospital Admin',
             'Doctor',
@@ -287,7 +366,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'IT Support',
             'Marketing Manager',
             'System AI Bot',
-            // New specialized roles
             'Maternity Nurse',
             'ICU Nurse',
             'Theatre Nurse',
@@ -300,25 +378,42 @@ class RolesAndPermissionsSeeder extends Seeder
             'Social Worker',
             'Mental Health Professional',
         ];
-
-        foreach ($roles as $role) {
-            Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
-        }
-
-        $this->command->info('[OK] Seeded ' . count($roles) . ' roles.');
     }
 
     private function assignPermissionsToRoles(): void
     {
-        $allPermissions = Permission::all();
-        $p = $allPermissions->pluck('name')->toArray();
-        $has = fn(array $subset) => array_intersect($p, $subset);
+        $allPermissions = Permission::pluck('id', 'name');
+        $p = $allPermissions->keys()->toArray();
+        $has = fn (array $subset) => array_values(array_intersect($p, $subset));
+
+        $pivotRows = [];
+
+        $add = function (string $roleName, array $permissionNames) use ($allPermissions, &$pivotRows) {
+            $roleId = Role::where('name', $roleName)->value('id');
+            if (!$roleId) {
+                return;
+            }
+            foreach ($permissionNames as $permName) {
+                $permId = $allPermissions[$permName] ?? null;
+                if ($permId) {
+                    $pivotRows[] = [
+                        'permission_id' => $permId,
+                        'role_id' => $roleId,
+                    ];
+                }
+            }
+        };
 
         // Super Admin — everything
-        Role::findByName('Super Admin')->givePermissionTo($allPermissions);
+        $superAdminId = Role::where('name', 'Super Admin')->value('id');
+        foreach ($allPermissions as $permId) {
+            $pivotRows[] = [
+                'permission_id' => $permId,
+                'role_id' => $superAdminId,
+            ];
+        }
 
-        // Hospital Admin
-        Role::findByName('Hospital Admin')->givePermissionTo($has([
+        $add('Hospital Admin', $has([
             'view patients', 'add patients', 'edit patients', 'delete patients',
             'manage admissions', 'manage discharges', 'assign beds', 'upload documents',
             'merge patients', 'emergency register patients',
@@ -333,61 +428,48 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage medication administration', 'manage diet orders', 'sign discharge summaries', 'manage inpatient transfers',
             'manage icu admissions', 'manage critical care charts', 'manage ventilators',
             'manage theatre bookings', 'manage surgical waiting list', 'record preop assessments',
-            'complete who checklists', 'manage theatre teams', 'manage theatre consumables',
+            'complete who checklists', 'manage theatre teams', 'manage theatre consumables', 'manage recovery records',
             'manage anaesthesia assessments', 'manage anaesthesia records',
             'manage nurse allocations', 'manage duty rosters', 'manage shift handovers',
             'create prescriptions', 'edit prescriptions', 'view prescriptions', 'dispense medicines',
-            'manage medicine categories', 'manage medicine brands', 'manage medicine inventory',
-            'generate expiry alerts', 'generate stock alerts', 'manage controlled drugs',
-            'manage test categories', 'add test requests', 'enter test results', 'approve test results',
             'print lab reports', 'download lab reports', 'view test results',
             'manage lab specimens', 'manage lab worklists', 'verify lab results',
             'manage radiology schedules', 'manage radiology worklist', 'approve radiology reports',
             'manage blood bank', 'manage blood donations', 'manage blood units', 'perform crossmatch',
-            'create invoices', 'edit invoices', 'add payments', 'add refunds',
-            'manage charges', 'manage discounts', 'manage waivers', 'manage cashier sessions',
-            'manage expenses', 'manage income', 'view payment reports', 'manage insurance claims',
+            'create invoices', 'edit invoices', 'add payments', 'view payment reports', 'manage insurance claims',
             'manage claim batches', 'manage claim rejections', 'manage claim remittances', 'manage tariffs',
-            'manage journal entries', 'post journal entries', 'view financial reports',
             'manage anc registrations', 'manage pregnancies', 'manage labour records', 'record deliveries',
-            'manage postnatal visits', 'manage family planning visits',
             'manage newborns', 'manage nicu admissions',
             'manage growth measurements', 'manage developmental assessments', 'manage immunization schedules',
             'manage hts encounters', 'manage hiv care enrollments', 'manage art regimens',
             'manage tb cases', 'manage tb treatments',
             'manage cancer registrations', 'manage oncology treatment plans',
-            'manage mh assessments', 'manage mh treatment plans',
             'manage social assessments', 'manage welfare waivers',
             'manage mortuary records', 'manage postmortems', 'issue death certificates',
-            'manage ambulance trips', 'manage ambulance crews',
             'manage cssd instruments', 'manage cssd cycles',
             'manage hai surveillance', 'manage isolation orders', 'manage ipc audits',
             'manage maintenance requests', 'manage work orders', 'manage calibrations', 'manage assets',
-            'manage linen records', 'manage laundry batches', 'manage meal orders',
             'manage security incidents', 'manage visitor passes',
-            'manage safety incidents', 'manage fire equipment', 'manage risk assessments',
-            'manage record requests', 'upload scanned documents', 'manage icd coding', 'manage khis reports',
-            'manage staff profiles', 'assign departments', 'view attendance', 'manage salaries', 'manage payrolls',
-            'manage employee contracts', 'manage disciplinary records', 'manage staff licences',
-            'manage referrals', 'manage referring facilities',
             'use telemedicine', 'manage complaints', 'manage incidents', 'manage mortality reviews',
-            'manage quality indicators', 'manage corrective actions',
-            'view audit logs', 'manage break glass events', 'manage compliance checklists',
-            'manage it assets', 'manage it tickets', 'manage backups',
-            'manage dashboard definitions', 'manage kpi definitions', 'manage saved reports', 'manage report schedules',
-            'manage hospital info', 'manage notification templates', 'manage roles', 'manage permissions',
-            'manage system settings', 'manage user accounts', 'manage integrations',
-            'manage number sequences', 'manage services', 'manage price lists', 'manage payment methods',
-            'generate patient reports', 'generate billing reports', 'generate pathology reports',
-            'generate operation reports', 'generate birth reports', 'generate death reports',
-            'generate financial reports', 'export reports', 'view dashboard analytics',
-            'manage homepage', 'send mass mails', 'send mass sms', 'manage inquiries', 'manage notice board',
-            'manage hospital branches', 'use ai assistant', 'view analytics',
-            'raise it tickets',
+            'manage compliance checklists',
+            'manage it tickets',
+            'manage hospital info', 'manage notification templates',
+            'manage user accounts',
+            'view analytics',
+            'view dashboard analytics', 'view reports', 'generate patient reports',
+            'view doctors', 'manage queue', 'manage packages', 'enter test results',
+            'approve test results',
+            'manage charges', 'manage discounts', 'manage schedule slots',
+            'manage cashier sessions', 'manage number sequences',
+            'manage ambulance crews', 'manage appointment reminders',
+            'manage message campaigns', 'send outbound messages',
+            'manage portal dependants', 'send portal messages', 'view portal access logs',
+            'manage waivers', 'manage phototherapy sessions', 'manage partograph entries',
+            'issue blood units', 'manage transfusions',
+            'manage staff profiles', 'view staff profiles',
         ]));
 
-        // Doctor
-        Role::findByName('Doctor')->givePermissionTo($has([
+        $add('Doctor', $has([
             'view patients', 'edit patients', 'upload documents',
             'create appointments', 'manage appointments', 'view doctor schedules',
             'manage triage records', 'view triage queue',
@@ -399,6 +481,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage theatre bookings', 'record preop assessments', 'complete who checklists',
             'manage theatre teams', 'manage theatre specimens',
             'manage anaesthesia assessments', 'manage anaesthesia records',
+            'manage anaesthesia drugs', 'record intraop vitals',
+            'manage anaesthesia complications', 'record post anaesthesia reviews',
             'create prescriptions', 'edit prescriptions', 'view prescriptions',
             'add test requests', 'view test results', 'print lab reports', 'download lab reports',
             'manage lab specimens', 'verify lab results',
@@ -425,8 +509,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'raise it tickets',
         ]));
 
-        // Nurse
-        Role::findByName('Nurse')->givePermissionTo($has([
+        $add('Nurse', $has([
             'view patients', 'edit patients', 'upload documents',
             'view appointments', 'view doctor schedules',
             'manage triage records', 'manage triage escalations', 'view triage queue',
@@ -444,7 +527,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage newborns', 'manage nicu admissions', 'manage neonatal feeds', 'record neonatal assessments',
             'manage growth measurements', 'manage immunization schedules',
             'manage mh assessments', 'manage counselling sessions',
-            'manage Hai surveillance', 'manage isolation orders', 'record hand hygiene observations',
+            'manage hai surveillance', 'manage isolation orders', 'record hand hygiene observations',
             'manage linen records',
             'view bed status', 'manage bed assignments',
             'view staff profiles', 'view attendance',
@@ -453,158 +536,120 @@ class RolesAndPermissionsSeeder extends Seeder
             'raise it tickets',
         ]));
 
-        // Receptionist
-        Role::findByName('Receptionist')->givePermissionTo($has([
+        $add('Receptionist', $has([
             'view patients', 'add patients', 'edit patients', 'upload documents',
             'emergency register patients',
             'create appointments', 'manage appointments', 'reschedule appointments', 'cancel appointments',
             'view doctor schedules', 'send appointment reminders',
-            'manage triage queue',
-            'view prescriptions', 'view test results', 'print lab reports', 'download lab reports',
+            'manage triage queue', 'manage queue',
+            // Spec: no unrestricted prescriptions for receptionist
+            'view test results', 'print lab reports', 'download lab reports',
+            'view doctors',
             'create invoices', 'edit invoices', 'add payments', 'add refunds',
-            'manage charges', 'view payment reports',
-            'admit patients', 'manage discharges', 'assign beds',
-            'manage referrals', 'manage referring facilities',
-            'view bed status', 'manage bed assignments',
-            'view staff profiles',
+            'verify insurance',
+            'view billing', 'view payments',
             'generate patient reports', 'view dashboard analytics',
-            'manage inquiries', 'manage contact messages', 'manage notice board',
             'use ai assistant', 'view analytics',
             'raise it tickets',
         ]));
 
-        // Pharmacist
-        Role::findByName('Pharmacist')->givePermissionTo($has([
+        $add('Pharmacist', $has([
             'view patients',
             'view prescriptions', 'dispense medicines', 'verify dispensations',
+            'manage controlled drugs', 'process drug returns',
             'manage medicine categories', 'manage medicine brands', 'manage medicine inventory',
-            'manage controlled drugs', 'process drug returns', 'manage goods received notes',
-            'generate expiry alerts', 'generate stock alerts',
-            'view payment reports',
+            'manage goods received notes', 'generate expiry alerts', 'generate stock alerts',
+            'manage packages',
+            'view test results',
             'generate billing reports', 'view dashboard analytics',
             'use ai assistant', 'view analytics',
             'raise it tickets',
         ]));
 
-        // Lab Technician
-        Role::findByName('Lab Technician')->givePermissionTo($has([
+        $add('Lab Technician', $has([
             'view patients',
             'view prescriptions',
-            'manage test categories', 'add test requests', 'enter test results', 'approve test results',
-            'print lab reports', 'download lab reports',
+            'add test requests', 'view test results', 'print lab reports', 'download lab reports',
             'manage lab specimens', 'manage lab worklists', 'verify lab results',
+            'enter test results', 'approve test results',
+            'manage test categories',
             'generate pathology reports', 'view dashboard analytics',
-            'use ai assistant', 'view analytics', 'manage integrations',
+            'use ai assistant', 'view analytics',
             'raise it tickets',
         ]));
 
-        // Radiologist
-        Role::findByName('Radiologist')->givePermissionTo($has([
+        $add('Radiologist', $has([
             'view patients',
-            'view prescriptions',
-            'manage test categories', 'add test requests', 'enter test results', 'approve test results',
-            'print lab reports', 'download lab reports',
+            'view test results', 'print lab reports', 'download lab reports',
             'manage radiology schedules', 'manage radiology worklist', 'approve radiology reports',
-            'record contrast administration',
-            'generate pathology reports', 'view dashboard analytics',
-            'use ai assistant', 'view analytics', 'manage integrations',
-            'raise it tickets',
-        ]));
-
-        // Accountant
-        Role::findByName('Accountant')->givePermissionTo($has([
-            'view patients', 'view appointments', 'view prescriptions',
-            'create invoices', 'edit invoices', 'add payments', 'add refunds',
-            'manage charges', 'manage discounts', 'manage waivers', 'manage cashier sessions',
-            'manage expenses', 'manage income', 'view payment reports', 'manage insurance claims',
-            'manage claim batches', 'manage claim rejections', 'manage claim remittances', 'manage tariffs',
-            'manage journal entries', 'post journal entries', 'reverse journal entries',
-            'manage fiscal periods', 'manage bank accounts', 'reconcile bank accounts',
-            'manage packages',
-            'view staff profiles', 'manage salaries', 'manage payrolls',
-            'view financial reports', 'export ledgers', 'export journals',
-            'generate billing reports', 'generate financial reports', 'export reports',
+            'manage radiology tests', 'manage radiology categories', 'record contrast administration',
             'view dashboard analytics',
             'use ai assistant', 'view analytics',
             'raise it tickets',
         ]));
 
-        // Case Handler
-        Role::findByName('Case Handler')->givePermissionTo($has([
-            'view patients', 'edit patients',
-            'view appointments',
-            'view prescriptions',
-            'view payment reports', 'manage insurance claims',
-            'manage preauthorizations', 'manage claim batches', 'manage claim rejections',
-            'admit patients', 'manage discharges',
-            'manage referrals',
-            'view staff profiles',
-            'generate patient reports', 'generate billing reports', 'view dashboard analytics',
-            'use ai assistant', 'view analytics',
-            'raise it tickets',
-        ]));
-
-        // Ambulance Operator
-        Role::findByName('Ambulance Operator')->givePermissionTo($has([
+        $add('Accountant', $has([
             'view patients',
+            'create invoices', 'edit invoices', 'view invoices', 'add payments', 'add refunds',
+            'view billing', 'view payments', 'manage payment methods', 'manage advance payments',
+            'manage expense categories', 'manage expenses', 'manage income',
+            'view payment reports', 'view financial reports', 'generate financial reports',
+            'generate billing reports', 'export journals', 'export ledgers',
+            'manage insurance claims', 'manage claim batches', 'manage claim remittances',
+            'view dashboard analytics', 'view analytics',
+            'raise it tickets',
+        ]));
+
+        $add('Case Handler', $has([
+            'view patients', 'add patients', 'edit patients', 'upload documents',
+            'manage patient cases', 'manage case handlers', 'manage referral documents',
+            'manage discharge plans', 'manage social assessments',
             'view appointments',
-            'manage ambulances', 'manage ambulance crews', 'manage ambulance trips',
-            'manage ambulance fuel', 'manage ambulance maintenance', 'record patient handovers',
-            'admit patients',
-            'view dashboard analytics',
+            'generate patient reports', 'view dashboard analytics',
             'use ai assistant', 'view analytics',
             'raise it tickets',
         ]));
 
-        // HR Officer
-        Role::findByName('HR Officer')->givePermissionTo($has([
+        $add('Ambulance Operator', $has([
             'view patients',
-            'manage staff profiles', 'assign departments', 'view attendance', 'manage salaries', 'manage payrolls',
-            'manage employee contracts', 'manage disciplinary records', 'manage staff licences',
-            'manage payroll exports', 'manage staff documents',
-            'manage duty rosters',
+            'manage ambulances', 'manage ambulance calls', 'manage ambulance trips',
+            'manage ambulance fuel', 'manage ambulance maintenance',
             'view dashboard analytics',
             'use ai assistant', 'view analytics',
             'raise it tickets',
         ]));
 
-        // Patient
-        Role::findByName('Patient')->givePermissionTo($has([
-            'view patients', 'edit patients',
-            'create appointments', 'view appointments', 'cancel appointments',
-            'view prescriptions',
-            'view test results', 'download lab reports',
-            'view payment reports',
-            'manage portal dependants', 'send portal messages',
-            'view dashboard analytics',
-            'use ai assistant', 'view analytics',
+        $add('HR Officer', $has([
+            'view patients',
+            'manage employees', 'manage employee contracts', 'manage disciplinary records',
+            'manage leave requests', 'manage leave types', 'manage payrolls', 'manage payroll exports',
+            'view attendance', 'view payrolls',
+            'manage recruitment', 'manage job postings', 'manage job applications',
+            'manage training programs', 'manage appraisals',
+            'manage shift types', 'manage roster builder',
+            'manage staff profiles', 'view staff profiles', 'manage staff documents',
+            'view dashboard analytics', 'view analytics',
             'raise it tickets',
         ]));
 
-        // System Auditor
-        Role::findByName('System Auditor')->givePermissionTo($has([
-            'view patients', 'view appointments', 'view prescriptions',
-            'view test results', 'view staff profiles', 'view bed status',
-            'generate patient reports', 'generate billing reports', 'generate pathology reports',
-            'generate operation reports', 'generate birth reports', 'generate death reports',
-            'view dashboard analytics', 'view audit logs', 'view system logs',
-            'manage break glass events', 'manage compliance checklists', 'manage compliance responses',
-            'view analytics',
+        $add('Patient', $has([
+            // Staff HMS routes are NOT for Patient users. Portal uses patient-portal/* session auth.
+            // Minimal non-clinical permissions only — no staff AI/Elliana.
             'raise it tickets',
         ]));
 
-        // Support Staff
-        Role::findByName('Support Staff')->givePermissionTo($has([
-            'view patients', 'view appointments', 'view staff profiles', 'view attendance',
-            'view bed status', 'view dashboard analytics',
-            'manage linen records', 'manage laundry batches',
-            'manage meal orders', 'manage kitchen inventory',
-            'manage safety incidents', 'manage fire equipment',
+        $add('System Auditor', $has([
+            'view audit logs', 'view system logs',
+            'view dashboard analytics', 'view analytics',
             'raise it tickets',
         ]));
 
-        // Telemedicine Doctor
-        Role::findByName('Telemedicine Doctor')->givePermissionTo($has([
+        $add('Support Staff', $has([
+            'view patients', 'view appointments', 'view dashboard analytics',
+            'raise it tickets',
+        ]));
+
+        $add('Telemedicine Doctor', $has([
             'view patients', 'edit patients',
             'create appointments', 'view appointments',
             'create prescriptions', 'view prescriptions',
@@ -616,20 +661,18 @@ class RolesAndPermissionsSeeder extends Seeder
             'raise it tickets',
         ]));
 
-        // Inventory Manager
-        Role::findByName('Inventory Manager')->givePermissionTo($has([
+        $add('Inventory Manager', $has([
             'view patients',
             'manage medicine categories', 'manage medicine brands', 'manage medicine inventory',
             'manage controlled drugs', 'process drug returns', 'manage goods received notes',
-            'generate expiry alerts', 'generate stock alerts',
+            'generate expiry alerts', 'generate stock alerts', 'manage packages',
             'manage cssd instruments', 'manage cssd cycles', 'manage sterilizer runs',
             'generate billing reports', 'view dashboard analytics',
             'use ai assistant', 'view analytics',
             'raise it tickets',
         ]));
 
-        // Procurement Officer
-        Role::findByName('Procurement Officer')->givePermissionTo($has([
+        $add('Procurement Officer', $has([
             'view patients',
             'manage medicine categories', 'manage medicine brands', 'manage medicine inventory',
             'manage goods received notes',
@@ -640,119 +683,118 @@ class RolesAndPermissionsSeeder extends Seeder
             'raise it tickets',
         ]));
 
-        // IT Support
-        Role::findByName('IT Support')->givePermissionTo($has([
-            'view patients', 'view appointments', 'view prescriptions',
-            'view test results', 'view staff profiles', 'view bed status',
-            'view dashboard analytics', 'view audit logs', 'manage system settings',
-            'manage backups', 'view system logs', 'manage api tokens', 'manage user accounts',
-            'manage it assets', 'manage it tickets', 'manage software licences',
-            'use ai assistant', 'view analytics', 'manage integrations',
-            'raise it tickets',
+        $add('IT Support', $has([
+            'view patients',
+            'manage it assets', 'manage it tickets', 'raise it tickets',
+            'manage backups', 'manage software licences',
+            'manage api tokens', 'manage API integration', 'manage API management',
+            'manage integrations', 'manage rfid tags', 'monitor iot sensors',
+            'view system logs', 'view dashboard analytics',
+            'use ai assistant', 'view analytics',
         ]));
 
-        // Marketing Manager
-        Role::findByName('Marketing Manager')->givePermissionTo($has([
-            'view patients', 'view appointments',
-            'manage homepage', 'manage services listing', 'manage doctors listing', 'send mass mails',
-            'send mass sms', 'manage inquiries', 'manage contact messages', 'manage notice board',
-            'manage outbound messages', 'manage message campaigns',
-            'view dashboard analytics',
-            'use ai assistant', 'view analytics',
+        $add('Marketing Manager', $has([
             'manage marketing', 'create marketing posts', 'edit marketing posts', 'delete marketing posts',
             'approve marketing posts', 'manage campaigns', 'manage social accounts', 'schedule posts',
             'manage comment replies', 'manage graphic assets', 'access marketing analytics', 'manage seo',
+            'manage homepage', 'manage services', 'manage doctors listing',
+            'manage blog posts', 'manage gallery items', 'manage testimonials',
+            'view dashboard analytics', 'view analytics',
             'raise it tickets',
         ]));
 
-        // System AI Bot
-        Role::findByName('System AI Bot')->givePermissionTo($has([
-            'view patients', 'view appointments', 'view prescriptions',
-            'view test results', 'view staff profiles', 'view bed status',
-            'send appointment reminders', 'generate expiry alerts', 'generate stock alerts',
-            'use ai assistant', 'manage ai suggestions', 'view analytics', 'manage integrations',
-            'use telemedicine', 'manage rfid tags', 'monitor iot sensors',
-            'view audit logs', 'view system logs',
+        $add('System AI Bot', $has([
+            // Machine account: read/suggest only. No audit, no staff profile, no clinical write.
+            'use ai assistant',
+            'manage ai suggestions',
+            'view analytics',
+            'view appointments',
+            'view prescriptions',
+            'view test results',
         ]));
 
-        // ── New specialized roles ──
-
-        // Maternity Nurse
-        Role::findByName('Maternity Nurse')->givePermissionTo($has([
+        $add('Maternity Nurse', array_merge($has([
             'view patients', 'edit patients', 'upload documents',
+            'view appointments',
             'manage triage records', 'view triage queue',
             'manage ward rounds', 'manage nursing notes', 'manage fluid balance',
             'manage medication administration', 'manage diet orders',
-            'manage nurse allocations', 'manage duty rosters', 'manage shift handovers',
-            'manage anc registrations', 'manage pregnancies', 'manage labour records',
-            'manage partograph entries', 'record deliveries', 'manage postnatal visits', 'manage family planning visits',
-            'manage newborns', 'manage neonatal feeds', 'record neonatal assessments',
+            'manage nurse allocations', 'manage duty rosters', 'manage shift handovers', 'manage nursing procedures',
             'view prescriptions', 'manage lab specimens',
-            'admit patients', 'manage patient vitals', 'manage patient notes',
+            'admit patients', 'manage patient vitals', 'manage patient notes', 'update bed status',
+            'view bed status', 'manage bed assignments',
+            'view staff profiles', 'view attendance',
             'generate patient reports', 'view dashboard analytics',
-            'raise it tickets',
-        ]));
+            'use ai assistant', 'view analytics', 'raise it tickets',
+        ]), $has([
+            'manage anc registrations', 'manage pregnancies', 'manage labour records', 'record deliveries',
+            'manage postnatal visits', 'manage family planning visits',
+            'manage newborns', 'manage nicu admissions',
+        ])));
 
-        // ICU Nurse
-        Role::findByName('ICU Nurse')->givePermissionTo($has([
+        $add('ICU Nurse', array_merge($has([
             'view patients', 'edit patients', 'upload documents',
+            'view appointments',
+            'manage triage records', 'view triage queue',
             'manage ward rounds', 'manage nursing notes', 'manage fluid balance',
             'manage medication administration', 'manage diet orders',
-            'manage nurse allocations', 'manage duty rosters', 'manage shift handovers',
-            'manage icu admissions', 'manage critical care charts', 'manage ventilators',
-            'record abg results', 'manage sedation scores', 'manage infusions',
-            'manage theatre teams', 'manage recovery records',
+            'manage nurse allocations', 'manage duty rosters', 'manage shift handovers', 'manage nursing procedures',
             'view prescriptions', 'manage lab specimens',
-            'admit patients', 'manage patient vitals', 'manage patient notes',
+            'admit patients', 'manage patient vitals', 'manage patient notes', 'update bed status',
+            'view bed status', 'manage bed assignments',
+            'view staff profiles', 'view attendance',
             'generate patient reports', 'view dashboard analytics',
-            'raise it tickets',
-        ]));
+            'use ai assistant', 'view analytics', 'raise it tickets',
+        ]), $has([
+            'manage icu admissions', 'manage critical care charts', 'manage ventilators',
+            'manage sedation scores', 'manage infusions', 'record abg results',
+        ])));
 
-        // Theatre Nurse
-        Role::findByName('Theatre Nurse')->givePermissionTo($has([
+        $add('Theatre Nurse', array_merge($has([
             'view patients', 'edit patients', 'upload documents',
-            'manage theatre bookings', 'manage surgical waiting list', 'record preop assessments',
-            'complete who checklists', 'manage theatre teams', 'manage theatre consumables',
-            'manage theatre specimens', 'manage recovery records',
-            'manage anaesthesia assessments', 'manage anaesthesia records', 'manage anaesthesia drugs',
-            'record intraop vitals', 'manage anaesthesia complications', 'record post anaesthesia reviews',
-            'manage cssd instruments', 'manage cssd issues', 'manage cssd returns',
-            'view prescriptions',
-            'admit patients', 'manage patient vitals', 'manage patient notes',
+            'view appointments',
+            'manage triage records', 'view triage queue',
+            'manage ward rounds', 'manage nursing notes', 'manage fluid balance',
+            'manage medication administration', 'manage diet orders',
+            'manage nurse allocations', 'manage duty rosters', 'manage shift handovers', 'manage nursing procedures',
+            'view prescriptions', 'manage lab specimens',
+            'admit patients', 'manage patient vitals', 'manage patient notes', 'update bed status',
+            'view bed status', 'manage bed assignments',
+            'view staff profiles', 'view attendance',
             'generate patient reports', 'view dashboard analytics',
-            'raise it tickets',
-        ]));
+            'use ai assistant', 'view analytics', 'raise it tickets',
+        ]), $has([
+            'manage theatre bookings', 'manage theatre teams', 'manage theatre consumables',
+            'record preop assessments', 'complete who checklists', 'manage recovery records',
+            'manage anaesthesia assessments', 'manage anaesthesia records',
+            'manage anaesthesia drugs', 'record intraop vitals',
+            'manage anaesthesia complications', 'record post anaesthesia reviews',
+        ])));
 
-        // CSSD Technician
-        Role::findByName('CSSD Technician')->givePermissionTo($has([
+        $add('CSSD Technician', $has([
             'view patients',
             'manage cssd instruments', 'manage cssd cycles', 'manage sterilizer runs',
             'record sterility indicators', 'manage cssd issues', 'manage cssd returns',
-            'view dashboard analytics',
-            'raise it tickets',
+            'manage cssd batches',
+            'view dashboard analytics', 'raise it tickets',
         ]));
 
-        // Mortuary Attendant
-        Role::findByName('Mortuary Attendant')->givePermissionTo($has([
+        $add('Mortuary Attendant', $has([
             'view patients',
             'manage mortuary records', 'manage mortuary slots', 'manage body identifications',
-            'manage postmortems', 'issue death certificates',
-            'view dashboard analytics',
-            'raise it tickets',
+            'manage postmortems', 'issue death certificates', 'manage death records',
+            'view dashboard analytics', 'raise it tickets',
         ]));
 
-        // Security Officer
-        Role::findByName('Security Officer')->givePermissionTo($has([
+        $add('Security Officer', $has([
             'view patients',
             'manage security incidents', 'manage lost found items', 'manage access events',
-            'manage vehicle access', 'manage visitor passes',
+            'manage visitor passes', 'manage visitor logs', 'manage vehicle access',
             'manage safety incidents', 'record emergency drills',
-            'view dashboard analytics',
-            'raise it tickets',
+            'view dashboard analytics', 'raise it tickets',
         ]));
 
-        // Quality Officer
-        Role::findByName('Quality Officer')->givePermissionTo($has([
+        $add('Quality Officer', $has([
             'view patients', 'view appointments',
             'manage complaints', 'manage incidents', 'manage mortality reviews',
             'manage quality indicators', 'manage indicator values', 'manage corrective actions',
@@ -762,27 +804,24 @@ class RolesAndPermissionsSeeder extends Seeder
             'raise it tickets',
         ]));
 
-        // Biomedical Engineer
-        Role::findByName('Biomedical Engineer')->givePermissionTo($has([
+        $add('Biomedical Engineer', $has([
             'view patients',
             'manage maintenance requests', 'manage work orders', 'manage calibrations',
             'manage assets', 'transfer assets', 'dispose assets',
+            'manage medical equipment',
             'manage it assets',
             'view dashboard analytics',
             'raise it tickets',
         ]));
 
-        // Dietitian
-        Role::findByName('Dietitian')->givePermissionTo($has([
+        $add('Dietitian', $has([
             'view patients',
-            'manage nutrition records', 'manage diet orders',
-            'manage meal orders',
+            'manage nutrition records', 'manage diet orders', 'manage meal orders',
             'generate patient reports', 'view dashboard analytics',
             'raise it tickets',
         ]));
 
-        // Social Worker
-        Role::findByName('Social Worker')->givePermissionTo($has([
+        $add('Social Worker', $has([
             'view patients',
             'manage social assessments', 'manage welfare waivers', 'manage discharge plans',
             'manage mh assessments', 'manage counselling sessions',
@@ -790,8 +829,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'raise it tickets',
         ]));
 
-        // Mental Health Professional
-        Role::findByName('Mental Health Professional')->givePermissionTo($has([
+        $add('Mental Health Professional', $has([
             'view patients', 'edit patients',
             'create consultations', 'manage consultations', 'diagnose patients',
             'manage clinical notes',
@@ -801,6 +839,22 @@ class RolesAndPermissionsSeeder extends Seeder
             'raise it tickets',
         ]));
 
-        $this->command->info('[OK] Assigned permissions to all roles.');
+        // Replace (sync) role permissions to intended sets — remove over-permissions.
+        $intendedByRole = [];
+        foreach ($pivotRows as $row) {
+            $intendedByRole[$row['role_id']][] = $row['permission_id'];
+        }
+        $allRoleIds = Role::pluck('id');
+        foreach ($allRoleIds as $roleId) {
+            $intended = array_values(array_unique($intendedByRole[$roleId] ?? []));
+            DB::table('role_has_permissions')->where('role_id', $roleId)->delete();
+            foreach (array_chunk($intended, 500) as $chunk) {
+                DB::table('role_has_permissions')->insert(array_map(fn ($pid) => [
+                    'permission_id' => $pid,
+                    'role_id' => $roleId,
+                ], $chunk));
+            }
+        }
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
 }

@@ -1,23 +1,37 @@
-<div class="sidebar-container bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-white w-64 h-full shadow-xl border-r border-gray-200 dark:border-gray-700" x-data="sidebarNav()">
+<div class="sidebar-container text-gray-800 dark:text-white h-full shadow-xl border-r border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900" style="width: 256px;" x-data="sidebarNav()">
     
     <!-- Header -->
-    <div class="sidebar-header p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-emerald-600 to-teal-600">
+    @php
+        $favicon = $themeSettings['favicon'] ?? '';
+        $faviconSrc = '';
+        if ($favicon) {
+            if (str_starts_with($favicon, 'http') || str_starts_with($favicon, 'data:')) {
+                $faviconSrc = $favicon;
+            } elseif (str_starts_with($favicon, '/storage/')) {
+                $faviconSrc = $favicon;
+            } else {
+                $faviconSrc = '/storage/' . ltrim($favicon, '/');
+            }
+        }
+        $hospitalName = $themeSettings['hospital_name'] ?? config('app.name', 'DuncoHMS');
+    @endphp
+    <div class="sidebar-header p-4 border-b" style="background-color: #00001A; border-color: rgba(255,255,255,0.1);">
         <div class="flex items-center justify-between">
-            <div class="flex items-center">
-                <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3 shadow-md">
-                    @if($themeSettings['hospital_logo'] ?? false)
-                        <img src="{{ $themeSettings['hospital_logo'] }}" alt="Hospital Logo" class="w-9 h-9 object-contain">
+            <div class="flex items-center min-w-0">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-3 shadow-sm flex-shrink-0" style="background: rgba(255,255,255,0.1);">
+                    @if($faviconSrc)
+                        <img src="{{ $faviconSrc }}" alt="{{ $hospitalName }}" class="w-8 h-8 object-contain rounded">
                     @else
-                    <i class="fa fa-hospital text-emerald-600 text-xl"></i>
+                        <i class="fa fa-hospital text-white text-xl"></i>
                     @endif
                 </div>
-                <div>
-                    <h1 class="text-white font-bold text-lg">{{ $themeSettings['hospital_name'] ?? config('app.name', 'DuncoHMS') }}</h1>
-                    <p class="text-emerald-100 text-xs">Healthcare System</p>
+                <div class="min-w-0">
+                    <h1 class="hospital-name text-white font-bold text-sm leading-tight truncate">{{ $hospitalName }}</h1>
+                    <p class="hospital-subtitle text-xs" style="color: rgba(255,255,255,0.5);">Healthcare System</p>
                 </div>
             </div>
-            <button @click="$dispatch('toggle-sidebar')" class="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition text-white">
-                <i class="fa fa-bars text-sm"></i>
+            <button @click="$dispatch('toggle-sidebar-collapse')" class="toggle-btn p-2 rounded-lg transition flex-shrink-0 ml-2 hover:bg-white hover:bg-opacity-15" style="color: rgba(255,255,255,0.6);" title="Collapse/Expand sidebar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><polyline points="16 8 12 12 16 16"/></svg>
             </button>
         </div>
     </div>
@@ -26,7 +40,7 @@
         <nav class="sidebar-nav mt-2 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style="max-height: calc(100% - 60px);">
             <ul class="space-y-0.5 px-3 pb-4 mb-2">
             
-            {{-- 🏠 1. DASHBOARD --}}
+            {{-- ðŸ  1. DASHBOARD --}}
             @can('view dashboard analytics')
                 <li class="mb-1">
                     <div class="menu-item menu-item-emerald" @click="toggleMenu('dashboard', true)">
@@ -83,7 +97,7 @@
 
             <li class="menu-divider"></li>
 
-            {{-- 🏥 2. HOSPITAL MANAGEMENT --}}
+            {{-- ðŸ¥ 2. HOSPITAL MANAGEMENT --}}
             @if(\App\Models\Module::isEnabled('patients-management') || \App\Models\Module::isEnabled('doctors-management') || \App\Models\Module::isEnabled('nurses-management'))
             @canany(['view patients', 'add patients', 'edit patients', 'delete patients', 'view doctors', 'manage staff profiles', 'manage nurses', 'manage ambulances'])
                 <li class="mb-1">
@@ -180,12 +194,6 @@
                                                 <i class="fa fa-dollar-sign mr-2 w-4"></i> Doctor OPD Charges
                                             </a>
                                         </li>
-                                        <li>
-                                            <a @click.stop href="{{ route('hms.hr.schedules.index') }}" 
-                                               class="nested-link {{ request()->routeIs('hms.hr.schedules.*') ? 'active' : '' }}">
-                                                <i class="fa fa-calendar-alt mr-2 w-4"></i> Schedules / Availability
-                                            </a>
-                                        </li>
                                     @endcan
                                 </ul>
                             </li>
@@ -243,12 +251,6 @@
                                             <i class="fa fa-user-plus mr-2 w-4"></i> Register Patients
                                         </a>
                                     </li>
-                                    <li>
-                                        <a @click.stop href="{{ route('hms.appointments.index') }}" 
-                                           class="nested-link {{ request()->routeIs('hms.appointments.*') ? 'active' : '' }}">
-                                            <i class="fa fa-calendar-check mr-2 w-4"></i> Handle Appointments
-                                        </a>
-                                    </li>
                                 </ul>
                             </li>
                         @endcan
@@ -285,7 +287,229 @@
             @endcanany
             @endif
 
-            {{-- 🧬 3. CLINICAL MODULES --}}
+            <li class="menu-divider"></li>
+
+            {{-- ðŸ“¨ 9. COMMUNICATION & FRONTDESK --}}
+            @if(\App\Models\Module::isEnabled('communication-frontdesk'))
+            @canany(['create appointments', 'manage appointments', 'view appointments'])
+                <li class="mb-1">
+                    <div class="menu-item menu-item-red" @click="toggleMenu('communication', true)">
+                        <div class="flex items-center">
+                            <div class="menu-icon bg-gradient-to-br from-red-500 to-rose-600">
+                                <i class="fa fa-comments text-white text-sm"></i>
+                            </div>
+                            <span class="font-semibold text-gray-700 dark:text-gray-200">Communication & Frontdesk</span>
+                        </div>
+                        <i class="fa fa-chevron-down text-xs transition-transform text-gray-400" 
+                           :class="isMenuOpen('communication') ? 'rotate-180' : ''"></i>
+                    </div>
+                    <ul x-show="isMenuOpen('communication')" x-transition class="submenu submenu-red">
+                        
+                        {{-- Appointments Submenu --}}
+                        @canany(['create appointments', 'view appointments'])
+                            <li>
+                                <div class="nested-menu-item" @click="toggleMenu('appointments')">
+                                    <div class="flex items-center text-sm">
+                                        <i class="fa fa-calendar-check mr-2 w-4 text-red-600"></i>
+                                        <span>Appointments</span>
+                                    </div>
+                                    <i class="fa fa-chevron-down text-xs transition-transform" 
+                                       :class="isMenuOpen('appointments') ? 'rotate-180' : ''"></i>
+                                </div>
+                                <ul x-show="isMenuOpen('appointments')" x-transition class="nested-submenu">
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.appointments.index') }}" 
+                                           class="nested-link {{ request()->routeIs('hms.appointments.*') ? 'active' : '' }}">
+                                            <i class="fa fa-list mr-2 w-4"></i> Manage Appointments
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.calendar.index') }}" 
+                                           class="nested-link {{ request()->routeIs('hms.calendar.*') ? 'active' : '' }}">
+                                            <i class="fa fa-calendar-alt mr-2 w-4"></i> Calendar View
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('admin.appointments.requests') }}" 
+                                           class="nested-link {{ request()->routeIs('admin.appointments.requests') ? 'active' : '' }}">
+                                            <i class="fa fa-globe mr-2 w-4"></i> Online Requests
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcanany
+
+                        {{-- Queue Management --}}
+                        @canany(['manage queue', 'view appointments', 'create appointments'])
+                            <li>
+                                <div class="nested-menu-item" @click="toggleMenu('queue')">
+                                    <div class="flex items-center text-sm">
+                                        <i class="fa fa-ticket-alt mr-2 w-4 text-purple-600"></i>
+                                        <span>Queue Management</span>
+                                    </div>
+                                    <i class="fa fa-chevron-down text-xs transition-transform" 
+                                       :class="isMenuOpen('queue') ? 'rotate-180' : ''"></i>
+                                </div>
+                                <ul x-show="isMenuOpen('queue')" x-transition class="nested-submenu">
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.queue.index') }}" 
+                                           class="nested-link {{ request()->routeIs('hms.queue.index') || request()->routeIs('hms.queue.create') ? 'active' : '' }}">
+                                            <i class="fa fa-list mr-2 w-4"></i> Manage Queues
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.queue.token-generation') }}" 
+                                           class="nested-link {{ request()->routeIs('hms.queue.token-generation') || request()->routeIs('hms.queue.generate-token') ? 'active' : '' }}">
+                                            <i class="fa fa-qrcode mr-2 w-4"></i> Generate Token
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.queue.display-board') }}" target="_blank"
+                                           class="nested-link {{ request()->routeIs('hms.queue.display-board') ? 'active' : '' }}">
+                                            <i class="fa fa-tv mr-2 w-4"></i> Display Board
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.queue.kiosk') }}" target="_blank"
+                                           class="nested-link {{ request()->routeIs('hms.queue.kiosk') ? 'active' : '' }}">
+                                            <i class="fa fa-desktop mr-2 w-4"></i> Kiosk Mode
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.queue.smart-display') }}" target="_blank"
+                                           class="nested-link {{ request()->routeIs('hms.queue.smart-display') ? 'active' : '' }}">
+                                            <i class="fa fa-tv mr-2 w-4"></i> Smart Display
+                                            <span class="badge badge-warning ml-2">Premium</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcanany
+
+                        {{-- Enquiries --}}
+                        <li>
+                            <div class="nested-menu-item" @click="toggleMenu('enquiries')">
+                                <div class="flex items-center text-sm">
+                                    <i class="fa fa-question-circle mr-2 w-4 text-red-600"></i>
+                                    <span>Enquiries</span>
+                                </div>
+                                <i class="fa fa-chevron-down text-xs transition-transform" 
+                                   :class="isMenuOpen('enquiries') ? 'rotate-180' : ''"></i>
+                            </div>
+                            <ul x-show="isMenuOpen('enquiries')" x-transition class="nested-submenu">
+                                <li>
+                                    <a @click.stop href="{{ route('admin.enquiries.index') }}" 
+                                       class="nested-link {{ request()->routeIs('admin.enquiries.index') ? 'active' : '' }}">
+                                        <i class="fa fa-inbox mr-2 w-4"></i> Front Desk Enquiries
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.enquiries.feedback') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.enquiries.feedback') ? 'active' : '' }}">
+                                        <i class="fa fa-comment-dots mr-2 w-4"></i> Feedback / Complaints
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- Notice Board --}}
+                        <li>
+                            <div class="nested-menu-item" @click="toggleMenu('notices')">
+                                <div class="flex items-center text-sm">
+                                    <i class="fa fa-bullhorn mr-2 w-4 text-red-600"></i>
+                                    <span>Notice Board</span>
+                                </div>
+                                <i class="fa fa-chevron-down text-xs transition-transform" 
+                                   :class="isMenuOpen('notices') ? 'rotate-180' : ''"></i>
+                            </div>
+                            <ul x-show="isMenuOpen('notices')" x-transition class="nested-submenu">
+                                <li>
+                                    <a @click.stop href="{{ route('admin.notices.index') }}" 
+                                       class="nested-link {{ request()->routeIs('admin.notices.index') ? 'active' : '' }}">
+                                        <i class="fa fa-clipboard mr-2 w-4"></i> Notice Board
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.notices.staff') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.notices.staff') ? 'active' : '' }}">
+                                        <i class="fa fa-user-tie mr-2 w-4"></i> Staff Notices
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- Send Mails / SMS --}}
+                        <li>
+                            <div class="nested-menu-item" @click="toggleMenu('messaging')">
+                                <div class="flex items-center text-sm">
+                                    <i class="fa fa-envelope mr-2 w-4 text-red-600"></i>
+                                    <span>Send Mails / SMS</span>
+                                </div>
+                                <i class="fa fa-chevron-down text-xs transition-transform" 
+                                   :class="isMenuOpen('messaging') ? 'rotate-180' : ''"></i>
+                            </div>
+                            <ul x-show="isMenuOpen('messaging')" x-transition class="nested-submenu">
+                                <li>
+                                    <a @click.stop href="{{ route('hms.messaging.index') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.messaging.index') ? 'active' : '' }}">
+                                        <i class="fa fa-tachometer-alt mr-2 w-4"></i> Messages Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.messaging.bulk') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.messaging.bulk') ? 'active' : '' }}">
+                                        <i class="fa fa-paper-plane mr-2 w-4"></i> Bulk Messages
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.messaging.templates') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.messaging.templates') ? 'active' : '' }}">
+                                        <i class="fa fa-file-alt mr-2 w-4"></i> Templates
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- Reminders --}}
+                        <li>
+                            <div class="nested-menu-item" @click="toggleMenu('reminders')">
+                                <div class="flex items-center text-sm">
+                                    <i class="fa fa-bell mr-2 w-4 text-red-600"></i>
+                                    <span>Reminders</span>
+                                </div>
+                                <i class="fa fa-chevron-down text-xs transition-transform" 
+                                   :class="isMenuOpen('reminders') ? 'rotate-180' : ''"></i>
+                            </div>
+                            <ul x-show="isMenuOpen('reminders')" x-transition class="nested-submenu">
+                                <li>
+                                    <a @click.stop href="{{ route('hms.reminders.index') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.reminders.index') ? 'active' : '' }}">
+                                        <i class="fa fa-list mr-2 w-4"></i> All Reminders
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.reminders.appointments') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.reminders.appointments') ? 'active' : '' }}">
+                                        <i class="fa fa-calendar-plus mr-2 w-4"></i> Appointment Reminder
+                                    </a>
+                                </li>
+                                <li>
+                                    <a @click.stop href="{{ route('hms.reminders.payments') }}" 
+                                       class="nested-link {{ request()->routeIs('hms.reminders.payments') ? 'active' : '' }}">
+                                        <i class="fa fa-dollar-sign mr-2 w-4"></i> Payment Reminder
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            @endcanany
+            @endif
+
+            <li class="menu-divider"></li>
+            <li class="menu-divider"></li>
+
+            {{-- ðŸ§¬ 3. CLINICAL MODULES --}}
             @if(\App\Models\Module::isEnabled('prescriptions-management') || \App\Models\Module::isEnabled('beds-management') || \App\Models\Module::isEnabled('telemedicine'))
             @canany(['view prescriptions', 'manage case handlers', 'generate operation reports', 'manage bed assignments'])
                 <li class="mb-1">
@@ -388,7 +612,9 @@
             @endcanany
             @endif
 
-            {{-- 🧪 4. DIAGNOSTICS & LABORATORY --}}
+            <li class="menu-divider"></li>
+
+            {{-- ðŸ§ª 4. DIAGNOSTICS & LABORATORY --}}
             @if(\App\Models\Module::isEnabled('pathology-tests') || \App\Models\Module::isEnabled('radiology-tests') || \App\Models\Module::isEnabled('blood-bank'))
             @canany(['manage test categories', 'add test requests', 'enter test results', 'manage blood bank'])
                 <li class="mb-1">
@@ -465,12 +691,6 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a @click.stop href="{{ route('hms.test-categories.index') }}" 
-                                           class="nested-link {{ request()->routeIs('hms.test-categories.*') ? 'active' : '' }}">
-                                            <i class="fa fa-list mr-2 w-4"></i> Test Categories
-                                        </a>
-                                    </li>
-                                    <li>
                                         <a @click.stop href="{{ route('hms.radiology.requests.index') }}" 
                                            class="nested-link {{ request()->routeIs('hms.radiology.requests.*') ? 'active' : '' }}">
                                             <i class="fa fa-file-medical mr-2 w-4"></i> Radiology Reports
@@ -541,7 +761,9 @@
             @endcanany
             @endif
 
-            {{-- 💊 5. PHARMACY & INVENTORY --}}
+            <li class="menu-divider"></li>
+
+            {{-- ðŸ’Š 5. PHARMACY & INVENTORY --}}
             @if(\App\Models\Module::isEnabled('medicines-inventory') || \App\Models\Module::isEnabled('full-inventory-management'))
             @canany(['view prescriptions', 'dispense medicines', 'manage medicine inventory', 'manage packages'])
                 <li class="mb-1">
@@ -661,7 +883,9 @@
             @endcanany
             @endif
 
-            {{-- 💰 6. FINANCE & ACCOUNTING --}}
+            <li class="menu-divider"></li>
+
+            {{-- ðŸ’° 6. FINANCE & ACCOUNTING --}}
             @if(\App\Models\Module::isEnabled('billing') || \App\Models\Module::isEnabled('payments') || \App\Models\Module::isEnabled('accounts') || \App\Models\Module::isEnabled('insurance-management'))
             @canany(['create invoices', 'edit invoices', 'add payments', 'view payment reports'])
                 <li class="mb-1">
@@ -956,7 +1180,9 @@
             @endcanany
             @endif
 
-            {{-- 👥 7. HUMAN RESOURCE (HR) --}}
+            <li class="menu-divider"></li>
+
+            {{-- ðŸ‘¥ 7. HUMAN RESOURCE (HR) --}}
             @if(\App\Models\Module::isEnabled('hr-management'))
             @canany(['manage staff profiles', 'view attendance', 'manage payrolls'])
                 <li class="mb-1">
@@ -1271,7 +1497,9 @@
             @endcanany
             @endif
 
-            {{-- 📊 8. REPORTS & ANALYTICS --}}
+            <li class="menu-divider"></li>
+
+            {{-- ðŸ“Š 8. REPORTS & ANALYTICS --}}
             @if(\App\Models\Module::isEnabled('reports-analytics'))
             @canany(['generate patient reports', 'generate billing reports', 'view dashboard analytics'])
                 <li class="mb-1">
@@ -1383,224 +1611,8 @@
             @endcanany
             @endif
 
-            {{-- 📨 9. COMMUNICATION & FRONTDESK --}}
-            @if(\App\Models\Module::isEnabled('communication-frontdesk'))
-            @canany(['create appointments', 'manage appointments', 'view appointments'])
-                <li class="mb-1">
-                    <div class="menu-item menu-item-red" @click="toggleMenu('communication', true)">
-                        <div class="flex items-center">
-                            <div class="menu-icon bg-gradient-to-br from-red-500 to-rose-600">
-                                <i class="fa fa-comments text-white text-sm"></i>
-                            </div>
-                            <span class="font-semibold text-gray-700 dark:text-gray-200">Communication & Frontdesk</span>
-                        </div>
-                        <i class="fa fa-chevron-down text-xs transition-transform text-gray-400" 
-                           :class="isMenuOpen('communication') ? 'rotate-180' : ''"></i>
-                    </div>
-                    <ul x-show="isMenuOpen('communication')" x-transition class="submenu submenu-red">
-                        
-                        {{-- Appointments Submenu --}}
-                        @canany(['create appointments', 'view appointments'])
-                            <li>
-                                <div class="nested-menu-item" @click="toggleMenu('appointments')">
-                                    <div class="flex items-center text-sm">
-                                        <i class="fa fa-calendar-check mr-2 w-4 text-red-600"></i>
-                                        <span>Appointments</span>
-                                    </div>
-                                    <i class="fa fa-chevron-down text-xs transition-transform" 
-                                       :class="isMenuOpen('appointments') ? 'rotate-180' : ''"></i>
-                                </div>
-                                <ul x-show="isMenuOpen('appointments')" x-transition class="nested-submenu">
-                                    <li>
-                                        <a @click.stop href="{{ route('hms.appointments.index') }}" 
-                                           class="nested-link {{ request()->routeIs('hms.appointments.*') ? 'active' : '' }}">
-                                            <i class="fa fa-list mr-2 w-4"></i> Manage Appointments
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a @click.stop href="{{ route('hms.calendar.index') }}" 
-                                           class="nested-link {{ request()->routeIs('hms.calendar.*') ? 'active' : '' }}">
-                                            <i class="fa fa-calendar-alt mr-2 w-4"></i> Calendar View
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a @click.stop href="{{ route('admin.appointments.requests') }}" 
-                                           class="nested-link {{ request()->routeIs('admin.appointments.requests') ? 'active' : '' }}">
-                                            <i class="fa fa-globe mr-2 w-4"></i> Online Requests
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        @endcanany
 
-                        {{-- Queue Management --}}
-                        @canany(['manage queue', 'view appointments', 'create appointments'])
-                            <li>
-                                <div class="nested-menu-item" @click="toggleMenu('queue')">
-                                    <div class="flex items-center text-sm">
-                                        <i class="fa fa-ticket-alt mr-2 w-4 text-purple-600"></i>
-                                        <span>Queue Management</span>
-                                    </div>
-                                    <i class="fa fa-chevron-down text-xs transition-transform" 
-                                       :class="isMenuOpen('queue') ? 'rotate-180' : ''"></i>
-                                </div>
-                                <ul x-show="isMenuOpen('queue')" x-transition class="nested-submenu">
-                                    <li>
-                                        <a @click.stop href="{{ route('hms.queue.index') }}" 
-                                           class="nested-link {{ request()->routeIs('hms.queue.index') || request()->routeIs('hms.queue.create') ? 'active' : '' }}">
-                                            <i class="fa fa-list mr-2 w-4"></i> Manage Queues
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a @click.stop href="{{ route('hms.queue.token-generation') }}" 
-                                           class="nested-link {{ request()->routeIs('hms.queue.token-generation') || request()->routeIs('hms.queue.generate-token') ? 'active' : '' }}">
-                                            <i class="fa fa-qrcode mr-2 w-4"></i> Generate Token
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a @click.stop href="{{ route('hms.queue.display-board') }}" target="_blank"
-                                           class="nested-link {{ request()->routeIs('hms.queue.display-board') ? 'active' : '' }}">
-                                            <i class="fa fa-tv mr-2 w-4"></i> Display Board
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a @click.stop href="{{ route('hms.queue.kiosk') }}" target="_blank"
-                                           class="nested-link {{ request()->routeIs('hms.queue.kiosk') ? 'active' : '' }}">
-                                            <i class="fa fa-desktop mr-2 w-4"></i> Kiosk Mode
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a @click.stop href="{{ route('hms.queue.smart-display') }}" target="_blank"
-                                           class="nested-link {{ request()->routeIs('hms.queue.smart-display') ? 'active' : '' }}">
-                                            <i class="fa fa-tv mr-2 w-4"></i> Smart Display
-                                            <span class="badge badge-warning ml-2">Premium</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        @endcanany
-
-                        {{-- Enquiries --}}
-                        <li>
-                            <div class="nested-menu-item" @click="toggleMenu('enquiries')">
-                                <div class="flex items-center text-sm">
-                                    <i class="fa fa-question-circle mr-2 w-4 text-red-600"></i>
-                                    <span>Enquiries</span>
-                                </div>
-                                <i class="fa fa-chevron-down text-xs transition-transform" 
-                                   :class="isMenuOpen('enquiries') ? 'rotate-180' : ''"></i>
-                            </div>
-                            <ul x-show="isMenuOpen('enquiries')" x-transition class="nested-submenu">
-                                <li>
-                                    <a @click.stop href="{{ route('admin.enquiries.index') }}" 
-                                       class="nested-link {{ request()->routeIs('admin.enquiries.index') ? 'active' : '' }}">
-                                        <i class="fa fa-inbox mr-2 w-4"></i> Front Desk Enquiries
-                                    </a>
-                                </li>
-                                <li>
-                                    <a @click.stop href="{{ route('hms.enquiries.feedback') }}" 
-                                       class="nested-link {{ request()->routeIs('hms.enquiries.feedback') ? 'active' : '' }}">
-                                        <i class="fa fa-comment-dots mr-2 w-4"></i> Feedback / Complaints
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        {{-- Notice Board --}}
-                        <li>
-                            <div class="nested-menu-item" @click="toggleMenu('notices')">
-                                <div class="flex items-center text-sm">
-                                    <i class="fa fa-bullhorn mr-2 w-4 text-red-600"></i>
-                                    <span>Notice Board</span>
-                                </div>
-                                <i class="fa fa-chevron-down text-xs transition-transform" 
-                                   :class="isMenuOpen('notices') ? 'rotate-180' : ''"></i>
-                            </div>
-                            <ul x-show="isMenuOpen('notices')" x-transition class="nested-submenu">
-                                <li>
-                                    <a @click.stop href="{{ route('admin.notices.index') }}" 
-                                       class="nested-link {{ request()->routeIs('admin.notices.index') ? 'active' : '' }}">
-                                        <i class="fa fa-clipboard mr-2 w-4"></i> Announcements
-                                    </a>
-                                </li>
-                                <li>
-                                    <a @click.stop href="{{ route('hms.notices.staff') }}" 
-                                       class="nested-link {{ request()->routeIs('hms.notices.staff') ? 'active' : '' }}">
-                                        <i class="fa fa-user-tie mr-2 w-4"></i> Staff Notices
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        {{-- Send Mails / SMS --}}
-                        <li>
-                            <div class="nested-menu-item" @click="toggleMenu('messaging')">
-                                <div class="flex items-center text-sm">
-                                    <i class="fa fa-envelope mr-2 w-4 text-red-600"></i>
-                                    <span>Send Mails / SMS</span>
-                                </div>
-                                <i class="fa fa-chevron-down text-xs transition-transform" 
-                                   :class="isMenuOpen('messaging') ? 'rotate-180' : ''"></i>
-                            </div>
-                            <ul x-show="isMenuOpen('messaging')" x-transition class="nested-submenu">
-                                <li>
-                                    <a @click.stop href="{{ route('hms.messaging.index') }}" 
-                                       class="nested-link {{ request()->routeIs('hms.messaging.index') ? 'active' : '' }}">
-                                        <i class="fa fa-tachometer-alt mr-2 w-4"></i> Messages Dashboard
-                                    </a>
-                                </li>
-                                <li>
-                                    <a @click.stop href="{{ route('hms.messaging.bulk') }}" 
-                                       class="nested-link {{ request()->routeIs('hms.messaging.bulk') ? 'active' : '' }}">
-                                        <i class="fa fa-paper-plane mr-2 w-4"></i> Bulk Messages
-                                    </a>
-                                </li>
-                                <li>
-                                    <a @click.stop href="{{ route('hms.messaging.templates') }}" 
-                                       class="nested-link {{ request()->routeIs('hms.messaging.templates') ? 'active' : '' }}">
-                                        <i class="fa fa-file-alt mr-2 w-4"></i> Templates
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        {{-- Reminders --}}
-                        <li>
-                            <div class="nested-menu-item" @click="toggleMenu('reminders')">
-                                <div class="flex items-center text-sm">
-                                    <i class="fa fa-bell mr-2 w-4 text-red-600"></i>
-                                    <span>Reminders</span>
-                                </div>
-                                <i class="fa fa-chevron-down text-xs transition-transform" 
-                                   :class="isMenuOpen('reminders') ? 'rotate-180' : ''"></i>
-                            </div>
-                            <ul x-show="isMenuOpen('reminders')" x-transition class="nested-submenu">
-                                <li>
-                                    <a @click.stop href="{{ route('hms.reminders.index') }}" 
-                                       class="nested-link {{ request()->routeIs('hms.reminders.index') ? 'active' : '' }}">
-                                        <i class="fa fa-list mr-2 w-4"></i> All Reminders
-                                    </a>
-                                </li>
-                                <li>
-                                    <a @click.stop href="{{ route('hms.reminders.appointments') }}" 
-                                       class="nested-link {{ request()->routeIs('hms.reminders.appointments') ? 'active' : '' }}">
-                                        <i class="fa fa-calendar-plus mr-2 w-4"></i> Appointment Reminder
-                                    </a>
-                                </li>
-                                <li>
-                                    <a @click.stop href="{{ route('hms.reminders.payments') }}" 
-                                       class="nested-link {{ request()->routeIs('hms.reminders.payments') ? 'active' : '' }}">
-                                        <i class="fa fa-dollar-sign mr-2 w-4"></i> Payment Reminder
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-            @endcanany
-            @endif
-
-            {{-- ⚙️ 10. SYSTEM ADMINISTRATION --}}
+            {{-- âš™ï¸ 10. SYSTEM ADMINISTRATION --}}
             @canany(['manage system settings', 'manage roles', 'manage permissions', 'view audit logs'])
                 <li class="mb-1">
                     <div class="menu-item menu-item-indigo" @click="toggleMenu('settings', true)">
@@ -1715,6 +1727,12 @@
                             </li>
                         @endcan
                         @can('view audit logs')
+                                                            <li>
+                                    <a @click.stop href="{{ route('break-glass.index') }}"
+                                       class="submenu-link {{ request()->routeIs('break-glass.*') ? 'active' : '' }}">
+                                        <i class="fa fa-user-secret mr-2 w-4"></i> Break-Glass Access
+                                    </a>
+                                </li>
                             <li>
                                 <a @click.stop href="{{ route('hms.settings.audit-logs') }}" 
                                    class="submenu-link {{ request()->routeIs('hms.settings.audit-logs') ? 'active' : '' }}">
@@ -1732,7 +1750,9 @@
                 </li>
             @endcanany
 
-            {{-- 🌐 11. FRONTEND CMS --}}
+            <li class="menu-divider"></li>
+
+            {{-- ðŸŒ 11. FRONTEND CMS --}}
             @canany(['manage homepage', 'manage services', 'manage doctors listing', 'manage marketing'])
                 <li class="mb-1">
                     <div class="menu-item menu-item-purple" @click="toggleMenu('cms', true)">
@@ -1828,7 +1848,9 @@
             </li>
             @endcanany
 
-            {{-- 📢 12. MARKETING SUITE --}}
+            <li class="menu-divider"></li>
+
+            {{-- ðŸ“¢ 12. MARKETING SUITE --}}
             @canany(['manage marketing', 'create marketing posts', 'manage campaigns', 'manage social accounts'])
                 <li class="mb-1">
                     <div class="menu-item menu-item-blue" @click="toggleMenu('marketing', true)">
@@ -1894,7 +1916,9 @@
             </li>
             @endcanany
 
-            {{-- 🤖 13. AI, INTEGRATIONS & TOOLS --}}
+            <li class="menu-divider"></li>
+
+            {{-- ðŸ¤– 13. AI, INTEGRATIONS & TOOLS --}}
             @canany(['use ai assistant', 'manage ai suggestions', 'view analytics', 'use telemedicine', 'manage rfid tags', 'monitor iot sensors'])
                 <li class="mb-1">
                     <div class="menu-item menu-item-cyan" @click="toggleMenu('ai-integrations', true)">
@@ -2036,7 +2060,7 @@
         </nav>
         
         <!-- Sidebar Footer -->
-        <div class="sidebar-footer border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 flex-shrink-0" style="height: 60px;">
+        <div class="sidebar-footer border-t p-3 flex-shrink-0" style="height: 60px; background-color: #00001A; border-color: rgba(255,255,255,0.1);">
             <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
                 <div class="flex items-center">
                     <i class="fa fa-circle text-green-500 mr-2 animate-pulse"></i>
@@ -2047,3 +2071,6 @@
         </div>
     </div>
 </div>
+
+
+

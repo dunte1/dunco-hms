@@ -281,10 +281,22 @@ class EhrIntegrationController extends Controller
         $validated = $request->validate([
             'resource_type' => 'required|in:Patient,Observation,MedicationRequest',
             'patient_id' => 'required|exists:patients,id',
+            'lab_request_id' => 'nullable|exists:lab_requests,id',
+            'prescription_id' => 'nullable|exists:prescriptions,id',
         ]);
 
         $patient = \App\Models\Patient::findOrFail($validated['patient_id']);
-        $fhirResource = $this->generateFhirResource($validated['resource_type'], $patient);
+        $mapper = new \App\Services\Fhir\FhirResourceMapper();
+
+        $fhirResource = match ($validated['resource_type']) {
+            'Patient' => $mapper->mapPatient($patient),
+            'Observation' => !empty($validated['lab_request_id'])
+                ? $mapper->mapDiagnosticReport(\App\Models\LabRequest::findOrFail($validated['lab_request_id']))
+                : throw new \InvalidArgumentException('lab_request_id required for Observation mapping'),
+            'MedicationRequest' => !empty($validated['prescription_id'])
+                ? $mapper->mapMedicationRequest(\App\Models\Prescription::findOrFail($validated['prescription_id']))
+                : throw new \InvalidArgumentException('prescription_id required for MedicationRequest mapping'),
+        };
 
         $endpoint = config('ehr.fhir_endpoint');
         if ($endpoint) {
@@ -308,7 +320,8 @@ class EhrIntegrationController extends Controller
 
         return response()->json([
             'success' => false,
-            'message' => 'FHIR endpoint not configured',
+            'message' => 'FHIR endpoint not configured. Resource generated locally via FhirResourceMapper (generic FHIR R4 — not Kenya IG certified).',
+            'resource' => $fhirResource,
         ], 400);
     }
 

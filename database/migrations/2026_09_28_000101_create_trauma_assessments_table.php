@@ -20,8 +20,8 @@ return new class extends Migration {
             $table->text('extremities')->nullable();
             $table->text('spinal')->nullable();
             $table->integer('gcs_total');
-            $table->string('pupils_left', 10)->nullable();
-            $table->string('pupils_right', 10)->nullable();
+            $table->string('pupils_left', 50)->nullable();
+            $table->string('pupils_right', 50)->nullable();
             $table->json('vital_signs_snapshot')->nullable();
             $table->integer('trauma_score');
             $table->timestamps();

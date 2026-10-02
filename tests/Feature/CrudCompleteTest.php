@@ -32,6 +32,7 @@ use App\Models\IpdAdmission;
 use App\Models\DiagnosisCategory;
 use App\Models\MedicalEquipment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class CrudCompleteTest extends TestCase
@@ -45,8 +46,9 @@ class CrudCompleteTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->artisan('migrate');
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
         $this->admin = User::factory()->create();
+        $this->admin->assignRole('Hospital Admin');
         $dept = DoctorDepartment::create(['name' => 'General']);
         $this->patient = Patient::create([
             'first_name' => 'John', 'last_name' => 'Doe',
@@ -63,7 +65,8 @@ class CrudCompleteTest extends TestCase
     private function testCrud($model, array $createData, array $updateData)
     {
         $m = $model::create($createData);
-        $this->assertDatabaseHas((new $model)->getTable(), [$createData[array_key_first($createData)] => $createData[array_key_first($createData)]]);
+        $key = array_key_first($createData);
+        $this->assertDatabaseHas((new $model)->getTable(), [$key => $createData[$key]]);
         $m->update($updateData);
         $m->delete();
     }
@@ -175,3 +178,4 @@ class CrudCompleteTest extends TestCase
         $a->delete();
     }
 }
+

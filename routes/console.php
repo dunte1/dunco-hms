@@ -17,6 +17,12 @@ Schedule::job(new \App\Jobs\SendAppointmentReminders)
     ->timezone('UTC')
     ->description('Send appointment reminders for tomorrow');
 
+// Mark missed appointments (no-show) daily
+Schedule::command('appointments:mark-missed')
+    ->dailyAt('23:30')
+    ->timezone('UTC')
+    ->description('Mark past scheduled appointments as no-show');
+
 Schedule::job(new \App\Jobs\SendPaymentReminders)
     ->dailyAt('10:00')
     ->timezone('UTC')

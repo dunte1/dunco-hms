@@ -299,6 +299,17 @@ window.addEventListener('close-all-menus', () => {
     }
 });
 
+// Handle sidebar collapse toggle persistence
+document.addEventListener('alpine:init', () => {
+    Alpine.store('sidebar', {
+        collapsed: localStorage.getItem('sidebar-collapsed') === 'true',
+        toggle() {
+            this.collapsed = !this.collapsed;
+            localStorage.setItem('sidebar-collapsed', this.collapsed);
+        }
+    });
+});
+
 /**
  * Debug helper
  */

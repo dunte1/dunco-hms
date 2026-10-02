@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\BelongsToFacility;
+
+use App\Traits\Auditable;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class LabRequest extends Model
 {
     use HasFactory;
+    use BelongsToFacility;
+    use Auditable;
 
     protected $fillable = [
         'request_number', 'patient_id', 'doctor_id', 'opd_visit_id', 'payment_id',
@@ -40,3 +46,5 @@ class LabRequest extends Model
         return $this->hasMany(LabRequestItem::class);
     }
 }
+
+

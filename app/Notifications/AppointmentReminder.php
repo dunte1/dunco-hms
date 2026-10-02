@@ -36,16 +36,14 @@ class AppointmentReminder extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Appointment Reminder')
-            ->greeting('Hello ' . $notifiable->first_name . ',')
+            ->subject('Appointment Reminder - ' . $this->appointment->doctor->full_name ?? 'Doctor')
+            ->view('emails.appointment-confirmation', [
+                'patient' => $notifiable,
+                'appointment' => $this->appointment,
+            ])
+            ->greeting('Hello ' . ($notifiable->first_name ?? $notifiable->name) . ',')
             ->line('This is a reminder about your upcoming appointment.')
-            ->line('Doctor: Dr. ' . $this->appointment->doctor->full_name)
-            ->line('Date: ' . $this->appointment->appointment_date->format('l, F j, Y'))
-            ->line('Time: ' . $this->appointment->appointment_time)
-            ->line('Department: ' . $this->appointment->doctor->department->name ?? 'N/A')
-            ->action('View Details', route('hms.appointments.index'))
-            ->line('Please arrive 10 minutes early.')
-            ->line('If you need to reschedule, please contact us as soon as possible.');
+            ->action('View Appointment', route('hms.appointments.index'));
     }
 
     /**
@@ -55,11 +53,10 @@ class AppointmentReminder extends Notification implements ShouldQueue
     {
         return [
             'appointment_id' => $this->appointment->id,
-            'doctor_name' => $this->appointment->doctor->full_name,
-            'appointment_date' => $this->appointment->appointment_date,
-            'appointment_time' => $this->appointment->appointment_time,
+            'doctor_name' => $this->appointment->doctor->full_name ?? 'N/A',
+            'appointment_date' => $this->appointment->scheduled_at ?? $this->appointment->appointment_date,
             'type' => 'appointment_reminder',
-            'message' => 'Reminder: Appointment with Dr. ' . $this->appointment->doctor->full_name . ' on ' . $this->appointment->appointment_date->format('M d, Y'),
+            'message' => 'Reminder: Appointment with Dr. ' . ($this->appointment->doctor->full_name ?? 'N/A') . ' on ' . ($this->appointment->scheduled_at ?? $this->appointment->appointment_date)?->format('M d, Y'),
         ];
     }
 }

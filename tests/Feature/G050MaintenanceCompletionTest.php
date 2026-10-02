@@ -12,6 +12,7 @@ use App\Models\AssetTransfer;
 use App\Models\AssetDisposal;
 use App\Models\EmployeeDepartment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class G050MaintenanceCompletionTest extends TestCase
@@ -23,7 +24,9 @@ class G050MaintenanceCompletionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
         $this->user = User::factory()->create();
+        $this->user->assignRole('Biomedical Engineer');
     }
 
     private function createEquipment(array $overrides = []): MedicalEquipment

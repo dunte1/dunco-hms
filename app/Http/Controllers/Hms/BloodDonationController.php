@@ -71,6 +71,27 @@ class BloodDonationController extends Controller
 
         if ($isEligible) {
             BloodDonor::where('id', $data['donor_id'])->update(['last_donation_date' => $data['donation_date']]);
+
+            // Auto-create a blood unit from eligible donation
+            try {
+                $inventory = \App\Models\BloodInventory::where('blood_group_id', $data['blood_group_id'])->first()
+                    ?? \App\Models\BloodInventory::whereNull('blood_group_id')->first();
+
+                \App\Models\BloodUnit::create([
+                    'blood_inventory_id' => $inventory?->id,
+                    'donation_id' => $donation->id,
+                    'unit_number' => \App\Models\BloodUnit::generateUnitNumber(),
+                    'blood_group_id' => $data['blood_group_id'],
+                    'volume_ml' => $data['volume_ml'],
+                    'expiry_date' => now()->addDays(35)->toDateString(),
+                    'status' => 'available',
+                ]);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Blood unit auto-create failed', [
+                    'donation_id' => $donation->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         return redirect()->route('hms.bloodbank.index')->with('status', 'Blood donation recorded');

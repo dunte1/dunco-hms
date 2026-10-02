@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\BelongsToFacility;
+
+use App\Traits\Auditable;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class MortuaryRecord extends Model
 {
     use HasFactory;
+    use BelongsToFacility;
+    use Auditable;
 
     protected $fillable = [
         'death_report_id', 'body_id', 'received_at', 'received_by',
@@ -54,3 +60,5 @@ class MortuaryRecord extends Model
         return $this->hasMany(DeathCertificate::class);
     }
 }
+
+

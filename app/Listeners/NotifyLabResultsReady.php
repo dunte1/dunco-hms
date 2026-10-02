@@ -21,10 +21,13 @@ class NotifyLabResultsReady implements ShouldQueue
         // Notify doctor via email if available
         if ($labRequest->doctor && $labRequest->doctor->email) {
             try {
-                \Mail::send([], [], function ($message) use ($labRequest) {
+                \Mail::send('emails.lab-results-ready', [
+                    'patient' => $labRequest->patient,
+                    'labRequest' => $labRequest,
+                ], function ($message) use ($labRequest) {
                     $message->to($labRequest->doctor->email)
                         ->subject('Lab Results Ready - ' . $labRequest->request_number)
-                        ->html('Lab results are ready for request ' . $labRequest->request_number . ' (Patient: ' . $labRequest->patient->full_name . ')');
+                        ->from(\App\Models\SystemSetting::get('hospital_email', config('mail.from.address')), \App\Models\SystemSetting::get('hospital_name', config('app.name')));
                 });
             } catch (\Exception $e) {
                 \Log::error('Failed to send lab results notification to doctor: ' . $e->getMessage());
@@ -41,4 +44,3 @@ class NotifyLabResultsReady implements ShouldQueue
         }
     }
 }
-

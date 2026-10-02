@@ -25,7 +25,9 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        // Current flow: registration creates the user and redirects to OTP verification
+        $response->assertRedirect();
+        $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
+        $this->assertGuest();
     }
 }

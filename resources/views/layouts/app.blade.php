@@ -1,11 +1,48 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="{ sidebarOpen: false }">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+      x-data="{
+          sidebarOpen: false,
+          sidebarCollapsed: localStorage.getItem('sidebar-collapsed') === 'true',
+          darkMode: {{ !empty($themeSettings['dark_mode']) ? 'true' : 'false' }}
+      }"
+      :class="{ 'dark': darkMode }"
+      x-init="
+          document.documentElement.classList.toggle('dark', darkMode);
+          $watch('sidebarCollapsed', val => localStorage.setItem('sidebar-collapsed', val));
+          $watch('darkMode', val => {
+              document.documentElement.classList.toggle('dark', val);
+              localStorage.setItem('darkMode', val);
+              @auth
+              fetch('{{ route('hms.system.theme.update') }}', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'X-CSRF-TOKEN': document.querySelector('meta[name=\"csrf-token\"]').content
+                  },
+                  body: JSON.stringify({
+                      dark_mode: val,
+                      primary_color: '{{ $themeSettings['primary_color'] ?? '#000075' }}',
+                      secondary_color: '{{ $themeSettings['secondary_color'] ?? '#00001A' }}'
+                  })
+              }).catch(function() {});
+              @endauth
+          })
+      ">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ $themeSettings['hospital_name'] ?? config('app.name', 'DuncoHMS') }}</title>
+
+        <!-- PWA -->
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        <meta name="theme-color" content="{{ $themeSettings['primary_color'] ?? '#000075' }}">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="{{ $themeSettings['hospital_name'] ?? 'Dunco HMS' }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/pwa/icon-152x152.png') }}">
+        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/pwa/icon-192x192.png') }}">
 
         <!-- Favicon -->
         @if($themeSettings['favicon'] ?? false)
@@ -36,7 +73,7 @@
         
         <style>
             .sidebar {
-                transition: transform 0.3s ease-in-out;
+                transition: width 0.3s ease-in-out, transform 0.3s ease-in-out;
             }
             .sidebar.closed {
                 transform: translateX(-100%);
@@ -46,10 +83,57 @@
                     transform: translateX(0);
                 }
             }
+            .sidebar.collapsed { width: 72px !important; max-width: 72px !important; }
+            .sidebar.collapsed .sidebar-container { width: 72px !important; max-width: 72px !important; overflow: hidden; transition: width 0.3s ease-in-out; }
+            .sidebar.collapsed .sidebar-header-text,
+            .sidebar.collapsed .menu-item span,
+            .sidebar.collapsed .nested-menu-item span,
+            .sidebar.collapsed .submenu-link span,
+            .sidebar.collapsed .nested-link span,
+            .sidebar.collapsed .menu-item .fa-chevron-down,
+            .sidebar.collapsed .nested-menu-item .fa-chevron-down,
+            .sidebar.collapsed .submenu-link .badge,
+            .sidebar.collapsed .sidebar-nav .submenu,
+            .sidebar.collapsed .sidebar-nav .nested-submenu { display: none !important; }
+            .sidebar.collapsed .menu-item { justify-content: center; padding: 0.75rem; }
+            .sidebar.collapsed .menu-icon { margin-right: 0; }
+            .sidebar.collapsed .submenu-link { justify-content: center; padding: 0.5rem; }
+            .sidebar.collapsed .nested-link { justify-content: center; padding: 0.375rem; }
+            .sidebar.collapsed .sidebar-header { padding: 1rem !important; }
+            .sidebar.collapsed .sidebar-header .hospital-name,
+            .sidebar.collapsed .sidebar-header .hospital-subtitle { display: none; }
+            .sidebar.collapsed .sidebar-header .toggle-btn { margin: 0; }
+            .sidebar.collapsed .sidebar-header .logo-wrapper { margin: 0; }
+            .main-content { transition: margin-left 0.3s ease-in-out; }
+            @media (max-width: 767px) {
+                .sidebar { width: 280px !important; }
+                .sidebar.collapsed { width: 280px !important; }
+                .sidebar.collapsed .sidebar-header-text,
+                .sidebar.collapsed .menu-item span,
+                .sidebar.collapsed .nested-menu-item span,
+                .sidebar.collapsed .submenu-link span,
+                .sidebar.collapsed .nested-link span,
+                .sidebar.collapsed .menu-item .fa-chevron-down,
+                .sidebar.collapsed .nested-menu-item .fa-chevron-down,
+                .sidebar.collapsed .submenu-link .badge,
+                .sidebar.collapsed .sidebar-nav .submenu,
+                .sidebar.collapsed .sidebar-nav .nested-submenu { display: revert !important; }
+                .sidebar.collapsed .menu-item { justify-content: space-between; padding: 0.75rem 1rem; }
+                .sidebar.collapsed .menu-icon { margin-right: 0.75rem; }
+                .sidebar.collapsed .submenu-link { justify-content: flex-start; padding: 0.5rem 0.75rem; }
+                .sidebar.collapsed .nested-link { justify-content: flex-start; padding: 0.375rem 1rem; }
+                .sidebar.collapsed .sidebar-header { padding: 1.5rem !important; }
+                .sidebar.collapsed .sidebar-header .hospital-name,
+                .sidebar.collapsed .sidebar-header .hospital-subtitle { display: revert; }
+                .sidebar.collapsed .sidebar-header .toggle-btn { margin-left: auto; }
+                .sidebar.collapsed .sidebar-header .logo-wrapper { margin-right: 0.75rem; }
+            }
         </style>
     </head>
-    <body class="font-sans antialiased bg-gray-50 dark:bg-gray-800" 
-          @toggle-sidebar.window="sidebarOpen = !sidebarOpen">
+        <body class="font-sans antialiased"
+              :class="darkMode ? 'bg-gray-900' : 'bg-gray-50'"
+              @toggle-sidebar.window="sidebarOpen = !sidebarOpen"
+              @toggle-sidebar-collapse.window="sidebarCollapsed = !sidebarCollapsed">
         
         @auth
             <!-- Mobile Sidebar Overlay -->
@@ -66,7 +150,7 @@
 
             <!-- Sidebar -->
             <aside class="fixed inset-y-0 left-0 z-50 w-64 sidebar"
-                   :class="sidebarOpen ? '' : 'closed'"
+                   :class="(sidebarOpen ? '' : 'closed') + (sidebarCollapsed ? ' collapsed' : '')"
                    x-transition:enter="transition-transform ease-in-out duration-300"
                    x-transition:enter-start="-translate-x-full"
                    x-transition:enter-end="translate-x-0"
@@ -77,7 +161,7 @@
             </aside>
 
             <!-- Main Content -->
-            <div class="md:ml-64">
+            <div class="main-content md:ml-64" :style="sidebarCollapsed ? 'margin-left: 72px' : ''">
                 <!-- Top Navigation -->
                 <nav class="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
                     <div class="px-4 sm:px-6 lg:px-8">
@@ -86,11 +170,11 @@
                                 <!-- Mobile menu button -->
                                 <button @click="sidebarOpen = !sidebarOpen" 
                                         class="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800">
-                                    <i class="fa fa-bars text-xl"></i>
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                                 </button>
                                 
                                 <!-- Page Title -->
-                                <div class="ml-4 md:ml-0">
+                                <div class="ml-2 md:ml-2">
                                     <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
                                         @yield('title', 'Dashboard')
                                     </h1>
@@ -99,42 +183,13 @@
                             
                             <!-- Right side of navbar -->
                             <div class="flex items-center space-x-4">
-                                <!-- Emergency Contact -->
-                                @php
-                                    $emergencyPhone = \App\Models\SystemSetting::get('emergency_phone_1', '+254 700 000 000');
-                                    $ambulancePhone = \App\Models\SystemSetting::get('ambulance_phone', '+254 700 000 002');
-                                    $emergencyClean = preg_replace('/[^0-9+]/', '', $emergencyPhone);
-                                    $ambulanceClean = preg_replace('/[^0-9+]/', '', $ambulancePhone);
-                                @endphp
-                                <div class="hidden lg:flex items-center space-x-3 text-xs">
-                                    <a href="tel:{{ $emergencyClean }}" 
-                                       class="flex items-center px-2 py-1 bg-red-50 text-red-700 rounded-md hover:bg-red-100 transition-colors"
-                                       title="Emergency Line">
-                                        <i class="fa fa-phone-alt mr-1 text-red-500"></i>
-                                        <span class="font-semibold">Emergency: {{ $emergencyPhone }}</span>
-                                    </a>
-                                    <a href="tel:{{ $ambulanceClean }}" 
-                                       class="flex items-center px-2 py-1 bg-orange-50 text-orange-700 rounded-md hover:bg-orange-100 transition-colors"
-                                       title="Ambulance Dispatch">
-                                        <i class="fa fa-ambulance mr-1 text-orange-500"></i>
-                                        <span class="font-semibold">Ambulance: {{ $ambulancePhone }}</span>
-                                    </a>
-                                </div>
-                                
-                                <!-- Mobile emergency (icon only) -->
-                                <div class="lg:hidden flex items-center space-x-2">
-                                    <a href="tel:{{ $emergencyClean }}" 
-                                       class="p-2 bg-red-50 text-red-600 rounded-full hover:bg-red-100"
-                                       title="Emergency: {{ $emergencyPhone }}">
-                                        <i class="fa fa-phone-alt"></i>
-                                    </a>
-                                    <a href="tel:{{ $ambulanceClean }}" 
-                                       class="p-2 bg-orange-50 text-orange-600 rounded-full hover:bg-orange-100"
-                                       title="Ambulance: {{ $ambulancePhone }}">
-                                        <i class="fa fa-ambulance"></i>
-                                    </a>
-                                </div>
-
+                                <!-- Dark Mode Toggle -->
+                                <button @click="darkMode = !darkMode"
+                                        class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                        title="Toggle Dark Mode">
+                                    <i class="fa fa-moon" x-show="!darkMode"></i>
+                                    <i class="fa fa-sun" x-show="darkMode"></i>
+                                </button>
                                 <!-- User dropdown -->
                                 <div class="relative" x-data="{ open: false }">
                                     <button @click="open = !open" 
@@ -198,10 +253,20 @@
                         @yield('content')
                     @endif
                 </main>
+
+                <!-- Copyright Footer -->
+                <footer class="bg-white dark:bg-gray-900 mt-8" style="border-top: 1px solid {{ $themeSettings['navbar_border'] ?? '#E5ECEB' }};">
+                    <div class="px-6 py-3">
+                        <div class="flex flex-wrap items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                            <span>&copy; {{ date('Y') }} {{ $themeSettings['hospital_name'] ?? config('app.name', 'Dunco HMS') }}. All rights reserved.</span>
+                            <span>Powered by <a href="https://duncowebsolutions.co.ke" target="_blank" class="font-semibold text-blue-600 hover:text-blue-800">Dunco Web Solutions</a></span>
+                        </div>
+                    </div>
+                </footer>
             </div>
         @else
             <!-- Guest Layout -->
-            <div class="min-h-screen bg-gray-100">
+            <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
                 @include('layouts.navigation')
 
                 <!-- Page Heading -->
@@ -218,11 +283,47 @@
                     {{ $slot ?? '' }}
                     @yield('content')
                 </main>
+
+                <!-- Copyright Footer -->
+                <footer class="bg-white border-t mt-8">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                        <div class="flex flex-wrap items-center justify-between text-xs text-gray-500">
+                            <span>&copy; {{ date('Y') }} {{ $themeSettings['hospital_name'] ?? config('app.name', 'Dunco HMS') }}. All rights reserved.</span>
+                            <span>Powered by <a href="https://duncowebsolutions.co.ke" target="_blank" class="font-semibold text-blue-600 hover:text-blue-800">Dunco Web Solutions</a></span>
+                        </div>
+                    </div>
+                </footer>
             </div>
         @endauth
         
         <!-- Sidebar JavaScript -->
         <script src="{{ asset('js/sidebar.js') }}"></script>
+        
+        <!-- PWA Service Worker Registration -->
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js?v=2')
+                        .then(function(registration) {
+                            if (registration.waiting) {
+                                registration.waiting.postMessage({ type: 'skip-waiting' });
+                            }
+                            registration.addEventListener('updatefound', function() {
+                                var newWorker = registration.installing;
+                                if (!newWorker) return;
+                                newWorker.addEventListener('statechange', function() {
+                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                        newWorker.postMessage({ type: 'skip-waiting' });
+                                    }
+                                });
+                            });
+                        })
+                        .catch(function(error) {
+                            console.log('ServiceWorker registration failed:', error);
+                        });
+                });
+            }
+        </script>
         
         <!-- Page-specific scripts -->
         @stack('scripts')

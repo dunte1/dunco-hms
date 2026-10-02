@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TbCase extends Model
 {
-    use SoftDeletes;
+    use Auditable, SoftDeletes;
 
     protected $fillable = [
         'patient_id', 'case_number', 'diagnosis_date', 'specimen_type',
@@ -59,3 +61,4 @@ class TbCase extends Model
         return $this->hasMany(TbContact::class);
     }
 }
+

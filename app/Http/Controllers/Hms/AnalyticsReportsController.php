@@ -16,6 +16,7 @@ use App\Models\Doctor;
 use App\Models\Expense;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AnalyticsReportsController extends Controller
 {
@@ -254,5 +255,107 @@ class AnalyticsReportsController extends Controller
             'todayAppointments',
             'todayRevenue'
         ));
+    }
+
+    /**
+     * PDF Export: Billing Report
+     */
+    public function billingReportPdf(Request $request)
+    {
+        $dateFrom = $request->get('date_from', now()->subMonth()->format('Y-m-d'));
+        $dateTo = $request->get('date_to', now()->format('Y-m-d'));
+
+        $invoices = Invoice::with('patient')
+            ->whereBetween('invoice_date', [$dateFrom, $dateTo])
+            ->get();
+
+        $totalRevenue = $invoices->sum('total_amount');
+        $paidRevenue = $invoices->where('status', 'paid')->sum('total_amount');
+        $pendingRevenue = $invoices->where('status', 'pending')->sum('total_amount');
+
+        $pdf = Pdf::loadView('hms.reports.billing-pdf', compact(
+            'invoices', 'totalRevenue', 'paidRevenue', 'pendingRevenue', 'dateFrom', 'dateTo'
+        ));
+        return $pdf->download('billing-report-' . now()->format('Y-m-d') . '.pdf');
+    }
+
+    /**
+     * PDF Export: Lab Report
+     */
+    public function labReportPdf(Request $request)
+    {
+        $dateFrom = $request->get('date_from', now()->subMonth()->format('Y-m-d'));
+        $dateTo = $request->get('date_to', now()->format('Y-m-d'));
+
+        $labRequests = LabRequest::with(['patient', 'doctor'])
+            ->whereBetween('request_date', [$dateFrom, $dateTo])
+            ->get();
+
+        $totalRequests = $labRequests->count();
+        $completedRequests = $labRequests->where('status', 'completed')->count();
+        $pendingRequests = $labRequests->where('status', 'pending')->count();
+
+        $pdf = Pdf::loadView('hms.reports.lab-pdf', compact(
+            'labRequests', 'totalRequests', 'completedRequests', 'pendingRequests', 'dateFrom', 'dateTo'
+        ));
+        return $pdf->download('lab-report-' . now()->format('Y-m-d') . '.pdf');
+    }
+
+    /**
+     * PDF Export: Pharmacy Report
+     */
+    public function pharmacyReportPdf(Request $request)
+    {
+        $dateFrom = $request->get('date_from', now()->subMonth()->format('Y-m-d'));
+        $dateTo = $request->get('date_to', now()->format('Y-m-d'));
+
+        $prescriptions = Prescription::with(['patient', 'doctor'])
+            ->whereBetween('prescription_date', [$dateFrom, $dateTo])
+            ->get();
+
+        $totalPrescriptions = $prescriptions->count();
+
+        $pdf = Pdf::loadView('hms.reports.pharmacy-pdf', compact(
+            'prescriptions', 'totalPrescriptions', 'dateFrom', 'dateTo'
+        ));
+        return $pdf->download('pharmacy-report-' . now()->format('Y-m-d') . '.pdf');
+    }
+
+    /**
+     * PDF Export: Expense Report
+     */
+    public function expenseReportPdf(Request $request)
+    {
+        $dateFrom = $request->get('date_from', now()->subMonth()->format('Y-m-d'));
+        $dateTo = $request->get('date_to', now()->format('Y-m-d'));
+
+        $expenses = Expense::with('category')
+            ->whereBetween('expense_date', [$dateFrom, $dateTo])
+            ->get();
+
+        $totalExpenses = $expenses->sum('amount');
+
+        $pdf = Pdf::loadView('hms.reports.expense-pdf', compact(
+            'expenses', 'totalExpenses', 'dateFrom', 'dateTo'
+        ));
+        return $pdf->download('expense-report-' . now()->format('Y-m-d') . '.pdf');
+    }
+
+    /**
+     * PDF Export: Diagnosis Report
+     */
+    public function diagnosisReportPdf(Request $request)
+    {
+        $dateFrom = $request->get('date_from', now()->subMonth()->format('Y-m-d'));
+        $dateTo = $request->get('date_to', now()->format('Y-m-d'));
+
+        $diagnoses = PatientDiagnosis::with(['patient', 'doctor'])
+            ->whereBetween('diagnosis_date', [$dateFrom, $dateTo])
+            ->get();
+
+        $pdf = Pdf::loadView('hms.reports.diagnosis-pdf', compact(
+            'diagnoses', 'dateFrom', 'dateTo'
+        ));
+        return $pdf->download('diagnosis-report-' . now()->format('Y-m-d') . '.pdf');
     }
 }

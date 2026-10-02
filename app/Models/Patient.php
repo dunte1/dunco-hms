@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
+use App\Models\Scopes\BelongsToFacility;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,11 +13,11 @@ use Illuminate\Notifications\Notifiable;
 
 class Patient extends Model
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Auditable, Notifiable, SoftDeletes, BelongsToFacility;
 
     protected $fillable = [
         'patient_no','first_name','last_name','dob','gender','email','phone','address',
-        'national_id','dha_cr_id','dha_verified_at',
+        'national_id','dha_cr_id','dha_verified_at','nationality','county','sub_county','ward',
         'created_by','updated_by','facility_id',
     ];
 
@@ -155,5 +158,6 @@ class Patient extends Model
         return $query->get();
     }
 }
+
 
 

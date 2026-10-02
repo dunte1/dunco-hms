@@ -13,6 +13,7 @@ use App\Models\OutbreakEvent;
 use App\Models\HospitalBranch;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class G040PublicHealthTest extends TestCase
@@ -26,11 +27,11 @@ class G040PublicHealthTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
 
         $this->user = User::factory()->create();
-        Permission::create(['name' => 'view patients']);
-        Permission::create(['name' => 'manage public health']);
-        $this->user->givePermissionTo(['view patients', 'manage public health']);
+        $this->user->assignRole('Nurse');
+        $this->user->assignRole('Doctor');
 
         $this->patient = Patient::factory()->create();
         $this->vaccine = Vaccine::create([

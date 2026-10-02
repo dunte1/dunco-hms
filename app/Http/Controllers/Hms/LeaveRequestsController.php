@@ -29,6 +29,7 @@ class LeaveRequestsController extends Controller
         $data = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'leave_type' => 'required|in:sick,vacation,personal,maternity,emergency',
+            'leave_type_id' => 'nullable|exists:leave_types,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'required|string',
@@ -75,6 +76,22 @@ class LeaveRequestsController extends Controller
 
         \App\Models\AuditLog::log('user', auth()->id(), 'leave_approved', 'LeaveRequest', $leaveRequest->id, ['status' => 'pending'], ['status' => 'approved'], 'Leave request approved for employee ' . $leaveRequest->employee_id);
 
+        // Send leave approved email
+        try {
+            $employee = $leaveRequest->employee;
+            if ($employee && $employee->email) {
+                \Illuminate\Support\Facades\Mail::send('emails.leave-approved', [
+                    'employee' => $employee,
+                    'leaveRequest' => $leaveRequest,
+                ], function ($message) use ($employee) {
+                    $message->to($employee->email)
+                        ->subject('Leave Request Approved - ' . \App\Models\SystemSetting::get('hospital_name', config('app.name')));
+                });
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send leave approval email: ' . $e->getMessage());
+        }
+
         // Increment used_days on the leave balance
         if ($leaveRequest->leave_type_id) {
             $year = $leaveRequest->start_date->year;
@@ -109,6 +126,22 @@ class LeaveRequestsController extends Controller
         ]);
 
         \App\Models\AuditLog::log('user', auth()->id(), 'leave_rejected', 'LeaveRequest', $leaveRequest->id, ['status' => 'pending'], ['status' => 'rejected'], 'Leave request rejected for employee ' . $leaveRequest->employee_id);
+
+        // Send leave rejected email
+        try {
+            $employee = $leaveRequest->employee;
+            if ($employee && $employee->email) {
+                \Illuminate\Support\Facades\Mail::send('emails.leave-rejected', [
+                    'employee' => $employee,
+                    'leaveRequest' => $leaveRequest,
+                ], function ($message) use ($employee) {
+                    $message->to($employee->email)
+                        ->subject('Leave Request Rejected - ' . \App\Models\SystemSetting::get('hospital_name', config('app.name')));
+                });
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send leave rejection email: ' . $e->getMessage());
+        }
 
         return back()->with('status', 'Leave request rejected');
     }

@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\BelongsToFacility;
+
+use App\Traits\Auditable;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class IpdAdmission extends Model
 {
     use HasFactory;
+    use BelongsToFacility;
+    use Auditable;
 
     protected $fillable = [
         'patient_id', 'doctor_id', 'bed_id', 'ward_id', 'payment_id',
@@ -69,3 +75,5 @@ class IpdAdmission extends Model
         return null;
     }
 }
+
+

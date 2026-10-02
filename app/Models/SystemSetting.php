@@ -28,7 +28,7 @@ class SystemSetting extends Model
 
             switch ($setting->type) {
                 case 'boolean':
-                    return (bool) $setting->value;
+                    return in_array(strtolower((string) $setting->value), ['1', 'true', 'on', 'yes'], true);
                 case 'number':
                     return is_numeric($setting->value) ? (float) $setting->value : $default;
                 case 'json':

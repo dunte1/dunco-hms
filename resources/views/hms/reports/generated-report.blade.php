@@ -14,8 +14,8 @@
         td { padding: 6px; border-bottom: 1px solid #e5e7eb; font-size: 10px; }
         tr:nth-child(even) { background: #f9fafb; }
         .footer { margin-top: 30px; padding-top: 10px; border-top: 1px solid #e5e7eb; text-align: center; color: #999; font-size: 9px; }
+        @page { size: A4; margin: 15mm; }
         @media print {
-            @page { size: A4; margin: 15mm; }
             body { padding: 0; margin: 0; }
             .no-print { display: none !important; }
             table { page-break-inside: avoid; }

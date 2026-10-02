@@ -75,18 +75,44 @@ class PatientsController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'required|string|max:20',
             'dob' => 'nullable|date|before:today',
-            'date_of_birth' => 'nullable|date|before:today', // Accept both for compatibility
-            'gender' => 'nullable|in:male,female,other',
+            'date_of_birth' => 'nullable|date|before:today',
+            'gender' => 'required|in:male,female,other',
             'address' => 'nullable|string|max:500',
-            'national_id' => 'nullable|string|max:255',
+            'national_id' => 'nullable|string|max:20',
+            'nationality' => 'nullable|string|max:50',
+            'county' => 'nullable|string|max:100',
+            'sub_county' => 'nullable|string|max:100',
+            'ward' => 'nullable|string|max:100',
             'has_insurance' => 'nullable|boolean',
             'insurance_provider_id' => 'nullable|string',
             'insurance_policy_number' => 'nullable|string|max:255',
             'enroll_biometric' => 'nullable|boolean',
+            // Next of kin / emergency contact
+            'nok_first_name' => 'nullable|string|max:255',
+            'nok_last_name' => 'nullable|string|max:255',
+            'nok_relationship' => 'nullable|string|max:100',
+            'nok_phone' => 'nullable|string|max:20',
+            'nok_email' => 'nullable|email|max:255',
+            'nok_address' => 'nullable|string|max:500',
         ]);
-        
+
+        // Duplicate detection: warn but allow registration (clinical systems must not hard-block)
+        $duplicateWarnings = [];
+        if (!empty($data['national_id'])) {
+            $dupes = Patient::where('national_id', $data['national_id'])->limit(5)->get();
+            foreach ($dupes as $d) {
+                $duplicateWarnings[] = "Possible duplicate: {$d->full_name} ({$d->patient_no})";
+            }
+        }
+        if (!empty($data['phone'])) {
+            $dupes = Patient::where('phone', $data['phone'])->where('id', '!=', null)->limit(5)->get();
+            foreach ($dupes as $d) {
+                $duplicateWarnings[] = "Same phone as {$d->full_name} ({$d->patient_no})";
+            }
+        }
+
         // Handle date_of_birth -> dob mapping
         if (isset($data['date_of_birth']) && !isset($data['dob'])) {
             $data['dob'] = $data['date_of_birth'];
@@ -111,6 +137,21 @@ class PatientsController extends Controller
             
             // Create patient
             $patient = Patient::create($data);
+
+            // Next of kin / emergency contact
+            if (!empty($data['nok_first_name']) || !empty($data['nok_phone'])) {
+                \App\Models\PatientContact::create([
+                    'patient_id' => $patient->id,
+                    'contact_type' => 'next_of_kin',
+                    'first_name' => $data['nok_first_name'] ?? null,
+                    'last_name' => $data['nok_last_name'] ?? null,
+                    'relationship' => $data['nok_relationship'] ?? null,
+                    'phone' => $data['nok_phone'] ?? null,
+                    'email' => $data['nok_email'] ?? null,
+                    'address' => $data['nok_address'] ?? null,
+                    'is_primary' => true,
+                ]);
+            }
             
             // Create a registration fee invoice if a fee is configured
             $registrationFee = (float) \App\Models\SystemSetting::get('registration_fee', 0);
@@ -170,20 +211,21 @@ class PatientsController extends Controller
             }
             
             DB::commit();
-            
+
             // Redirect based on biometric enrollment option
             if ($request->has('enroll_biometric') && $request->enroll_biometric) {
                 return redirect()->route('biometric.index', ['patient_id' => $patient->id])
                     ->with('success', 'Patient registered successfully! Please complete biometric enrollment for insurance verification.')
                     ->with('patient_name', $patient->full_name);
             }
-            
+
             return redirect()->route('hms.patients.index')
-                ->with('success', 'Patient registered successfully!');
+                ->with('success', 'Patient registered successfully!')
+                ->with('duplicate_warnings', $duplicateWarnings);
                 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Patient registration failed: ' . $e->getMessage()])
+            return back()->withErrors(['error' => 'Patient registration failed. Please try again or contact support.'])
                 ->withInput();
         }
     }
@@ -193,6 +235,8 @@ class PatientsController extends Controller
      */
     public function show(Patient $patient): View
     {
+        $this->authorize('view', $patient);
+
         $registrationInvoice = \App\Models\Invoice::where('patient_id', $patient->id)
             ->where('balance_amount', '>', 0)
             ->whereHas('items', fn ($q) => $q->where('item_type', 'registration_fee'))
@@ -207,6 +251,8 @@ class PatientsController extends Controller
      */
     public function edit(Patient $patient): View
     {
+        $this->authorize('update', $patient);
+
         return view('hms.patients.edit', compact('patient'));
     }
 
@@ -215,16 +261,22 @@ class PatientsController extends Controller
      */
     public function update(Request $request, Patient $patient): RedirectResponse
     {
+        $this->authorize('update', $patient);
+
         $data = $request->validate([
             'patient_no' => 'required|string|unique:patients,patient_no,' . $patient->id,
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'required|string|max:20',
             'dob' => 'nullable|date|before:today',
-            'gender' => 'nullable|in:male,female,other',
+            'gender' => 'required|in:male,female,other',
             'address' => 'nullable|string|max:500',
-            'national_id' => 'nullable|string|max:255',
+            'national_id' => 'nullable|string|max:20',
+            'nationality' => 'nullable|string|max:50',
+            'county' => 'nullable|string|max:100',
+            'sub_county' => 'nullable|string|max:100',
+            'ward' => 'nullable|string|max:100',
         ]);
         
         $patient->update($data);
@@ -253,6 +305,8 @@ class PatientsController extends Controller
      */
     public function destroy(Patient $patient): RedirectResponse
     {
+        $this->authorize('delete', $patient);
+
         try {
             $patient->delete();
         } catch (\Exception $e) {

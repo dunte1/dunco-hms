@@ -79,6 +79,8 @@ class SettingsController extends Controller
             'ambulance_phone' => SystemSetting::get('ambulance_phone', '+254 700 000 002'),
             'emergency_department_phone' => SystemSetting::get('emergency_department_phone', '+254 700 000 003'),
             'hospital_phone' => SystemSetting::get('hospital_phone', '+254 700 000 000'),
+            'admin_mobile' => SystemSetting::get('admin_mobile', '+254 700 000 010'),
+            'ict_mobile' => SystemSetting::get('ict_mobile', '+254 700 000 011'),
         ];
         return view('hms.settings.emergency-contacts', compact('contacts'));
     }
@@ -92,6 +94,8 @@ class SettingsController extends Controller
             'ambulance_phone' => 'required|string',
             'emergency_department_phone' => 'nullable|string',
             'hospital_phone' => 'required|string',
+            'admin_mobile' => 'nullable|string',
+            'ict_mobile' => 'nullable|string',
         ]);
 
         foreach ($data as $key => $value) {

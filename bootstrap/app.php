@@ -11,13 +11,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->appendToGroup('web', [\App\Http\Middleware\SetLocaleFromSession::class]);
-        
+        $middleware->appendToGroup('web', [
+            \App\Http\Middleware\SetLocaleFromSession::class,
+            \App\Http\Middleware\SetFacilityContext::class,
+        ]);
+
         // Register role and permission middleware
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'permission' => \App\Http\Middleware\PermissionMiddleware::class,
             'module' => \App\Http\Middleware\CheckModule::class,
+            'facility' => \App\Http\Middleware\SetFacilityContext::class,
         ]);
 
         // Allow JSON POST /login without CSRF for API-driven tests/clients

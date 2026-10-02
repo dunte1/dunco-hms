@@ -22,7 +22,7 @@
                         </nav>
                     </div>
                     <div>
-                        <a href="{{ route('hms.moh-reports.generate-pdf', 'opd-summary') }}?{{ request()->query() }}" class="btn btn-light">
+                        <a href="{{ route('hms.moh-reports.pdf', 'opd-summary') }}?{{ request()->query() }}" class="btn btn-light">
                             <i class="fas fa-file-pdf me-2"></i>Export PDF
                         </a>
                     </div>

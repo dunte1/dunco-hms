@@ -36,7 +36,7 @@
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-            <a href="{{ route('hms.lab.requests.show', $labRequest->id) }}" style="background: #10b981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">View Results</a>
+            <a href="{{ route('hms.laboratory.requests.show', $labRequest->id) }}" style="background: #10b981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">View Results</a>
         </div>
         
         <p>For any questions about your results, please consult with your physician.</p>

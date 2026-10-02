@@ -16,6 +16,11 @@ class PatientPortalAccount extends Model
         'two_factor_enabled'
     ];
 
+    protected $hidden = [
+        'password_hash',
+        'two_factor_secret',
+    ];
+
     protected $casts = [
         'is_active' => 'boolean',
         'last_login' => 'datetime',

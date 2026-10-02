@@ -60,7 +60,7 @@ class AppointmentsController extends Controller
             'doctor_id' => 'required|exists:doctors,id',
             'scheduled_at' => 'required|date|after:now',
             'appointment_type' => 'nullable|in:consultation,follow_up,emergency,checkup',
-            'status' => 'nullable|in:scheduled,confirmed,cancelled,completed',
+            'status' => 'nullable|in:scheduled,confirmed,cancelled,completed,no_show',
             'note' => 'nullable|string',
             'patient_name' => 'nullable|string',
             'patient_phone' => 'nullable|string',
@@ -135,7 +135,7 @@ class AppointmentsController extends Controller
             'doctor_id' => 'required|exists:doctors,id',
             'scheduled_at' => 'required|date',
             'appointment_type' => 'nullable|in:consultation,follow_up,emergency,checkup',
-            'status' => 'required|in:scheduled,confirmed,cancelled,completed',
+            'status' => 'required|in:scheduled,confirmed,cancelled,completed,no_show',
             'note' => 'nullable|string',
         ]);
 

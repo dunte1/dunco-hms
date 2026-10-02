@@ -14,6 +14,7 @@ use App\Models\BedAssignment;
 use App\Models\Appointment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Artisan;
 
 class ChartReadinessTest extends TestCase
 {
@@ -22,9 +23,10 @@ class ChartReadinessTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        // Create a test user with admin role
+
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
         $this->user = User::factory()->create();
+        $this->user->assignRole('Super Admin');
         $this->actingAs($this->user);
     }
 

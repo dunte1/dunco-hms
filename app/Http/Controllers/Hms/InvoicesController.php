@@ -99,12 +99,16 @@ class InvoicesController extends Controller
 
     public function show(Invoice $invoice): View
     {
+        $this->authorize('view', $invoice);
+
         $invoice->load(['patient', 'doctor', 'items', 'payments']);
         return view('hms.billing.invoices.show', compact('invoice'));
     }
 
     public function generatePdf(Invoice $invoice)
     {
+        $this->authorize('view', $invoice);
+
         $invoiceService = app(\App\Services\InvoiceService::class);
         $pdf = $invoiceService->generatePdf($invoice);
         
@@ -113,6 +117,8 @@ class InvoicesController extends Controller
 
     public function sendEmail(Invoice $invoice): \Illuminate\Http\JsonResponse
     {
+        $this->authorize('view', $invoice);
+
         $invoiceService = app(\App\Services\InvoiceService::class);
         $success = $invoiceService->sendInvoiceEmail($invoice);
         

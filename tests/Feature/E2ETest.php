@@ -20,6 +20,7 @@ use App\Models\MedicalEquipment;
 use App\Models\Medicine;
 use App\Models\MedicineCategory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class E2ETest extends TestCase
@@ -34,8 +35,10 @@ class E2ETest extends TestCase
     {
         parent::setUp();
         $this->artisan('migrate');
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
 
         $this->admin = User::factory()->create(['name' => 'Admin User']);
+        $this->admin->assignRole('Super Admin');
         $department = DoctorDepartment::create(['name' => 'General Surgery']);
         $this->doctor = Doctor::create([
             'first_name' => 'James', 'last_name' => 'Mwangi',
@@ -251,3 +254,4 @@ class E2ETest extends TestCase
         $response->assertStatus(200);
     }
 }
+

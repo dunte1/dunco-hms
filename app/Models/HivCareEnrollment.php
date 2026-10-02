@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class HivCareEnrollment extends Model
 {
     use HasFactory;
+    use Auditable;
 
     protected $fillable = [
         'patient_id',
@@ -60,3 +63,4 @@ class HivCareEnrollment extends Model
         return $this->hasOne(ArtRegimen::class, 'care_enrollment_id')->latest('start_date');
     }
 }
+

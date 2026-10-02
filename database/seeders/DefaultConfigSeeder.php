@@ -90,5 +90,7 @@ class DefaultConfigSeeder extends Seeder
         SystemSetting::set('emergency_department_phone', '+254 700 000 003', 'string', 'Emergency department direct line', true);
         SystemSetting::set('hospital_phone', '+254 700 000 000', 'string', 'Main hospital phone number', true);
         SystemSetting::set('hospital_name', 'Dunco HMS', 'string', 'Hospital name for display', true);
+        SystemSetting::set('admin_mobile', '+254 700 000 010', 'string', 'Admin/Hospital Manager mobile number', true);
+        SystemSetting::set('ict_mobile', '+254 700 000 011', 'string', 'ICT Support mobile number', true);
     }
 }

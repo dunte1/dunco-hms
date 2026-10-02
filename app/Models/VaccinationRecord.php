@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
+
+use App\Models\Scopes\BelongsToFacility;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class VaccinationRecord extends Model
 {
     use HasFactory;
+    use Auditable;
+    use BelongsToFacility;
 
     protected $fillable = [
         'patient_id', 'vaccine_id', 'dose_number', 'administered_by',
@@ -30,3 +36,4 @@ class VaccinationRecord extends Model
         return $this->belongsTo(Vaccine::class);
     }
 }
+

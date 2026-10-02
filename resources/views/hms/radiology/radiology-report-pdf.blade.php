@@ -9,8 +9,8 @@
         .header h1 { color: #10b981; font-size: 20px; margin: 5px 0; }
         .header p { color: #666; font-size: 11px; margin: 3px 0; }
         .header .title { font-size: 16px; font-weight: bold; color: #333; margin-top: 10px; text-transform: uppercase; }
-        .info-section { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .info-section .left, .info-section .right { width: 48%; }
+        .info-section { display: table; width: 100%; margin-bottom: 20px; }
+        .info-section .left, .info-section .right { display: table-cell; width: 48%; vertical-align: top; }
         .info-section .box { padding: 12px; background: #f9fafb; border-radius: 5px; border-left: 4px solid #10b981; margin-bottom: 10px; }
         .info-section p { margin: 4px 0; font-size: 11px; }
         .info-section .label { font-weight: bold; color: #555; }
@@ -18,14 +18,14 @@
         .report-section h3 { color: #10b981; margin: 0 0 10px 0; font-size: 14px; border-bottom: 2px solid #10b981; padding-bottom: 5px; }
         .report-section p { margin: 5px 0; font-size: 12px; white-space: pre-line; }
         .report-section .content-area { min-height: 80px; padding: 10px; background: #fff; border: 1px solid #e5e7eb; border-radius: 3px; }
-        .signature { margin-top: 40px; display: flex; justify-content: space-between; }
-        .signature div { width: 45%; }
+        .signature { margin-top: 40px; display: table; width: 100%; }
+        .signature div { display: table-cell; width: 45%; vertical-align: top; }
         .signature p { font-size: 11px; }
         .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 9px; color: #94a3b8; }
         .no-print { margin: 20px 0; text-align: center; }
         .no-print button { background: #10b981; color: #fff; border: none; padding: 10px 30px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        @page { size: A4; margin: 15mm; }
         @media print {
-            @page { size: A4; margin: 15mm; }
             body { padding: 0; margin: 0; }
             .no-print { display: none !important; }
             .report-section { page-break-inside: avoid; }

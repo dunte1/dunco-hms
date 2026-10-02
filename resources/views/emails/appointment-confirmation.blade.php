@@ -30,12 +30,12 @@
         <div style="background: white; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #667eea;">
             <h3 style="margin-top: 0; color: #667eea;">Appointment Details</h3>
             <p><strong>Doctor:</strong> Dr. {{ $appointment->doctor->full_name ?? 'TBD' }}</p>
-            <p><strong>Date:</strong> {{ $appointment->appointment_date->format('l, F j, Y') }}</p>
-            <p><strong>Time:</strong> {{ $appointment->appointment_time }}</p>
+            <p><strong>Date:</strong> {{ ($appointment->scheduled_at ?? $appointment->appointment_date)?->format('l, F j, Y') }}</p>
+            <p><strong>Time:</strong> {{ ($appointment->scheduled_at ?? $appointment->appointment_date)?->format('h:i A') }}</p>
             <p><strong>Department:</strong> {{ $appointment->doctor->department->name ?? 'General' }}</p>
-            <p><strong>Appointment ID:</strong> {{ $appointment->appointment_number ?? 'N/A' }}</p>
-            @if($appointment->notes)
-            <p><strong>Notes:</strong> {{ $appointment->notes }}</p>
+            <p><strong>Appointment ID:</strong> {{ $appointment->appointment_number ?? $appointment->id ?? 'N/A' }}</p>
+            @if($appointment->note ?? $appointment->notes)
+            <p><strong>Notes:</strong> {{ $appointment->note ?? $appointment->notes }}</p>
             @endif
         </div>
         

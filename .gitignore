@@ -16,13 +16,35 @@
 
 # Build & deployment
 *.zip
+*.tgz
 production_build/
 DEPLOYMENT_*/
 __zipcheck/
+_sync/
+production/
 
-# Temporary
+# Temporary / local helpers
 .phpunit.result.cache
 cookie.txt
+check_local_brand.php
+check_prod_db.php
+check_prod_user.php
+check_verify.php
+check_roles.php
+check_roles2.php
+fix_super_admin.php
+verify_production.php
+e2e_live_crawl.ps1
+seed_e2e_users.php
+seed_profile.php
+ssh_prod_inventory.sh
+ssh_prod_md5.sh
+seed_and_verify.sh
+final_deploy.sh
+run_seeders.sh
+clean_deploy.sh
+finish_deploy.sh
+fix_pail.sh
 
 # Production-only
 env.production

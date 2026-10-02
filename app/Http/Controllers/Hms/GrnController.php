@@ -57,7 +57,26 @@ class GrnController extends Controller
                 ]);
 
                 $medicine = Medicine::findOrFail($item['medicine_id']);
+                $stockBefore = (int) $medicine->stock_quantity;
                 $medicine->increment('stock_quantity', $item['quantity_received']);
+                $stockAfter = (int) $medicine->stock_quantity;
+
+                // Stock movement ledger (inbound goods)
+                \App\Models\StockMovement::create([
+                    'movement_number' => 'GRN-' . $grn->grn_number . '-' . $item['medicine_id'],
+                    'medicine_id' => $item['medicine_id'],
+                    'purchase_order_id' => $grn->purchase_order_id,
+                    'user_id' => auth()->id(),
+                    'store_id' => $validated['store_id'],
+                    'batch_number' => $item['batch_number'],
+                    'movement_type' => 'grn',
+                    'direction' => 'in',
+                    'quantity' => $item['quantity_received'],
+                    'stock_before' => $stockBefore,
+                    'stock_after' => $stockAfter,
+                    'unit_cost' => $item['unit_cost'],
+                    'total_cost' => $item['quantity_received'] * $item['unit_cost'],
+                ]);
 
                 $existingBatch = MedicineBatch::where('medicine_id', $item['medicine_id'])
                     ->where('store_id', $validated['store_id'])

@@ -84,17 +84,62 @@ class LabRequestsController extends Controller
             $mpesa->attachSource($data['payment_id'], 'lab_request', $labRequest->id);
         }
 
+        // Cash lab orders: auto-create invoice so finance/billing can reconcile
+        if ($data['billing_mode'] === 'cash' && $total > 0) {
+            try {
+                $invoice = \App\Models\Invoice::create([
+                    'invoice_number' => 'INV-LAB-' . $labRequest->request_number,
+                    'patient_id' => $labRequest->patient_id,
+                    'doctor_id' => $labRequest->doctor_id ?? null,
+                    'invoice_date' => now()->toDateString(),
+                    'due_date' => now()->addDays(7)->toDateString(),
+                    'subtotal' => $total,
+                    'tax_amount' => 0,
+                    'discount_amount' => 0,
+                    'total_amount' => $total,
+                    'paid_amount' => 0,
+                    'balance_amount' => $total,
+                    'status' => 'pending',
+                    'notes' => 'Lab request ' . $labRequest->request_number,
+                ]);
+
+                foreach ($data['lab_tests'] as $testId) {
+                    $test = \App\Models\LabTest::find($testId);
+                    if (!$test) {
+                        continue;
+                    }
+                    $invoice->items()->create([
+                        'item_type' => 'lab_test',
+                        'item_name' => $test->test_name,
+                        'description' => 'Lab test for ' . $labRequest->request_number,
+                        'quantity' => 1,
+                        'unit_price' => $test->price,
+                        'total_price' => $test->price,
+                    ]);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Lab invoice auto-create failed', [
+                    'lab_request_id' => $labRequest->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
         return redirect()->route('hms.laboratory.requests.index')->with('status', 'Lab request created');
     }
 
     public function show(LabRequest $labRequest): View
     {
+        $this->authorize('view', $labRequest);
+
         $labRequest->load(['patient', 'doctor', 'items.labTest']);
         return view('hms.laboratory.requests.show', compact('labRequest'));
     }
 
     public function edit(LabRequest $labRequest): View
     {
+        $this->authorize('update', $labRequest);
+
         $labRequest->load(['items.labTest']);
         $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
@@ -128,9 +173,29 @@ class LabRequestsController extends Controller
 
     public function destroy(LabRequest $labRequest): RedirectResponse
     {
-        $labRequest->items()->delete();
-        $labRequest->delete();
-        return redirect()->route('hms.laboratory.requests.index')->with('status', 'Lab request deleted');
+        // Controlled cancel — do not hard-delete lab requests/results.
+        if (in_array($labRequest->status, ['completed', 'verified', 'released', 'validated'], true)) {
+            return redirect()
+                ->route('hms.laboratory.requests.index')
+                ->with('error', 'Cannot delete a completed lab request. Use amendment workflow.');
+        }
+
+        $labRequest->update([
+            'status' => 'cancelled',
+        ]);
+
+        \App\Models\AuditLog::log(
+            'user',
+            auth()->id(),
+            'lab_request.cancel',
+            'LabRequest',
+            $labRequest->id,
+            null,
+            ['status' => 'cancelled'],
+            'Lab request cancelled (not deleted)'
+        );
+
+        return redirect()->route('hms.laboratory.requests.index')->with('status', 'Lab request cancelled');
     }
 
     public function reportPdf(LabRequest $labRequest)

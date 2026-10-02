@@ -263,11 +263,11 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <a href="{{ route('hms.appointments.index') }}" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition">
+                    <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <a href="{{ route('hms.appointments.index') }}" class="w-full sm:w-auto px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition text-center">
                             <i class="fa fa-times mr-2"></i> Cancel
                         </a>
-                        <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                        <button type="submit" class="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-center">
                             <i class="fa fa-calendar-check mr-2"></i> Schedule Appointment
                         </button>
                     </div>

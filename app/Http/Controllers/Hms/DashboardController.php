@@ -14,34 +14,136 @@ use App\Models\RadiologyRequest;
 use App\Models\User;
 use App\Models\Employee;
 use App\Models\Attendance;
+use App\Models\Bed;
+use App\Models\Ward;
+use App\Models\Doctor;
+use App\Models\Nurse;
+use App\Models\Pharmacist;
+use App\Models\LabTechnician;
+use App\Models\Receptionist;
+use App\Models\Medicine;
+use App\Models\MedicineBatch;
+use App\Models\InsuranceClaim;
 use Carbon\Carbon;
+use App\Services\Dashboard\MyWorkService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(MyWorkService $myWork)
     {
-        // Fetch all stats in one go for better performance
+        $today = Carbon::today();
+        $monthStart = Carbon::now()->startOfMonth();
+        $yearStart = Carbon::now()->startOfYear();
+
+        // Primary Stats
         $stats = [
-            // Primary Stats
             'total_patients' => Patient::count(),
-            'total_doctors' => \App\Models\Doctor::count(),
-            'available_beds' => \App\Models\Bed::where('is_available', true)->count(),
-            'total_beds' => \App\Models\Bed::count(),
-            'todays_appointments' => Appointment::whereDate('scheduled_at', today())->count(),
+            'new_patients_today' => Patient::whereDate('created_at', $today)->count(),
+            'new_patients_month' => Patient::whereDate('created_at', '>=', $monthStart)->count(),
+            'total_doctors' => Doctor::count(),
+            'active_inpatients' => IpdAdmission::whereNull('discharge_date')->count(),
+            'todays_appointments' => Appointment::whereDate('scheduled_at', $today)->count(),
+            'todays_opd_visits' => OpdVisit::whereDate('visit_date', $today)->count(),
+            'todays_admissions' => IpdAdmission::whereDate('admission_date', $today)->count(),
+            'todays_discharges' => IpdAdmission::whereDate('discharge_date', $today)->count(),
             
             // Staff Stats
-            'total_nurses' => \App\Models\Nurse::count(),
-            'total_pharmacists' => \App\Models\Pharmacist::count(),
-            'total_lab_technicians' => \App\Models\LabTechnician::count(),
-            'total_receptionists' => \App\Models\Receptionist::count(),
+            'total_nurses' => Nurse::count(),
+            'total_pharmacists' => Pharmacist::count(),
+            'total_lab_technicians' => LabTechnician::count(),
+            'total_receptionists' => Receptionist::count(),
+            
+            // Bed Stats
+            'available_beds' => Bed::where('is_available', true)->count(),
+            'total_beds' => Bed::count(),
+            'occupied_beds' => Bed::where('is_available', false)->count(),
             
             // Financial Stats
             'total_invoices' => Invoice::sum('total_amount') ?? 0,
-            'total_payments' => Payment::sum('amount') ?? 0,
+            'total_payments' => Payment::whereDate('payment_date', $today)->sum('amount') ?? 0,
+            'monthly_revenue' => Payment::whereDate('payment_date', '>=', $monthStart)->sum('amount') ?? 0,
             'outstanding_balance' => Invoice::where('status', '!=', 'paid')->sum('balance_amount') ?? 0,
+            
+            // Diagnostic Stats
+            'pending_lab_requests' => LabRequest::where('status', 'pending')->count(),
+            'pending_radiology' => RadiologyRequest::where('status', 'pending')->count(),
+            
+            // Pharmacy Stats
+            'low_stock_items' => Medicine::where('stock_quantity', '<=', 10)->count(),
+            'expiring_items' => MedicineBatch::where('expiry_date', '<=', now()->addDays(30))
+                ->where('expiry_date', '>=', now())->count(),
+            
+            // Insurance
+            'pending_claims' => InsuranceClaim::where('status', 'pending')->count(),
         ];
-        
+
+        // Revenue data for the last 12 months (chart)
+        $revenueChart = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $month = Carbon::now()->subMonths($i);
+            $revenueChart[] = [
+                'month' => $month->format('M'),
+                'revenue' => Payment::whereMonth('payment_date', $month->month)
+                    ->whereYear('payment_date', $month->year)
+                    ->sum('amount') ?? 0,
+                'invoices' => Invoice::whereMonth('invoice_date', $month->month)
+                    ->whereYear('invoice_date', $month->year)
+                    ->sum('total_amount') ?? 0,
+            ];
+        }
+
+        // Patient registrations over time (last 30 days)
+        $patientChart = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $patientChart[] = [
+                'date' => $date->format('M d'),
+                'count' => Patient::whereDate('created_at', $date)->count(),
+            ];
+        }
+
+        // Appointments over time (last 7 days)
+        $appointmentChart = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $appointmentChart[] = [
+                'day' => $date->format('D'),
+                'total' => Appointment::whereDate('scheduled_at', $date)->count(),
+                'completed' => Appointment::whereDate('scheduled_at', $date)->where('status', 'completed')->count(),
+                'pending' => Appointment::whereDate('scheduled_at', $date)->where('status', 'pending')->count(),
+            ];
+        }
+
+        // Department activity (OPD visits by department)
+        $departmentActivity = OpdVisit::select('doctor_id', DB::raw('COUNT(*) as count'))
+            ->whereDate('visit_date', '>=', $monthStart)
+            ->groupBy('doctor_id')
+            ->with('doctor.department')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'department' => $item->doctor->department->name ?? 'General',
+                    'count' => $item->count,
+                ];
+            })
+            ->groupBy('department')
+            ->map(fn($group) => $group->sum('count'))
+            ->sortDesc()
+            ->take(8);
+
+        // OPD visits vs IPD admissions (last 7 days)
+        $visitChart = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $visitChart[] = [
+                'day' => $date->format('D'),
+                'opd' => OpdVisit::whereDate('visit_date', $date)->count(),
+                'ipd' => IpdAdmission::whereDate('admission_date', $date)->count(),
+            ];
+        }
+
         // Recent appointments
         $recentAppointments = Appointment::with(['patient', 'doctor'])
             ->latest()
@@ -53,15 +155,32 @@ class DashboardController extends Controller
             ->latest()
             ->limit(5)
             ->get();
+
+        // Ward occupancy data
+        $wardOccupancy = Ward::withCount(['beds as total_beds'])
+            ->withCount(['beds as occupied_beds' => function ($q) {
+                $q->where('is_available', false);
+            }])
+            ->where('is_active', true)
+            ->get()
+            ->map(function ($ward) {
+                $ward->occupancy_rate = $ward->total_beds > 0 
+                    ? round(($ward->occupied_beds / $ward->total_beds) * 100, 1) 
+                    : 0;
+                return $ward;
+            });
         
-        return view('dashboard', compact('stats', 'recentAppointments', 'recentLabRequests'));
+        return view('dashboard', compact(
+            'stats', 'recentAppointments', 'recentLabRequests',
+            'revenueChart', 'patientChart', 'appointmentChart',
+            'departmentActivity', 'visitChart', 'wardOccupancy'
+        ) + ['myWork' => $myWork->forUser()]);
     }
     
     public function todaySummary()
     {
         $today = Carbon::today();
         
-        // Today's statistics
         $stats = [
             'appointments' => [
                 'total' => Appointment::whereDate('scheduled_at', $today)->count(),
@@ -71,38 +190,36 @@ class DashboardController extends Controller
             ],
             'patients' => [
                 'new_registrations' => Patient::whereDate('created_at', $today)->count(),
-                'opd_visits' => OpdVisit::whereDate('created_at', $today)->count(),
-                'ipd_admissions' => IpdAdmission::whereDate('created_at', $today)->count(),
+                'opd_visits' => OpdVisit::whereDate('visit_date', $today)->count(),
+                'ipd_admissions' => IpdAdmission::whereDate('admission_date', $today)->count(),
                 'total_active' => Patient::whereDate('created_at', $today)->count() + 
-                                 OpdVisit::whereDate('created_at', $today)->count(),
+                                 OpdVisit::whereDate('visit_date', $today)->count(),
             ],
             'financial' => [
-                'total_revenue' => Payment::whereDate('created_at', $today)->sum('amount') ?? 0,
-                'invoices_generated' => Invoice::whereDate('created_at', $today)->count(),
-                'payments_received' => Payment::whereDate('created_at', $today)->count(),
-                'pending_amount' => Invoice::whereDate('created_at', $today)
+                'total_revenue' => Payment::whereDate('payment_date', $today)->sum('amount') ?? 0,
+                'invoices_generated' => Invoice::whereDate('invoice_date', $today)->count(),
+                'payments_received' => Payment::whereDate('payment_date', $today)->count(),
+                'pending_amount' => Invoice::whereDate('invoice_date', $today)
                     ->where('status', 'pending')
                     ->sum('total_amount') ?? 0,
             ],
             'diagnostics' => [
-                'lab_tests' => LabRequest::whereDate('created_at', $today)->count(),
-                'radiology_tests' => RadiologyRequest::whereDate('created_at', $today)->count(),
-                'completed_tests' => LabRequest::whereDate('created_at', $today)->where('status', 'completed')->count() +
-                                    RadiologyRequest::whereDate('created_at', $today)->where('status', 'completed')->count(),
+                'lab_tests' => LabRequest::whereDate('request_date', $today)->count(),
+                'radiology_tests' => RadiologyRequest::whereDate('request_date', $today)->count(),
+                'completed_tests' => LabRequest::whereDate('request_date', $today)->where('status', 'completed')->count() +
+                                    RadiologyRequest::whereDate('request_date', $today)->where('status', 'completed')->count(),
             ],
         ];
         
-        // Recent appointments
         $recentAppointments = Appointment::with(['patient', 'doctor'])
             ->whereDate('scheduled_at', $today)
             ->orderBy('scheduled_at', 'desc')
             ->limit(10)
             ->get();
         
-        // Recent OPD visits
         $recentOpdVisits = OpdVisit::with(['patient'])
-            ->whereDate('created_at', $today)
-            ->orderBy('created_at', 'desc')
+            ->whereDate('visit_date', $today)
+            ->orderBy('visit_date', 'desc')
             ->limit(10)
             ->get();
         
@@ -113,12 +230,9 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
         
-        // Staff attendance stats - Include both Users and Employees
-        // Count users who have employee records OR standalone users
         $totalUsers = User::count();
         $totalEmployees = Employee::where('status', 'active')->count();
         
-        // Count unique staff (users with employees + employees without users + standalone users)
         $usersWithEmployees = User::whereHas('employee')->count();
         $employeesWithoutUsers = Employee::where('status', 'active')->whereNull('user_id')->count();
         $standaloneUsers = User::whereDoesntHave('employee')->count();
@@ -142,7 +256,6 @@ class DashboardController extends Controller
                 ->count('user_id'),
         ];
         
-        // Get staff by role with attendance - Include both Users and Employees
         $staffByRole = [
             'doctors' => User::role('Doctor')->with(['attendance' => function($q) use ($today) {
                 $q->whereDate('date', $today);
@@ -161,12 +274,10 @@ class DashboardController extends Controller
             }])->get(),
         ];
         
-        // Get all active employees
         $activeEmployees = Employee::where('status', 'active')
             ->with(['department', 'user'])
             ->get();
         
-        // Recent check-ins
         $recentCheckIns = Attendance::with('user')
             ->whereDate('date', $today)
             ->whereNotNull('check_in')

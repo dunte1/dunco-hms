@@ -117,6 +117,23 @@ class IpdAdmissionsController extends Controller
 
         $admission = IpdAdmission::create($data);
 
+        // Record bed assignment audit trail when bed is allocated
+        if (!empty($data['bed_id'])) {
+            try {
+                \App\Models\BedAssignment::create([
+                    'patient_id' => $data['patient_id'],
+                    'bed_id' => $data['bed_id'],
+                    'assigned_at' => now(),
+                    'notes' => 'IPD admission ' . $data['admission_number'],
+                ]);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Bed assignment record failed', [
+                    'admission_id' => $admission->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
         \App\Models\AuditLog::log('user', auth()->id(), 'admission_created', 'IpdAdmission', $admission->id, null, $admission->toArray(), 'Patient admitted: ' . $admission->patient_id);
 
         // Mark bed as unavailable if assigned

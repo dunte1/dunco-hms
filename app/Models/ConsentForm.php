@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\BelongsToFacility;
+
+use App\Traits\Auditable;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ConsentForm extends Model
 {
     use HasFactory;
+    use BelongsToFacility;
+    use Auditable;
 
     protected $fillable = [
         'patient_id', 'doctor_id', 'consent_type', 'procedure_name',
@@ -32,3 +38,5 @@ class ConsentForm extends Model
         return $this->belongsTo(Doctor::class);
     }
 }
+
+

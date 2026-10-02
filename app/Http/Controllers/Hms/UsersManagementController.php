@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hms;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\User;
 use App\Models\Employee;
 use Spatie\Permission\Models\Role;
@@ -142,6 +143,22 @@ class UsersManagementController extends Controller
             $user->assignRole($validated['role']);
         }
 
+        AuditLog::log(
+            'user',
+            auth()->id(),
+            'user.create',
+            'User',
+            $user->id,
+            null,
+            [
+                'email' => $user->email,
+                'name' => $user->name,
+                'role' => $validated['role'] ?? null,
+                'status' => $user->status,
+            ],
+            'User created via Users Management'
+        );
+
         return redirect()->route('hms.system.users.index')
             ->with('success', 'User created successfully.');
     }
@@ -214,11 +231,36 @@ class UsersManagementController extends Controller
             }
         }
 
+        $old = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'status' => $user->status,
+            'roles' => $user->getRoleNames()->all(),
+            'password_changed' => filled($validated['password'] ?? null),
+        ];
+
         $user->update($updateData);
 
         if ($validated['role']) {
             $user->syncRoles([$validated['role']]);
         }
+
+        AuditLog::log(
+            'user',
+            auth()->id(),
+            'user.update',
+            'User',
+            $user->id,
+            $old,
+            [
+                'name' => $user->name,
+                'email' => $user->email,
+                'status' => $user->status,
+                'roles' => $user->getRoleNames()->all(),
+                'password_changed' => filled($validated['password'] ?? null),
+            ],
+            'User updated via Users Management'
+        );
 
         return redirect()->route('hms.system.users.index')
             ->with('success', 'User updated successfully.');
@@ -235,7 +277,19 @@ class UsersManagementController extends Controller
                 ->with('error', 'You cannot delete your own account.');
         }
 
+        $oldRoles = $user->getRoleNames()->all();
         $user->delete();
+
+        AuditLog::log(
+            'user',
+            auth()->id(),
+            'user.delete',
+            'User',
+            $user->id,
+            ['email' => $user->email, 'roles' => $oldRoles],
+            null,
+            'User deleted via Users Management'
+        );
 
         return redirect()->route('hms.system.users.index')
             ->with('success', 'User deleted successfully.');
@@ -289,14 +343,27 @@ class UsersManagementController extends Controller
             'roles.*' => 'exists:roles,id',
         ]);
 
+        $oldRoles = $user->getRoleNames()->all();
+
         $roleIds = $validated['roles'] ?? [];
         $roles = Role::whereIn('id', $roleIds)->get();
-        
+
         // Sync roles (this automatically updates permissions)
         $user->syncRoles($roles);
-        
+
         // Clear permission cache
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        AuditLog::log(
+            'user',
+            auth()->id(),
+            'user.roles.update',
+            'User',
+            $user->id,
+            ['roles' => $oldRoles],
+            ['roles' => $user->getRoleNames()->all()],
+            'User roles updated via Users Management'
+        );
 
         return redirect()->route('hms.system.users.permissions', $user)
             ->with('success', 'Roles updated successfully! Permissions will be automatically updated based on role permissions.');
@@ -312,14 +379,27 @@ class UsersManagementController extends Controller
             'permissions.*' => 'exists:permissions,id',
         ]);
 
+        $oldDirect = $user->getDirectPermissions()->pluck('name')->all();
+
         $permissionIds = $validated['permissions'] ?? [];
         $permissions = Permission::whereIn('id', $permissionIds)->get();
-        
+
         // Sync direct permissions
         $user->syncPermissions($permissions);
-        
+
         // Clear permission cache
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        AuditLog::log(
+            'user',
+            auth()->id(),
+            'user.permissions.update',
+            'User',
+            $user->id,
+            ['direct_permissions' => $oldDirect],
+            ['direct_permissions' => $user->getDirectPermissions()->pluck('name')->all()],
+            'Direct permissions updated via Users Management'
+        );
 
         return redirect()->route('hms.system.users.permissions', $user)
             ->with('success', 'Direct permissions updated successfully!');

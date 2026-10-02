@@ -48,12 +48,16 @@ class RadiologyRequestsController extends Controller
 
     public function show(RadiologyRequest $radiologyRequest): View
     {
+        $this->authorize('view', $radiologyRequest);
+
         $radiologyRequest->load(['patient', 'doctor', 'radiologyTest']);
         return view('hms.radiology.requests.show', compact('radiologyRequest'));
     }
 
     public function edit(RadiologyRequest $radiologyRequest): View
     {
+        $this->authorize('update', $radiologyRequest);
+
         $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         $radiologyTests = RadiologyTest::where('is_active', true)->orderBy('test_name')->get(['id', 'test_name', 'price']);

@@ -15,8 +15,8 @@
         th { background-color: #f0fdf4; font-weight: bold; border-bottom: 2px solid #10b981; }
         tr:nth-child(even) { background: #f9fafb; }
         .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 9px; color: #94a3b8; }
+        @page { size: A4; margin: 15mm; }
         @media print {
-            @page { size: A4; margin: 15mm; }
             body { padding: 0; margin: 0; }
             .no-print { display: none !important; }
             table { page-break-inside: avoid; }
@@ -65,7 +65,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($payrolls as $payroll)
+            @forelse($payrolls as $payroll)
                 <tr>
                     <td>{{ $payroll->employee->full_name }}</td>
                     <td>{{ $payroll->pay_date->format('M d, Y') }}</td>
@@ -74,7 +74,11 @@
                     <td>{{ \App\Models\SystemSetting::get('currency_symbol', '$') }}{{ number_format($payroll->net_salary, 2) }}</td>
                     <td>{{ ucfirst($payroll->status) }}</td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="6" style="text-align: center; color: #999; padding: 20px;">No records found for the selected period.</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 

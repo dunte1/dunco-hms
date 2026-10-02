@@ -142,9 +142,8 @@ class EPrescriptionController extends Controller
             ? EPrescriptionTemplate::find($prescription->template_id) 
             : null;
         
-        // This would use DomPDF or similar
-        // For now, return view
-        return view('hms.prescriptions.e-prescription.pdf', compact('prescription', 'template'));
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('hms.prescriptions.e-prescription.pdf', compact('prescription', 'template'));
+        return $pdf->download("E-Prescription-{$prescription->id}.pdf");
     }
 
     /**

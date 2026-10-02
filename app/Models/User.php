@@ -35,6 +35,7 @@ class User extends Authenticatable
         'status_notes',
         'verification_code',
         'verification_code_expires_at',
+        'branch_id',
     ];
 
     /**
@@ -45,6 +46,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'verification_code',
+        'verification_code_expires_at',
     ];
 
     /**
@@ -205,5 +208,10 @@ class User extends Authenticatable
     public function employee(): HasOne
     {
         return $this->hasOne(Employee::class, 'user_id');
+    }
+
+    public function branch(): HasOne
+    {
+        return $this->hasOne(HospitalBranch::class, 'id', 'branch_id');
     }
 }

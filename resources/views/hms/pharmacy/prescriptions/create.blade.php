@@ -12,8 +12,48 @@
 
             <!-- Form -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                <form action="{{ route('hms.pharmacy.prescriptions.store') }}" method="POST" id="prescriptionForm">
-                    @csrf
+<form action="{{ route('hms.pharmacy.prescriptions.store') }}" method="POST" id="prescriptionForm">
+@csrf
+<input type="hidden" name="opd_visit_id" id="opd_visit_id" value="{{ request('opd_visit_id') }}">
+
+{{-- Weight-based dosing helper --}}
+<div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+    <label class="block text-sm font-medium mb-2">Patient weight (kg) — optional dosing helper</label>
+    <div class="flex gap-2 items-end">
+        <input type="number" step="0.1" min="0.5" id="patient_weight_kg" placeholder="e.g. 70"
+               class="w-32 border rounded-lg px-3 py-2 dark:bg-gray-900 dark:border-gray-700">
+        <div id="dose_preview" class="text-sm text-gray-700 dark:text-gray-300 pb-2"></div>
+    </div>
+    <p class="text-xs text-gray-500 mt-1">When you enter a dose like <code>10 mg/kg</code> in a medicine dosage field, this helper shows the calculated total for the weight above. Always confirm clinically.</p>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const weightInput = document.getElementById('patient_weight_kg');
+    const preview = document.getElementById('dose_preview');
+    function recalc() {
+        const w = parseFloat(weightInput.value);
+        if (!w || w <= 0) { preview.textContent = ''; return; }
+        const doses = document.querySelectorAll('input[name*="[dosage]"]');
+        const parts = [];
+        doses.forEach(function (el) {
+            const m = (el.value || '').match(/([0-9.]+)\s*(mg|mcg|ml|g)\s*\/\s*kg/i);
+            if (m) {
+                const perKg = parseFloat(m[1]);
+                const unit = m[2];
+                const total = (perKg * w);
+                parts.push(unit + ': ' + perKg + ' x ' + w + ' kg = ' + total.toFixed(2) + ' ' + unit);
+            }
+        });
+        preview.innerHTML = parts.length ? ('Calculated: ' + parts.join(' | ')) : '';
+    }
+    if (weightInput) {
+        weightInput.addEventListener('input', recalc);
+        document.addEventListener('input', function (e) {
+            if (e.target && e.target.name && e.target.name.indexOf('[dosage]') !== -1) recalc();
+        });
+    }
+});
+</script>
 
                     <!-- Patient & Doctor Info -->
                     <div class="mb-6">
@@ -28,7 +68,7 @@
                                 <select name="patient_id" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-green-500 focus:border-green-500">
                                     <option value="">Select patient...</option>
                                     @foreach($patients as $patient)
-                                        <option value="{{ $patient->id }}">{{ $patient->first_name }} {{ $patient->last_name }}</option>
+                                        <option value="{{ $patient->id }}" @selected(request('patient_id') == $patient->id)>{{ $patient->first_name }} {{ $patient->last_name }}</option>
                                     @endforeach
                                 </select>
                             </div>

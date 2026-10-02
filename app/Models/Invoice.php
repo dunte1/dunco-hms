@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
+
+use App\Models\Scopes\BelongsToFacility;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Invoice extends Model
 {
     use HasFactory;
+    use Auditable;
+    use BelongsToFacility;
 
     protected $fillable = [
         'invoice_number', 'patient_id', 'doctor_id', 'invoice_date', 'due_date',
@@ -48,3 +54,4 @@ class Invoice extends Model
         return $this->hasMany(Payment::class);
     }
 }
+

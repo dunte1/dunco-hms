@@ -16,6 +16,7 @@ class OpdVisit extends Model
         'patient_id', 'doctor_id', 'visit_date', 'visit_type', 'status',
         'triage_id', 'triage_notes', 'chief_complaint', 'diagnosis',
         'prescription', 'consultation_fee',
+        'clinical_notes', 'treatment_plan', 'finalized_at', 'finalized_by',
     ];
 
     protected $casts = [

@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+      x-data="{ darkMode: {{ !empty($themeSettings['dark_mode']) ? 'true' : 'false' }} }"
+      :class="{ 'dark': darkMode }"
+      x-init="document.documentElement.classList.toggle('dark', darkMode); $watch('darkMode', val => { document.documentElement.classList.toggle('dark', val); localStorage.setItem('darkMode', val); })">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -87,20 +90,24 @@
         @endif
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        
-        <!-- Alpine.js for mobile menu -->
-        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
-    <body class="antialiased bg-gray-50" id="top">
+    <body class="antialiased bg-gray-50 dark:bg-gray-900" id="top">
         <div class="bg-indigo-50 border-b text-xs text-gray-700">
             <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
                 <div class="hidden md:block">{{ \App\Models\SystemSetting::get('header_open_hours', 'Mon–Fri 8:00–18:00') }}</div>
                 <div class="flex items-center gap-4">
+                    <button type="button"
+                            @click="darkMode = !darkMode"
+                            class="text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white"
+                            title="Toggle Dark Mode">
+                        <i class="fa fa-moon" x-show="!darkMode"></i>
+                        <i class="fa fa-sun" x-show="darkMode"></i>
+                    </button>
                     @php
                         $emergencyPhone = \App\Models\SystemSetting::get('header_emergency_phone', '+254 700 000 000');
                         $emergencyPhoneClean = preg_replace('/[^0-9+]/', '', $emergencyPhone);
                     @endphp
-                    <a href="tel:{{ $emergencyPhoneClean }}" class="font-medium text-red-700">Emergency: {{ $emergencyPhone }}</a>
+                    <a href="tel:{{ $emergencyPhoneClean }}" class="font-medium text-red-700 dark:text-red-400">Emergency: {{ $emergencyPhone }}</a>
                     <div x-data="{ open:false }" class="relative">
                         <button @click="open=!open" class="text-gray-700" aria-haspopup="listbox" aria-expanded="false">{{ strtoupper(app()->getLocale()) }}</button>
                         <div x-show="open" @click.outside="open=false" class="absolute right-0 mt-2 bg-white border rounded shadow text-sm">
@@ -113,29 +120,31 @@
             </div>
         </div>
 
-        <header class="bg-white sticky top-0 z-40 border-b" role="banner" x-data="{ mobile:false }" @open-mobile-nav.window="mobile=true">
+        <header class="bg-white dark:bg-gray-900 sticky top-0 z-40 border-b dark:border-gray-700" role="banner" x-data="{ mobile:false }" @open-mobile-nav.window="mobile=true">
             <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                 <a href="{{ route('home') }}" class="flex items-center gap-2" aria-label="{{ config('app.name', 'DuncoHMS') }} home">
-                    @if($themeSettings['hospital_logo'] ?? false)
-                        @php
-                            $logoUrl = $themeSettings['hospital_logo'];
-                            // Ensure proper URL format
-                            if (!str_starts_with($logoUrl, 'http') && !str_starts_with($logoUrl, '/')) {
-                                $logoUrl = asset('storage/' . $logoUrl);
-                            } elseif (str_starts_with($logoUrl, '/storage/')) {
-                                $logoUrl = asset($logoUrl);
+                    @php
+                        $headerLogo = $themeSettings['favicon'] ?? $themeSettings['hospital_logo'] ?? '';
+                        $headerLogoSrc = '';
+                        if ($headerLogo) {
+                            if (str_starts_with($headerLogo, 'http') || str_starts_with($headerLogo, 'data:')) {
+                                $headerLogoSrc = $headerLogo;
+                            } elseif (str_starts_with($headerLogo, '/storage/')) {
+                                $headerLogoSrc = $headerLogo;
+                            } else {
+                                $headerLogoSrc = '/storage/' . ltrim($headerLogo, '/');
                             }
-                        @endphp
-                        <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'DuncoHMS') }} Logo" class="h-9 w-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="h-8 w-8 bg-indigo-600 rounded flex items-center justify-center" style="display: none;">
-                            <span class="text-white font-bold text-lg">{{ strtoupper(substr(config('app.name', 'Hospital'), 0, 1)) }}</span>
-                        </div>
+                        }
+                        $hasHeaderLogo = !empty($headerLogoSrc);
+                    @endphp
+                    @if($hasHeaderLogo)
+                        <img src="{{ $headerLogoSrc }}" alt="{{ $themeSettings['hospital_name'] ?? config('app.name', 'DuncoHMS') }}" class="h-9 w-auto rounded" style="max-width: 140px; object-fit: contain;">
                     @else
                         <div class="h-8 w-8 bg-indigo-600 rounded flex items-center justify-center">
-                            <span class="text-white font-bold text-lg">{{ strtoupper(substr(config('app.name', 'Hospital'), 0, 1)) }}</span>
+                            <span class="text-white font-bold text-lg">{{ strtoupper(substr($themeSettings['hospital_name'] ?? config('app.name', 'Hospital'), 0, 1)) }}</span>
                         </div>
+                        <span class="text-lg font-semibold">{{ $themeSettings['hospital_name'] ?? config('app.name', 'DuncoHMS') }}</span>
                     @endif
-                    <span class="text-lg font-semibold">{{ config('app.name', 'DuncoHMS') }}</span>
                 </a>
                 <nav class="hidden md:flex items-center gap-6" aria-label="Primary">
                     <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'text-indigo-600 font-medium' : 'text-gray-700 hover:text-gray-900' }}">Home</a>
@@ -191,6 +200,22 @@
         <footer class="bg-white border-t mt-16" role="contentinfo">
             <div class="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-4 gap-8 text-sm">
                 <div>
+                    @php
+                        $footerLogo = $themeSettings['favicon'] ?? $themeSettings['hospital_logo'] ?? '';
+                        $footerLogoSrc = '';
+                        if ($footerLogo) {
+                            if (str_starts_with($footerLogo, 'http') || str_starts_with($footerLogo, 'data:')) {
+                                $footerLogoSrc = $footerLogo;
+                            } elseif (str_starts_with($footerLogo, '/storage/')) {
+                                $footerLogoSrc = $footerLogo;
+                            } else {
+                                $footerLogoSrc = '/storage/' . ltrim($footerLogo, '/');
+                            }
+                        }
+                    @endphp
+                    @if($footerLogoSrc)
+                        <img src="{{ $footerLogoSrc }}" alt="{{ $themeSettings['hospital_name'] ?? 'Logo' }}" class="h-10 w-auto mb-3 rounded" style="max-width: 160px; object-fit: contain;">
+                    @endif
                     <div class="font-semibold mb-3">{{ $themeSettings['hospital_name'] ?? config('app.name', 'Dunco Hospital') }}</div>
                     <p class="text-gray-600">{{ $themeSettings['hospital_address'] ?? '123 Hospital Road' }}</p>
                     <p><a href="tel:{{ $themeSettings['hospital_phone'] ?? '+254700000000' }}" class="text-gray-700">{{ $themeSettings['hospital_phone'] ?? '+254 700 000 000' }}</a></p>

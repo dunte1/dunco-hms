@@ -125,27 +125,27 @@ Route::post('/testimonials', [TestimonialsController::class, 'store'])->name('te
 // AI & Advanced Features Routes
 Route::prefix('hms')->middleware(['auth'])->group(function () {
     // AI Features
-    Route::get('/ai/appointment-suggestions', [\App\Http\Controllers\Ai\AiAssistantController::class, 'appointmentSuggestions'])->name('ai.appointment-suggestions');
-    Route::post('/ai/appointment-suggestions/generate', [\App\Http\Controllers\Ai\AiAssistantController::class, 'generateAppointmentSuggestion'])->name('ai.appointment-suggestions.generate');
-    Route::get('/ai/diagnosis-suggestions', [\App\Http\Controllers\Ai\AiAssistantController::class, 'diagnosisSuggestions'])->name('ai.diagnosis-suggestions');
-    Route::post('/ai/diagnosis-suggestions/generate', [\App\Http\Controllers\Ai\AiAssistantController::class, 'generateDiagnosisSuggestion'])->name('ai.diagnosis-suggestions.generate');
+    Route::get('/ai/appointment-suggestions', [\App\Http\Controllers\Ai\AiAssistantController::class, 'appointmentSuggestions'])->name('ai.appointment-suggestions')->middleware('permission:use ai assistant|manage ai suggestions');
+    Route::post('/ai/appointment-suggestions/generate', [\App\Http\Controllers\Ai\AiAssistantController::class, 'generateAppointmentSuggestion'])->name('ai.appointment-suggestions.generate')->middleware('permission:use ai assistant|manage ai suggestions');
+    Route::get('/ai/diagnosis-suggestions', [\App\Http\Controllers\Ai\AiAssistantController::class, 'diagnosisSuggestions'])->name('ai.diagnosis-suggestions')->middleware('permission:use ai assistant|manage ai suggestions');
+    Route::post('/ai/diagnosis-suggestions/generate', [\App\Http\Controllers\Ai\AiAssistantController::class, 'generateDiagnosisSuggestion'])->name('ai.diagnosis-suggestions.generate')->middleware('permission:use ai assistant|manage ai suggestions');
     
     // Elliana D - Virtual Nurse Assistant
-    Route::get('/ai/elliana-d', [\App\Http\Controllers\Ai\EllianaDController::class, 'index'])->name('ai.elliana-d');
-    Route::post('/ai/elliana-d/chat', [\App\Http\Controllers\Ai\EllianaDController::class, 'chat'])->name('ai.elliana-d.chat');
-    Route::get('/ai/elliana-d/history', [\App\Http\Controllers\Ai\EllianaDController::class, 'history'])->name('ai.elliana-d.history');
+    Route::get('/ai/elliana-d', [\App\Http\Controllers\Ai\EllianaDController::class, 'index'])->name('ai.elliana-d')->middleware('permission:use ai assistant|manage ai suggestions');
+    Route::post('/ai/elliana-d/chat', [\App\Http\Controllers\Ai\EllianaDController::class, 'chat'])->name('ai.elliana-d.chat')->middleware('permission:use ai assistant|manage ai suggestions');
+    Route::get('/ai/elliana-d/history', [\App\Http\Controllers\Ai\EllianaDController::class, 'history'])->name('ai.elliana-d.history')->middleware('permission:use ai assistant|manage ai suggestions');
     
     // Integration Features
-    Route::get('/integration/lab-equipment', [\App\Http\Controllers\Integration\LabIntegrationController::class, 'index'])->name('integration.lab-equipment');
-    Route::post('/integration/lab-equipment', [\App\Http\Controllers\Integration\LabIntegrationController::class, 'createEquipment'])->name('integration.lab-equipment.create');
-    Route::post('/integration/lab-equipment/{equipment}/test', [\App\Http\Controllers\Integration\LabIntegrationController::class, 'testConnection'])->name('integration.lab-equipment.test');
-    Route::get('/integration/lab-equipment/{equipment}/results', [\App\Http\Controllers\Integration\LabIntegrationController::class, 'getEquipmentResults'])->name('integration.lab-equipment.results');
-    Route::post('/integration/lab-equipment/receive-results', [\App\Http\Controllers\Integration\LabIntegrationController::class, 'receiveResults'])->name('integration.lab-equipment.receive');
+    Route::get('/integration/lab-equipment', [\App\Http\Controllers\Integration\LabIntegrationController::class, 'index'])->name('integration.lab-equipment')->middleware('permission:manage lab equipment|manage lab integration');
+    Route::post('/integration/lab-equipment', [\App\Http\Controllers\Integration\LabIntegrationController::class, 'createEquipment'])->name('integration.lab-equipment.create')->middleware('permission:manage lab equipment|manage lab integration');
+    Route::post('/integration/lab-equipment/{equipment}/test', [\App\Http\Controllers\Integration\LabIntegrationController::class, 'testConnection'])->name('integration.lab-equipment.test')->middleware('permission:manage lab equipment|manage lab integration');
+    Route::get('/integration/lab-equipment/{equipment}/results', [\App\Http\Controllers\Integration\LabIntegrationController::class, 'getEquipmentResults'])->name('integration.lab-equipment.results')->middleware('permission:manage lab equipment|manage lab integration');
+    Route::post('/integration/lab-equipment/receive-results', [\App\Http\Controllers\Integration\LabIntegrationController::class, 'receiveResults'])->name('integration.lab-equipment.receive')->middleware('permission:manage lab equipment|manage lab integration');
     
-    Route::get('/integration/insurance-api', [\App\Http\Controllers\Integration\InsuranceApiController::class, 'index'])->name('integration.insurance-api');
-    Route::post('/integration/insurance/verify', [\App\Http\Controllers\Integration\InsuranceApiController::class, 'verifyInsurance'])->name('integration.insurance.verify');
-    Route::post('/integration/insurance/submit-claim', [\App\Http\Controllers\Integration\InsuranceApiController::class, 'submitClaim'])->name('integration.insurance.submit-claim');
-    Route::post('/integration/insurance/check-eligibility', [\App\Http\Controllers\Integration\InsuranceApiController::class, 'checkEligibility'])->name('integration.insurance.check-eligibility');
+    Route::get('/integration/insurance-api', [\App\Http\Controllers\Integration\InsuranceApiController::class, 'index'])->name('integration.insurance-api')->middleware('permission:manage insurance API|manage insurance integration|verify insurance|manage insurance claims');
+    Route::post('/integration/insurance/verify', [\App\Http\Controllers\Integration\InsuranceApiController::class, 'verifyInsurance'])->name('integration.insurance.verify')->middleware('permission:manage insurance API|manage insurance integration|verify insurance|manage insurance claims');
+    Route::post('/integration/insurance/submit-claim', [\App\Http\Controllers\Integration\InsuranceApiController::class, 'submitClaim'])->name('integration.insurance.submit-claim')->middleware('permission:manage insurance API|manage insurance integration|verify insurance|manage insurance claims');
+    Route::post('/integration/insurance/check-eligibility', [\App\Http\Controllers\Integration\InsuranceApiController::class, 'checkEligibility'])->name('integration.insurance.check-eligibility')->middleware('permission:manage insurance API|manage insurance integration|verify insurance|manage insurance claims');
     
     // DHA - Digital Health Superhighway (Client Registry, Facility & Provider Registries, Afyalink)
     Route::middleware('module:dha-integration')->group(function () {
@@ -159,160 +159,160 @@ Route::prefix('hms')->middleware(['auth'])->group(function () {
     });
     
     // Analytics & BI
-    Route::get('/analytics/bi-dashboard', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'index'])->name('analytics.bi-dashboard');
-    Route::post('/analytics/generate', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'generateAnalytics'])->name('analytics.generate');
-    Route::get('/analytics/revenue', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'getRevenueAnalytics'])->name('analytics.revenue');
-    Route::get('/analytics/patients', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'getPatientAnalytics'])->name('analytics.patients');
-    Route::get('/analytics/occupancy', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'getOccupancyAnalytics'])->name('analytics.occupancy');
+    Route::get('/analytics/bi-dashboard', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'index'])->name('analytics.bi-dashboard')->middleware('permission:view analytics|view dashboard analytics');
+    Route::post('/analytics/generate', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'generateAnalytics'])->name('analytics.generate')->middleware('permission:view analytics|view dashboard analytics');
+    Route::get('/analytics/revenue', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'getRevenueAnalytics'])->name('analytics.revenue')->middleware('permission:view analytics|view dashboard analytics');
+    Route::get('/analytics/patients', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'getPatientAnalytics'])->name('analytics.patients')->middleware('permission:view analytics|view dashboard analytics');
+    Route::get('/analytics/occupancy', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'getOccupancyAnalytics'])->name('analytics.occupancy')->middleware('permission:view analytics|view dashboard analytics');
     
     // Telemedicine
-    Route::get('/telemedicine', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'index'])->name('telemedicine.index');
-    Route::get('/telemedicine/create', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'create'])->name('telemedicine.create');
-    Route::post('/telemedicine', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'store'])->name('telemedicine.store');
-    Route::post('/telemedicine/{session}/start', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'startSession'])->name('telemedicine.start');
-    Route::post('/telemedicine/{session}/end', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'endSession'])->name('telemedicine.end');
-    Route::get('/telemedicine/{session}/join', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'joinSession'])->name('telemedicine.join');
-    Route::get('/telemedicine/{session}/details', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'getSessionDetails'])->name('telemedicine.details');
-    Route::get('/telemedicine/upcoming', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'getUpcomingSessions'])->name('telemedicine.upcoming');
-    Route::post('/telemedicine/{session}/participants', [\App\Http\Controllers\Telemedicine\TeleParticipantController::class, 'store'])->name('telemedicine.participants.store');
+    Route::get('/telemedicine', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'index'])->name('telemedicine.index')->middleware('permission:use telemedicine|manage telemedicine sessions');
+    Route::get('/telemedicine/create', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'create'])->name('telemedicine.create')->middleware('permission:use telemedicine|manage telemedicine sessions');
+    Route::post('/telemedicine', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'store'])->name('telemedicine.store')->middleware('permission:use telemedicine|manage telemedicine sessions');
+    Route::post('/telemedicine/{session}/start', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'startSession'])->name('telemedicine.start')->middleware('permission:use telemedicine|manage telemedicine sessions');
+    Route::post('/telemedicine/{session}/end', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'endSession'])->name('telemedicine.end')->middleware('permission:use telemedicine|manage telemedicine sessions');
+    Route::get('/telemedicine/{session}/join', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'joinSession'])->name('telemedicine.join')->middleware('permission:use telemedicine|manage telemedicine sessions');
+    Route::get('/telemedicine/{session}/details', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'getSessionDetails'])->name('telemedicine.details')->middleware('permission:use telemedicine|manage telemedicine sessions');
+    Route::get('/telemedicine/upcoming', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'getUpcomingSessions'])->name('telemedicine.upcoming')->middleware('permission:use telemedicine|manage telemedicine sessions');
+    Route::post('/telemedicine/{session}/participants', [\App\Http\Controllers\Telemedicine\TeleParticipantController::class, 'store'])->name('telemedicine.participants.store')->middleware('permission:use telemedicine|manage telemedicine sessions');
     
     // Drug Interactions & Allergies
-    Route::get('/drug-interactions', [DrugInteractionController::class, 'index'])->name('drug-interactions.index');
-    Route::get('/drug-interactions/create', [DrugInteractionController::class, 'create'])->name('drug-interactions.create');
-    Route::post('/drug-interactions', [DrugInteractionController::class, 'store'])->name('drug-interactions.store');
-    Route::get('/drug-interactions/{drugInteraction}', [DrugInteractionController::class, 'show'])->name('drug-interactions.show');
-    Route::get('/drug-interactions/{drugInteraction}/edit', [DrugInteractionController::class, 'edit'])->name('drug-interactions.edit');
-    Route::put('/drug-interactions/{drugInteraction}', [DrugInteractionController::class, 'update'])->name('drug-interactions.update');
-    Route::delete('/drug-interactions/{drugInteraction}', [DrugInteractionController::class, 'destroy'])->name('drug-interactions.destroy');
-    Route::get('/patient-allergies/{patientId}', [DrugInteractionController::class, 'patientAllergies'])->name('patient-allergies');
-    Route::post('/patient-allergies', [DrugInteractionController::class, 'storeAllergy'])->name('patient-allergies.store');
-    Route::delete('/patient-allergies/{allergy}', [DrugInteractionController::class, 'destroyAllergy'])->name('patient-allergies.destroy');
+    Route::get('/drug-interactions', [DrugInteractionController::class, 'index'])->name('drug-interactions.index')->middleware('permission:view prescriptions|dispense medicines|manage medicine inventory');
+    Route::get('/drug-interactions/create', [DrugInteractionController::class, 'create'])->name('drug-interactions.create')->middleware('permission:view prescriptions|dispense medicines|manage medicine inventory');
+    Route::post('/drug-interactions', [DrugInteractionController::class, 'store'])->name('drug-interactions.store')->middleware('permission:view prescriptions|dispense medicines|manage medicine inventory');
+    Route::get('/drug-interactions/{drugInteraction}', [DrugInteractionController::class, 'show'])->name('drug-interactions.show')->middleware('permission:view prescriptions|dispense medicines|manage medicine inventory');
+    Route::get('/drug-interactions/{drugInteraction}/edit', [DrugInteractionController::class, 'edit'])->name('drug-interactions.edit')->middleware('permission:view prescriptions|dispense medicines|manage medicine inventory');
+    Route::put('/drug-interactions/{drugInteraction}', [DrugInteractionController::class, 'update'])->name('drug-interactions.update')->middleware('permission:view prescriptions|dispense medicines|manage medicine inventory');
+    Route::delete('/drug-interactions/{drugInteraction}', [DrugInteractionController::class, 'destroy'])->name('drug-interactions.destroy')->middleware('permission:view prescriptions|dispense medicines|manage medicine inventory');
+    Route::get('/patient-allergies/{patientId}', [DrugInteractionController::class, 'patientAllergies'])->name('patient-allergies')->middleware('permission:view prescriptions|dispense medicines|manage medicine inventory|view patients');
+    Route::post('/patient-allergies', [DrugInteractionController::class, 'storeAllergy'])->name('patient-allergies.store')->middleware('permission:view prescriptions|dispense medicines|manage medicine inventory|view patients');
+    Route::delete('/patient-allergies/{allergy}', [DrugInteractionController::class, 'destroyAllergy'])->name('patient-allergies.destroy')->middleware('permission:view prescriptions|dispense medicines|manage medicine inventory|view patients');
     
     // CSSD (Central Sterile Services Department)
-    Route::get('/cssd', [CssdController::class, 'index'])->name('cssd.index');
-    Route::get('/cssd/instruments/create', [CssdController::class, 'createInstrument'])->name('cssd.instrument-create');
-    Route::post('/cssd/instruments', [CssdController::class, 'storeInstrument'])->name('cssd.instrument-store');
-    Route::get('/cssd/instruments/{instrument}', [CssdController::class, 'showInstrument'])->name('cssd.instrument-show');
-    Route::get('/cssd/instruments/{instrument}/edit', [CssdController::class, 'editInstrument'])->name('cssd.instrument-edit');
-    Route::put('/cssd/instruments/{instrument}', [CssdController::class, 'updateInstrumentFull'])->name('cssd.instrument-update');
-    Route::delete('/cssd/instruments/{instrument}', [CssdController::class, 'destroyInstrument'])->name('cssd.instrument-destroy');
-    Route::post('/cssd/batches', [CssdController::class, 'storeBatch'])->name('cssd.batch-store');
-    Route::post('/cssd/batches/{batch}/complete', [CssdController::class, 'completeBatch'])->name('cssd.batch-complete');
+    Route::get('/cssd', [CssdController::class, 'index'])->name('cssd.index')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+    Route::get('/cssd/instruments/create', [CssdController::class, 'createInstrument'])->name('cssd.instrument-create')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+    Route::post('/cssd/instruments', [CssdController::class, 'storeInstrument'])->name('cssd.instrument-store')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+    Route::get('/cssd/instruments/{instrument}', [CssdController::class, 'showInstrument'])->name('cssd.instrument-show')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+    Route::get('/cssd/instruments/{instrument}/edit', [CssdController::class, 'editInstrument'])->name('cssd.instrument-edit')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+    Route::put('/cssd/instruments/{instrument}', [CssdController::class, 'updateInstrumentFull'])->name('cssd.instrument-update')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+    Route::delete('/cssd/instruments/{instrument}', [CssdController::class, 'destroyInstrument'])->name('cssd.instrument-destroy')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+    Route::post('/cssd/batches', [CssdController::class, 'storeBatch'])->name('cssd.batch-store')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+    Route::post('/cssd/batches/{batch}/complete', [CssdController::class, 'completeBatch'])->name('cssd.batch-complete')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
 
     // Consent Management
-    Route::get('/consent', [ConsentController::class, 'index'])->name('consent.index');
-    Route::get('/consent/create', [ConsentController::class, 'create'])->name('consent.create');
-    Route::post('/consent', [ConsentController::class, 'store'])->name('consent.store');
-    Route::get('/consent/{consent}', [ConsentController::class, 'show'])->name('consent.show');
-    Route::get('/consent/{consent}/edit', [ConsentController::class, 'edit'])->name('consent.edit');
-    Route::put('/consent/{consent}', [ConsentController::class, 'update'])->name('consent.update');
-    Route::post('/consent/{consent}/sign', [ConsentController::class, 'sign'])->name('consent.sign');
-    Route::delete('/consent/{consent}', [ConsentController::class, 'destroy'])->name('consent.destroy');
+    Route::get('/consent', [ConsentController::class, 'index'])->name('consent.index')->middleware('permission:manage record requests|upload documents|view patients');
+    Route::get('/consent/create', [ConsentController::class, 'create'])->name('consent.create')->middleware('permission:manage record requests|upload documents|view patients');
+    Route::post('/consent', [ConsentController::class, 'store'])->name('consent.store')->middleware('permission:manage record requests|upload documents|view patients');
+    Route::get('/consent/{consent}', [ConsentController::class, 'show'])->name('consent.show')->middleware('permission:manage record requests|upload documents|view patients');
+    Route::get('/consent/{consent}/edit', [ConsentController::class, 'edit'])->name('consent.edit')->middleware('permission:manage record requests|upload documents|view patients');
+    Route::put('/consent/{consent}', [ConsentController::class, 'update'])->name('consent.update')->middleware('permission:manage record requests|upload documents|view patients');
+    Route::post('/consent/{consent}/sign', [ConsentController::class, 'sign'])->name('consent.sign')->middleware('permission:manage record requests|upload documents|view patients');
+    Route::delete('/consent/{consent}', [ConsentController::class, 'destroy'])->name('consent.destroy')->middleware('permission:manage record requests|upload documents|view patients');
     
     // MRD (Medical Records Department)
-    Route::get('/mrd', [MrdController::class, 'index'])->name('mrd.index');
-    Route::get('/mrd/create', [MrdController::class, 'create'])->name('mrd.create');
-    Route::post('/mrd', [MrdController::class, 'store'])->name('mrd.store');
-    Route::get('/mrd/{file}', [MrdController::class, 'show'])->name('mrd.show');
-    Route::get('/mrd/{file}/edit', [MrdController::class, 'edit'])->name('mrd.edit');
-    Route::put('/mrd/{file}', [MrdController::class, 'update'])->name('mrd.update');
-    Route::delete('/mrd/{file}', [MrdController::class, 'destroy'])->name('mrd.destroy');
-    Route::post('/mrd/{file}/issue', [MrdController::class, 'issue'])->name('mrd.issue');
-    Route::post('/mrd/{file}/return', [MrdController::class, 'return'])->name('mrd.return');
+    Route::get('/mrd', [MrdController::class, 'index'])->name('mrd.index')->middleware('permission:manage record requests|upload scanned documents|upload documents');
+    Route::get('/mrd/create', [MrdController::class, 'create'])->name('mrd.create')->middleware('permission:manage record requests|upload scanned documents|upload documents');
+    Route::post('/mrd', [MrdController::class, 'store'])->name('mrd.store')->middleware('permission:manage record requests|upload scanned documents|upload documents');
+    Route::get('/mrd/{file}', [MrdController::class, 'show'])->name('mrd.show')->middleware('permission:manage record requests|upload scanned documents|upload documents');
+    Route::get('/mrd/{file}/edit', [MrdController::class, 'edit'])->name('mrd.edit')->middleware('permission:manage record requests|upload scanned documents|upload documents');
+    Route::put('/mrd/{file}', [MrdController::class, 'update'])->name('mrd.update')->middleware('permission:manage record requests|upload scanned documents|upload documents');
+    Route::delete('/mrd/{file}', [MrdController::class, 'destroy'])->name('mrd.destroy')->middleware('permission:manage record requests|upload scanned documents|upload documents');
+    Route::post('/mrd/{file}/issue', [MrdController::class, 'issue'])->name('mrd.issue')->middleware('permission:manage record requests|upload scanned documents|upload documents');
+    Route::post('/mrd/{file}/return', [MrdController::class, 'return'])->name('mrd.return')->middleware('permission:manage record requests|upload scanned documents|upload documents');
     
     // Medical Records (G057-G058)
-    Route::post('/records/requests', [\App\Http\Controllers\Hms\RecordRequestController::class, 'store'])->name('records.requests.store');
-    Route::post('/records/requests/{request}/approve', [\App\Http\Controllers\Hms\RecordRequestController::class, 'approve'])->name('records.requests.approve');
-    Route::post('/records/requests/{request}/release', [\App\Http\Controllers\Hms\RecordRequestController::class, 'release'])->name('records.requests.release');
-    Route::post('/records/scan', [\App\Http\Controllers\Hms\ScannedDocumentController::class, 'store'])->name('records.scan.store');
-    Route::post('/records/coding', [\App\Http\Controllers\Hms\IcdCodingController::class, 'store'])->name('records.coding.store');
-    Route::post('/records/coding/{coding}/approve', [\App\Http\Controllers\Hms\IcdCodingController::class, 'approve'])->name('records.coding.approve');
-    Route::post('/reports/khis', [\App\Http\Controllers\Hms\KhisReportController::class, 'store'])->name('reports.khis.store');
-    Route::post('/reports/khis/{report}/submit', [\App\Http\Controllers\Hms\KhisReportController::class, 'submit'])->name('reports.khis.submit');
-    Route::post('/records/data-quality', [\App\Http\Controllers\Hms\DataQualityController::class, 'store'])->name('records.data-quality.store');
-    Route::post('/records/data-quality/{issue}/resolve', [\App\Http\Controllers\Hms\DataQualityController::class, 'resolve'])->name('records.data-quality.resolve');
+    Route::post('/records/requests', [\App\Http\Controllers\Hms\RecordRequestController::class, 'store'])->name('records.requests.store')->middleware('permission:manage record requests|manage icd coding|upload scanned documents');
+    Route::post('/records/requests/{request}/approve', [\App\Http\Controllers\Hms\RecordRequestController::class, 'approve'])->name('records.requests.approve')->middleware('permission:manage record requests|manage icd coding|upload scanned documents');
+    Route::post('/records/requests/{request}/release', [\App\Http\Controllers\Hms\RecordRequestController::class, 'release'])->name('records.requests.release')->middleware('permission:manage record requests|manage icd coding|upload scanned documents');
+    Route::post('/records/scan', [\App\Http\Controllers\Hms\ScannedDocumentController::class, 'store'])->name('records.scan.store')->middleware('permission:manage record requests|manage icd coding|upload scanned documents');
+    Route::post('/records/coding', [\App\Http\Controllers\Hms\IcdCodingController::class, 'store'])->name('records.coding.store')->middleware('permission:manage record requests|manage icd coding|upload scanned documents');
+    Route::post('/records/coding/{coding}/approve', [\App\Http\Controllers\Hms\IcdCodingController::class, 'approve'])->name('records.coding.approve')->middleware('permission:manage record requests|manage icd coding|upload scanned documents');
+    Route::post('/reports/khis', [\App\Http\Controllers\Hms\KhisReportController::class, 'store'])->name('reports.khis.store')->middleware('permission:manage khis reports|view reports');
+    Route::post('/reports/khis/{report}/submit', [\App\Http\Controllers\Hms\KhisReportController::class, 'submit'])->name('reports.khis.submit')->middleware('permission:manage khis reports|view reports');
+    Route::post('/records/data-quality', [\App\Http\Controllers\Hms\DataQualityController::class, 'store'])->name('records.data-quality.store')->middleware('permission:manage record requests|manage icd coding|upload scanned documents');
+    Route::post('/records/data-quality/{issue}/resolve', [\App\Http\Controllers\Hms\DataQualityController::class, 'resolve'])->name('records.data-quality.resolve')->middleware('permission:manage record requests|manage icd coding|upload scanned documents');
     
     // Vaccination Management
-    Route::get('/vaccination', [VaccinationController::class, 'index'])->name('vaccination.index');
-    Route::post('/vaccination/vaccines', [VaccinationController::class, 'storeVaccine'])->name('vaccination.vaccine-store');
-    Route::get('/vaccination/vaccines/{vaccine}', [VaccinationController::class, 'showVaccine'])->name('vaccination.vaccine-show');
-    Route::get('/vaccination/vaccines/{vaccine}/edit', [VaccinationController::class, 'editVaccine'])->name('vaccination.vaccine-edit');
-    Route::put('/vaccination/vaccines/{vaccine}', [VaccinationController::class, 'updateVaccine'])->name('vaccination.vaccine-update');
-    Route::delete('/vaccination/vaccines/{vaccine}', [VaccinationController::class, 'destroyVaccine'])->name('vaccination.vaccine-destroy');
-    Route::get('/vaccination/administer', [VaccinationController::class, 'administer'])->name('vaccination.administer');
-    Route::post('/vaccination/administer', [VaccinationController::class, 'storeAdministration'])->name('vaccination.administer-store');
+    Route::get('/vaccination', [VaccinationController::class, 'index'])->name('vaccination.index')->middleware('permission:manage immunization schedules');
+    Route::post('/vaccination/vaccines', [VaccinationController::class, 'storeVaccine'])->name('vaccination.vaccine-store')->middleware('permission:manage immunization schedules');
+    Route::get('/vaccination/vaccines/{vaccine}', [VaccinationController::class, 'showVaccine'])->name('vaccination.vaccine-show')->middleware('permission:manage immunization schedules');
+    Route::get('/vaccination/vaccines/{vaccine}/edit', [VaccinationController::class, 'editVaccine'])->name('vaccination.vaccine-edit')->middleware('permission:manage immunization schedules');
+    Route::put('/vaccination/vaccines/{vaccine}', [VaccinationController::class, 'updateVaccine'])->name('vaccination.vaccine-update')->middleware('permission:manage immunization schedules');
+    Route::delete('/vaccination/vaccines/{vaccine}', [VaccinationController::class, 'destroyVaccine'])->name('vaccination.vaccine-destroy')->middleware('permission:manage immunization schedules');
+    Route::get('/vaccination/administer', [VaccinationController::class, 'administer'])->name('vaccination.administer')->middleware('permission:manage immunization schedules');
+    Route::post('/vaccination/administer', [VaccinationController::class, 'storeAdministration'])->name('vaccination.administer-store')->middleware('permission:manage immunization schedules');
     
     // Public Health (M21)
-    Route::get('/public-health/immunizations/schedule', [ImmunizationScheduleController::class, 'index'])->name('public-health.immunizations.schedule');
-    Route::post('/public-health/immunizations/schedule/{schedule}/complete', [ImmunizationScheduleController::class, 'complete'])->name('public-health.immunizations.complete');
-    Route::post('/public-health/fp', [FpVisitController::class, 'store'])->name('public-health.fp.store');
-    Route::get('/public-health/fp', [FpVisitController::class, 'index'])->name('public-health.fp.index');
-    Route::post('/public-health/surveillance', [SurveillanceController::class, 'store'])->name('public-health.surveillance.store');
-    Route::get('/public-health/surveillance', [SurveillanceController::class, 'index'])->name('public-health.surveillance.index');
-    Route::get('/public-health/outbreaks', [OutbreakController::class, 'index'])->name('public-health.outbreaks.index');
-    Route::post('/public-health/outbreaks', [OutbreakController::class, 'store'])->name('public-health.outbreaks.store');
-    Route::put('/public-health/outbreaks/{outbreak}', [OutbreakController::class, 'update'])->name('public-health.outbreaks.update');
+    Route::get('/public-health/immunizations/schedule', [ImmunizationScheduleController::class, 'index'])->name('public-health.immunizations.schedule')->middleware('permission:manage immunization schedules|manage family planning visits|manage surveillance cases|manage outbreak events|manage notifiable disease reports');
+    Route::post('/public-health/immunizations/schedule/{schedule}/complete', [ImmunizationScheduleController::class, 'complete'])->name('public-health.immunizations.complete')->middleware('permission:manage immunization schedules|manage family planning visits|manage surveillance cases|manage outbreak events|manage notifiable disease reports');
+    Route::post('/public-health/fp', [FpVisitController::class, 'store'])->name('public-health.fp.store')->middleware('permission:manage immunization schedules|manage family planning visits|manage surveillance cases|manage outbreak events|manage notifiable disease reports');
+    Route::get('/public-health/fp', [FpVisitController::class, 'index'])->name('public-health.fp.index')->middleware('permission:manage immunization schedules|manage family planning visits|manage surveillance cases|manage outbreak events|manage notifiable disease reports');
+    Route::post('/public-health/surveillance', [SurveillanceController::class, 'store'])->name('public-health.surveillance.store')->middleware('permission:manage immunization schedules|manage family planning visits|manage surveillance cases|manage outbreak events|manage notifiable disease reports');
+    Route::get('/public-health/surveillance', [SurveillanceController::class, 'index'])->name('public-health.surveillance.index')->middleware('permission:manage immunization schedules|manage family planning visits|manage surveillance cases|manage outbreak events|manage notifiable disease reports');
+    Route::get('/public-health/outbreaks', [OutbreakController::class, 'index'])->name('public-health.outbreaks.index')->middleware('permission:manage immunization schedules|manage family planning visits|manage surveillance cases|manage outbreak events|manage notifiable disease reports');
+    Route::post('/public-health/outbreaks', [OutbreakController::class, 'store'])->name('public-health.outbreaks.store')->middleware('permission:manage immunization schedules|manage family planning visits|manage surveillance cases|manage outbreak events|manage notifiable disease reports');
+    Route::put('/public-health/outbreaks/{outbreak}', [OutbreakController::class, 'update'])->name('public-health.outbreaks.update')->middleware('permission:manage immunization schedules|manage family planning visits|manage surveillance cases|manage outbreak events|manage notifiable disease reports');
     
     // Mortuary Management
-    Route::get('/mortuary', [MortuaryController::class, 'index'])->name('mortuary.index');
-    Route::post('/mortuary', [MortuaryController::class, 'store'])->name('mortuary.store');
-    Route::get('/mortuary/{record}', [MortuaryController::class, 'show'])->name('mortuary.show');
-    Route::get('/mortuary/{record}/edit', [MortuaryController::class, 'edit'])->name('mortuary.edit');
-    Route::put('/mortuary/{record}', [MortuaryController::class, 'update'])->name('mortuary.update');
-    Route::delete('/mortuary/{record}', [MortuaryController::class, 'destroy'])->name('mortuary.destroy');
-    Route::post('/mortuary/{record}/release', [MortuaryController::class, 'release'])->name('mortuary.release');
-    Route::post('/mortuary/{record}/slots', [MortuarySlotController::class, 'assign'])->name('mortuary.slots.assign');
-    Route::post('/mortuary/slots/{slot}/release', [MortuarySlotController::class, 'release'])->name('mortuary.slots.release');
-    Route::post('/mortuary/{record}/identification', [BodyIdentificationController::class, 'store'])->name('mortuary.identification.store');
-    Route::post('/mortuary/{record}/postmortem', [PostmortemController::class, 'store'])->name('mortuary.postmortem.store');
-    Route::post('/mortuary/postmortems/{postmortem}/complete', [PostmortemController::class, 'complete'])->name('mortuary.postmortem.complete');
-    Route::post('/mortuary/{record}/death-certificate', [DeathCertificateController::class, 'store'])->name('mortuary.death-certificate.store');
+    Route::get('/mortuary', [MortuaryController::class, 'index'])->name('mortuary.index')->middleware('permission:manage mortuary records|manage mortuary slots|manage body identifications|manage postmortems|issue death certificates');
+    Route::post('/mortuary', [MortuaryController::class, 'store'])->name('mortuary.store')->middleware('permission:manage mortuary records|manage mortuary slots|manage body identifications|manage postmortems|issue death certificates');
+    Route::get('/mortuary/{record}', [MortuaryController::class, 'show'])->name('mortuary.show')->middleware('permission:manage mortuary records|manage mortuary slots|manage body identifications|manage postmortems|issue death certificates');
+    Route::get('/mortuary/{record}/edit', [MortuaryController::class, 'edit'])->name('mortuary.edit')->middleware('permission:manage mortuary records|manage mortuary slots|manage body identifications|manage postmortems|issue death certificates');
+    Route::put('/mortuary/{record}', [MortuaryController::class, 'update'])->name('mortuary.update')->middleware('permission:manage mortuary records|manage mortuary slots|manage body identifications|manage postmortems|issue death certificates');
+    Route::delete('/mortuary/{record}', [MortuaryController::class, 'destroy'])->name('mortuary.destroy')->middleware('permission:manage mortuary records|manage mortuary slots|manage body identifications|manage postmortems|issue death certificates');
+    Route::post('/mortuary/{record}/release', [MortuaryController::class, 'release'])->name('mortuary.release')->middleware('permission:manage mortuary records|manage mortuary slots|manage body identifications|manage postmortems|issue death certificates');
+    Route::post('/mortuary/{record}/slots', [MortuarySlotController::class, 'assign'])->name('mortuary.slots.assign')->middleware('permission:manage mortuary records|manage mortuary slots|manage body identifications|manage postmortems|issue death certificates');
+    Route::post('/mortuary/slots/{slot}/release', [MortuarySlotController::class, 'release'])->name('mortuary.slots.release')->middleware('permission:manage mortuary records|manage mortuary slots|manage body identifications|manage postmortems|issue death certificates');
+    Route::post('/mortuary/{record}/identification', [BodyIdentificationController::class, 'store'])->name('mortuary.identification.store')->middleware('permission:manage mortuary records|manage mortuary slots|manage body identifications|manage postmortems|issue death certificates');
+    Route::post('/mortuary/{record}/postmortem', [PostmortemController::class, 'store'])->name('mortuary.postmortem.store')->middleware('permission:manage mortuary records|manage mortuary slots|manage body identifications|manage postmortems|issue death certificates');
+    Route::post('/mortuary/postmortems/{postmortem}/complete', [PostmortemController::class, 'complete'])->name('mortuary.postmortem.complete')->middleware('permission:manage mortuary records|manage mortuary slots|manage body identifications|manage postmortems|issue death certificates');
+    Route::post('/mortuary/{record}/death-certificate', [DeathCertificateController::class, 'store'])->name('mortuary.death-certificate.store')->middleware('permission:manage mortuary records|manage mortuary slots|manage body identifications|manage postmortems|issue death certificates');
     
     // Equipment Maintenance (CMMS)
-    Route::get('/equipment', [EquipmentMaintenanceController::class, 'index'])->name('equipment.index');
-    Route::post('/equipment', [EquipmentMaintenanceController::class, 'store'])->name('equipment.store');
-    Route::get('/equipment/{equipment}', [EquipmentMaintenanceController::class, 'show'])->name('equipment.show');
-    Route::post('/equipment/{equipment}/maintenance', [EquipmentMaintenanceController::class, 'logMaintenance'])->name('equipment.maintenance');
-    Route::put('/equipment/{equipment}/status', [EquipmentMaintenanceController::class, 'updateStatus'])->name('equipment.status');
+    Route::get('/equipment', [EquipmentMaintenanceController::class, 'index'])->name('equipment.index')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
+    Route::post('/equipment', [EquipmentMaintenanceController::class, 'store'])->name('equipment.store')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
+    Route::get('/equipment/{equipment}', [EquipmentMaintenanceController::class, 'show'])->name('equipment.show')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
+    Route::post('/equipment/{equipment}/maintenance', [EquipmentMaintenanceController::class, 'logMaintenance'])->name('equipment.maintenance')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
+    Route::put('/equipment/{equipment}/status', [EquipmentMaintenanceController::class, 'updateStatus'])->name('equipment.status')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
 
     // Maintenance Requests, Work Orders & Calibration (G050-G051)
-    Route::get('/maintenance/requests', [\App\Http\Controllers\Hms\MaintenanceRequestController::class, 'index'])->name('maintenance.requests.index');
-    Route::post('/maintenance/requests', [\App\Http\Controllers\Hms\MaintenanceRequestController::class, 'store'])->name('maintenance.requests.store');
-    Route::post('/maintenance/work-orders', [\App\Http\Controllers\Hms\WorkOrderController::class, 'store'])->name('maintenance.work-orders.store');
-    Route::post('/maintenance/work-orders/{order}/complete', [\App\Http\Controllers\Hms\WorkOrderController::class, 'complete'])->name('maintenance.work-orders.complete');
-    Route::get('/maintenance/calibrations', [\App\Http\Controllers\Hms\CalibrationController::class, 'index'])->name('maintenance.calibrations.index');
-    Route::post('/maintenance/calibrations', [\App\Http\Controllers\Hms\CalibrationController::class, 'store'])->name('maintenance.calibrations.store');
+    Route::get('/maintenance/requests', [\App\Http\Controllers\Hms\MaintenanceRequestController::class, 'index'])->name('maintenance.requests.index')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
+    Route::post('/maintenance/requests', [\App\Http\Controllers\Hms\MaintenanceRequestController::class, 'store'])->name('maintenance.requests.store')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
+    Route::post('/maintenance/work-orders', [\App\Http\Controllers\Hms\WorkOrderController::class, 'store'])->name('maintenance.work-orders.store')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
+    Route::post('/maintenance/work-orders/{order}/complete', [\App\Http\Controllers\Hms\WorkOrderController::class, 'complete'])->name('maintenance.work-orders.complete')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
+    Route::get('/maintenance/calibrations', [\App\Http\Controllers\Hms\CalibrationController::class, 'index'])->name('maintenance.calibrations.index')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
+    Route::post('/maintenance/calibrations', [\App\Http\Controllers\Hms\CalibrationController::class, 'store'])->name('maintenance.calibrations.store')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
 
     // Asset Register (G050-G051)
-    Route::get('/assets', [\App\Http\Controllers\Hms\AssetController::class, 'index'])->name('assets.index');
-    Route::post('/assets', [\App\Http\Controllers\Hms\AssetController::class, 'store'])->name('assets.store');
-    Route::post('/assets/{asset}/transfer', [\App\Http\Controllers\Hms\AssetController::class, 'transfer'])->name('assets.transfer');
-    Route::post('/assets/{asset}/dispose', [\App\Http\Controllers\Hms\AssetController::class, 'dispose'])->name('assets.dispose');
+    Route::get('/assets', [\App\Http\Controllers\Hms\AssetController::class, 'index'])->name('assets.index')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
+    Route::post('/assets', [\App\Http\Controllers\Hms\AssetController::class, 'store'])->name('assets.store')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
+    Route::post('/assets/{asset}/transfer', [\App\Http\Controllers\Hms\AssetController::class, 'transfer'])->name('assets.transfer')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
+    Route::post('/assets/{asset}/dispose', [\App\Http\Controllers\Hms\AssetController::class, 'dispose'])->name('assets.dispose')->middleware('permission:manage maintenance requests|manage work orders|manage calibrations|manage assets|transfer assets|dispose assets');
     
     // RFID Management
-    Route::get('/rfid', [\App\Http\Controllers\Rfid\RfidController::class, 'index'])->name('rfid.index');
-    Route::get('/rfid/create', [\App\Http\Controllers\Rfid\RfidController::class, 'create'])->name('rfid.create');
-    Route::post('/rfid', [\App\Http\Controllers\Rfid\RfidController::class, 'store'])->name('rfid.store');
-    Route::post('/rfid/scan', [\App\Http\Controllers\Rfid\RfidController::class, 'scan'])->name('rfid.scan');
-    Route::get('/rfid/{tagId}/info', [\App\Http\Controllers\Rfid\RfidController::class, 'getTagInfo'])->name('rfid.info');
-    Route::post('/rfid/{tag}/update-status', [\App\Http\Controllers\Rfid\RfidController::class, 'updateStatus'])->name('rfid.update-status');
-    Route::get('/rfid/{tag}/history', [\App\Http\Controllers\Rfid\RfidController::class, 'getLocationHistory'])->name('rfid.history');
-    Route::get('/rfid/active', [\App\Http\Controllers\Rfid\RfidController::class, 'getActiveTags'])->name('rfid.active');
-    Route::get('/rfid/location/{location}', [\App\Http\Controllers\Rfid\RfidController::class, 'getTagsByLocation'])->name('rfid.by-location');
-    Route::post('/rfid/report', [\App\Http\Controllers\Rfid\RfidController::class, 'generateReport'])->name('rfid.report');
-    Route::post('/rfid/bulk-update', [\App\Http\Controllers\Rfid\RfidController::class, 'bulkUpdate'])->name('rfid.bulk-update');
+    Route::get('/rfid', [\App\Http\Controllers\Rfid\RfidController::class, 'index'])->name('rfid.index')->middleware('permission:manage rfid tags');
+    Route::get('/rfid/create', [\App\Http\Controllers\Rfid\RfidController::class, 'create'])->name('rfid.create')->middleware('permission:manage rfid tags');
+    Route::post('/rfid', [\App\Http\Controllers\Rfid\RfidController::class, 'store'])->name('rfid.store')->middleware('permission:manage rfid tags');
+    Route::post('/rfid/scan', [\App\Http\Controllers\Rfid\RfidController::class, 'scan'])->name('rfid.scan')->middleware('permission:manage rfid tags');
+    Route::get('/rfid/{tagId}/info', [\App\Http\Controllers\Rfid\RfidController::class, 'getTagInfo'])->name('rfid.info')->middleware('permission:manage rfid tags');
+    Route::post('/rfid/{tag}/update-status', [\App\Http\Controllers\Rfid\RfidController::class, 'updateStatus'])->name('rfid.update-status')->middleware('permission:manage rfid tags');
+    Route::get('/rfid/{tag}/history', [\App\Http\Controllers\Rfid\RfidController::class, 'getLocationHistory'])->name('rfid.history')->middleware('permission:manage rfid tags');
+    Route::get('/rfid/active', [\App\Http\Controllers\Rfid\RfidController::class, 'getActiveTags'])->name('rfid.active')->middleware('permission:manage rfid tags');
+    Route::get('/rfid/location/{location}', [\App\Http\Controllers\Rfid\RfidController::class, 'getTagsByLocation'])->name('rfid.by-location')->middleware('permission:manage rfid tags');
+    Route::post('/rfid/report', [\App\Http\Controllers\Rfid\RfidController::class, 'generateReport'])->name('rfid.report')->middleware('permission:manage rfid tags');
+    Route::post('/rfid/bulk-update', [\App\Http\Controllers\Rfid\RfidController::class, 'bulkUpdate'])->name('rfid.bulk-update')->middleware('permission:manage rfid tags');
     
     // IoT Bed Monitoring
-    Route::get('/iot/bed-monitoring', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'index'])->name('iot.bed-monitoring');
-    Route::get('/iot/sensor/create', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'create'])->name('iot.sensor.create');
-    Route::post('/iot/sensor', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'store'])->name('iot.sensor.store');
-    Route::post('/iot/sensor/receive-data', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'receiveSensorData'])->name('iot.sensor.receive-data');
-    Route::get('/iot/sensor/{sensor}/data', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'getSensorData'])->name('iot.sensor.data');
-    Route::get('/iot/bed/{bed}/status', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'getBedStatus'])->name('iot.bed.status');
-    Route::get('/iot/bed-occupancy-map', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'getOccupancyMap'])->name('iot.bed-occupancy-map');
-    Route::get('/iot/alerts', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'getAlerts'])->name('iot.alerts');
-    Route::post('/iot/sensor/{sensor}/acknowledge', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'acknowledgeAlert'])->name('iot.sensor.acknowledge');
-    Route::get('/iot/sensor/{sensor}/history', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'getVitalSignsHistory'])->name('iot.sensor.history');
+    Route::get('/iot/bed-monitoring', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'index'])->name('iot.bed-monitoring')->middleware('permission:monitor iot sensors');
+    Route::get('/iot/sensor/create', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'create'])->name('iot.sensor.create')->middleware('permission:monitor iot sensors');
+    Route::post('/iot/sensor', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'store'])->name('iot.sensor.store')->middleware('permission:monitor iot sensors');
+    Route::post('/iot/sensor/receive-data', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'receiveSensorData'])->name('iot.sensor.receive-data')->middleware('permission:monitor iot sensors');
+    Route::get('/iot/sensor/{sensor}/data', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'getSensorData'])->name('iot.sensor.data')->middleware('permission:monitor iot sensors');
+    Route::get('/iot/bed/{bed}/status', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'getBedStatus'])->name('iot.bed.status')->middleware('permission:monitor iot sensors');
+    Route::get('/iot/bed-occupancy-map', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'getOccupancyMap'])->name('iot.bed-occupancy-map')->middleware('permission:monitor iot sensors');
+    Route::get('/iot/alerts', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'getAlerts'])->name('iot.alerts')->middleware('permission:monitor iot sensors');
+    Route::post('/iot/sensor/{sensor}/acknowledge', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'acknowledgeAlert'])->name('iot.sensor.acknowledge')->middleware('permission:monitor iot sensors');
+    Route::get('/iot/sensor/{sensor}/history', [\App\Http\Controllers\Iot\IotBedMonitoringController::class, 'getVitalSignsHistory'])->name('iot.sensor.history')->middleware('permission:monitor iot sensors');
 });
 
 // API Routes moved to routes/api.php for proper CSRF exemption
@@ -344,7 +344,7 @@ Route::prefix('patient-portal')->group(function () {
 });
 
     // Security & Biometric Routes
-Route::middleware(['auth'])->prefix('hms/security')->group(function () {
+Route::middleware(['auth', 'permission:manage security incidents|manage lost found items|manage access events|manage visitor passes'])->prefix('hms/security')->group(function () {
     // Biometric
     Route::get('/biometric', [\App\Http\Controllers\Security\BiometricController::class, 'index'])->name('biometric.index');
     Route::post('/biometric/register', [\App\Http\Controllers\Security\BiometricController::class, 'register'])->name('biometric.register');
@@ -381,7 +381,7 @@ Route::get('/dashboard', [\App\Http\Controllers\Hms\DashboardController::class, 
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// Role Management Routes — requires role management permissions
+// Role Management Routes ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â requires role management permissions
 Route::prefix('admin')->middleware(['auth', 'permission:manage roles|manage permissions'])->group(function () {
     Route::get('/roles', [\App\Http\Controllers\Admin\RoleManagementController::class, 'index'])->name('admin.roles.index');
     Route::get('/roles/create', [\App\Http\Controllers\Admin\RoleManagementController::class, 'create'])->name('admin.roles.create');
@@ -404,16 +404,16 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('hms')->name('hms.')->group(function () {
         // CSSD Completion (G047-G048)
-        Route::get('/cssd/instrument-sets', [InstrumentSetController::class, 'index'])->name('cssd.instrument-sets.index');
-        Route::post('/cssd/instrument-sets', [InstrumentSetController::class, 'store'])->name('cssd.instrument-sets.store');
-        Route::post('/cssd/cycles', [CssdCycleController::class, 'store'])->name('cssd.cycles.store');
-        Route::post('/cssd/cycles/{cycle}/complete', [CssdCycleController::class, 'complete'])->name('cssd.cycles.complete');
-        Route::post('/cssd/sterilizer-runs', [SterilizerRunController::class, 'store'])->name('cssd.sterilizer-runs.store');
-        Route::post('/cssd/sterilizer-runs/{run}/indicators', [SterilityIndicatorController::class, 'store'])->name('cssd.sterilizer-runs.indicators.store');
-        Route::post('/cssd/issues', [CssdIssueController::class, 'store'])->name('cssd.issues.store');
-        Route::post('/cssd/issues/{issue}/return', [CssdIssueController::class, 'returnSet'])->name('cssd.issues.return');
+        Route::get('/cssd/instrument-sets', [InstrumentSetController::class, 'index'])->name('cssd.instrument-sets.index')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+        Route::post('/cssd/instrument-sets', [InstrumentSetController::class, 'store'])->name('cssd.instrument-sets.store')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+        Route::post('/cssd/cycles', [CssdCycleController::class, 'store'])->name('cssd.cycles.store')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+        Route::post('/cssd/cycles/{cycle}/complete', [CssdCycleController::class, 'complete'])->name('cssd.cycles.complete')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+        Route::post('/cssd/sterilizer-runs', [SterilizerRunController::class, 'store'])->name('cssd.sterilizer-runs.store')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+        Route::post('/cssd/sterilizer-runs/{run}/indicators', [SterilityIndicatorController::class, 'store'])->name('cssd.sterilizer-runs.indicators.store')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+        Route::post('/cssd/issues', [CssdIssueController::class, 'store'])->name('cssd.issues.store')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
+        Route::post('/cssd/issues/{issue}/return', [CssdIssueController::class, 'returnSet'])->name('cssd.issues.return')->middleware('permission:manage cssd instruments|manage cssd cycles|manage sterilizer runs|manage cssd issues|manage cssd returns|record sterility indicators');
 
-        // Patient management — requires patient-related permissions
+        // Patient management ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â requires patient-related permissions
         Route::middleware('permission:view patients|add patients|edit patients')->group(function () {
             Route::get('/patients', [PatientsController::class, 'index'])->name('patients.index');
             Route::get('/patients/create', [PatientsController::class, 'create'])->name('patients.create');
@@ -436,8 +436,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/paediatrics/child-protection/{case}', [\App\Http\Controllers\Hms\ChildProtectionController::class, 'update'])->name('paediatrics.child-protection.update');
         Route::post('/paediatrics/child-protection/{case}/close', [\App\Http\Controllers\Hms\ChildProtectionController::class, 'close'])->name('paediatrics.child-protection.close');
 
-        // Appointments — requires appointment-related permissions
-        Route::middleware('permission:create appointments|manage appointments')->group(function () {
+        // Appointments ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â requires appointment-related permissions
+        Route::middleware('permission:create appointments|manage appointments|view appointments|manage queue')->group(function () {
             Route::get('/appointments', [AppointmentsController::class, 'index'])->name('appointments.index');
             Route::get('/appointments/create', [AppointmentsController::class, 'create'])->name('appointments.create');
             Route::post('/appointments', [AppointmentsController::class, 'store'])->name('appointments.store');
@@ -472,8 +472,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/icd10/{code}', [ICD10Controller::class, 'update'])->name('icd10.update');
         Route::delete('/icd10/{code}', [ICD10Controller::class, 'destroy'])->name('icd10.destroy');
         
-        // Queue Management — requires appointment permissions
-        Route::middleware('permission:create appointments|manage appointments')->group(function () {
+        // Queue Management ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â requires appointment permissions
+        Route::middleware('permission:create appointments|manage appointments|view appointments|manage queue')->group(function () {
             Route::get('/queue', [QueueManagementController::class, 'index'])->name('queue.index');
             Route::get('/queue/create', [QueueManagementController::class, 'create'])->name('queue.create');
             Route::post('/queue', [QueueManagementController::class, 'store'])->name('queue.store');
@@ -526,7 +526,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/doctors/{doctor}', [DoctorsController::class, 'update'])->name('doctors.update');
         Route::delete('/doctors/{doctor}', [DoctorsController::class, 'destroy'])->name('doctors.destroy');
         // Route for admissions is now handled by IPD (In-Patient Department) routes below
-        Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
+        Route::get('/billing', [BillingController::class, 'index'])->name('billing.index')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
         Route::get('/pharmacy', [PharmacyController::class, 'index'])->name('pharmacy.index');
         Route::get('/laboratory', [LaboratoryController::class, 'index'])->name('laboratory.index');
         Route::get('/radiology', [RadiologyController::class, 'index'])->name('radiology.index');
@@ -577,7 +577,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/stock-adjustments/{stockAdjustment}/approve', [\App\Http\Controllers\Hms\StockAdjustmentController::class, 'approve'])->name('stock-adjustments.approve');
         Route::post('/stock-adjustments/{stockAdjustment}/reject', [\App\Http\Controllers\Hms\StockAdjustmentController::class, 'reject'])->name('stock-adjustments.reject');
 
-        // Requisitions (Sub-Store → Main Store)
+        // Requisitions (Sub-Store ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ Main Store)
         Route::get('/requisitions', [RequisitionController::class, 'index'])->name('requisitions.index');
         Route::get('/requisitions/create', [RequisitionController::class, 'create'])->name('requisitions.create');
         Route::post('/requisitions', [RequisitionController::class, 'store'])->name('requisitions.store');
@@ -604,7 +604,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/stock-adjustments/{stockAdjustment}/approve', [StockAdjustmentController::class, 'approve'])->name('stock-adjustments.approve');
         Route::post('/stock-adjustments/{stockAdjustment}/reject', [StockAdjustmentController::class, 'reject'])->name('stock-adjustments.reject');
 
-        Route::get('/hr', [HrController::class, 'index'])->name('hr.index');
+        Route::get('/hr', [HrController::class, 'index'])->name('hr.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         
         // Bed Management
         Route::get('/bed-types', [BedTypesController::class, 'index'])->name('bed-types.index');
@@ -667,7 +667,7 @@ Route::middleware('auth')->group(function () {
         });
 
         // Anaesthesia (G022)
-        Route::prefix('anaesthesia')->name('anaesthesia.')->group(function () {
+        Route::prefix('anaesthesia')->name('anaesthesia.')->middleware('permission:manage anaesthesia assessments|manage anaesthesia records|manage anaesthesia drugs|record intraop vitals|manage anaesthesia complications|record post anaesthesia reviews')->group(function () {
             Route::post('/assessments', [\App\Http\Controllers\Hms\AnaesthesiaAssessmentController::class, 'store'])->name('assessments.store');
             Route::post('/records', [\App\Http\Controllers\Hms\AnaesthesiaRecordController::class, 'store'])->name('records.store');
             Route::post('/records/{record}/complete', [\App\Http\Controllers\Hms\AnaesthesiaRecordController::class, 'complete'])->name('records.complete');
@@ -677,7 +677,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/records/{record}/post-review', [\App\Http\Controllers\Hms\PostAnaesthesiaReviewController::class, 'store'])->name('records.post-review.store');
         });
 
-        // IPD/OPD — requires admission and patient permissions
+        // IPD/OPD ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â requires admission and patient permissions
         Route::middleware('permission:admit patients|manage admissions|view patients')->group(function () {
             Route::get('/ipd', [IpdAdmissionsController::class, 'index'])->name('ipd.index');
             Route::get('/ipd/create', [IpdAdmissionsController::class, 'create'])->name('ipd.create');
@@ -694,6 +694,7 @@ Route::middleware('auth')->group(function () {
             Route::put('/opd/{opd}', [OpdVisitsController::class, 'update'])->name('opd.update');
             Route::delete('/opd/{opd}', [OpdVisitsController::class, 'destroy'])->name('opd.destroy');
             Route::post('/opd/{opd}/status', [OpdVisitsController::class, 'updateStatus'])->name('opd.update-status');
+        Route::post('/opd/{opd}/finalize', [OpdVisitsController::class, 'finalize'])->name('opd.finalize');
 
             // IPD Inpatient Completion (G017-G018)
             Route::get('/ipd/{ipd}/ward-rounds', [\App\Http\Controllers\Hms\WardRoundController::class, 'index'])->name('ipd.ward-rounds.index');
@@ -707,8 +708,10 @@ Route::middleware('auth')->group(function () {
             Route::post('/ipd/{ipd}/medications', [\App\Http\Controllers\Hms\MarController::class, 'store'])->name('ipd.mar.store');
             Route::get('/ipd/{ipd}/diet-orders', [\App\Http\Controllers\Hms\DietOrderController::class, 'index'])->name('ipd.diet-orders.index');
             Route::post('/ipd/{ipd}/diet-orders', [\App\Http\Controllers\Hms\DietOrderController::class, 'store'])->name('ipd.diet-orders.store');
-            Route::post('/ipd/{ipd}/discharge-summary', [\App\Http\Controllers\Hms\InpatientDischargeSummaryController::class, 'store'])->name('ipd.discharge-summary.store');
-            Route::post('/ipd/{ipd}/discharge-summary/sign', [\App\Http\Controllers\Hms\InpatientDischargeSummaryController::class, 'sign'])->name('ipd.discharge-summary.sign');
+        Route::post('/ipd/{ipd}/discharge-summary', [\App\Http\Controllers\Hms\InpatientDischargeSummaryController::class, 'store'])->name('ipd.discharge-summary.store');
+        Route::post('/ipd/{ipd}/discharge-summary/sign', [\App\Http\Controllers\Hms\InpatientDischargeSummaryController::class, 'sign'])->name('ipd.discharge-summary.sign');
+        Route::get('/ipd/{ipd}/final-bill', [\App\Http\Controllers\Hms\IpdFinalBillController::class, 'show'])->name('ipd.final-bill.show')->middleware('permission:view patients|manage admissions|view invoices|create invoices|view billing');
+        Route::post('/ipd/{ipd}/final-bill', [\App\Http\Controllers\Hms\IpdFinalBillController::class, 'generate'])->name('ipd.final-bill.generate')->middleware('permission:view patients|manage admissions|view invoices|create invoices|view billing');
             Route::post('/ipd/{ipd}/transfer', [\App\Http\Controllers\Hms\TransferController::class, 'store'])->name('ipd.transfer.store');
 
             // ICU & HDU Module (G019)
@@ -732,7 +735,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/medical-certificates', [\App\Http\Controllers\Hms\MedicalCertificateController::class, 'store'])->name('medical-certificates.store');
         });
 
-        // Triage — requires vitals permission
+        // Triage ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â requires vitals permission
         Route::middleware('permission:manage patient vitals|view patients')->group(function () {
             // Triage Escalations
             Route::get('/triage/escalations', [\App\Http\Controllers\Hms\TriageEscalationController::class, 'index'])->name('triage.escalations.index');
@@ -773,7 +776,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/referrals/create', [\App\Http\Controllers\Hms\ReferralController::class, 'create'])->name('referrals.create');
         Route::post('/referrals', [\App\Http\Controllers\Hms\ReferralController::class, 'store'])->name('referrals.store');
 
-        // Referring Facilities (G075-G078) — must be before {referral} routes
+        // Referring Facilities (G075-G078) ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â must be before {referral} routes
         Route::get('/referrals/facilities', [\App\Http\Controllers\Hms\ReferringFacilityController::class, 'index'])->name('referrals.facilities.index');
         Route::post('/referrals/facilities', [\App\Http\Controllers\Hms\ReferringFacilityController::class, 'store'])->name('referrals.facilities.store');
 
@@ -809,39 +812,39 @@ Route::middleware('auth')->group(function () {
         Route::delete('/nursing-care-plans/{carePlan}', [\App\Http\Controllers\Hms\NursingCarePlanController::class, 'destroy'])->name('nursing-care-plans.destroy');
         
         // Billing
-        Route::get('/billing/invoices', [InvoicesController::class, 'index'])->name('billing.invoices.index');
-        Route::get('/billing/invoices/create', [InvoicesController::class, 'create'])->name('billing.invoices.create');
-        Route::post('/billing/invoices', [InvoicesController::class, 'store'])->name('billing.invoices.store');
-        Route::get('/billing/invoices/{invoice}', [InvoicesController::class, 'show'])->name('billing.invoices.show');
-        Route::get('/billing/invoices/{invoice}/pdf', [InvoicesController::class, 'generatePdf'])->name('billing.invoices.pdf');
-        Route::post('/billing/invoices/{invoice}/email', [InvoicesController::class, 'sendEmail'])->name('billing.invoices.email');
-        Route::get('/billing/invoices/{invoice}/edit', [InvoicesController::class, 'edit'])->name('billing.invoices.edit');
-        Route::put('/billing/invoices/{invoice}', [InvoicesController::class, 'update'])->name('billing.invoices.update');
-        Route::delete('/billing/invoices/{invoice}', [InvoicesController::class, 'destroy'])->name('billing.invoices.destroy');
+        Route::get('/billing/invoices', [InvoicesController::class, 'index'])->name('billing.invoices.index')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::get('/billing/invoices/create', [InvoicesController::class, 'create'])->name('billing.invoices.create')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/invoices', [InvoicesController::class, 'store'])->name('billing.invoices.store')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::get('/billing/invoices/{invoice}', [InvoicesController::class, 'show'])->name('billing.invoices.show')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::get('/billing/invoices/{invoice}/pdf', [InvoicesController::class, 'generatePdf'])->name('billing.invoices.pdf')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/invoices/{invoice}/email', [InvoicesController::class, 'sendEmail'])->name('billing.invoices.email')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::get('/billing/invoices/{invoice}/edit', [InvoicesController::class, 'edit'])->name('billing.invoices.edit')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::put('/billing/invoices/{invoice}', [InvoicesController::class, 'update'])->name('billing.invoices.update')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::delete('/billing/invoices/{invoice}', [InvoicesController::class, 'destroy'])->name('billing.invoices.destroy')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
         
-        Route::get('/billing/payments', [PaymentsController::class, 'index'])->name('billing.payments.index');
-        Route::get('/billing/payments/create', [PaymentsController::class, 'create'])->name('billing.payments.create');
-        Route::post('/billing/payments', [PaymentsController::class, 'store'])->name('billing.payments.store');
-        Route::get('/billing/payments/{payment}', [PaymentsController::class, 'show'])->name('billing.payments.show');
-        Route::get('/billing/payments/{payment}/edit', [PaymentsController::class, 'edit'])->name('billing.payments.edit');
-        Route::put('/billing/payments/{payment}', [PaymentsController::class, 'update'])->name('billing.payments.update');
-        Route::delete('/billing/payments/{payment}', [PaymentsController::class, 'destroy'])->name('billing.payments.destroy');
-        Route::get('/billing/payments/{payment}/thermal-receipt', [PaymentsController::class, 'thermalReceipt'])->name('billing.payments.thermal-receipt');
-        Route::get('/billing/invoices/{invoice}/thermal-receipt', [PaymentsController::class, 'invoiceThermalReceipt'])->name('billing.invoices.thermal-receipt');
+        Route::get('/billing/payments', [PaymentsController::class, 'index'])->name('billing.payments.index')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::get('/billing/payments/create', [PaymentsController::class, 'create'])->name('billing.payments.create')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/payments', [PaymentsController::class, 'store'])->name('billing.payments.store')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::get('/billing/payments/{payment}', [PaymentsController::class, 'show'])->name('billing.payments.show')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::get('/billing/payments/{payment}/edit', [PaymentsController::class, 'edit'])->name('billing.payments.edit')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::put('/billing/payments/{payment}', [PaymentsController::class, 'update'])->name('billing.payments.update')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::delete('/billing/payments/{payment}', [PaymentsController::class, 'destroy'])->name('billing.payments.destroy')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::get('/billing/payments/{payment}/thermal-receipt', [PaymentsController::class, 'thermalReceipt'])->name('billing.payments.thermal-receipt')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::get('/billing/invoices/{invoice}/thermal-receipt', [PaymentsController::class, 'invoiceThermalReceipt'])->name('billing.invoices.thermal-receipt')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
 
         // Charges, Refunds, Discounts, Waivers, Cashier Sessions
-        Route::post('/billing/charges', [\App\Http\Controllers\Hms\ChargesController::class, 'store'])->name('billing.charges.store');
-        Route::post('/billing/charges/{charge}/reverse', [\App\Http\Controllers\Hms\ChargesController::class, 'reverse'])->name('billing.charges.reverse');
-        Route::post('/billing/refunds', [\App\Http\Controllers\Hms\RefundController::class, 'store'])->name('billing.refunds.store');
-        Route::post('/billing/refunds/{refund}/approve', [\App\Http\Controllers\Hms\RefundController::class, 'approve'])->name('billing.refunds.approve');
-        Route::post('/billing/refunds/{refund}/reject', [\App\Http\Controllers\Hms\RefundController::class, 'reject'])->name('billing.refunds.reject');
-        Route::post('/billing/payments/{payment}/refund', [PaymentsController::class, 'requestRefund'])->name('billing.payments.request-refund');
-        Route::post('/billing/discounts', [\App\Http\Controllers\Hms\DiscountWaiverController::class, 'storeDiscount'])->name('billing.discounts.store');
-        Route::post('/billing/waivers', [\App\Http\Controllers\Hms\DiscountWaiverController::class, 'storeWaiver'])->name('billing.waivers.store');
-        Route::post('/billing/waivers/{waiver}/approve', [\App\Http\Controllers\Hms\DiscountWaiverController::class, 'approveWaiver'])->name('billing.waivers.approve');
-        Route::post('/billing/waivers/{waiver}/reject', [\App\Http\Controllers\Hms\DiscountWaiverController::class, 'rejectWaiver'])->name('billing.waivers.reject');
-        Route::post('/billing/cashier-sessions', [\App\Http\Controllers\Hms\CashierSessionController::class, 'store'])->name('billing.cashier-sessions.store');
-        Route::post('/billing/cashier-sessions/close', [\App\Http\Controllers\Hms\CashierSessionController::class, 'close'])->name('billing.cashier-sessions.close');
+        Route::post('/billing/charges', [\App\Http\Controllers\Hms\ChargesController::class, 'store'])->name('billing.charges.store')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/charges/{charge}/reverse', [\App\Http\Controllers\Hms\ChargesController::class, 'reverse'])->name('billing.charges.reverse')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/refunds', [\App\Http\Controllers\Hms\RefundController::class, 'store'])->name('billing.refunds.store')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/refunds/{refund}/approve', [\App\Http\Controllers\Hms\RefundController::class, 'approve'])->name('billing.refunds.approve')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/refunds/{refund}/reject', [\App\Http\Controllers\Hms\RefundController::class, 'reject'])->name('billing.refunds.reject')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/payments/{payment}/refund', [PaymentsController::class, 'requestRefund'])->name('billing.payments.request-refund')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/discounts', [\App\Http\Controllers\Hms\DiscountWaiverController::class, 'storeDiscount'])->name('billing.discounts.store')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/waivers', [\App\Http\Controllers\Hms\DiscountWaiverController::class, 'storeWaiver'])->name('billing.waivers.store')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/waivers/{waiver}/approve', [\App\Http\Controllers\Hms\DiscountWaiverController::class, 'approveWaiver'])->name('billing.waivers.approve')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/waivers/{waiver}/reject', [\App\Http\Controllers\Hms\DiscountWaiverController::class, 'rejectWaiver'])->name('billing.waivers.reject')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/cashier-sessions', [\App\Http\Controllers\Hms\CashierSessionController::class, 'store'])->name('billing.cashier-sessions.store')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::post('/billing/cashier-sessions/close', [\App\Http\Controllers\Hms\CashierSessionController::class, 'close'])->name('billing.cashier-sessions.close')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
 
         // M-Pesa Payments (STK push initiation, status polling, SHA coverage check)
         Route::post('/mpesa/initiate', [\App\Http\Controllers\Hms\MpesaPaymentsController::class, 'initiate'])->name('mpesa.initiate');
@@ -870,7 +873,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/insurance/claims/{claim}/reject', [\App\Http\Controllers\Hms\InsuranceClaimsController::class, 'reject'])->name('insurance.claims.reject');
         Route::post('/insurance/claims/{claim}/payment', [\App\Http\Controllers\Hms\InsuranceClaimsController::class, 'recordPayment'])->name('insurance.claims.payment');
         Route::delete('/insurance/claims/{claim}', [\App\Http\Controllers\Hms\InsuranceClaimsController::class, 'destroy'])->name('insurance.claims.destroy');
-        Route::get('/insurance/claims/{claim}/pdf', [\App\Http\Controllers\Hms\InsuranceClaimsController::class, 'generatePdf'])->name('insurance.claims.pdf');
+        Route::get('/insurance/claims/{claim}/pdf', [\App\Http\Controllers\Hms\InsuranceClaimsController::class, 'generatePdf'])->name('insurance.claims.pdf')->middleware('permission:manage insurance claims|view payment reports|export reports');
 
         // Claim Batches
         Route::post('/insurance/claim-batches', [\App\Http\Controllers\Hms\ClaimBatchController::class, 'store'])->name('insurance.claim-batches.store');
@@ -891,31 +894,34 @@ Route::middleware('auth')->group(function () {
         Route::delete('/insurance/tariffs/{tariff}', [\App\Http\Controllers\Hms\TariffController::class, 'destroy'])->name('insurance.tariffs.destroy');
         
         // Pharmacy
-        Route::get('/pharmacy/medicines', [MedicinesController::class, 'index'])->name('pharmacy.medicines.index');
-        Route::get('/pharmacy/medicines/create', [MedicinesController::class, 'create'])->name('pharmacy.medicines.create');
-        Route::post('/pharmacy/medicines', [MedicinesController::class, 'store'])->name('pharmacy.medicines.store');
-        Route::get('/pharmacy/medicines/{medicine}', [MedicinesController::class, 'show'])->name('pharmacy.medicines.show');
-        Route::get('/pharmacy/medicines/{medicine}/edit', [MedicinesController::class, 'edit'])->name('pharmacy.medicines.edit');
-        Route::put('/pharmacy/medicines/{medicine}', [MedicinesController::class, 'update'])->name('pharmacy.medicines.update');
-        Route::delete('/pharmacy/medicines/{medicine}', [MedicinesController::class, 'destroy'])->name('pharmacy.medicines.destroy');
-        
-        Route::get('/pharmacy/prescriptions', [PrescriptionsController::class, 'index'])->name('pharmacy.prescriptions.index');
-        Route::get('/pharmacy/prescriptions/create', [PrescriptionsController::class, 'create'])->name('pharmacy.prescriptions.create');
-        Route::post('/pharmacy/prescriptions', [PrescriptionsController::class, 'store'])->name('pharmacy.prescriptions.store');
-        Route::get('/pharmacy/prescriptions/{prescription}', [PrescriptionsController::class, 'show'])->name('pharmacy.prescriptions.show');
-        Route::get('/pharmacy/prescriptions/{prescription}/edit', [PrescriptionsController::class, 'edit'])->name('pharmacy.prescriptions.edit');
-        Route::put('/pharmacy/prescriptions/{prescription}', [PrescriptionsController::class, 'update'])->name('pharmacy.prescriptions.update');
-        Route::delete('/pharmacy/prescriptions/{prescription}', [PrescriptionsController::class, 'destroy'])->name('pharmacy.prescriptions.destroy');
-        Route::post('/pharmacy/prescriptions/{prescription}/dispense', [\App\Http\Controllers\Hms\PharmacyController::class, 'dispensePrescription'])->name('pharmacy.prescriptions.dispense');
+        // Pharmacy medicines & prescriptions ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â permission-gated
+        Route::middleware('permission:view prescriptions|create prescriptions|edit prescriptions|dispense medicines|manage medicine inventory|verify dispensations|manage controlled drugs|process drug returns')->group(function () {
+            Route::get('/pharmacy/medicines', [MedicinesController::class, 'index'])->name('pharmacy.medicines.index');
+            Route::get('/pharmacy/medicines/create', [MedicinesController::class, 'create'])->name('pharmacy.medicines.create');
+            Route::post('/pharmacy/medicines', [MedicinesController::class, 'store'])->name('pharmacy.medicines.store');
+            Route::get('/pharmacy/medicines/{medicine}', [MedicinesController::class, 'show'])->name('pharmacy.medicines.show');
+            Route::get('/pharmacy/medicines/{medicine}/edit', [MedicinesController::class, 'edit'])->name('pharmacy.medicines.edit');
+            Route::put('/pharmacy/medicines/{medicine}', [MedicinesController::class, 'update'])->name('pharmacy.medicines.update');
+            Route::delete('/pharmacy/medicines/{medicine}', [MedicinesController::class, 'destroy'])->name('pharmacy.medicines.destroy');
 
-        // Dispensations (G034-G036)
-        Route::post('/pharmacy/dispensations', [\App\Http\Controllers\Hms\DispensationController::class, 'store'])->name('pharmacy.dispensations.store');
-        Route::post('/pharmacy/dispensations/{dispensation}/verify', [\App\Http\Controllers\Hms\DispensationController::class, 'verify'])->name('pharmacy.dispensations.verify');
+            Route::get('/pharmacy/prescriptions', [PrescriptionsController::class, 'index'])->name('pharmacy.prescriptions.index');
+            Route::get('/pharmacy/prescriptions/create', [PrescriptionsController::class, 'create'])->name('pharmacy.prescriptions.create');
+            Route::post('/pharmacy/prescriptions', [PrescriptionsController::class, 'store'])->name('pharmacy.prescriptions.store');
+            Route::get('/pharmacy/prescriptions/{prescription}', [PrescriptionsController::class, 'show'])->name('pharmacy.prescriptions.show');
+            Route::get('/pharmacy/prescriptions/{prescription}/edit', [PrescriptionsController::class, 'edit'])->name('pharmacy.prescriptions.edit');
+            Route::put('/pharmacy/prescriptions/{prescription}', [PrescriptionsController::class, 'update'])->name('pharmacy.prescriptions.update');
+            Route::delete('/pharmacy/prescriptions/{prescription}', [PrescriptionsController::class, 'destroy'])->name('pharmacy.prescriptions.destroy');
+            Route::post('/pharmacy/prescriptions/{prescription}/dispense', [\App\Http\Controllers\Hms\PharmacyController::class, 'dispensePrescription'])->name('pharmacy.prescriptions.dispense');
 
-        // Drug Returns
-        Route::post('/pharmacy/returns', [\App\Http\Controllers\Hms\DrugReturnController::class, 'store'])->name('pharmacy.returns.store');
-        Route::post('/pharmacy/returns/{return}/approve', [\App\Http\Controllers\Hms\DrugReturnController::class, 'approve'])->name('pharmacy.returns.approve');
-        Route::post('/pharmacy/returns/{return}/process', [\App\Http\Controllers\Hms\DrugReturnController::class, 'process'])->name('pharmacy.returns.process');
+            // Dispensations (G034-G036)
+            Route::post('/pharmacy/dispensations', [\App\Http\Controllers\Hms\DispensationController::class, 'store'])->name('pharmacy.dispensations.store');
+            Route::post('/pharmacy/dispensations/{dispensation}/verify', [\App\Http\Controllers\Hms\DispensationController::class, 'verify'])->name('pharmacy.dispensations.verify');
+
+            // Drug Returns
+            Route::post('/pharmacy/returns', [\App\Http\Controllers\Hms\DrugReturnController::class, 'store'])->name('pharmacy.returns.store');
+            Route::post('/pharmacy/returns/{return}/approve', [\App\Http\Controllers\Hms\DrugReturnController::class, 'approve'])->name('pharmacy.returns.approve');
+            Route::post('/pharmacy/returns/{return}/process', [\App\Http\Controllers\Hms\DrugReturnController::class, 'process'])->name('pharmacy.returns.process');
+        });
 
         // Controlled Drug Register
         Route::get('/pharmacy/controlled-drugs', [\App\Http\Controllers\Hms\ControlledDrugController::class, 'index'])->name('pharmacy.controlled-drugs.index');
@@ -950,14 +956,14 @@ Route::middleware('auth')->group(function () {
         Route::put('/laboratory/tests/{labTest}', [LabTestsController::class, 'update'])->name('laboratory.tests.update');
         Route::delete('/laboratory/tests/{labTest}', [LabTestsController::class, 'destroy'])->name('laboratory.tests.destroy');
         
-        Route::get('/laboratory/requests', [LabRequestsController::class, 'index'])->name('laboratory.requests.index');
-        Route::get('/laboratory/requests/create', [LabRequestsController::class, 'create'])->name('laboratory.requests.create');
-        Route::post('/laboratory/requests', [LabRequestsController::class, 'store'])->name('laboratory.requests.store');
-        Route::get('/laboratory/requests/{labRequest}', [LabRequestsController::class, 'show'])->name('laboratory.requests.show');
-        Route::get('/laboratory/requests/{labRequest}/edit', [LabRequestsController::class, 'edit'])->name('laboratory.requests.edit');
-        Route::put('/laboratory/requests/{labRequest}', [LabRequestsController::class, 'update'])->name('laboratory.requests.update');
-        Route::delete('/laboratory/requests/{labRequest}', [LabRequestsController::class, 'destroy'])->name('laboratory.requests.destroy');
-        Route::get('/laboratory/requests/{labRequest}/report-pdf', [LabRequestsController::class, 'reportPdf'])->name('laboratory.requests.report-pdf');
+        Route::get('/laboratory/requests', [LabRequestsController::class, 'index'])->name('laboratory.requests.index')->middleware('permission:add test requests|view test results|manage lab specimens|manage lab worklists|verify lab results|print lab reports|download lab reports|enter test results|approve test results');
+        Route::get('/laboratory/requests/create', [LabRequestsController::class, 'create'])->name('laboratory.requests.create')->middleware('permission:add test requests|view test results|manage lab specimens|manage lab worklists|verify lab results|print lab reports|download lab reports|enter test results|approve test results');
+        Route::post('/laboratory/requests', [LabRequestsController::class, 'store'])->name('laboratory.requests.store')->middleware('permission:add test requests|view test results|manage lab specimens|manage lab worklists|verify lab results|print lab reports|download lab reports|enter test results|approve test results');
+        Route::get('/laboratory/requests/{labRequest}', [LabRequestsController::class, 'show'])->name('laboratory.requests.show')->middleware('permission:add test requests|view test results|manage lab specimens|manage lab worklists|verify lab results|print lab reports|download lab reports|enter test results|approve test results');
+        Route::get('/laboratory/requests/{labRequest}/edit', [LabRequestsController::class, 'edit'])->name('laboratory.requests.edit')->middleware('permission:add test requests|view test results|manage lab specimens|manage lab worklists|verify lab results|print lab reports|download lab reports|enter test results|approve test results');
+        Route::put('/laboratory/requests/{labRequest}', [LabRequestsController::class, 'update'])->name('laboratory.requests.update')->middleware('permission:add test requests|view test results|manage lab specimens|manage lab worklists|verify lab results|print lab reports|download lab reports|enter test results|approve test results');
+        Route::delete('/laboratory/requests/{labRequest}', [LabRequestsController::class, 'destroy'])->name('laboratory.requests.destroy')->middleware('permission:add test requests|view test results|manage lab specimens|manage lab worklists|verify lab results|print lab reports|download lab reports|enter test results|approve test results');
+        Route::get('/laboratory/requests/{labRequest}/report-pdf', [LabRequestsController::class, 'reportPdf'])->name('laboratory.requests.report-pdf')->middleware('permission:add test requests|view test results|manage lab specimens|manage lab worklists|verify lab results|print lab reports|download lab reports|enter test results|approve test results');
         
         Route::get('/laboratory/technicians', [LaboratoryController::class, 'technicians'])->name('laboratory.technicians.index');
         Route::get('/laboratory/technicians/create', [LaboratoryController::class, 'createTechnician'])->name('laboratory.technicians.create');
@@ -1010,93 +1016,93 @@ Route::middleware('auth')->group(function () {
         Route::post('/radiology/{radiologyRequest}/contrast', [\App\Http\Controllers\Hms\ContrastController::class, 'store'])->name('radiology.contrast.store');
 
         // HR Management
-        Route::get('/hr/employees', [EmployeesController::class, 'index'])->name('hr.employees.index');
-        Route::get('/hr/employees/create', [EmployeesController::class, 'create'])->name('hr.employees.create');
-        Route::post('/hr/employees', [EmployeesController::class, 'store'])->name('hr.employees.store');
-        Route::get('/hr/employees/{employee}', [HrController::class, 'showEmployee'])->name('hr.employees.show');
-        Route::get('/hr/employees/{employee}/edit', [HrController::class, 'editEmployee'])->name('hr.employees.edit');
-        Route::put('/hr/employees/{employee}', [HrController::class, 'updateEmployee'])->name('hr.employees.update');
-        Route::delete('/hr/employees/{employee}', [HrController::class, 'destroyEmployee'])->name('hr.employees.destroy');
+        Route::get('/hr/employees', [EmployeesController::class, 'index'])->name('hr.employees.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/employees/create', [EmployeesController::class, 'create'])->name('hr.employees.create')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/employees', [EmployeesController::class, 'store'])->name('hr.employees.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/employees/{employee}', [HrController::class, 'showEmployee'])->name('hr.employees.show')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/employees/{employee}/edit', [HrController::class, 'editEmployee'])->name('hr.employees.edit')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::put('/hr/employees/{employee}', [HrController::class, 'updateEmployee'])->name('hr.employees.update')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::delete('/hr/employees/{employee}', [HrController::class, 'destroyEmployee'])->name('hr.employees.destroy')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         // HR Departments
-        Route::get('/hr/departments', [EmployeeDepartmentsController::class, 'index'])->name('hr.departments.index');
-        Route::get('/hr/departments/create', [EmployeeDepartmentsController::class, 'create'])->name('hr.departments.create');
-        Route::post('/hr/departments', [EmployeeDepartmentsController::class, 'store'])->name('hr.departments.store');
-        Route::get('/hr/departments/{department}', [EmployeeDepartmentsController::class, 'show'])->name('hr.departments.show');
-        Route::get('/hr/departments/{department}/edit', [EmployeeDepartmentsController::class, 'edit'])->name('hr.departments.edit');
-        Route::put('/hr/departments/{department}', [EmployeeDepartmentsController::class, 'update'])->name('hr.departments.update');
-        Route::delete('/hr/departments/{department}', [EmployeeDepartmentsController::class, 'destroy'])->name('hr.departments.destroy');
+        Route::get('/hr/departments', [EmployeeDepartmentsController::class, 'index'])->name('hr.departments.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/departments/create', [EmployeeDepartmentsController::class, 'create'])->name('hr.departments.create')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/departments', [EmployeeDepartmentsController::class, 'store'])->name('hr.departments.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/departments/{department}', [EmployeeDepartmentsController::class, 'show'])->name('hr.departments.show')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/departments/{department}/edit', [EmployeeDepartmentsController::class, 'edit'])->name('hr.departments.edit')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::put('/hr/departments/{department}', [EmployeeDepartmentsController::class, 'update'])->name('hr.departments.update')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::delete('/hr/departments/{department}', [EmployeeDepartmentsController::class, 'destroy'])->name('hr.departments.destroy')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         Route::get('/employee-departments/create', [EmployeeDepartmentsController::class, 'create'])->name('employee-departments.create');
         Route::get('/employee-departments/{department}', [EmployeeDepartmentsController::class, 'show'])->name('employee-departments.show');
-        Route::get('/hr/payrolls', [PayrollsController::class, 'index'])->name('hr.payrolls.index');
-        Route::get('/hr/payrolls/create', [PayrollsController::class, 'create'])->name('hr.payrolls.create');
-        Route::post('/hr/payrolls', [PayrollsController::class, 'store'])->name('hr.payrolls.store');
-        Route::get('/hr/payrolls/{payroll}', [PayrollsController::class, 'show'])->name('hr.payrolls.show');
-        Route::get('/hr/payrolls/{payroll}/edit', [PayrollsController::class, 'edit'])->name('hr.payrolls.edit');
-        Route::put('/hr/payrolls/{payroll}', [PayrollsController::class, 'update'])->name('hr.payrolls.update');
-        Route::delete('/hr/payrolls/{payroll}', [PayrollsController::class, 'destroy'])->name('hr.payrolls.destroy');
-        Route::get('/hr/schedules', [SchedulesController::class, 'index'])->name('hr.schedules.index');
-        Route::get('/hr/schedules/create', [SchedulesController::class, 'create'])->name('hr.schedules.create');
-        Route::post('/hr/schedules', [SchedulesController::class, 'store'])->name('hr.schedules.store');
-        Route::get('/hr/schedules/{schedule}', [SchedulesController::class, 'show'])->name('hr.schedules.show');
-        Route::get('/hr/schedules/{schedule}/edit', [SchedulesController::class, 'edit'])->name('hr.schedules.edit');
-        Route::put('/hr/schedules/{schedule}', [SchedulesController::class, 'update'])->name('hr.schedules.update');
-        Route::delete('/hr/schedules/{schedule}', [SchedulesController::class, 'destroy'])->name('hr.schedules.destroy');
-        Route::get('/hr/attendance', [AttendanceController::class, 'index'])->name('hr.attendance.index');
-        Route::get('/hr/attendance/create', [AttendanceController::class, 'create'])->name('hr.attendance.create');
-        Route::post('/hr/attendance', [AttendanceController::class, 'store'])->name('hr.attendance.store');
-        Route::get('/hr/attendance/{attendance}', [AttendanceController::class, 'show'])->name('hr.attendance.show');
-        Route::get('/hr/attendance/{attendance}/edit', [AttendanceController::class, 'edit'])->name('hr.attendance.edit');
-        Route::put('/hr/attendance/{attendance}', [AttendanceController::class, 'update'])->name('hr.attendance.update');
-        Route::delete('/hr/attendance/{attendance}', [AttendanceController::class, 'destroy'])->name('hr.attendance.destroy');
-        Route::get('/hr/leave-requests', [LeaveRequestsController::class, 'index'])->name('hr.leave-requests.index');
-        Route::get('/hr/leave-requests/create', [LeaveRequestsController::class, 'create'])->name('hr.leave-requests.create');
-        Route::post('/hr/leave-requests', [LeaveRequestsController::class, 'store'])->name('hr.leave-requests.store');
-        Route::get('/hr/leave-requests/{leaveRequest}', [LeaveRequestsController::class, 'show'])->name('hr.leave-requests.show');
-        Route::get('/hr/leave-requests/{leaveRequest}/edit', [LeaveRequestsController::class, 'edit'])->name('hr.leave-requests.edit');
-        Route::put('/hr/leave-requests/{leaveRequest}', [LeaveRequestsController::class, 'update'])->name('hr.leave-requests.update');
-        Route::delete('/hr/leave-requests/{leaveRequest}', [LeaveRequestsController::class, 'destroy'])->name('hr.leave-requests.destroy');
-        Route::post('/hr/leave-requests/{leaveRequest}/approve', [LeaveRequestsController::class, 'approve'])->name('hr.leave-requests.approve');
-        Route::post('/hr/leave-requests/{leaveRequest}/reject', [LeaveRequestsController::class, 'reject'])->name('hr.leave-requests.reject');
+        Route::get('/hr/payrolls', [PayrollsController::class, 'index'])->name('hr.payrolls.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/payrolls/create', [PayrollsController::class, 'create'])->name('hr.payrolls.create')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/payrolls', [PayrollsController::class, 'store'])->name('hr.payrolls.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/payrolls/{payroll}', [PayrollsController::class, 'show'])->name('hr.payrolls.show')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/payrolls/{payroll}/edit', [PayrollsController::class, 'edit'])->name('hr.payrolls.edit')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::put('/hr/payrolls/{payroll}', [PayrollsController::class, 'update'])->name('hr.payrolls.update')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::delete('/hr/payrolls/{payroll}', [PayrollsController::class, 'destroy'])->name('hr.payrolls.destroy')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/schedules', [SchedulesController::class, 'index'])->name('hr.schedules.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/schedules/create', [SchedulesController::class, 'create'])->name('hr.schedules.create')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/schedules', [SchedulesController::class, 'store'])->name('hr.schedules.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/schedules/{schedule}', [SchedulesController::class, 'show'])->name('hr.schedules.show')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/schedules/{schedule}/edit', [SchedulesController::class, 'edit'])->name('hr.schedules.edit')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::put('/hr/schedules/{schedule}', [SchedulesController::class, 'update'])->name('hr.schedules.update')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::delete('/hr/schedules/{schedule}', [SchedulesController::class, 'destroy'])->name('hr.schedules.destroy')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/attendance', [AttendanceController::class, 'index'])->name('hr.attendance.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/attendance/create', [AttendanceController::class, 'create'])->name('hr.attendance.create')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/attendance', [AttendanceController::class, 'store'])->name('hr.attendance.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/attendance/{attendance}', [AttendanceController::class, 'show'])->name('hr.attendance.show')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/attendance/{attendance}/edit', [AttendanceController::class, 'edit'])->name('hr.attendance.edit')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::put('/hr/attendance/{attendance}', [AttendanceController::class, 'update'])->name('hr.attendance.update')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::delete('/hr/attendance/{attendance}', [AttendanceController::class, 'destroy'])->name('hr.attendance.destroy')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/leave-requests', [LeaveRequestsController::class, 'index'])->name('hr.leave-requests.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/leave-requests/create', [LeaveRequestsController::class, 'create'])->name('hr.leave-requests.create')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/leave-requests', [LeaveRequestsController::class, 'store'])->name('hr.leave-requests.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/leave-requests/{leaveRequest}', [LeaveRequestsController::class, 'show'])->name('hr.leave-requests.show')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/leave-requests/{leaveRequest}/edit', [LeaveRequestsController::class, 'edit'])->name('hr.leave-requests.edit')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::put('/hr/leave-requests/{leaveRequest}', [LeaveRequestsController::class, 'update'])->name('hr.leave-requests.update')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::delete('/hr/leave-requests/{leaveRequest}', [LeaveRequestsController::class, 'destroy'])->name('hr.leave-requests.destroy')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/leave-requests/{leaveRequest}/approve', [LeaveRequestsController::class, 'approve'])->name('hr.leave-requests.approve')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/leave-requests/{leaveRequest}/reject', [LeaveRequestsController::class, 'reject'])->name('hr.leave-requests.reject')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
 
         // Leave Balances
-        Route::get('/hr/leave-balances', [\App\Http\Controllers\Hms\LeaveBalanceController::class, 'index'])->name('hr.leave-balances.index');
-        Route::get('/hr/leave-balances/employee/{employee}', [\App\Http\Controllers\Hms\LeaveBalanceController::class, 'employeeBalance'])->name('hr.leave-balances.employee');
-        Route::post('/hr/leave-balances', [\App\Http\Controllers\Hms\LeaveBalanceController::class, 'store'])->name('hr.leave-balances.store');
-        Route::post('/hr/leave-balances/seed', [\App\Http\Controllers\Hms\LeaveBalanceController::class, 'seedBalances'])->name('hr.leave-balances.seed');
+        Route::get('/hr/leave-balances', [\App\Http\Controllers\Hms\LeaveBalanceController::class, 'index'])->name('hr.leave-balances.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/leave-balances/employee/{employee}', [\App\Http\Controllers\Hms\LeaveBalanceController::class, 'employeeBalance'])->name('hr.leave-balances.employee')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/leave-balances', [\App\Http\Controllers\Hms\LeaveBalanceController::class, 'store'])->name('hr.leave-balances.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/leave-balances/seed', [\App\Http\Controllers\Hms\LeaveBalanceController::class, 'seedBalances'])->name('hr.leave-balances.seed')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
 
-        // G070-G072: HR Completion — Contracts, Disciplinary, Licences, Payroll Export, Staff Documents
-        Route::get('/hr/contracts', [\App\Http\Controllers\Hms\ContractController::class, 'index'])->name('hr.contracts.index');
-        Route::post('/hr/contracts', [\App\Http\Controllers\Hms\ContractController::class, 'store'])->name('hr.contracts.store');
-        Route::get('/hr/disciplinary', [\App\Http\Controllers\Hms\DisciplinaryRecordController::class, 'index'])->name('hr.disciplinary.index');
-        Route::post('/hr/disciplinary', [\App\Http\Controllers\Hms\DisciplinaryRecordController::class, 'store'])->name('hr.disciplinary.store');
-        Route::post('/hr/disciplinary/{record}/resolve', [\App\Http\Controllers\Hms\DisciplinaryRecordController::class, 'resolve'])->name('hr.disciplinary.resolve');
-        Route::get('/hr/licences', [\App\Http\Controllers\Hms\StaffLicenceController::class, 'index'])->name('hr.licences.index');
-        Route::post('/hr/licences', [\App\Http\Controllers\Hms\StaffLicenceController::class, 'store'])->name('hr.licences.store');
-        Route::get('/hr/licences/expiring', [\App\Http\Controllers\Hms\StaffLicenceController::class, 'expiring'])->name('hr.licences.expiring');
-        Route::get('/hr/payroll-export', [\App\Http\Controllers\Hms\PayrollExportController::class, 'index'])->name('hr.payroll-export.index');
-        Route::post('/hr/payroll-export', [\App\Http\Controllers\Hms\PayrollExportController::class, 'store'])->name('hr.payroll-export.store');
-        Route::get('/hr/staff-documents', [\App\Http\Controllers\Hms\StaffDocumentController::class, 'index'])->name('hr.staff-documents.index');
-        Route::post('/hr/staff-documents', [\App\Http\Controllers\Hms\StaffDocumentController::class, 'store'])->name('hr.staff-documents.store');
+        // G070-G072: HR Completion ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â Contracts, Disciplinary, Licences, Payroll Export, Staff Documents
+        Route::get('/hr/contracts', [\App\Http\Controllers\Hms\ContractController::class, 'index'])->name('hr.contracts.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/contracts', [\App\Http\Controllers\Hms\ContractController::class, 'store'])->name('hr.contracts.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/disciplinary', [\App\Http\Controllers\Hms\DisciplinaryRecordController::class, 'index'])->name('hr.disciplinary.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/disciplinary', [\App\Http\Controllers\Hms\DisciplinaryRecordController::class, 'store'])->name('hr.disciplinary.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/disciplinary/{record}/resolve', [\App\Http\Controllers\Hms\DisciplinaryRecordController::class, 'resolve'])->name('hr.disciplinary.resolve')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/licences', [\App\Http\Controllers\Hms\StaffLicenceController::class, 'index'])->name('hr.licences.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/licences', [\App\Http\Controllers\Hms\StaffLicenceController::class, 'store'])->name('hr.licences.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/licences/expiring', [\App\Http\Controllers\Hms\StaffLicenceController::class, 'expiring'])->name('hr.licences.expiring')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/payroll-export', [\App\Http\Controllers\Hms\PayrollExportController::class, 'index'])->name('hr.payroll-export.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/payroll-export', [\App\Http\Controllers\Hms\PayrollExportController::class, 'store'])->name('hr.payroll-export.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/staff-documents', [\App\Http\Controllers\Hms\StaffDocumentController::class, 'index'])->name('hr.staff-documents.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/staff-documents', [\App\Http\Controllers\Hms\StaffDocumentController::class, 'store'])->name('hr.staff-documents.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
 
         // Student Rotations
-        Route::get('/hr/student-rotations', [\App\Http\Controllers\Hms\StudentRotationController::class, 'index'])->name('hr.student-rotations.index');
-        Route::get('/hr/student-rotations/create', [\App\Http\Controllers\Hms\StudentRotationController::class, 'create'])->name('hr.student-rotations.create');
-        Route::post('/hr/student-rotations', [\App\Http\Controllers\Hms\StudentRotationController::class, 'store'])->name('hr.student-rotations.store');
-        Route::get('/hr/student-rotations/{studentRotation}', [\App\Http\Controllers\Hms\StudentRotationController::class, 'show'])->name('hr.student-rotations.show');
-        Route::get('/hr/student-rotations/{studentRotation}/edit', [\App\Http\Controllers\Hms\StudentRotationController::class, 'edit'])->name('hr.student-rotations.edit');
-        Route::put('/hr/student-rotations/{studentRotation}', [\App\Http\Controllers\Hms\StudentRotationController::class, 'update'])->name('hr.student-rotations.update');
-        Route::post('/hr/student-rotations/{studentRotation}/evaluate', [\App\Http\Controllers\Hms\StudentRotationController::class, 'evaluate'])->name('hr.student-rotations.evaluate');
-        Route::delete('/hr/student-rotations/{studentRotation}', [\App\Http\Controllers\Hms\StudentRotationController::class, 'destroy'])->name('hr.student-rotations.destroy');
+        Route::get('/hr/student-rotations', [\App\Http\Controllers\Hms\StudentRotationController::class, 'index'])->name('hr.student-rotations.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/student-rotations/create', [\App\Http\Controllers\Hms\StudentRotationController::class, 'create'])->name('hr.student-rotations.create')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/student-rotations', [\App\Http\Controllers\Hms\StudentRotationController::class, 'store'])->name('hr.student-rotations.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/student-rotations/{studentRotation}', [\App\Http\Controllers\Hms\StudentRotationController::class, 'show'])->name('hr.student-rotations.show')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/student-rotations/{studentRotation}/edit', [\App\Http\Controllers\Hms\StudentRotationController::class, 'edit'])->name('hr.student-rotations.edit')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::put('/hr/student-rotations/{studentRotation}', [\App\Http\Controllers\Hms\StudentRotationController::class, 'update'])->name('hr.student-rotations.update')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/student-rotations/{studentRotation}/evaluate', [\App\Http\Controllers\Hms\StudentRotationController::class, 'evaluate'])->name('hr.student-rotations.evaluate')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::delete('/hr/student-rotations/{studentRotation}', [\App\Http\Controllers\Hms\StudentRotationController::class, 'destroy'])->name('hr.student-rotations.destroy')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
 
         // Internships
-        Route::get('/hr/internships', [\App\Http\Controllers\Hms\InternshipController::class, 'index'])->name('hr.internships.index');
-        Route::get('/hr/internships/create', [\App\Http\Controllers\Hms\InternshipController::class, 'create'])->name('hr.internships.create');
-        Route::post('/hr/internships', [\App\Http\Controllers\Hms\InternshipController::class, 'store'])->name('hr.internships.store');
-        Route::get('/hr/internships/{internship}', [\App\Http\Controllers\Hms\InternshipController::class, 'show'])->name('hr.internships.show');
-        Route::get('/hr/internships/{internship}/edit', [\App\Http\Controllers\Hms\InternshipController::class, 'edit'])->name('hr.internships.edit');
-        Route::put('/hr/internships/{internship}', [\App\Http\Controllers\Hms\InternshipController::class, 'update'])->name('hr.internships.update');
-        Route::post('/hr/internships/{internship}/complete', [\App\Http\Controllers\Hms\InternshipController::class, 'complete'])->name('hr.internships.complete');
-        Route::delete('/hr/internships/{internship}', [\App\Http\Controllers\Hms\InternshipController::class, 'destroy'])->name('hr.internships.destroy');
+        Route::get('/hr/internships', [\App\Http\Controllers\Hms\InternshipController::class, 'index'])->name('hr.internships.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/internships/create', [\App\Http\Controllers\Hms\InternshipController::class, 'create'])->name('hr.internships.create')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/internships', [\App\Http\Controllers\Hms\InternshipController::class, 'store'])->name('hr.internships.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/internships/{internship}', [\App\Http\Controllers\Hms\InternshipController::class, 'show'])->name('hr.internships.show')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/internships/{internship}/edit', [\App\Http\Controllers\Hms\InternshipController::class, 'edit'])->name('hr.internships.edit')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::put('/hr/internships/{internship}', [\App\Http\Controllers\Hms\InternshipController::class, 'update'])->name('hr.internships.update')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/internships/{internship}/complete', [\App\Http\Controllers\Hms\InternshipController::class, 'complete'])->name('hr.internships.complete')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::delete('/hr/internships/{internship}', [\App\Http\Controllers\Hms\InternshipController::class, 'destroy'])->name('hr.internships.destroy')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         
         // Blood Bank
         Route::get('/bloodbank', [BloodBankController::class, 'index'])->name('bloodbank.index');
@@ -1160,6 +1166,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/ambulance/create-emergency', [AmbulanceController::class, 'createEmergency'])->name('ambulance.create-emergency');
         Route::post('/ambulance/emergency', [AmbulanceController::class, 'storeEmergency'])->name('ambulance.store-emergency');
         Route::get('/ambulance/emergency/{emergency}', [AmbulanceController::class, 'showEmergency'])->name('ambulance.show-emergency');
+        Route::get('/ambulance/emergency/{emergency}/assessment', [\App\Http\Controllers\Hms\EmergencyAssessmentController::class, 'show'])->name('ambulance.emergency-assessment');
         Route::get('/ambulance/emergency/{emergency}/edit', [AmbulanceController::class, 'editEmergency'])->name('ambulance.edit-emergency');
         Route::put('/ambulance/emergency/{emergency}', [AmbulanceController::class, 'updateEmergency'])->name('ambulance.update-emergency');
         Route::delete('/ambulance/emergency/{emergency}', [AmbulanceController::class, 'destroyEmergency'])->name('ambulance.destroy-emergency');
@@ -1183,14 +1190,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/emergency/{admission}/disposition', [\App\Http\Controllers\Hms\EmergencyDispositionController::class, 'store'])->name('emergency.disposition.store');
 
         // Reports & Analytics
-        Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
-        Route::get('/reports/patients', [ReportsController::class, 'patientReports'])->name('reports.patients');
-        Route::get('/reports/revenue', [ReportsController::class, 'revenueReports'])->name('reports.revenue');
-        Route::get('/reports/appointments', [ReportsController::class, 'appointmentReports'])->name('reports.appointments');
-        Route::get('/reports/financial', [ReportsController::class, 'financialReports'])->name('reports.financial');
-        Route::get('/reports/export-patients', [ReportsController::class, 'exportPatients'])->name('reports.export-patients');
-        Route::get('/reports/patients/pdf', [ReportsController::class, 'exportPatientsPdf'])->name('reports.patients.pdf');
-        Route::get('/reports/revenue/pdf', [ReportsController::class, 'exportRevenuePdf'])->name('reports.revenue.pdf');
+        Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/patients', [ReportsController::class, 'patientReports'])->name('reports.patients')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/revenue', [ReportsController::class, 'revenueReports'])->name('reports.revenue')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/appointments', [ReportsController::class, 'appointmentReports'])->name('reports.appointments')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/financial', [ReportsController::class, 'financialReports'])->name('reports.financial')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/export-patients', [ReportsController::class, 'exportPatients'])->name('reports.export-patients')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/patients/pdf', [ReportsController::class, 'exportPatientsPdf'])->name('reports.patients.pdf')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/revenue/pdf', [ReportsController::class, 'exportRevenuePdf'])->name('reports.revenue.pdf')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
         
         // Packages Management
         Route::get('/packages', [PackagesController::class, 'index'])->name('packages.index');
@@ -1242,31 +1249,31 @@ Route::middleware('auth')->group(function () {
         Route::delete('/case-handlers/cases/{case}', [CaseHandlersController::class, 'destroyCase'])->name('case-handlers.cases.destroy');
         
         // Birth & Death Reports
-        Route::get('/reports/birth', [BirthDeathReportsController::class, 'birthReports'])->name('reports.birth');
-        Route::get('/reports/death', [BirthDeathReportsController::class, 'deathReports'])->name('reports.death');
-        Route::get('/reports/birth/create', [BirthDeathReportsController::class, 'createBirthReport'])->name('reports.birth.create');
-        Route::post('/reports/birth', [BirthDeathReportsController::class, 'storeBirthReport'])->name('reports.birth.store');
-        Route::get('/reports/birth/{report}', [BirthDeathReportsController::class, 'showBirthReport'])->name('reports.birth.show');
-        Route::get('/reports/birth/{report}/edit', [BirthDeathReportsController::class, 'editBirthReport'])->name('reports.birth.edit');
-        Route::put('/reports/birth/{report}', [BirthDeathReportsController::class, 'updateBirthReport'])->name('reports.birth.update');
-        Route::delete('/reports/birth/{report}', [BirthDeathReportsController::class, 'destroyBirthReport'])->name('reports.birth.destroy');
-        Route::get('/reports/death/create', [BirthDeathReportsController::class, 'createDeathReport'])->name('reports.death.create');
-        Route::post('/reports/death', [BirthDeathReportsController::class, 'storeDeathReport'])->name('reports.death.store');
-        Route::get('/reports/death/{report}', [BirthDeathReportsController::class, 'showDeathReport'])->name('reports.death.show');
-        Route::get('/reports/death/{report}/edit', [BirthDeathReportsController::class, 'editDeathReport'])->name('reports.death.edit');
-        Route::put('/reports/death/{report}', [BirthDeathReportsController::class, 'updateDeathReport'])->name('reports.death.update');
-        Route::delete('/reports/death/{report}', [BirthDeathReportsController::class, 'destroyDeathReport'])->name('reports.death.destroy');
-        Route::get('/birth-reports/{report}', [BirthDeathReportsController::class, 'showBirthReport'])->name('birth-reports.show');
-        Route::get('/birth-reports/{report}/edit', [BirthDeathReportsController::class, 'editBirthReport'])->name('birth-reports.edit');
-        Route::put('/birth-reports/{report}', [BirthDeathReportsController::class, 'updateBirthReport'])->name('birth-reports.update');
-        Route::delete('/birth-reports/{report}', [BirthDeathReportsController::class, 'destroyBirthReport'])->name('birth-reports.destroy');
-        Route::get('/birth-reports/{report}/certificate', [BirthDeathReportsController::class, 'birthCertificate'])->name('birth-reports.certificate');
-        Route::get('/death-reports/{report}', [BirthDeathReportsController::class, 'showDeathReport'])->name('death-reports.show');
-        Route::get('/death-reports/{report}/edit', [BirthDeathReportsController::class, 'editDeathReport'])->name('death-reports.edit');
-        Route::put('/death-reports/{report}', [BirthDeathReportsController::class, 'updateDeathReport'])->name('death-reports.update');
-        Route::delete('/death-reports/{report}', [BirthDeathReportsController::class, 'destroyDeathReport'])->name('death-reports.destroy');
-        Route::get('/death-reports/{report}/certificate', [BirthDeathReportsController::class, 'deathCertificate'])->name('death-reports.certificate');
-        Route::post('/death-reports/{report}/transfer-to-mortuary', [BirthDeathReportsController::class, 'transferToMortuary'])->name('death-reports.transfer-to-mortuary');
+        Route::get('/reports/birth', [BirthDeathReportsController::class, 'birthReports'])->name('reports.birth')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/death', [BirthDeathReportsController::class, 'deathReports'])->name('reports.death')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/birth/create', [BirthDeathReportsController::class, 'createBirthReport'])->name('reports.birth.create')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::post('/reports/birth', [BirthDeathReportsController::class, 'storeBirthReport'])->name('reports.birth.store')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/birth/{report}', [BirthDeathReportsController::class, 'showBirthReport'])->name('reports.birth.show')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/birth/{report}/edit', [BirthDeathReportsController::class, 'editBirthReport'])->name('reports.birth.edit')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::put('/reports/birth/{report}', [BirthDeathReportsController::class, 'updateBirthReport'])->name('reports.birth.update')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::delete('/reports/birth/{report}', [BirthDeathReportsController::class, 'destroyBirthReport'])->name('reports.birth.destroy')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/death/create', [BirthDeathReportsController::class, 'createDeathReport'])->name('reports.death.create')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::post('/reports/death', [BirthDeathReportsController::class, 'storeDeathReport'])->name('reports.death.store')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/death/{report}', [BirthDeathReportsController::class, 'showDeathReport'])->name('reports.death.show')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/death/{report}/edit', [BirthDeathReportsController::class, 'editDeathReport'])->name('reports.death.edit')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::put('/reports/death/{report}', [BirthDeathReportsController::class, 'updateDeathReport'])->name('reports.death.update')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::delete('/reports/death/{report}', [BirthDeathReportsController::class, 'destroyDeathReport'])->name('reports.death.destroy')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/birth-reports/{report}', [BirthDeathReportsController::class, 'showBirthReport'])->name('birth-reports.show')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/birth-reports/{report}/edit', [BirthDeathReportsController::class, 'editBirthReport'])->name('birth-reports.edit')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::put('/birth-reports/{report}', [BirthDeathReportsController::class, 'updateBirthReport'])->name('birth-reports.update')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::delete('/birth-reports/{report}', [BirthDeathReportsController::class, 'destroyBirthReport'])->name('birth-reports.destroy')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/birth-reports/{report}/certificate', [BirthDeathReportsController::class, 'birthCertificate'])->name('birth-reports.certificate')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/death-reports/{report}', [BirthDeathReportsController::class, 'showDeathReport'])->name('death-reports.show')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/death-reports/{report}/edit', [BirthDeathReportsController::class, 'editDeathReport'])->name('death-reports.edit')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::put('/death-reports/{report}', [BirthDeathReportsController::class, 'updateDeathReport'])->name('death-reports.update')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::delete('/death-reports/{report}', [BirthDeathReportsController::class, 'destroyDeathReport'])->name('death-reports.destroy')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/death-reports/{report}/certificate', [BirthDeathReportsController::class, 'deathCertificate'])->name('death-reports.certificate')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::post('/death-reports/{report}/transfer-to-mortuary', [BirthDeathReportsController::class, 'transferToMortuary'])->name('death-reports.transfer-to-mortuary')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
 
         // TB Clinic (M19)
         Route::prefix('tb')->name('tb.')->group(function () {
@@ -1282,18 +1289,18 @@ Route::middleware('auth')->group(function () {
         });
 
         // Mental Health (M27)
-        Route::post('/mental-health/assessments', [\App\Http\Controllers\Hms\MhAssessmentController::class, 'store'])->name('mental-health.assessments.store');
-        Route::get('/mental-health/treatment-plans', [\App\Http\Controllers\Hms\MhTreatmentPlanController::class, 'index'])->name('mental-health.treatment-plans.index');
-        Route::post('/mental-health/treatment-plans', [\App\Http\Controllers\Hms\MhTreatmentPlanController::class, 'store'])->name('mental-health.treatment-plans.store');
-        Route::post('/mental-health/counselling', [\App\Http\Controllers\Hms\CounsellingSessionController::class, 'store'])->name('mental-health.counselling.store');
+        Route::post('/mental-health/assessments', [\App\Http\Controllers\Hms\MhAssessmentController::class, 'store'])->name('mental-health.assessments.store')->middleware('permission:manage mh assessments|manage mh treatment plans|manage counselling sessions');
+        Route::get('/mental-health/treatment-plans', [\App\Http\Controllers\Hms\MhTreatmentPlanController::class, 'index'])->name('mental-health.treatment-plans.index')->middleware('permission:manage mh assessments|manage mh treatment plans|manage counselling sessions');
+        Route::post('/mental-health/treatment-plans', [\App\Http\Controllers\Hms\MhTreatmentPlanController::class, 'store'])->name('mental-health.treatment-plans.store')->middleware('permission:manage mh assessments|manage mh treatment plans|manage counselling sessions');
+        Route::post('/mental-health/counselling', [\App\Http\Controllers\Hms\CounsellingSessionController::class, 'store'])->name('mental-health.counselling.store')->middleware('permission:manage mh assessments|manage mh treatment plans|manage counselling sessions');
 
         // Social Work (M28)
-        Route::post('/social/assessments', [\App\Http\Controllers\Hms\SocialAssessmentController::class, 'store'])->name('social.assessments.store');
-        Route::post('/social/waivers', [\App\Http\Controllers\Hms\WaiverRequestController::class, 'store'])->name('social.waivers.store');
-        Route::post('/social/waivers/{waiver}/approve', [\App\Http\Controllers\Hms\WaiverRequestController::class, 'approve'])->name('social.waivers.approve');
-        Route::post('/social/waivers/{waiver}/reject', [\App\Http\Controllers\Hms\WaiverRequestController::class, 'reject'])->name('social.waivers.reject');
-        Route::get('/social/discharge-plans', [\App\Http\Controllers\Hms\DischargePlanController::class, 'index'])->name('social.discharge-plans.index');
-        Route::post('/social/discharge-plans', [\App\Http\Controllers\Hms\DischargePlanController::class, 'store'])->name('social.discharge-plans.store');
+        Route::post('/social/assessments', [\App\Http\Controllers\Hms\SocialAssessmentController::class, 'store'])->name('social.assessments.store')->middleware('permission:manage social assessments|manage welfare waivers|manage discharge plans');
+        Route::post('/social/waivers', [\App\Http\Controllers\Hms\WaiverRequestController::class, 'store'])->name('social.waivers.store')->middleware('permission:manage social assessments|manage welfare waivers|manage discharge plans');
+        Route::post('/social/waivers/{waiver}/approve', [\App\Http\Controllers\Hms\WaiverRequestController::class, 'approve'])->name('social.waivers.approve')->middleware('permission:manage social assessments|manage welfare waivers|manage discharge plans');
+        Route::post('/social/waivers/{waiver}/reject', [\App\Http\Controllers\Hms\WaiverRequestController::class, 'reject'])->name('social.waivers.reject')->middleware('permission:manage social assessments|manage welfare waivers|manage discharge plans');
+        Route::get('/social/discharge-plans', [\App\Http\Controllers\Hms\DischargePlanController::class, 'index'])->name('social.discharge-plans.index')->middleware('permission:manage social assessments|manage welfare waivers|manage discharge plans');
+        Route::post('/social/discharge-plans', [\App\Http\Controllers\Hms\DischargePlanController::class, 'store'])->name('social.discharge-plans.store')->middleware('permission:manage social assessments|manage welfare waivers|manage discharge plans');
 
         // Dental (M22)
         Route::post('/dental/records', [\App\Http\Controllers\Hms\DentalController::class, 'store'])->name('dental.records.store');
@@ -1312,8 +1319,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/rehab/sessions', [\App\Http\Controllers\Hms\RehabController::class, 'index'])->name('rehab.sessions.index');
 
         // Nutrition (M26)
-        Route::post('/nutrition/records', [\App\Http\Controllers\Hms\NutritionController::class, 'store'])->name('nutrition.records.store');
-        Route::get('/nutrition/records', [\App\Http\Controllers\Hms\NutritionController::class, 'index'])->name('nutrition.records.index');
+        Route::post('/nutrition/records', [\App\Http\Controllers\Hms\NutritionController::class, 'store'])->name('nutrition.records.store')->middleware('permission:manage nutrition records|manage diet orders');
+        Route::get('/nutrition/records', [\App\Http\Controllers\Hms\NutritionController::class, 'index'])->name('nutrition.records.index')->middleware('permission:manage nutrition records|manage diet orders');
 
         // Neonatal Unit (M07)
         Route::post('/neonatal/newborns', [NewbornController::class, 'store'])->name('neonatal.newborns.store');
@@ -1336,29 +1343,29 @@ Route::middleware('auth')->group(function () {
         Route::post('/maternity/pregnancies/{pregnancy}/postnatal', [\App\Http\Controllers\Hms\PostnatalVisitController::class, 'store'])->name('maternity.pregnancies.postnatal.store');
         Route::post('/maternity/family-planning', [\App\Http\Controllers\Hms\FamilyPlanningController::class, 'store'])->name('maternity.family-planning.store');
 
-        // HIV Testing Services & HIV Care (G037 — M18)
-        Route::post('/hiv/hts', [\App\Http\Controllers\Hms\HtsEncounterController::class, 'store'])->name('hiv.hts.store');
-        Route::get('/hiv/hts', [\App\Http\Controllers\Hms\HtsEncounterController::class, 'index'])->name('hiv.hts.index');
-        Route::post('/hiv/care/enroll', [\App\Http\Controllers\Hms\HivCareController::class, 'enroll'])->name('hiv.care.enroll');
-        Route::get('/hiv/care', [\App\Http\Controllers\Hms\HivCareController::class, 'index'])->name('hiv.care.index');
-        Route::post('/hiv/care/{enrollment}/regimen', [\App\Http\Controllers\Hms\ArtController::class, 'startRegimen'])->name('hiv.care.regimen.start');
-        Route::post('/hiv/care/{enrollment}/regimen/change', [\App\Http\Controllers\Hms\ArtController::class, 'changeRegimen'])->name('hiv.care.regimen.change');
-        Route::post('/hiv/care/{enrollment}/viral-load', [\App\Http\Controllers\Hms\ViralLoadController::class, 'store'])->name('hiv.care.viral-load.store');
-        Route::post('/hiv/pep-prep', [\App\Http\Controllers\Hms\PepPrepController::class, 'store'])->name('hiv.pep-prep.store');
-        Route::post('/hiv/partner-notifications', [\App\Http\Controllers\Hms\PartnerNotificationController::class, 'store'])->name('hiv.partner-notifications.store');
-        Route::put('/hiv/partner-notifications/{notification}', [\App\Http\Controllers\Hms\PartnerNotificationController::class, 'update'])->name('hiv.partner-notifications.update');
-        Route::post('/hiv/hei', [\App\Http\Controllers\Hms\HeiController::class, 'store'])->name('hiv.hei.store');
-        Route::post('/hiv/hei/{hei}/pcr', [\App\Http\Controllers\Hms\HeiController::class, 'recordPcr'])->name('hiv.hei.pcr');
+        // HIV Testing Services & HIV Care (G037 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â M18)
+        Route::post('/hiv/hts', [\App\Http\Controllers\Hms\HtsEncounterController::class, 'store'])->name('hiv.hts.store')->middleware('permission:manage hts encounters|manage hiv care enrollments|manage art regimens|manage tb screens|manage cancer registrations|manage hei records|manage pep prep records');
+        Route::get('/hiv/hts', [\App\Http\Controllers\Hms\HtsEncounterController::class, 'index'])->name('hiv.hts.index')->middleware('permission:manage hts encounters|manage hiv care enrollments|manage art regimens|manage tb screens|manage cancer registrations|manage hei records|manage pep prep records');
+        Route::post('/hiv/care/enroll', [\App\Http\Controllers\Hms\HivCareController::class, 'enroll'])->name('hiv.care.enroll')->middleware('permission:manage hts encounters|manage hiv care enrollments|manage art regimens|manage tb screens|manage cancer registrations|manage hei records|manage pep prep records');
+        Route::get('/hiv/care', [\App\Http\Controllers\Hms\HivCareController::class, 'index'])->name('hiv.care.index')->middleware('permission:manage hts encounters|manage hiv care enrollments|manage art regimens|manage tb screens|manage cancer registrations|manage hei records|manage pep prep records');
+        Route::post('/hiv/care/{enrollment}/regimen', [\App\Http\Controllers\Hms\ArtController::class, 'startRegimen'])->name('hiv.care.regimen.start')->middleware('permission:manage hts encounters|manage hiv care enrollments|manage art regimens|manage tb screens|manage cancer registrations|manage hei records|manage pep prep records');
+        Route::post('/hiv/care/{enrollment}/regimen/change', [\App\Http\Controllers\Hms\ArtController::class, 'changeRegimen'])->name('hiv.care.regimen.change')->middleware('permission:manage hts encounters|manage hiv care enrollments|manage art regimens|manage tb screens|manage cancer registrations|manage hei records|manage pep prep records');
+        Route::post('/hiv/care/{enrollment}/viral-load', [\App\Http\Controllers\Hms\ViralLoadController::class, 'store'])->name('hiv.care.viral-load.store')->middleware('permission:manage hts encounters|manage hiv care enrollments|manage art regimens|manage tb screens|manage cancer registrations|manage hei records|manage pep prep records');
+        Route::post('/hiv/pep-prep', [\App\Http\Controllers\Hms\PepPrepController::class, 'store'])->name('hiv.pep-prep.store')->middleware('permission:manage hts encounters|manage hiv care enrollments|manage art regimens|manage tb screens|manage cancer registrations|manage hei records|manage pep prep records');
+        Route::post('/hiv/partner-notifications', [\App\Http\Controllers\Hms\PartnerNotificationController::class, 'store'])->name('hiv.partner-notifications.store')->middleware('permission:manage hts encounters|manage hiv care enrollments|manage art regimens|manage tb screens|manage cancer registrations|manage hei records|manage pep prep records');
+        Route::put('/hiv/partner-notifications/{notification}', [\App\Http\Controllers\Hms\PartnerNotificationController::class, 'update'])->name('hiv.partner-notifications.update')->middleware('permission:manage hts encounters|manage hiv care enrollments|manage art regimens|manage tb screens|manage cancer registrations|manage hei records|manage pep prep records');
+        Route::post('/hiv/hei', [\App\Http\Controllers\Hms\HeiController::class, 'store'])->name('hiv.hei.store')->middleware('permission:manage hts encounters|manage hiv care enrollments|manage art regimens|manage tb screens|manage cancer registrations|manage hei records|manage pep prep records');
+        Route::post('/hiv/hei/{hei}/pcr', [\App\Http\Controllers\Hms\HeiController::class, 'recordPcr'])->name('hiv.hei.pcr')->middleware('permission:manage hts encounters|manage hiv care enrollments|manage art regimens|manage tb screens|manage cancer registrations|manage hei records|manage pep prep records');
 
         // MOH / Regulatory Reports
-        Route::get('/moh-reports', [\App\Http\Controllers\Hms\MohReportsController::class, 'index'])->name('moh-reports.index');
-        Route::get('/moh-reports/opd-summary', [\App\Http\Controllers\Hms\MohReportsController::class, 'opdSummary'])->name('moh-reports.opd-summary');
-        Route::get('/moh-reports/ipd-summary', [\App\Http\Controllers\Hms\MohReportsController::class, 'ipdSummary'])->name('moh-reports.ipd-summary');
-        Route::get('/moh-reports/disease-surveillance', [\App\Http\Controllers\Hms\MohReportsController::class, 'diseaseSurveillance'])->name('moh-reports.disease-surveillance');
-        Route::get('/moh-reports/maternal-health', [\App\Http\Controllers\Hms\MohReportsController::class, 'maternalHealth'])->name('moh-reports.maternal-health');
-        Route::get('/moh-reports/pharmacy-consumption', [\App\Http\Controllers\Hms\MohReportsController::class, 'pharmacyConsumption'])->name('moh-reports.pharmacy-consumption');
-        Route::get('/moh-reports/revenue-collection', [\App\Http\Controllers\Hms\MohReportsController::class, 'revenueCollection'])->name('moh-reports.revenue-collection');
-        Route::get('/moh-reports/{type}/pdf', [\App\Http\Controllers\Hms\MohReportsController::class, 'generatePdf'])->name('moh-reports.pdf');
+        Route::get('/moh-reports', [\App\Http\Controllers\Hms\MohReportsController::class, 'index'])->name('moh-reports.index')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/moh-reports/opd-summary', [\App\Http\Controllers\Hms\MohReportsController::class, 'opdSummary'])->name('moh-reports.opd-summary')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/moh-reports/ipd-summary', [\App\Http\Controllers\Hms\MohReportsController::class, 'ipdSummary'])->name('moh-reports.ipd-summary')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/moh-reports/disease-surveillance', [\App\Http\Controllers\Hms\MohReportsController::class, 'diseaseSurveillance'])->name('moh-reports.disease-surveillance')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/moh-reports/maternal-health', [\App\Http\Controllers\Hms\MohReportsController::class, 'maternalHealth'])->name('moh-reports.maternal-health')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/moh-reports/pharmacy-consumption', [\App\Http\Controllers\Hms\MohReportsController::class, 'pharmacyConsumption'])->name('moh-reports.pharmacy-consumption')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/moh-reports/revenue-collection', [\App\Http\Controllers\Hms\MohReportsController::class, 'revenueCollection'])->name('moh-reports.revenue-collection')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/moh-reports/{type}/pdf', [\App\Http\Controllers\Hms\MohReportsController::class, 'generatePdf'])->name('moh-reports.pdf')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
         
         // Operation Reports & Surgery
         Route::get('/operations', [OperationReportsController::class, 'index'])->name('operations.index');
@@ -1419,7 +1426,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/settings/backup', [\App\Http\Controllers\Hms\SettingsController::class, 'backup'])->name('settings.backup');
         Route::post('/settings/backup/create', [\App\Http\Controllers\Hms\SettingsController::class, 'createBackup'])->name('settings.backup.create');
         Route::post('/settings/backup/restore', [\App\Http\Controllers\Hms\SettingsController::class, 'restoreBackup'])->name('settings.backup.restore');
-        Route::get('/settings/backup/download/{filename}', [\App\Http\Controllers\Hms\SettingsController::class, 'downloadBackup'])->name('settings.backup.download');
+        Route::get('/settings/backup/download/{filename}', [\App\Http\Controllers\Hms\SettingsController::class, 'downloadBackup'])->name('settings.backup.download')->middleware('permission:manage backups');
         
         // Emergency Contacts Settings
         Route::get('/settings/emergency-contacts', [\App\Http\Controllers\Hms\SettingsController::class, 'emergencyContacts'])->name('settings.emergency-contacts');
@@ -1446,7 +1453,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/discharge-summary/{discharge}/edit', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'edit'])->name('discharge-summary.edit');
         Route::put('/discharge-summary/{discharge}', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'update'])->name('discharge-summary.update');
         Route::delete('/discharge-summary/{discharge}', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'destroy'])->name('discharge-summary.destroy');
-        Route::get('/discharge-summary/{discharge}/pdf', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'generatePdf'])->name('discharge-summary.pdf');
+        Route::get('/discharge-summary/{discharge}/pdf', [\App\Http\Controllers\Hms\DischargeSummaryController::class, 'generatePdf'])->name('discharge-summary.pdf')->middleware('permission:view patients|sign discharge summaries|manage discharges');
         
         // Doctor Charges
         Route::get('/doctor-charges', [\App\Http\Controllers\Hms\DoctorChargesController::class, 'index'])->name('doctor-charges.index');
@@ -1476,7 +1483,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/test-categories/{id}', [\App\Http\Controllers\Hms\TestCategoriesController::class, 'destroy'])->name('test-categories.destroy');
         
         // Investigation Reports
-        Route::get('/investigation-reports', [\App\Http\Controllers\Hms\TestCategoriesController::class, 'investigationReports'])->name('investigation-reports.index');
+        Route::get('/investigation-reports', [\App\Http\Controllers\Hms\TestCategoriesController::class, 'investigationReports'])->name('investigation-reports.index')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
         
         // Blood Bank Stock Levels
         Route::get('/bloodbank/stock-levels', [\App\Http\Controllers\Hms\BloodBankController::class, 'stockLevels'])->name('bloodbank.stock-levels');
@@ -1518,9 +1525,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/inventory/purchase-orders/{purchaseOrder}/submit', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'submit'])->name('inventory.purchase-orders.submit');
         Route::post('/inventory/purchase-orders/{purchaseOrder}/approve', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'approve'])->name('inventory.purchase-orders.approve');
         Route::post('/inventory/purchase-orders/{purchaseOrder}/reject', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'reject'])->name('inventory.purchase-orders.reject');
-        Route::get('/inventory/purchase-orders/{purchaseOrder}/pdf', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'generatePdf'])->name('inventory.purchase-orders.pdf');
+        Route::get('/inventory/purchase-orders/{purchaseOrder}/pdf', [\App\Http\Controllers\Hms\PurchaseOrdersController::class, 'generatePdf'])->name('inventory.purchase-orders.pdf')->middleware('permission:manage medicine inventory|export reports');
 
-        // Procurement — RFQ Management (G064-G065)
+        // Procurement ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â RFQ Management (G064-G065)
         Route::get('/procurement/rfqs', [\App\Http\Controllers\Hms\RfqController::class, 'index'])->name('procurement.rfqs.index');
         Route::post('/procurement/rfqs', [\App\Http\Controllers\Hms\RfqController::class, 'store'])->name('procurement.rfqs.store');
         Route::post('/procurement/rfqs/{rfq}/close', [\App\Http\Controllers\Hms\RfqController::class, 'close'])->name('procurement.rfqs.close');
@@ -1528,7 +1535,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/procurement/quotations/{quotation}/accept', [\App\Http\Controllers\Hms\QuotationController::class, 'accept'])->name('procurement.quotations.accept');
         Route::post('/procurement/quotations/{quotation}/reject', [\App\Http\Controllers\Hms\QuotationController::class, 'reject'])->name('procurement.quotations.reject');
 
-        // Procurement — Supplier Invoices (G064-G065)
+        // Procurement ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â Supplier Invoices (G064-G065)
         Route::get('/procurement/supplier-invoices', [\App\Http\Controllers\Hms\SupplierInvoiceController::class, 'index'])->name('procurement.supplier-invoices.index');
         Route::post('/procurement/supplier-invoices', [\App\Http\Controllers\Hms\SupplierInvoiceController::class, 'store'])->name('procurement.supplier-invoices.store');
         Route::post('/procurement/supplier-invoices/{invoice}/verify', [\App\Http\Controllers\Hms\SupplierInvoiceController::class, 'verify'])->name('procurement.supplier-invoices.verify');
@@ -1559,8 +1566,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/inventory/expiry-alerts', [\App\Http\Controllers\Hms\InventoryManagementController::class, 'expiryAlerts'])->name('inventory.expiry-alerts');
         
         // Finance - Billing
-        Route::get('/billing/receipts', [\App\Http\Controllers\Hms\BillingController::class, 'receipts'])->name('billing.receipts');
-        Route::get('/billing/payment-reports', [\App\Http\Controllers\Hms\BillingController::class, 'paymentReports'])->name('billing.payment-reports');
+        Route::get('/billing/receipts', [\App\Http\Controllers\Hms\BillingController::class, 'receipts'])->name('billing.receipts')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
+        Route::get('/billing/payment-reports', [\App\Http\Controllers\Hms\BillingController::class, 'paymentReports'])->name('billing.payment-reports')->middleware('permission:create invoices|edit invoices|add payments|add refunds|view invoices|view billing|view payments|manage advance payments|manage payment methods|manage charges|manage discounts');
         
         // Advance Payments
         Route::get('/advance-payments', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'index'])->name('advance-payments.index');
@@ -1582,6 +1589,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/finance/accounts/{account}/edit', [\App\Http\Controllers\Hms\AccountsController::class, 'edit'])->name('finance.accounts.edit');
         Route::put('/finance/accounts/{account}', [\App\Http\Controllers\Hms\AccountsController::class, 'update'])->name('finance.accounts.update');
         Route::delete('/finance/accounts/{account}', [\App\Http\Controllers\Hms\AccountsController::class, 'destroy'])->name('finance.accounts.destroy');
+
+        // Bank Reconciliation
+        Route::get('/finance/bank-reconciliations', [\App\Http\Controllers\Hms\BankReconciliationController::class, 'index'])->name('finance.bank-reconciliations.index')->middleware('permission:view financial reports|generate financial reports|view invoices|manage bank accounts|create invoices');
+        Route::get('/finance/bank-reconciliations/create', [\App\Http\Controllers\Hms\BankReconciliationController::class, 'create'])->name('finance.bank-reconciliations.create')->middleware('permission:view financial reports|generate financial reports|view invoices|manage bank accounts|create invoices');
+        Route::post('/finance/bank-reconciliations', [\App\Http\Controllers\Hms\BankReconciliationController::class, 'store'])->name('finance.bank-reconciliations.store')->middleware('permission:view financial reports|generate financial reports|view invoices|manage bank accounts|create invoices');
+        Route::get('/finance/bank-reconciliations/{reconciliation}', [\App\Http\Controllers\Hms\BankReconciliationController::class, 'show'])->name('finance.bank-reconciliations.show')->middleware('permission:view financial reports|generate financial reports|view invoices|manage bank accounts|create invoices');
+        Route::post('/finance/bank-reconciliations/{reconciliation}/reconciled', [\App\Http\Controllers\Hms\BankReconciliationController::class, 'markReconciled'])->name('finance.bank-reconciliations.mark-reconciled')->middleware('permission:view financial reports|generate financial reports|view invoices|manage bank accounts|create invoices');
         Route::get('/finance/chart-of-accounts', [\App\Http\Controllers\Hms\AccountsController::class, 'chartOfAccounts'])->name('finance.chart-of-accounts');
         Route::get('/finance/ledger', [\App\Http\Controllers\Hms\AccountsController::class, 'ledger'])->name('finance.ledger');
         Route::get('/finance/trial-balance', [\App\Http\Controllers\Hms\AccountsController::class, 'trialBalance'])->name('finance.trial-balance');
@@ -1613,7 +1627,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/finance', [\App\Http\Controllers\Hms\FinanceController::class, 'index'])->name('finance.index');
         Route::get('/finance/reports', [\App\Http\Controllers\Hms\FinanceController::class, 'reports'])->name('finance.reports');
         Route::get('/finance/profit-loss', [\App\Http\Controllers\Hms\FinanceController::class, 'profitLoss'])->name('finance.profit-loss');
-        Route::get('/finance/profit-loss/pdf', [\App\Http\Controllers\Hms\FinanceController::class, 'profitLossPdf'])->name('finance.profit-loss.pdf');
+        Route::get('/finance/profit-loss/pdf', [\App\Http\Controllers\Hms\FinanceController::class, 'profitLossPdf'])->name('finance.profit-loss.pdf')->middleware('permission:view financial reports|generate financial reports');
         Route::get('/finance/balance-sheet', [\App\Http\Controllers\Hms\FinanceController::class, 'balanceSheet'])->name('finance.balance-sheet');
         Route::get('/finance/cash-flow', [\App\Http\Controllers\Hms\FinanceController::class, 'cashFlow'])->name('finance.cash-flow');
 
@@ -1642,106 +1656,106 @@ Route::middleware('auth')->group(function () {
         Route::delete('/insurance/policies/{policy}', [\App\Http\Controllers\Hms\InsuranceController::class, 'destroyPolicy'])->name('insurance.policies.destroy');
         
         // HR - Designations & Documents
-        Route::get('/hr/designations', [\App\Http\Controllers\Hms\DesignationsController::class, 'index'])->name('hr.designations.index');
-        Route::get('/hr/designations/create', [\App\Http\Controllers\Hms\DesignationsController::class, 'create'])->name('hr.designations.create');
-        Route::post('/hr/designations', [\App\Http\Controllers\Hms\DesignationsController::class, 'store'])->name('hr.designations.store');
-        Route::get('/hr/designations/{designation}', [\App\Http\Controllers\Hms\DesignationsController::class, 'show'])->name('hr.designations.show');
-        Route::get('/hr/designations/{designation}/edit', [\App\Http\Controllers\Hms\DesignationsController::class, 'edit'])->name('hr.designations.edit');
-        Route::put('/hr/designations/{designation}', [\App\Http\Controllers\Hms\DesignationsController::class, 'update'])->name('hr.designations.update');
-        Route::delete('/hr/designations/{designation}', [\App\Http\Controllers\Hms\DesignationsController::class, 'destroy'])->name('hr.designations.destroy');
+        Route::get('/hr/designations', [\App\Http\Controllers\Hms\DesignationsController::class, 'index'])->name('hr.designations.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/designations/create', [\App\Http\Controllers\Hms\DesignationsController::class, 'create'])->name('hr.designations.create')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/designations', [\App\Http\Controllers\Hms\DesignationsController::class, 'store'])->name('hr.designations.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/designations/{designation}', [\App\Http\Controllers\Hms\DesignationsController::class, 'show'])->name('hr.designations.show')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/designations/{designation}/edit', [\App\Http\Controllers\Hms\DesignationsController::class, 'edit'])->name('hr.designations.edit')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::put('/hr/designations/{designation}', [\App\Http\Controllers\Hms\DesignationsController::class, 'update'])->name('hr.designations.update')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::delete('/hr/designations/{designation}', [\App\Http\Controllers\Hms\DesignationsController::class, 'destroy'])->name('hr.designations.destroy')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         
         // HR - Performance Appraisals
-        Route::get('/hr/appraisals', [PerformanceAppraisalsController::class, 'index'])->name('hr.appraisals.index');
-        Route::get('/hr/appraisals/create', [PerformanceAppraisalsController::class, 'create'])->name('hr.appraisals.create');
-        Route::post('/hr/appraisals', [PerformanceAppraisalsController::class, 'store'])->name('hr.appraisals.store');
-        Route::get('/hr/appraisals/{appraisal}', [PerformanceAppraisalsController::class, 'show'])->name('hr.appraisals.show');
-        Route::get('/hr/appraisals/{appraisal}/edit', [PerformanceAppraisalsController::class, 'edit'])->name('hr.appraisals.edit');
-        Route::put('/hr/appraisals/{appraisal}', [PerformanceAppraisalsController::class, 'update'])->name('hr.appraisals.update');
-        Route::delete('/hr/appraisals/{appraisal}', [PerformanceAppraisalsController::class, 'destroy'])->name('hr.appraisals.destroy');
+        Route::get('/hr/appraisals', [PerformanceAppraisalsController::class, 'index'])->name('hr.appraisals.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/appraisals/create', [PerformanceAppraisalsController::class, 'create'])->name('hr.appraisals.create')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/appraisals', [PerformanceAppraisalsController::class, 'store'])->name('hr.appraisals.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/appraisals/{appraisal}', [PerformanceAppraisalsController::class, 'show'])->name('hr.appraisals.show')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/appraisals/{appraisal}/edit', [PerformanceAppraisalsController::class, 'edit'])->name('hr.appraisals.edit')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::put('/hr/appraisals/{appraisal}', [PerformanceAppraisalsController::class, 'update'])->name('hr.appraisals.update')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::delete('/hr/appraisals/{appraisal}', [PerformanceAppraisalsController::class, 'destroy'])->name('hr.appraisals.destroy')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         
-        Route::get('/hr/documents', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'index'])->name('hr.documents.index');
-        Route::get('/hr/documents/create', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'create'])->name('hr.documents.create');
-        Route::get('/hr/document-types', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'types'])->name('hr.document-types');
-        Route::post('/hr/documents', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'store'])->name('hr.documents.store');
-        Route::get('/hr/documents/{document}', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'show'])->name('hr.documents.show');
-        Route::get('/hr/documents/{document}/edit', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'edit'])->name('hr.documents.edit');
-        Route::put('/hr/documents/{document}', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'update'])->name('hr.documents.update');
-        Route::delete('/hr/documents/{document}', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'destroy'])->name('hr.documents.destroy');
+        Route::get('/hr/documents', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'index'])->name('hr.documents.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/documents/create', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'create'])->name('hr.documents.create')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/document-types', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'types'])->name('hr.document-types')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/documents', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'store'])->name('hr.documents.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/documents/{document}', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'show'])->name('hr.documents.show')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/documents/{document}/edit', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'edit'])->name('hr.documents.edit')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::put('/hr/documents/{document}', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'update'])->name('hr.documents.update')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::delete('/hr/documents/{document}', [\App\Http\Controllers\Hms\HrDocumentsController::class, 'destroy'])->name('hr.documents.destroy')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         
         // HR - Leave Types Management
         Route::resource('hr/leave-types', LeaveTypesController::class)->names('hr.leave-types');
         
         // HR - Recruitment & Onboarding
         Route::resource('hr/job-postings', RecruitmentController::class)->names('hr.job-postings');
-        Route::post('/hr/job-postings/{jobPosting}/publish', [RecruitmentController::class, 'publish'])->name('hr.job-postings.publish');
-        Route::get('/hr/job-applications', [RecruitmentController::class, 'applications'])->name('hr.job-applications.index');
-        Route::get('/hr/job-applications/{application}', [RecruitmentController::class, 'showApplication'])->name('hr.job-applications.show');
-        Route::post('/hr/job-applications/{application}/shortlist', [RecruitmentController::class, 'shortlist'])->name('hr.job-applications.shortlist');
-        Route::post('/hr/job-applications/{application}/reject', [RecruitmentController::class, 'reject'])->name('hr.job-applications.reject');
-        Route::post('/hr/job-applications/{application}/convert-to-employee', [RecruitmentController::class, 'convertToEmployee'])->name('hr.job-applications.convert');
+        Route::post('/hr/job-postings/{jobPosting}/publish', [RecruitmentController::class, 'publish'])->name('hr.job-postings.publish')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/job-applications', [RecruitmentController::class, 'applications'])->name('hr.job-applications.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/job-applications/{application}', [RecruitmentController::class, 'showApplication'])->name('hr.job-applications.show')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/job-applications/{application}/shortlist', [RecruitmentController::class, 'shortlist'])->name('hr.job-applications.shortlist')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/job-applications/{application}/reject', [RecruitmentController::class, 'reject'])->name('hr.job-applications.reject')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/job-applications/{application}/convert-to-employee', [RecruitmentController::class, 'convertToEmployee'])->name('hr.job-applications.convert')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         
         // HR - Training & Development
         Route::resource('hr/training-programs', TrainingProgramsController::class)->names('hr.training-programs');
-        Route::post('/hr/training-programs/{trainingProgram}/enroll', [TrainingProgramsController::class, 'enroll'])->name('hr.training-programs.enroll');
-        Route::get('/hr/training-programs/{trainingProgram}/enrollments', [TrainingProgramsController::class, 'enrollments'])->name('hr.training-programs.enrollments');
-        Route::post('/hr/training-enrollments/{enrollment}/complete', [TrainingProgramsController::class, 'markComplete'])->name('hr.training-enrollments.complete');
-        Route::post('/hr/training-enrollments/{enrollment}/certificate', [TrainingProgramsController::class, 'issueCertificate'])->name('hr.training-enrollments.certificate');
-        Route::get('/hr/training/{enrollment}/certificate', [TrainingProgramsController::class, 'certificate'])->name('hr.training.certificate');
+        Route::post('/hr/training-programs/{trainingProgram}/enroll', [TrainingProgramsController::class, 'enroll'])->name('hr.training-programs.enroll')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/training-programs/{trainingProgram}/enrollments', [TrainingProgramsController::class, 'enrollments'])->name('hr.training-programs.enrollments')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/training-enrollments/{enrollment}/complete', [TrainingProgramsController::class, 'markComplete'])->name('hr.training-enrollments.complete')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/training-enrollments/{enrollment}/certificate', [TrainingProgramsController::class, 'issueCertificate'])->name('hr.training-enrollments.certificate')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/training/{enrollment}/certificate', [TrainingProgramsController::class, 'certificate'])->name('hr.training.certificate')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         
         // HR - Announcements & Notices
         Route::resource('hr/announcements', HrAnnouncementsController::class)->names('hr.announcements');
         
         // HR - Shift Management
         Route::resource('hr/shifts', ShiftsController::class)->names('hr.shifts');
-        Route::get('/hr/shifts/{shift}/roster', [ShiftsController::class, 'roster'])->name('hr.shifts.roster');
-        Route::post('/hr/employee-shifts', [ShiftsController::class, 'assignShift'])->name('hr.employee-shifts.assign');
-        Route::get('/hr/shifts/roster-pdf', [ShiftsController::class, 'rosterPdf'])->name('hr.shifts.roster-pdf');
+        Route::get('/hr/shifts/{shift}/roster', [ShiftsController::class, 'roster'])->name('hr.shifts.roster')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/employee-shifts', [ShiftsController::class, 'assignShift'])->name('hr.employee-shifts.assign')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/shifts/roster-pdf', [ShiftsController::class, 'rosterPdf'])->name('hr.shifts.roster-pdf')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         
         // HR - Public Holidays
         Route::resource('hr/public-holidays', PublicHolidaysController::class)->names('hr.public-holidays');
         
         // HR - Reports
-        Route::get('/hr/reports', [HrReportsController::class, 'index'])->name('hr.reports.index');
-        Route::get('/hr/reports/employee-list', [HrReportsController::class, 'employeeList'])->name('hr.reports.employee-list');
-        Route::get('/hr/reports/leave', [HrReportsController::class, 'leaveReport'])->name('hr.reports.leave');
-        Route::get('/hr/reports/attendance', [HrReportsController::class, 'attendanceReport'])->name('hr.reports.attendance');
-        Route::get('/hr/reports/payroll-summary', [HrReportsController::class, 'payrollSummary'])->name('hr.reports.payroll-summary');
-        Route::get('/hr/reports/headcount-trends', [HrReportsController::class, 'headcountTrends'])->name('hr.reports.headcount-trends');
-        Route::get('/hr/reports/attrition', [HrReportsController::class, 'attritionReport'])->name('hr.reports.attrition');
-        Route::get('/hr/reports/salary-expense', [HrReportsController::class, 'salaryExpenseAnalysis'])->name('hr.reports.salary-expense');
-        Route::get('/hr/reports/training-participation', [HrReportsController::class, 'trainingParticipation'])->name('hr.reports.training-participation');
+        Route::get('/hr/reports', [HrReportsController::class, 'index'])->name('hr.reports.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/reports/employee-list', [HrReportsController::class, 'employeeList'])->name('hr.reports.employee-list')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/reports/leave', [HrReportsController::class, 'leaveReport'])->name('hr.reports.leave')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/reports/attendance', [HrReportsController::class, 'attendanceReport'])->name('hr.reports.attendance')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/reports/payroll-summary', [HrReportsController::class, 'payrollSummary'])->name('hr.reports.payroll-summary')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/reports/headcount-trends', [HrReportsController::class, 'headcountTrends'])->name('hr.reports.headcount-trends')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/reports/attrition', [HrReportsController::class, 'attritionReport'])->name('hr.reports.attrition')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/reports/salary-expense', [HrReportsController::class, 'salaryExpenseAnalysis'])->name('hr.reports.salary-expense')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/reports/training-participation', [HrReportsController::class, 'trainingParticipation'])->name('hr.reports.training-participation')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         
         // HR - Settings
-        Route::get('/hr/settings', [HrSettingsController::class, 'index'])->name('hr.settings.index');
-        Route::post('/hr/settings', [HrSettingsController::class, 'update'])->name('hr.settings.update');
+        Route::get('/hr/settings', [HrSettingsController::class, 'index'])->name('hr.settings.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/settings', [HrSettingsController::class, 'update'])->name('hr.settings.update')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         
         // ID Card Generation
         Route::get('/patients/{patient}/id-card', [\App\Http\Controllers\Hms\IdCardController::class, 'patientCard'])->name('patients.id-card');
         Route::get('/patients/{patient}/id-card/preview', [\App\Http\Controllers\Hms\IdCardController::class, 'previewPatient'])->name('patients.id-card.preview');
         Route::get('/patients/{patient}/id-card/qr', [\App\Http\Controllers\Hms\IdCardController::class, 'generatePatientQR'])->name('patients.id-card.qr');
-        Route::get('/hr/employees/{employee}/id-card', [\App\Http\Controllers\Hms\IdCardController::class, 'employeeCard'])->name('hr.employees.id-card');
-        Route::get('/hr/employees/{employee}/id-card/preview', [\App\Http\Controllers\Hms\IdCardController::class, 'previewEmployee'])->name('hr.employees.id-card.preview');
-        Route::get('/hr/employees/{employee}/id-card/qr', [\App\Http\Controllers\Hms\IdCardController::class, 'generateEmployeeQR'])->name('hr.employees.id-card.qr');
+        Route::get('/hr/employees/{employee}/id-card', [\App\Http\Controllers\Hms\IdCardController::class, 'employeeCard'])->name('hr.employees.id-card')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/employees/{employee}/id-card/preview', [\App\Http\Controllers\Hms\IdCardController::class, 'previewEmployee'])->name('hr.employees.id-card.preview')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/employees/{employee}/id-card/qr', [\App\Http\Controllers\Hms\IdCardController::class, 'generateEmployeeQR'])->name('hr.employees.id-card.qr')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         Route::post('/id-cards/scan-qr', [\App\Http\Controllers\Hms\IdCardController::class, 'scanQR'])->name('id-cards.scan-qr');
         Route::get('/id-cards/bulk/patients', [\App\Http\Controllers\Hms\IdCardController::class, 'bulkPatientCards'])->name('id-cards.bulk-patients');
         Route::get('/id-cards/bulk/employees', [\App\Http\Controllers\Hms\IdCardController::class, 'bulkEmployeeCards'])->name('id-cards.bulk-employees');
         
         // HR - Employee Import/Export
-        Route::get('/hr/employees/export', [EmployeesImportExportController::class, 'export'])->name('hr.employees.export');
-        Route::get('/hr/employees/import', [EmployeesImportExportController::class, 'showImport'])->name('hr.employees.import');
-        Route::post('/hr/employees/import', [EmployeesImportExportController::class, 'import'])->name('hr.employees.import.store');
-        Route::get('/hr/employees/import/template', [EmployeesImportExportController::class, 'downloadTemplate'])->name('hr.employees.import.template');
+        Route::get('/hr/employees/export', [EmployeesImportExportController::class, 'export'])->name('hr.employees.export')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/employees/import', [EmployeesImportExportController::class, 'showImport'])->name('hr.employees.import')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/hr/employees/import', [EmployeesImportExportController::class, 'import'])->name('hr.employees.import.store')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/hr/employees/import/template', [EmployeesImportExportController::class, 'downloadTemplate'])->name('hr.employees.import.template')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         
         // Reports
-        Route::get('/reports/billing', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'billingReport'])->name('reports.billing');
-        Route::get('/reports/lab', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'labReport'])->name('reports.lab');
-        Route::get('/reports/pharmacy', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'pharmacyReport'])->name('reports.pharmacy');
-        Route::get('/reports/blood-bank', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'bloodBankReport'])->name('reports.blood-bank');
-        Route::get('/reports/bed-occupancy', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'bedOccupancyReport'])->name('reports.bed-occupancy');
-        Route::get('/reports/diagnosis', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'diagnosisReport'])->name('reports.diagnosis');
-        Route::get('/reports/doctor-performance', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'doctorPerformanceReport'])->name('reports.doctor-performance');
-        Route::get('/reports/expense', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'expenseReport'])->name('reports.expense');
-        Route::get('/reports/summary', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'summaryReports'])->name('reports.summary');
+        Route::get('/reports/billing', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'billingReport'])->name('reports.billing')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/lab', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'labReport'])->name('reports.lab')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/pharmacy', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'pharmacyReport'])->name('reports.pharmacy')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/blood-bank', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'bloodBankReport'])->name('reports.blood-bank')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/bed-occupancy', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'bedOccupancyReport'])->name('reports.bed-occupancy')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/diagnosis', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'diagnosisReport'])->name('reports.diagnosis')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/doctor-performance', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'doctorPerformanceReport'])->name('reports.doctor-performance')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/expense', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'expenseReport'])->name('reports.expense')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::get('/reports/summary', [\App\Http\Controllers\Hms\AnalyticsReportsController::class, 'summaryReports'])->name('reports.summary')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
         
         // Custom Report Builder
         Route::prefix('reports/custom-builder')->name('reports.custom-builder.')->group(function () {
@@ -1769,14 +1783,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/kpis/{kpi}/trend', [\App\Http\Controllers\Hms\KpiController::class, 'trend'])->name('dashboard.kpis.trend');
 
         // Saved Reports
-        Route::get('/reports/saved', [\App\Http\Controllers\Hms\SavedReportController::class, 'index'])->name('reports.saved.index');
-        Route::post('/reports/saved', [\App\Http\Controllers\Hms\SavedReportController::class, 'store'])->name('reports.saved.store');
-        Route::post('/reports/saved/{report}/run', [\App\Http\Controllers\Hms\SavedReportController::class, 'run'])->name('reports.saved.run');
+        Route::get('/reports/saved', [\App\Http\Controllers\Hms\SavedReportController::class, 'index'])->name('reports.saved.index')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::post('/reports/saved', [\App\Http\Controllers\Hms\SavedReportController::class, 'store'])->name('reports.saved.store')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::post('/reports/saved/{report}/run', [\App\Http\Controllers\Hms\SavedReportController::class, 'run'])->name('reports.saved.run')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
 
         // Report Schedules
-        Route::post('/reports/schedules', [\App\Http\Controllers\Hms\ReportScheduleController::class, 'store'])->name('reports.schedules.store');
-        Route::post('/reports/schedules/{schedule}/pause', [\App\Http\Controllers\Hms\ReportScheduleController::class, 'pause'])->name('reports.schedules.pause');
-        Route::post('/reports/schedules/{schedule}/resume', [\App\Http\Controllers\Hms\ReportScheduleController::class, 'resume'])->name('reports.schedules.resume');
+        Route::post('/reports/schedules', [\App\Http\Controllers\Hms\ReportScheduleController::class, 'store'])->name('reports.schedules.store')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::post('/reports/schedules/{schedule}/pause', [\App\Http\Controllers\Hms\ReportScheduleController::class, 'pause'])->name('reports.schedules.pause')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
+        Route::post('/reports/schedules/{schedule}/resume', [\App\Http\Controllers\Hms\ReportScheduleController::class, 'resume'])->name('reports.schedules.resume')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
 
         // Communication & Frontdesk
         Route::get('/calendar', [\App\Http\Controllers\Hms\CalendarController::class, 'index'])->name('calendar.index');
@@ -1833,7 +1847,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/settings/theme', [\App\Http\Controllers\Hms\ThemeController::class, 'update'])->name('settings.theme.update');
         Route::get('/settings/theme/preview', [\App\Http\Controllers\Hms\ThemeController::class, 'preview'])->name('settings.theme.preview');
         Route::post('/settings/theme/reset', [\App\Http\Controllers\Hms\ThemeController::class, 'reset'])->name('settings.theme.reset');
-        Route::get('/settings/theme/export', [\App\Http\Controllers\Hms\ThemeController::class, 'export'])->name('settings.theme.export');
+        Route::get('/settings/theme/export', [\App\Http\Controllers\Hms\ThemeController::class, 'export'])->name('settings.theme.export')->middleware('permission:manage system settings');
         Route::post('/settings/theme/import', [\App\Http\Controllers\Hms\ThemeController::class, 'import'])->name('settings.theme.import');
         Route::post('/settings/theme/toggle-dark-mode', [\App\Http\Controllers\Hms\ThemeController::class, 'toggleDarkMode'])->name('settings.theme.toggle-dark-mode');
         
@@ -1843,13 +1857,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/daily-summary/auto-generate', [\App\Http\Controllers\Hms\DailySummaryController::class, 'autoGenerate'])->name('daily-summary.auto-generate');
         
         // EHR Integration
-        Route::get('/integration/ehr', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'index'])->name('integration.ehr.index');
-        Route::get('/integration/ehr/hl7-config', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'hl7Config'])->name('integration.ehr.hl7-config');
-        Route::get('/integration/ehr/fhir-config', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'fhirConfig'])->name('integration.ehr.fhir-config');
-        Route::post('/integration/ehr/send-hl7', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'sendHl7Message'])->name('integration.ehr.send-hl7');
-        Route::post('/integration/ehr/receive-hl7', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'receiveHl7Message'])->name('integration.ehr.receive-hl7');
-        Route::post('/integration/ehr/send-fhir', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'sendFhirResource'])->name('integration.ehr.send-fhir');
-        Route::post('/integration/ehr/test-hl7', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'testHl7Connection'])->name('integration.ehr.test-hl7');
+        Route::get('/integration/ehr', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'index'])->name('integration.ehr.index')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/integration/ehr/hl7-config', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'hl7Config'])->name('integration.ehr.hl7-config')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::get('/integration/ehr/fhir-config', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'fhirConfig'])->name('integration.ehr.fhir-config')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/integration/ehr/send-hl7', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'sendHl7Message'])->name('integration.ehr.send-hl7')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/integration/ehr/receive-hl7', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'receiveHl7Message'])->name('integration.ehr.receive-hl7')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/integration/ehr/send-fhir', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'sendFhirResource'])->name('integration.ehr.send-fhir')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
+        Route::post('/integration/ehr/test-hl7', [\App\Http\Controllers\Hms\EhrIntegrationController::class, 'testHl7Connection'])->name('integration.ehr.test-hl7')->middleware('permission:manage employees|manage employee contracts|manage payrolls|view attendance|manage leave requests|manage recruitment|manage job postings|manage training programs|manage appraisals|manage shift types|manage roster builder|manage staff profiles|view staff profiles|manage payroll exports|manage disciplinary records');
         
         // Integrations
         Route::get('/integrations', [\App\Http\Controllers\Hms\IntegrationsController::class, 'index'])->name('integrations.index');
@@ -2110,6 +2124,20 @@ Route::middleware('auth')->group(function () {
         });
     });
 
+    // ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Break-glass emergency access (audited) ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬
+    Route::prefix('break-glass')->name('break-glass.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Hms\BreakGlassController::class, 'index'])->name('index')->middleware('permission:manage break glass events|view audit logs');
+        Route::get('/create', [\App\Http\Controllers\Hms\BreakGlassController::class, 'create'])->name('create')->middleware('permission:manage break glass events|view audit logs');
+        Route::post('/', [\App\Http\Controllers\Hms\BreakGlassController::class, 'store'])->name('store')->middleware('auth');
+        Route::post('/{event}/approve', [\App\Http\Controllers\Hms\BreakGlassController::class, 'approve'])->name('approve')->middleware('permission:manage break glass events|view audit logs');
+        Route::post('/{event}/reject', [\App\Http\Controllers\Hms\BreakGlassController::class, 'reject'])->name('reject')->middleware('permission:manage break glass events|view audit logs');
+    });
+
+    // ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Patient 360 (permission-filtered consolidated view) ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬
+    Route::get('/patients/{patient}/360', [\App\Http\Controllers\Hms\Patient360Controller::class, 'show'])
+        ->middleware('permission:view patients|view test results|view prescriptions|view billing|view invoices|view payment reports')
+        ->name('patients.360');
+
     }); // close auth middleware group
 
 require __DIR__.'/auth.php';
@@ -2126,3 +2154,5 @@ Route::middleware('api')
         Route::post('/appointments', [ApiController::class, 'createAppointment'])->name('web.json.appointments.create');
         Route::post('/beds', [ApiController::class, 'createBed'])->name('web.json.beds.create');
     });
+
+

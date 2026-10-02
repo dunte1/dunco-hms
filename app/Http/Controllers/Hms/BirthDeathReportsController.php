@@ -200,14 +200,14 @@ class BirthDeathReportsController extends Controller
     public function birthCertificate(BirthReport $report)
     {
         $report->load('patient');
-        $pdf = PDF::loadView('hms.birth-death.birth-certificate', compact('report'));
+        $pdf = PDF::loadView('hms.birth-death.birth-certificate', ['birthReport' => $report]);
         return $pdf->download("Birth-Certificate-{$report->id}.pdf");
     }
 
     public function deathCertificate(DeathReport $report)
     {
         $report->load('patient');
-        $pdf = PDF::loadView('hms.birth-death.death-certificate', compact('report'));
+        $pdf = PDF::loadView('hms.birth-death.death-certificate', ['deathReport' => $report]);
         return $pdf->download("Death-Certificate-{$report->id}.pdf");
     }
 

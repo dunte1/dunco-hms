@@ -1,0 +1,418 @@
+﻿================================================================================
+DuncoHMS SIDEBAR MENU MAP
+================================================================================
+Generated : 2026-10-02
+Source    : resources/views/partials/sidebar.blade.php
+Included  : components/app-layout.blade.php, admin/layouts/app.blade.php, layouts/app.blade.php
+Gating    : @can / @canany (permissions) + Module::isEnabled (modules)
+Rule      : Parent shows only if module enabled AND user has one of the @canany
+            permissions. Leaf shows only if @can(permission) passes.
+            Empty parents (no visible children) are NOT rendered.
+Security  : Sidebar is UX only. Routes/APIs use permission middleware separately.
+
+================================================================================
+1. SECTION OVERVIEW (13 top-level sections, sidebar order)
+================================================================================
+
+ #  Section                    Menu ID               Module gate(s)
+ -- -------------------------- --------------------- --------------------------------
+ 1  Dashboard                  dashboard             (always on)
+ 2  Hospital Management        hospital-management   patients-management,
+                                                      doctors-management,
+                                                      nurses-management
+ 3  Communication & Frontdesk  communication         communication-frontdesk
+ 4  Clinical Modules           clinical              prescriptions-management,
+                                                      beds-management,
+                                                      telemedicine
+ 5  Diagnostics & Lab          diagnostics           pathology-tests,
+                                                      radiology-tests,
+                                                      blood-bank
+ 6  Pharmacy & Inventory       pharmacy-inventory    medicines-inventory,
+                                                      full-inventory-management
+ 7  Finance & Accounting       finance               billing, payments, accounts,
+                                                      insurance-management
+ 8  Human Resource (HR)        hr                    hr-management
+ 9  Reports & Analytics        reports               reports-analytics
+10  System Administration      settings              (permission only)
+11  Frontend CMS               cms                   (permission only)
+12  Marketing Suite            marketing             (permission only)
+13  AI, Integrations & Tools   ai-integrations       (permission only)
+
+================================================================================
+2. FULL MENU TREE
+================================================================================
+
+[1] DASHBOARD
+    Gate: @can view dashboard analytics
+    - Overview                          /dashboard
+    - Analytics                         /hms/analytics/bi-dashboard
+    - Notifications                     /hms/dashboard/notifications
+    - Today's Summary                   /hms/dashboard/today-summary
+    - Active Staff                      /hms/dashboard/active-staff
+
+[2] HOSPITAL MANAGEMENT
+    Gate: Module patients-management | doctors-management | nurses-management
+          AND @canany view/add/edit/delete patients | view doctors |
+          manage staff profiles | manage nurses | manage ambulances
+
+    GROUP: Patients
+      Gate: @canany view patients | add patients
+      - All Patients                    /hms/patients
+      - Admissions (IPD)                /hms/ipd
+      - Outpatients (OPD)               /hms/opd
+      - Diagnosis Reports               (patient diagnosis reports)
+      - Discharge Summary               (discharge summaries)
+
+    GROUP: Doctors
+      Gate: @canany view doctors | manage staff profiles
+      - All Doctors                     /hms/doctors
+      - Departments                     /hms/doctors/departments
+      - Doctor OPD Charges              (doctor OPD charges)
+
+    GROUP: Nurses
+      Gate: @can manage nurses
+      - All Nurses                      /hms/nurses
+      - Duty Roster                     (duty roster)
+      - Assign to Wards                 (ward assignment)
+
+    GROUP: Receptionists
+      Gate: @can manage staff profiles
+      - Register Patients               /hms/patients/create
+
+    GROUP: Ambulance
+      Gate: @can manage ambulances
+      - Ambulance Vehicles              /hms/ambulance (vehicles)
+      - Ambulance Calls / Trips         /hms/ambulance (calls/trips)
+
+[3] COMMUNICATION & FRONTDESK
+    Gate: Module communication-frontdesk
+          AND @canany create/manage/view appointments
+
+    GROUP: Appointments
+      Gate: @canany create appointments | view appointments
+      - Manage Appointments             /hms/appointments
+      - Calendar View                   /hms/appointments/calendar
+      - Online Requests                 (appointment requests)
+
+    GROUP: Queue Management
+      Gate: @canany manage queue | view appointments | create appointments
+      - Manage Queues                   /hms/queue
+      - Generate Token                  /hms/queue/token-generation
+      - Display Board                   /hms/queue/display-board
+      - Kiosk Mode                      /hms/queue/kiosk
+      - Smart Display                   /hms/queue/smart-display
+
+    GROUP: Enquiries
+      - Front Desk Enquiries            (front desk enquiries)
+      - Feedback / Complaints           (feedback/complaints)
+
+    GROUP: Notice Board
+      - Notice Board                    (notice board)
+      - Staff Notices                   (staff notices)
+
+    GROUP: Send Mails / SMS
+      - Messages Dashboard              (messages dashboard)
+      - Bulk Messages                   (bulk messages)
+      - Templates                       (message templates)
+
+    GROUP: Reminders
+      - All Reminders                   (reminders)
+      - Appointment Reminder            (appointment reminders)
+      - Payment Reminder                (payment reminders)
+
+[4] CLINICAL MODULES
+    Gate: Module prescriptions-management | beds-management | telemedicine
+          AND @canany view prescriptions | manage case handlers |
+          generate operation reports | manage bed assignments
+
+    - Prescriptions                     /hms/pharmacy/prescriptions
+    - E-Prescription                    /hms/prescriptions/e-prescription/templates
+    - Patient Cases                     (patient cases)
+    - Case Handlers                     (case handlers)
+    - Patient Diagnosis Categories      (diagnosis categories)
+    - Medical History & Vitals          (medical history & vitals)
+    - Operation Theatre (OT)            /hms/ot
+
+    GROUP: Bed Management
+      Gate: @can manage bed assignments
+      - Bed Types                       (bed types)
+      - Bed Assignments                 (bed assignments)
+      - Bed Visualization               (bed visualization)
+
+[5] DIAGNOSTICS & LAB
+    Gate: Module pathology-tests | radiology-tests | blood-bank
+          AND @canany manage test categories | add test requests |
+          enter test results | manage blood bank
+
+    - Laboratory Overview               /hms/laboratory
+
+    GROUP: Pathology
+      Gate: @canany manage test categories | add test requests
+      - Pathology Tests                 /hms/laboratory/tests
+      - Test Categories                 /hms/test-categories
+      - Test Reports                    (pathology test reports)
+
+    GROUP: Radiology
+      Gate: @canany manage test categories | add test requests
+      - Radiology Tests                 /hms/radiology/tests
+      - Radiology Reports               /hms/radiology/reports
+      - Radiology Overview              /hms/radiology
+
+    GROUP: Blood Bank
+      Gate: @can manage blood bank
+      - Blood Groups                    /hms/bloodbank (blood groups)
+      - Donors                          /hms/bloodbank (donors)
+      - Blood Requests                  /hms/bloodbank (requests)
+      - Stock Levels                    /hms/bloodbank (stock)
+      - Investigation Reports           (investigation reports)
+
+[6] PHARMACY & INVENTORY
+    Gate: Module medicines-inventory | full-inventory-management
+          AND @canany view prescriptions | dispense medicines |
+          manage medicine inventory | manage packages
+
+    GROUP: Medicines
+      Gate: @can manage medicine inventory
+      - All Medicines                   /hms/pharmacy/medicines
+      - Medicine Categories             (medicine categories)
+      - Medicine Brands                 (medicine brands)
+
+    GROUP: Inventory
+      - Inventory Dashboard             /hms/inventory (dashboard)
+      - Item Categories                 (inventory categories)
+      - Suppliers                       (inventory suppliers)
+      - Stock In / Out                  (stock movements)
+      - Purchase Orders                 (purchase orders)
+      - Expiry Alerts                   /hms/inventory/expiry-alerts
+      - Stock Report                    (stock report)
+      - Packages Management             (packages)
+
+[7] FINANCE & ACCOUNTING
+    Gate: Module billing | payments | accounts | insurance-management
+          AND @canany create invoices | edit invoices | add payments |
+          view payment reports
+
+    - Finance Dashboard                 /hms/finance (dashboard)
+
+    GROUP: Financial Reports
+      - All Reports                     (financial reports)
+      - Profit & Loss                   /hms/finance/profit-loss
+      - Balance Sheet                   (balance sheet)
+      - Cash Flow                       (cash flow)
+
+    GROUP: Billing
+      Gate: @can create invoices
+      - Generate Bill                   /hms/billing/invoices/create
+      - Bill List / History             /hms/billing/invoices
+      - Payment Receipts                (payment receipts)
+
+    GROUP: Payments
+      Gate: @can add payments
+      - Payment List                    /hms/billing/payments
+      - Payment Reports                 (payment reports)
+
+    GROUP: Advance Payments
+      - Patient Deposits                (advance payments / deposits)
+      - Refund Management               (refunds)
+
+    GROUP: Accounts Management
+      - Account Heads                   (account heads)
+      - Ledger                          (ledger)
+      - Trial Balance                   (trial balance)
+      - Chart of Accounts               (chart of accounts)
+
+    GROUP: Expenses
+      - All Expenses                    (expenses)
+      - Categories                      (expense categories)
+      - Reports                         (expense reports)
+
+    GROUP: Income
+      - All Income                      (income)
+      - Income Reports                  (income reports)
+
+    GROUP: Insurance
+      - Companies                       (insurance companies)
+      - Providers                       (insurance providers)
+      - Claims                          /hms/insurance/claims
+      - Policy Management               (policies)
+      - SHA / SHIF                      /hms/sha
+
+[8] HUMAN RESOURCE (HR)
+    Gate: Module hr-management
+          AND @canany manage staff profiles | view attendance | manage payrolls
+
+    - Dashboard                         (HR dashboard)
+
+    GROUP: Employees
+      Gate: @can manage staff profiles
+      - All Employees                   /hms/hr/employees
+      - Add New                         /hms/hr/employees/create
+      - Designations                    (designations)
+      - Departments                     /hms/hr/departments
+      - Performance Appraisals          (appraisals)
+
+    GROUP: Payrolls
+      Gate: @can manage payrolls
+      - Generate Salary                 /hms/hr/payrolls (generate)
+      - Salary Reports                  (salary reports)
+
+    GROUP: Attendance
+      Gate: @can view attendance
+      - Daily Logs                      /hms/hr/attendance
+      - Leave Requests                  /hms/hr/leave-requests
+      - Leave Types                     (leave types)
+
+    GROUP: Recruitment
+      - Job Postings                    (job postings)
+      - Applications                    (job applications)
+      - Training Programs               (training)
+      - Announcements                   (announcements)
+
+    GROUP: Shifts
+      - Shift Types                     (shift types)
+      - Roster Builder                  (roster builder)
+      - Public Holidays                 (holidays)
+
+    GROUP: Reports
+      - Employee List                   (employee list)
+      - Leave Report                    (leave report)
+      - Attendance Report               (attendance report)
+      - Payroll Summary                 (payroll summary)
+      - Headcount Trends                (headcount)
+      - Attrition Report                (attrition)
+      - Salary Expense                  (salary expense)
+      - Training Participation          (training reports)
+      - HR Settings                     (HR settings)
+
+    GROUP: Documents
+      - Document Types                  (document types)
+      - Staff Documents                 (staff documents)
+
+[9] REPORTS & ANALYTICS
+    Gate: Module reports-analytics
+          AND @canany generate patient reports | generate billing reports |
+          view dashboard analytics
+
+    - Revenue Report                    /hms/reports/revenue
+    - Billing Report                    /hms/reports/billing
+    - Lab Report                        /hms/reports/lab
+    - Pharmacy Report                   /hms/reports/pharmacy
+    - Blood Bank Report                 /hms/reports/blood-bank
+    - Bed Occupancy Report              /hms/reports/bed-occupancy
+    - Diagnosis Report                  /hms/reports/diagnosis
+    - Doctor Performance Report         /hms/reports/doctor-performance
+    - Custom Report Builder             /hms/reports/custom-builder
+    - Expense Report                    /hms/reports/expense
+    - Birth Reports                     /hms/reports/birth
+    - Death Reports                     /hms/reports/death
+    - Summary Reports                   /hms/reports/summary
+    - Export All Data                   /hms/reports/export-patients
+
+[10] SYSTEM ADMINISTRATION
+    Gate: @canany manage system settings | manage roles | manage permissions |
+          view audit logs
+
+    GROUP: General Settings
+      Gate: @can manage system settings
+      - Hospital Info                   /hms/settings
+      - Branch Setup                    (hospital branches)
+      - Timezone, Currency              (timezone/currency)
+      - Logo, Theme, Dark Mode          (logo/theme)
+      - Theme Customizer                (theme customizer)
+      - Emergency Contacts              (emergency contacts)
+
+    GROUP: User Management
+      Gate: @can manage roles
+      - Users                           /hms/system/users
+      - Roles & Permissions             /admin/roles
+      - Module Manager                  (module manager)
+      - Localization                    (localization)
+      - Backup & Restore                /hms/settings/backup
+      - Break-Glass Access              /break-glass
+      - Activity Logs / Audit Trail     /hms/settings/audit-logs
+      - API Keys & Integrations         (API keys)
+
+[11] FRONTEND CMS
+    Gate: @canany manage homepage | manage services | manage doctors listing |
+          manage marketing
+
+    - Home Page                         /cms/home
+    - Services Page                     /cms/services
+    - Doctors Page                      /cms/doctors-page
+    - About Page                        /cms/about
+    - Contact Page                      /cms/contact-page
+    - Features Page                     /cms/features
+    - Header & Footer                   /cms/header-footer
+    - News / Blog                       /cms/blog
+    - Gallery                           /cms/gallery
+    - Testimonials                      /cms/testimonials
+    - Careers / Jobs                    /cms/careers
+    - Contact Form Inquiries            /cms/inquiries
+    - SEO Settings                      /cms/seo
+
+[12] MARKETING SUITE
+    Gate: @canany manage marketing | create marketing posts | manage campaigns |
+          manage social accounts
+
+    - Dashboard                         /marketing/dashboard
+    - AI Content Writer                 /marketing/posts
+    - Campaigns                         /marketing/campaigns
+    - Scheduler                         /marketing/scheduler
+    - Social Accounts                   /marketing/social-accounts
+    - Comment Replies                   /marketing/comments
+    - Graphics & Assets                 /marketing/graphics
+    - SEO Manager                       /marketing/seo
+
+[13] AI, INTEGRATIONS & TOOLS
+    Gate: @canany use ai assistant | manage ai suggestions | view analytics |
+          use telemedicine | manage rfid tags | monitor iot sensors
+
+    Gate: @can use ai assistant
+    - Elliana D                         /hms/ai/elliana-d
+    - AI Dashboard Insights             /hms/ai/appointment-suggestions
+    - Predictive Analytics              /hms/ai/predictive-analytics
+    - AI Case Summary Generator         /hms/ai/diagnosis-suggestions
+    - Daily Summary                     /hms/daily-summary
+
+    GROUP: Integrations
+    - All Integrations                  /hms/integrations
+    - M-Pesa / Stripe / PayPal          /hms/integrations/payment-gateways
+    - Zoom Telemedicine                 /hms/telemedicine
+    - WhatsApp API                      /hms/integrations/whatsapp
+    - Google Calendar                   /hms/integrations/google-calendar
+    - EHR Integration (HL7/FHIR)        /hms/integration/ehr
+    - DHA Digital Health Superhighway   /hms/integration/dha
+    - Automated Alerts & Reminders      /hms/integrations/alerts
+    - RFID Management                   /hms/rfid
+    - IoT Monitoring                    /hms/iot/bed-monitoring
+    - Data Sync / Backup Scheduler      /hms/integrations/data-sync
+
+================================================================================
+3. EXAMPLE: WHAT SUPER ADMIN SEES vs PATIENT
+================================================================================
+
+Super Admin (e2e.super@hospital.com) sees ALL 13 sections including:
+  Roles & Permissions, Backup & Restore, Audit Trail, Break-Glass,
+  Elliana D, My Work, Hospital Management, Finance, HR, CMS, Marketing
+
+Patient (e2e.patient@hospital.com) sees almost NO staff menus:
+  No Hospital Management, no Clinical, no Finance, no Admin, no Elliana.
+  Portal is separate: /patient-portal/* (own session auth)
+
+Receptionist sees front-desk menus (patients, appointments, queue)
+  but NOT Roles & Permissions, Mortuary, or pharmacy inventory.
+
+================================================================================
+4. RELATED FILES
+================================================================================
+Sidebar blade : resources/views/partials/sidebar.blade.php
+Layout include: resources/views/components/app-layout.blade.php (line ~145)
+CSS           : public/css/sidebar.css  (mobile @media max-width 768px)
+JS            : public/js/sidebar.js    (Alpine sidebarNav, auto-close on mobile)
+Mobile        : hamburger (md:hidden) + overlay + off-canvas translateX(-100%)
+Permission map: docs/MENU-PERMISSION-MATRIX.md
+RBAC matrix   : docs/RBAC-TEST-MATRIX.md
+
+================================================================================
+END
+================================================================================

@@ -16,6 +16,7 @@ use App\Models\OtSchedule;
 use App\Models\Patient;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class G047CssdCompletionTest extends TestCase
@@ -27,10 +28,10 @@ class G047CssdCompletionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
 
         $this->user = User::factory()->create();
-        Permission::create(['name' => 'manage cssd']);
-        $this->user->givePermissionTo('manage cssd');
+        $this->user->assignRole('CSSD Technician');
     }
 
     public function test_instrument_set_index(): void

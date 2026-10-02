@@ -32,8 +32,8 @@
         .footer { margin-top: 20px; text-align: center; font-size: 9px; color: #94a3b8; }
         .no-print { margin: 20px 0; text-align: center; }
         .no-print button { background: #10b981; color: #fff; border: none; padding: 10px 30px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        @page { size: A4; margin: 15mm; }
         @media print {
-            @page { size: A4; margin: 15mm; }
             body { padding: 0; margin: 0; }
             .no-print { display: none !important; }
             .certificate { page-break-inside: avoid; }

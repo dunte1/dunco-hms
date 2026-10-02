@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
+
+use App\Models\Scopes\BelongsToFacility;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PatientDiagnosis extends Model
 {
     use HasFactory;
+    use Auditable;
+    use BelongsToFacility;
 
     protected $fillable = [
         'patient_id', 'doctor_id', 'diagnosis_category_id', 'diagnosis',
@@ -34,3 +40,4 @@ class PatientDiagnosis extends Model
         return $this->belongsTo(DiagnosisCategory::class);
     }
 }
+

@@ -11,7 +11,8 @@
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><i class="fa fa-exclamation-triangle text-red-600 mr-3"></i>{{ $emergency->admission_number }}</h1>
                 </div>
                 <div class="flex gap-3">
-                    <a href="{{ route('hms.ambulance.edit-emergency', $emergency) }}" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg"><i class="fa fa-edit mr-1"></i> Edit</a>
+                    <a href="{{ route('hms.ambulance.emergency-assessment', $emergency) }}" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"><i class="fa fa-notes-medical mr-1"></i> ED Assessment</a>
+    <a href="{{ route('hms.ambulance.edit-emergency', $emergency) }}" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg"><i class="fa fa-edit mr-1"></i> Edit</a>
                     <a href="{{ route('hms.ambulance.emergency') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"><i class="fa fa-arrow-left mr-1"></i> Back</a>
                 </div>
             </div>

@@ -2,13 +2,27 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" 
       x-data="{ 
           sidebarOpen: false, 
-          darkMode: {{ $themeSettings['dark_mode'] ? 'true' : 'false' }}
+          darkMode: {{ !empty($themeSettings['dark_mode']) ? 'true' : 'false' }}
       }"
       :class="{ 'dark': darkMode }"
       x-init="
-          darkMode = {{ $themeSettings['dark_mode'] ? 'true' : 'false' }};
-          $el.classList.toggle('dark', darkMode);
-          if (typeof(Storage) !== 'undefined') { localStorage.setItem('darkMode', String(darkMode)); }
+          document.documentElement.classList.toggle('dark', darkMode);
+          $watch('darkMode', val => {
+              document.documentElement.classList.toggle('dark', val);
+              localStorage.setItem('darkMode', val);
+              fetch('{{ route('hms.system.theme.update') }}', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'X-CSRF-TOKEN': document.querySelector('meta[name=\"csrf-token\"]').content
+                  },
+                  body: JSON.stringify({
+                      dark_mode: val,
+                      primary_color: '{{ $themeSettings['primary_color'] ?? '#000075' }}',
+                      secondary_color: '{{ $themeSettings['secondary_color'] ?? '#00001A' }}'
+                  })
+              }).catch(function() {});
+          })
       ">
     <head>
         <meta charset="utf-8">
@@ -46,9 +60,6 @@
         
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        
-        <!-- Alpine.js -->
-        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
         
         <style>
             :root {
@@ -387,74 +398,7 @@
         
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        
-        <!-- Dark Mode Persistence -->
-        <script>
-            // Initialize dark mode properly
-            document.addEventListener('DOMContentLoaded', function() {
-                const htmlEl = document.documentElement;
-                const serverDarkMode = {{ $themeSettings['dark_mode'] ? 'true' : 'false' }};
-                
-                // Watch for dark mode toggle button clicks
-                const toggleBtn = document.querySelector('[x-on\\:click*="darkMode"]');
-                if (toggleBtn) {
-                    toggleBtn.addEventListener('click', function() {
-                        setTimeout(() => {
-                            const alpineData = Alpine.$data(htmlEl);
-                            if (alpineData && alpineData.darkMode !== undefined) {
-                                const value = alpineData.darkMode;
-                                if (typeof(Storage) !== 'undefined') {
-                                    localStorage.setItem('darkMode', value);
-                                    
-                                    // Update server-side setting
-                                    fetch('{{ route("hms.system.theme.update") }}', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                        },
-                                        body: JSON.stringify({
-                                            dark_mode: value,
-                                            primary_color: '{{ $themeSettings["primary_color"] }}',
-                                            secondary_color: '{{ $themeSettings["secondary_color"] }}'
-                                        })
-                                    }).catch(() => {
-                                        // Silently fail if route doesn't exist
-                                    });
-                                }
-                            }
-                        }, 50);
-                    });
-                }
-            });
-            
-            // Watch Alpine for dark mode changes
-            document.addEventListener('alpine:init', () => {
-                Alpine.effect(() => {
-                    const htmlEl = document.documentElement;
-                    setTimeout(() => {
-                        if (Alpine.$data && Alpine.$data(htmlEl)) {
-                            const data = Alpine.$data(htmlEl);
-                            if (data.darkMode !== undefined) {
-                                const originalWatch = data.$watch;
-                                if (typeof originalWatch === 'function') {
-                                    // Watch darkMode changes
-                                    Alpine.effect(() => {
-                                        const value = data.darkMode;
-                                        if (typeof(Storage) !== 'undefined') {
-                                            localStorage.setItem('darkMode', value);
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                    }, 100);
-                });
-            });
-        </script>
-        
-        @stack('scripts')
     </body>
-    </html>
+</html>
 
 

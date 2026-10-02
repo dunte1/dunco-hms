@@ -20,6 +20,7 @@ use App\Models\Store;
 use App\Models\StoreStock;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class G034PharmacyCompletionTest extends TestCase
@@ -37,11 +38,13 @@ class G034PharmacyCompletionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
 
         $this->user = User::factory()->create();
-        Permission::create(['name' => 'view patients']);
-        Permission::create(['name' => 'manage pharmacy']);
-        $this->user->givePermissionTo(['view patients', 'manage pharmacy']);
+        $this->user->assignRole('Pharmacist');
+        // Doctor role for prescription creation paths in tests
+        $this->doctorUser = User::factory()->create();
+        $this->doctorUser->assignRole('Doctor');
 
         $this->patient = Patient::factory()->create();
         $this->doctor = Doctor::factory()->create();

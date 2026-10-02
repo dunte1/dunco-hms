@@ -203,25 +203,36 @@ class ReportsController extends Controller
         }
     }
 
-    public function exportPatientsPdf()
+    public function exportPatientsPdf(Request $request)
     {
-        $patients = Patient::latest()->get();
+        $query = Patient::query();
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+        $patients = $query->latest()->get();
         $pdf = Pdf::loadView('hms.reports.patients-pdf', compact('patients'));
-        return $pdf->download('patient-report.pdf');
+        return $pdf->download('patient-report-' . now()->format('Y-m-d') . '.pdf');
     }
 
     public function exportRevenuePdf()
     {
         $request = request();
         $query = Payment::with('invoice.patient');
-        if ($request->filled('from_date')) {
+        if ($request->filled('date_from')) {
+            $query->whereDate('payment_date', '>=', $request->date_from);
+        } elseif ($request->filled('from_date')) {
             $query->whereDate('payment_date', '>=', $request->from_date);
         }
-        if ($request->filled('to_date')) {
+        if ($request->filled('date_to')) {
+            $query->whereDate('payment_date', '<=', $request->date_to);
+        } elseif ($request->filled('to_date')) {
             $query->whereDate('payment_date', '<=', $request->to_date);
         }
         $payments = $query->latest('payment_date')->get();
         $pdf = Pdf::loadView('hms.reports.revenue-pdf', compact('payments'));
-        return $pdf->download('revenue-report.pdf');
+        return $pdf->download('revenue-report-' . now()->format('Y-m-d') . '.pdf');
     }
 }

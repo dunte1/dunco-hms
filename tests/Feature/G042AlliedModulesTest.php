@@ -11,6 +11,7 @@ use App\Models\RehabSessionRecord;
 use App\Models\NutritionRecord;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class G042AlliedModulesTest extends TestCase
@@ -23,10 +24,11 @@ class G042AlliedModulesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
 
         $this->user = User::factory()->create();
-        Permission::create(['name' => 'manage patients']);
-        $this->user->givePermissionTo('manage patients');
+        $this->user->assignRole('Dietitian');
+        $this->user->assignRole('Doctor');
 
         $this->patient = Patient::factory()->create();
     }

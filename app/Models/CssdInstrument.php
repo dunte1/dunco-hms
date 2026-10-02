@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class CssdInstrument extends Model
 {
     use HasFactory;
+    use Auditable;
 
     protected $fillable = ['name', 'category', 'description', 'quantity', 'status', 'location', 'last_sterilized_at'];
 
@@ -15,3 +18,4 @@ class CssdInstrument extends Model
         'last_sterilized_at' => 'datetime',
     ];
 }
+

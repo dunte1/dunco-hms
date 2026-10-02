@@ -89,6 +89,36 @@
             </div>
         </div>
 
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mt-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <i class="fa fa-users text-blue-500 mr-2"></i>Key Personnel Mobile Numbers
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="admin_mobile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Admin / Hospital Manager Mobile
+                    </label>
+                    <input type="text" name="admin_mobile" id="admin_mobile" 
+                           value="{{ old('admin_mobile', $contacts['admin_mobile']) }}"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                           placeholder="+254 700 000 010">
+                    <p class="mt-1 text-xs text-gray-500">Shown in admin footer for staff to contact</p>
+                </div>
+
+                <div>
+                    <label for="ict_mobile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        ICT Support Mobile
+                    </label>
+                    <input type="text" name="ict_mobile" id="ict_mobile" 
+                           value="{{ old('ict_mobile', $contacts['ict_mobile']) }}"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                           placeholder="+254 700 000 011">
+                    <p class="mt-1 text-xs text-gray-500">For IT issues, ticket escalation, system support</p>
+                </div>
+            </div>
+        </div>
+
         <div class="flex justify-end">
             <button type="submit" 
                     class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
@@ -103,6 +133,7 @@
         </h3>
         <ul class="text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
             <li>• <strong>Admin panel navbar</strong> — Emergency and Ambulance buttons (top right)</li>
+            <li>• <strong>Admin panel footer</strong> — Emergency, Ambulance, Admin mobile, ICT mobile</li>
             <li>• <strong>Public site header</strong> — Emergency phone link</li>
             <li>• <strong>Public site footer</strong> — Hospital phone number</li>
             <li>• <strong>Patient portal</strong> — Emergency contact information</li>

@@ -222,6 +222,12 @@ class OtSchedulingController extends Controller
 
     public function timeIn(OtSchedule $schedule): RedirectResponse
     {
+        // WHO surgical safety: require completed checklist before patient time-in
+        $checklist = \App\Models\WhoSafetyChecklist::where('ot_schedule_id', $schedule->id)->first();
+        if (!$checklist || !$checklist->completed) {
+            return back()->with('error', 'Complete the WHO surgical safety checklist before marking patient arrival in OT.');
+        }
+
         $schedule->update(['status' => 'in_progress', 'actual_start' => now()]);
 
         OtTimeLog::create([

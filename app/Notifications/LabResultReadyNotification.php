@@ -37,13 +37,13 @@ class LabResultReadyNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Lab Results Ready - ' . $this->labRequest->request_number)
-            ->greeting('Hello ' . ($notifiable->name ?? 'User') . ',')
+            ->view('emails.lab-results-ready', [
+                'patient' => $notifiable,
+                'labRequest' => $this->labRequest,
+            ])
+            ->greeting('Hello ' . ($notifiable->first_name ?? $notifiable->name) . ',')
             ->line('Lab results for your test request are now ready.')
-            ->line('Request Number: ' . $this->labRequest->request_number)
-            ->line('Patient: ' . $this->labRequest->patient->full_name ?? 'N/A')
-            ->line('Request Date: ' . $this->labRequest->request_date->format('M d, Y'))
-            ->action('View Results', route('hms.lab.requests.show', $this->labRequest->id))
-            ->line('Please log in to view the complete results.');
+            ->action('View Results', route('hms.laboratory.requests.show', $this->labRequest->id));
     }
 
     /**
@@ -60,4 +60,3 @@ class LabResultReadyNotification extends Notification implements ShouldQueue
         ];
     }
 }
-

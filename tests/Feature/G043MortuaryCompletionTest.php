@@ -11,6 +11,7 @@ use App\Models\BodyIdentification;
 use App\Models\Postmortem;
 use App\Models\DeathCertificate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class G043MortuaryCompletionTest extends TestCase
@@ -25,8 +26,10 @@ class G043MortuaryCompletionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
 
         $this->user = User::factory()->create();
+        $this->user->assignRole('Mortuary Attendant');
         $this->patient = Patient::factory()->create();
         $this->doctor = Doctor::factory()->create();
         $this->record = MortuaryRecord::create([
