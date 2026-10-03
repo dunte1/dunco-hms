@@ -142,7 +142,34 @@ class NursesController extends Controller
         NurseDepartment::create($data);
         return redirect()->route('hms.nurses.departments')->with('status', 'Department created');
     }
-    
+
+    public function editDepartment(NurseDepartment $department): View
+    {
+        return view('hms.nurses.departments-edit', compact('department'));
+    }
+
+    public function updateDepartment(Request $request, NurseDepartment $department): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string|unique:nurse_departments,name,' . $department->id,
+            'description' => 'nullable|string',
+        ]);
+
+        $department->update($data);
+        return redirect()->route('hms.nurses.departments')->with('status', 'Department updated');
+    }
+
+    public function destroyDepartment(NurseDepartment $department): RedirectResponse
+    {
+        if ($department->nurses()->count() > 0) {
+            return redirect()->route('hms.nurses.departments')
+                ->with('error', 'Cannot delete department with nurses assigned.');
+        }
+
+        $department->delete();
+        return redirect()->route('hms.nurses.departments')->with('status', 'Department deleted');
+    }
+
     public function dutyRoster(Request $request): View
     {
         $query = Nurse::with('department');

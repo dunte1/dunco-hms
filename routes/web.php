@@ -1207,7 +1207,38 @@ Route::middleware('auth')->group(function () {
         Route::get('/packages/{package}/edit', [PackagesController::class, 'edit'])->name('packages.edit');
         Route::put('/packages/{package}', [PackagesController::class, 'update'])->name('packages.update');
         Route::delete('/packages/{package}', [PackagesController::class, 'destroy'])->name('packages.destroy');
-        
+
+        // Services Catalog & Price Lists (CRUD)
+        Route::middleware('permission:manage price lists|manage services listing|manage packages|view billing|create invoices|manage charges')->group(function () {
+            Route::get('/pricing/services', [\App\Http\Controllers\Hms\ServiceController::class, 'index'])->name('pricing.services.index');
+            Route::get('/pricing/services/create', [\App\Http\Controllers\Hms\ServiceController::class, 'create'])->name('pricing.services.create');
+            Route::post('/pricing/services', [\App\Http\Controllers\Hms\ServiceController::class, 'store'])->name('pricing.services.store');
+            Route::get('/pricing/services/{service}', [\App\Http\Controllers\Hms\ServiceController::class, 'show'])->name('pricing.services.show');
+            Route::get('/pricing/services/{service}/edit', [\App\Http\Controllers\Hms\ServiceController::class, 'edit'])->name('pricing.services.edit');
+            Route::put('/pricing/services/{service}', [\App\Http\Controllers\Hms\ServiceController::class, 'update'])->name('pricing.services.update');
+            Route::delete('/pricing/services/{service}', [\App\Http\Controllers\Hms\ServiceController::class, 'destroy'])->name('pricing.services.destroy');
+            Route::get('/pricing/services/{service}/prices', [\App\Http\Controllers\Hms\ServiceController::class, 'getPrices'])->name('pricing.services.prices');
+
+            Route::get('/pricing/price-lists', [\App\Http\Controllers\Hms\PriceListController::class, 'index'])->name('pricing.price-lists.index');
+            Route::get('/pricing/price-lists/create', [\App\Http\Controllers\Hms\PriceListController::class, 'create'])->name('pricing.price-lists.create');
+            Route::post('/pricing/price-lists', [\App\Http\Controllers\Hms\PriceListController::class, 'store'])->name('pricing.price-lists.store');
+            Route::get('/pricing/price-lists/{priceList}', [\App\Http\Controllers\Hms\PriceListController::class, 'show'])->name('pricing.price-lists.show');
+            Route::get('/pricing/price-lists/{priceList}/edit', [\App\Http\Controllers\Hms\PriceListController::class, 'edit'])->name('pricing.price-lists.edit');
+            Route::put('/pricing/price-lists/{priceList}', [\App\Http\Controllers\Hms\PriceListController::class, 'update'])->name('pricing.price-lists.update');
+            Route::delete('/pricing/price-lists/{priceList}', [\App\Http\Controllers\Hms\PriceListController::class, 'destroy'])->name('pricing.price-lists.destroy');
+        });
+
+        // Hospital Departments (clinical units used to group roles)
+        Route::middleware('permission:manage roles|manage permissions|manage user accounts|manage staff profiles')->group(function () {
+            Route::get('/hospital-departments', [\App\Http\Controllers\Hms\HospitalDepartmentsController::class, 'index'])->name('hospital-departments.index');
+            Route::get('/hospital-departments/create', [\App\Http\Controllers\Hms\HospitalDepartmentsController::class, 'create'])->name('hospital-departments.create');
+            Route::post('/hospital-departments', [\App\Http\Controllers\Hms\HospitalDepartmentsController::class, 'store'])->name('hospital-departments.store');
+            Route::get('/hospital-departments/{department}', [\App\Http\Controllers\Hms\HospitalDepartmentsController::class, 'show'])->name('hospital-departments.show');
+            Route::get('/hospital-departments/{department}/edit', [\App\Http\Controllers\Hms\HospitalDepartmentsController::class, 'edit'])->name('hospital-departments.edit');
+            Route::put('/hospital-departments/{department}', [\App\Http\Controllers\Hms\HospitalDepartmentsController::class, 'update'])->name('hospital-departments.update');
+            Route::delete('/hospital-departments/{department}', [\App\Http\Controllers\Hms\HospitalDepartmentsController::class, 'destroy'])->name('hospital-departments.destroy');
+        });
+
         // Nurses Management
         Route::get('/nurses', [NursesController::class, 'index'])->name('nurses.index');
         Route::get('/nurses/create', [NursesController::class, 'create'])->name('nurses.create');
@@ -1217,6 +1248,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/nurses/assign-wards', [NursesController::class, 'assignWards'])->name('nurses.assign-wards');
         Route::get('/nurses/departments', [NursesController::class, 'departments'])->name('nurses.departments');
         Route::post('/nurses/departments', [NursesController::class, 'storeDepartment'])->name('nurses.departments.store');
+        Route::get('/nurses/departments/{department}/edit', [NursesController::class, 'editDepartment'])->name('nurses.departments.edit');
+        Route::put('/nurses/departments/{department}', [NursesController::class, 'updateDepartment'])->name('nurses.departments.update');
+        Route::delete('/nurses/departments/{department}', [NursesController::class, 'destroyDepartment'])->name('nurses.departments.destroy');
         Route::get('/nurses/{nurse}', [NursesController::class, 'show'])->name('nurses.show');
         Route::get('/nurses/{nurse}/edit', [NursesController::class, 'edit'])->name('nurses.edit');
         Route::put('/nurses/{nurse}', [NursesController::class, 'update'])->name('nurses.update');

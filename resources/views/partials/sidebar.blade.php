@@ -224,9 +224,15 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a @click.stop href="{{ route('hms.nurses.assign-wards') }}" 
+                                        <a @click.stop href="{{ route('hms.nurses.assign-wards') }}"
                                            class="nested-link {{ request()->routeIs('hms.nurses.assign-wards') ? 'active' : '' }}">
                                             <i class="fa fa-hospital-user mr-2 w-4"></i> Assign to Wards
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.nurses.departments') }}"
+                                           class="nested-link {{ request()->routeIs('hms.nurses.departments*') ? 'active' : '' }}">
+                                            <i class="fa fa-building mr-2 w-4"></i> Departments
                                         </a>
                                     </li>
                                 </ul>
@@ -959,23 +965,37 @@
                                 </div>
                                 <ul x-show="isMenuOpen('billing')" x-transition class="nested-submenu">
                                     <li>
-                                        <a @click.stop href="{{ route('hms.billing.invoices.create') }}" 
+                                        <a @click.stop href="{{ route('hms.billing.invoices.create') }}"
                                            class="nested-link {{ request()->routeIs('hms.billing.invoices.create') ? 'active' : '' }}">
                                             <i class="fa fa-plus mr-2 w-4"></i> Generate Bill
                                         </a>
                                     </li>
                                     <li>
-                                        <a @click.stop href="{{ route('hms.billing.invoices.index') }}" 
+                                        <a @click.stop href="{{ route('hms.billing.invoices.index') }}"
                                            class="nested-link {{ request()->routeIs('hms.billing.invoices.*') ? 'active' : '' }}">
                                             <i class="fa fa-list mr-2 w-4"></i> Bill List / History
                                         </a>
                                     </li>
                                     <li>
-                                        <a @click.stop href="{{ route('hms.billing.receipts') }}" 
+                                        <a @click.stop href="{{ route('hms.billing.receipts') }}"
                                            class="nested-link {{ request()->routeIs('hms.billing.receipts') ? 'active' : '' }}">
                                             <i class="fa fa-receipt mr-2 w-4"></i> Payment Receipts
                                         </a>
                                     </li>
+                                    @canany(['manage price lists', 'manage services listing', 'manage packages'])
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.pricing.services.index') }}"
+                                           class="nested-link {{ request()->routeIs('hms.pricing.services.*') ? 'active' : '' }}">
+                                            <i class="fa fa-stethoscope mr-2 w-4"></i> Services Catalog
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a @click.stop href="{{ route('hms.pricing.price-lists.index') }}"
+                                           class="nested-link {{ request()->routeIs('hms.pricing.price-lists.*') ? 'active' : '' }}">
+                                            <i class="fa fa-tags mr-2 w-4"></i> Price Lists
+                                        </a>
+                                    </li>
+                                    @endcanany
                                 </ul>
                             </li>
                         @endcan
@@ -1701,6 +1721,12 @@
                                             <a @click.stop href="{{ route('admin.roles.index') }}"
                                                class="nested-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
                                                 <i class="fa fa-user-shield mr-2 w-4"></i> Roles & Permissions
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a @click.stop href="{{ route('hms.hospital-departments.index') }}"
+                                               class="nested-link {{ request()->routeIs('hms.hospital-departments.*') ? 'active' : '' }}">
+                                                <i class="fa fa-building mr-2 w-4"></i> Hospital Departments
                                             </a>
                                         </li>
                                     @endcan

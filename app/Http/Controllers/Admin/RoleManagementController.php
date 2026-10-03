@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Spatie\Permission\Models\Role;
+use App\Models\HospitalDepartment;
+use App\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -11,123 +12,170 @@ use Illuminate\Http\JsonResponse;
 
 class RoleManagementController extends Controller
 {
-    public function index(): View
+    private function permissionGroups()
     {
-        $roles = Role::with(['permissions', 'users'])->paginate(20);
-        $permissions = Permission::all()->groupBy(function ($permission) {
+        return Permission::all()->groupBy(function ($permission) {
             if (empty($permission->name)) {
                 return 'other';
             }
             $parts = explode(' ', $permission->name);
             return $parts[0] ?? 'other';
         });
-        
-        return view('admin.roles.index', compact('roles', 'permissions'));
+    }
+
+    public function index(): View
+    {
+        $departments = HospitalDepartment::orderBy('name')->get();
+        $roles = Role::with(['permissions', 'users'])
+            ->orderBy('department_id')
+            ->orderBy('name')
+            ->get();
+
+        $rolesByDepartment = $roles->groupBy(function ($role) use ($departments) {
+            $department = $departments->firstWhere('id', $role->department_id);
+            return $department ? $department->name : 'Unassigned';
+        });
+
+        $orderedGroups = collect();
+        foreach ($departments as $department) {
+            if ($rolesByDepartment->has($department->name)) {
+                $orderedGroups->put($department->name, $rolesByDepartment->get($department->name));
+            }
+        }
+        if ($rolesByDepartment->has('Unassigned')) {
+            $orderedGroups->put('Unassigned', $rolesByDepartment->get('Unassigned'));
+        }
+
+        $permissions = $this->permissionGroups();
+
+        return view('admin.roles.index', compact('roles', 'permissions', 'departments', 'orderedGroups'));
     }
 
     public function create(): View
     {
-        $permissions = Permission::all()->groupBy(function ($permission) {
-            if (empty($permission->name)) {
-                return 'other';
-            }
-            $parts = explode(' ', $permission->name);
-            return $parts[0] ?? 'other';
-        });
-        
-        return view('admin.roles.create', compact('permissions'));
+        $permissions = $this->permissionGroups();
+        $departments = HospitalDepartment::orderBy('name')->get();
+
+        return view('admin.roles.create', compact('permissions', 'departments'));
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255|unique:roles',
+            'name' => 'required|string|max:255|unique:roles,name',
+            'department_id' => 'nullable|exists:hospital_departments,id',
             'permissions' => 'nullable|array',
             'permissions.*' => 'exists:permissions,id',
         ]);
 
         $role = Role::create(['name' => $data['name']]);
+        $role->forceFill(['department_id' => $data['department_id'] ?? null])->save();
 
-        if (isset($data['permissions']) && !empty($data['permissions'])) {
-            // Convert permission IDs to Permission models
-            $permissions = Permission::whereIn('id', $data['permissions'])->get();
+        $permissionIds = $data['permissions'] ?? [];
+        if (!empty($permissionIds)) {
+            $permissions = Permission::whereIn('id', $permissionIds)->get();
             $role->syncPermissions($permissions);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Role created successfully',
-            'data' => $role
-        ], 201);
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Role created successfully',
+                'data' => $role->fresh()->load('permissions')
+            ], 201);
+        }
+
+        return redirect()->route('admin.roles.index')
+            ->with('status', 'Role created successfully');
     }
 
-    public function show(Role $role): JsonResponse
+    public function show($role): JsonResponse
     {
-        $role->load('permissions');
-        
+        $role = Role::findOrFail(is_numeric($role) ? $role : $role->getKey());
+        $role->load(['permissions', 'hospitalDepartment']);
+
         return response()->json([
             'success' => true,
             'data' => $role
         ]);
     }
 
-    public function edit(Role $role): View
+    public function edit($role): View
     {
+        $role = Role::findOrFail(is_numeric($role) ? $role : $role->getKey());
         $role->load('permissions');
-        $permissions = Permission::all()->groupBy(function ($permission) {
-            if (empty($permission->name)) {
-                return 'other';
-            }
-            $parts = explode(' ', $permission->name);
-            return $parts[0] ?? 'other';
-        });
-        
-        return view('admin.roles.edit', compact('role', 'permissions'));
+        $permissions = $this->permissionGroups();
+        $departments = HospitalDepartment::orderBy('name')->get();
+
+        return view('admin.roles.edit', compact('role', 'permissions', 'departments'));
     }
 
-    public function update(Request $request, Role $role): JsonResponse
+    public function update(Request $request, $role)
     {
+        $role = Role::findOrFail(is_numeric($role) ? $role : $role->getKey());
+
         $data = $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
+            'name' => 'required|string|max:255|unique:roles,name,' . $role->getKey(),
+            'department_id' => 'nullable|exists:hospital_departments,id',
             'permissions' => 'nullable|array',
             'permissions.*' => 'exists:permissions,id',
         ]);
 
-        $role->update(['name' => $data['name']]);
+        $role->forceFill([
+            'name' => $data['name'],
+            'department_id' => $data['department_id'] ?? null,
+        ])->save();
 
-        if (isset($data['permissions']) && !empty($data['permissions'])) {
-            // Convert permission IDs to Permission models
-            $permissions = Permission::whereIn('id', $data['permissions'])->get();
+        $permissionIds = $data['permissions'] ?? [];
+        if (!empty($permissionIds)) {
+            $permissions = Permission::whereIn('id', $permissionIds)->get();
             $role->syncPermissions($permissions);
         } else {
             $role->syncPermissions([]);
         }
-        
-        // Clear permission cache so all users with this role get updated permissions immediately
+
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Role updated successfully. All users with this role will automatically receive the updated permissions.',
-            'data' => $role
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Role updated successfully. All users with this role will automatically receive the updated permissions.',
+                'data' => $role->fresh()->load('permissions')
+            ]);
+        }
+
+        return redirect()->route('admin.roles.index')
+            ->with('status', 'Role updated successfully');
     }
 
-    public function destroy(Role $role): JsonResponse
+    public function destroy(Request $request, $role)
     {
+        $role = Role::findOrFail(is_numeric($role) ? $role : $role->getKey());
+
         if ($role->name === 'Super Admin') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot delete Super Admin role'
-            ], 403);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot delete Super Admin role'
+                ], 403);
+            }
+
+            return back()->with('error', 'Cannot delete Super Admin role');
         }
 
         $role->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Role deleted successfully'
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Role deleted successfully'
+            ]);
+        }
+
+        return redirect()->route('admin.roles.index')
+            ->with('status', 'Role deleted successfully');
     }
 
     public function assignRole(Request $request): JsonResponse
@@ -169,7 +217,7 @@ class RoleManagementController extends Controller
     public function getUsersWithRole(Role $role): JsonResponse
     {
         $users = $role->users()->paginate(20);
-        
+
         return response()->json([
             'success' => true,
             'data' => $users
@@ -179,7 +227,7 @@ class RoleManagementController extends Controller
     public function getRolePermissions(Role $role): JsonResponse
     {
         $permissions = $role->permissions;
-        
+
         return response()->json([
             'success' => true,
             'data' => $permissions
@@ -188,14 +236,8 @@ class RoleManagementController extends Controller
 
     public function getAllPermissions(): JsonResponse
     {
-        $permissions = Permission::all()->groupBy(function ($permission) {
-            if (empty($permission->name)) {
-                return 'other';
-            }
-            $parts = explode(' ', $permission->name);
-            return $parts[0] ?? 'other';
-        });
-        
+        $permissions = $this->permissionGroups();
+
         return response()->json([
             'success' => true,
             'data' => $permissions

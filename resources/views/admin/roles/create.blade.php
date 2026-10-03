@@ -9,7 +9,7 @@
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
                 <i class="fa-solid fa-shield-halved text-indigo-600 mr-3"></i> Create New Role
             </h1>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Define a role and assign permissions</p>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Define a role, assign it to a department, and choose permissions</p>
         </div>
 
         @if($errors->any())
@@ -32,13 +32,18 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role Name *</label>
                         <input type="text" name="name" value="{{ old('name') }}" required
                             class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
-                            placeholder="e.g., Doctor, Nurse, Admin">
+                            placeholder="e.g., OPD Nurse, Triage Officer">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                        <textarea name="description" rows="3"
-                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
-                            placeholder="Brief description of this role">{{ old('description') }}</textarea>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
+                        <select name="department_id" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">Unassigned</option>
+                            @foreach($departments as $department)
+                                <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>
+                                    {{ $department->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
             </div>
@@ -54,31 +59,17 @@
                     </label>
                 </div>
 
-                @php
-                    $permissionGroups = [
-                        'Users' => ['view-users', 'create-users', 'edit-users', 'delete-users'],
-                        'Patients' => ['view-patients', 'create-patients', 'edit-patients', 'delete-patients'],
-                        'Appointments' => ['view-appointments', 'create-appointments', 'edit-appointments', 'delete-appointments'],
-                        'Billing' => ['view-billing', 'create-invoices', 'process-payments'],
-                        'Pharmacy' => ['view-pharmacy', 'manage-medicines', 'dispense-medicines'],
-                        'Laboratory' => ['view-lab', 'create-lab-requests', 'manage-lab-results'],
-                        'HR' => ['view-employees', 'manage-attendance', 'manage-payroll', 'manage-leaves'],
-                        'Reports' => ['view-reports', 'export-reports', 'create-reports'],
-                        'Settings' => ['manage-settings', 'manage-backups', 'view-audit-logs'],
-                    ];
-                @endphp
-
                 <div class="space-y-4">
-                    @foreach($permissionGroups as $group => $permissions)
+                    @foreach($permissions as $group => $groupPermissions)
                         <div class="border dark:border-gray-700 rounded-lg p-4">
-                            <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-3">{{ $group }}</h3>
+                            <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-3">{{ ucfirst($group) }}</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                @foreach($permissions as $permission)
+                                @foreach($groupPermissions as $permission)
                                     <label class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
-                                        <input type="checkbox" name="permissions[]" value="{{ $permission }}"
-                                            {{ in_array($permission, old('permissions', [])) ? 'checked' : '' }}
+                                        <input type="checkbox" name="permissions[]" value="{{ $permission->id }}"
+                                            {{ in_array($permission->id, old('permissions', [])) ? 'checked' : '' }}
                                             class="permission-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ ucwords(str_replace('-', ' ', $permission)) }}</span>
+                                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ ucwords(str_replace('_', ' ', $permission->name)) }}</span>
                                     </label>
                                 @endforeach
                             </div>
