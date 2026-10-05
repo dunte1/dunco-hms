@@ -210,11 +210,12 @@ class SettingsController extends Controller
                 $databaseName = $database['database'] ?? '';
                 
                 if ($driver === 'mysql') {
+                    $cnf = tempnam(sys_get_temp_dir(), 'mycnf_');
+                    file_put_contents($cnf, "[client]\nhost={$host}\nuser={$username}\npassword={$password}\n");
+                    @chmod($cnf, 0600);
                     $command = sprintf(
-                        'mysqldump -h %s -u %s -p%s %s > %s',
-                        escapeshellarg($host),
-                        escapeshellarg($username),
-                        escapeshellarg($password),
+                        'mysqldump --defaults-extra-file=%s %s > %s',
+                        escapeshellarg($cnf),
                         escapeshellarg($databaseName),
                         escapeshellarg($filepath)
                     );
@@ -233,8 +234,11 @@ class SettingsController extends Controller
                     return redirect()->route('hms.settings.backup')
                         ->with('error', 'Unsupported database driver: ' . $driver);
                 }
-                
+
                 exec($command, $output, $returnVar);
+                if (!empty($cnf) && is_file($cnf)) {
+                    @unlink($cnf);
+                }
                 
                 if ($returnVar !== 0) {
                     return redirect()->route('hms.settings.backup')
@@ -308,11 +312,12 @@ class SettingsController extends Controller
                 $databaseName = $database['database'] ?? '';
                 
                 if ($driver === 'mysql') {
+                    $cnf = tempnam(sys_get_temp_dir(), 'mycnf_');
+                    file_put_contents($cnf, "[client]\nhost={$host}\nuser={$username}\npassword={$password}\n");
+                    @chmod($cnf, 0600);
                     $command = sprintf(
-                        'mysql -h %s -u %s -p%s %s < %s',
-                        escapeshellarg($host),
-                        escapeshellarg($username),
-                        escapeshellarg($password),
+                        'mysql --defaults-extra-file=%s %s < %s',
+                        escapeshellarg($cnf),
                         escapeshellarg($databaseName),
                         escapeshellarg($fullPath)
                     );
@@ -334,7 +339,10 @@ class SettingsController extends Controller
                 }
                 
                 exec($command, $output, $returnVar);
-                
+                if (!empty($cnf) && is_file($cnf)) {
+                    @unlink($cnf);
+                }
+
                 if ($returnVar !== 0) {
                     File::delete($fullPath);
                     return redirect()->route('hms.settings.backup')
