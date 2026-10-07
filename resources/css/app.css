@@ -57,6 +57,29 @@
     }
 }
 
+/* Clinical form pages: full-width content, not modal-like */
+.hms-form-page .max-w-4xl,
+.hms-form-page .max-w-7xl {
+    width: 100%;
+}
+
+/* Section cards inside forms */
+.hms-form-page section.bg-white {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+@media (min-width: 768px) {
+    .hms-form-page section.bg-white {
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.08);
+    }
+}
+
+/* Priority / option cards equal height */
+.hms-form-page label > div.peer-checked\:border-red-500,
+.hms-form-page .grid > label > div {
+    height: 100%;
+}
+
 /* Keep action button clusters from overflowing */
 .hms-action-cluster {
     display: flex;
