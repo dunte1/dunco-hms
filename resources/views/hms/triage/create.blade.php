@@ -39,19 +39,49 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 OPD Visit <span class="text-gray-400">(optional)</span>
                             </label>
-                            <select name="opd_visit_id" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-red-500 min-h-[42px]">
-                                <option value="">Select OPD Visit</option>
-                                @foreach($opdVisits as $visit)
-                                    <option value="{{ $visit->id }}" {{ old('opd_visit_id') == $visit->id ? 'selected' : '' }}>
-                                        Visit #{{ $visit->id }} - {{ $visit->patient->first_name ?? '' }} {{ $visit->patient->last_name ?? '' }} ({{ $visit->visit_date?->format('M d, Y') }})
+                            <input type="text" id="opd-search" placeholder="Filter visit #, patient name, or registration #..."
+                                   class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 mb-2 min-h-[42px]">
+                            <select name="opd_visit_id" id="opd-visit-select" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-red-500 min-h-[42px]">
+                                <option value="">{{ ($opdVisits ?? collect())->isEmpty() ? 'No open OPD visits found — register patient at reception first' : 'Select OPD visit (' . ($opdVisits ?? collect())->count() . ' open)' }}</option>
+                                @foreach(($opdVisits ?? []) as $visit)
+                                    <option value="{{ $visit->id }}"
+                                            data-search="{{ strtolower(($visit->patient->first_name ?? '') . ' ' . ($visit->patient->last_name ?? '') . ' ' . ($visit->patient->patient_no ?? '') . ' ' . $visit->id . ' ' . $visit->status) }}"
+                                            {{ old('opd_visit_id') == $visit->id ? 'selected' : '' }}>
+                                        #{{ $visit->id }} · {{ $visit->patient->first_name ?? '' }} {{ $visit->patient->last_name ?? '' }}
+                                        ({{ $visit->patient->patient_no ?? '' }}) · {{ $visit->status }} · {{ optional($visit->visit_time ?? $visit->created_at)->format('H:i') }}
                                     </option>
                                 @endforeach
                             </select>
                             @error('opd_visit_id')
                                 <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                             @enderror
+                            <p class="mt-1 text-xs text-gray-500">Open visits from the last 7 days (registered, triaged, in progress, lab/pharmacy pending). Auto-created at reception when a patient is registered.</p>
                         </div>
                     </div>
+
+                    <script>
+                        (function () {
+                            var search = document.getElementById('opd-search');
+                            var select = document.getElementById('opd-visit-select');
+                            if (!search || !select) return;
+                            search.addEventListener('input', function () {
+                                var q = (this.value || '').toLowerCase().trim();
+                                var options = select.querySelectorAll('option[data-search]');
+                                var visible = 0;
+                                options.forEach(function (opt) {
+                                    var match = !q || (opt.getAttribute('data-search') || '').indexOf(q) !== -1;
+                                    opt.hidden = !match;
+                                    if (match) visible++;
+                                });
+                                var empty = select.querySelector('option:not([data-search])');
+                                if (empty) {
+                                    empty.textContent = q
+                                        ? ('No matches (' + visible + ' shown)')
+                                        : ('Select OPD visit (' + options.length + ' open)');
+                                }
+                            });
+                        })();
+                    </script>
 
                     <div class="bg-blue-50 border border-blue-200 text-blue-800 text-sm px-4 py-3 rounded-lg">
                         <i class="fa fa-info-circle me-1"></i>
@@ -196,6 +226,52 @@
                         @error('chief_complaint')
                             <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                         @enderror
+                    </div>
+
+                    <!-- Clinical History: Allergies, Disability, Alcohol -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fa fa-exclamation-triangle text-amber-500 me-1"></i>Allergies
+                            </label>
+                            <textarea name="allergies" rows="2"
+                                placeholder="e.g. Penicillin, peanuts, latex, dust... or None"
+                                class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-red-500">{{ old('allergies') }}</textarea>
+                            @error('allergies')
+                                <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Disability / Special Needs
+                            </label>
+                            <label class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 cursor-pointer min-h-[42px]">
+                                <input type="checkbox" name="disability" value="1" {{ old('disability') ? 'checked' : '' }}
+                                       class="rounded border-gray-300 text-red-600 focus:ring-red-500 w-4 h-4">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Patient has disability / special needs</span>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Alcohol Use
+                            </label>
+                            <select name="alcohol_use" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-red-500 min-h-[42px]">
+                                @foreach(['unknown' => 'Unknown / Not asked', 'never' => 'Never', 'occasionally' => 'Occasionally', 'regularly' => 'Regularly', 'heavy' => 'Heavy'] as $val => $label)
+                                    <option value="{{ $val }}" {{ old('alcohol_use', 'unknown') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-3">
+                            <input type="text" name="disability_notes" value="{{ old('disability_notes') }}"
+                                placeholder="Disability details (optional) e.g. wheelchair user, hearing impairment..."
+                                class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-red-500 mb-2">
+                            <input type="text" name="alcohol_notes" value="{{ old('alcohol_notes') }}"
+                                placeholder="Alcohol notes (optional) e.g. drinks daily, recently stopped..."
+                                class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-red-500">
+                        </div>
                     </div>
 
                     <!-- Triage Notes -->

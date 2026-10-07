@@ -52,11 +52,38 @@ class TriageController extends Controller
         return view('hms.triage.index', compact('triages', 'stats'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         $patients = Patient::forSelect();
-        $opdVisits = OpdVisit::where('status', '!=', 'discharged')->with('patient')->latest()->get();
+
+        // Open OPD visits: today + last 7 days, not completed/discharged
+        $opdQuery = OpdVisit::with('patient')
+            ->whereIn('status', ['registered', 'triaged', 'in_consultation', 'lab_pending', 'pharmacy_pending', 'billing_pending'])
+            ->whereDate('visit_date', '>=', now()->subDays(7))
+            ->orderByRaw("FIELD(status,'registered','triaged','in_consultation','lab_pending','pharmacy_pending','billing_pending')")
+            ->latest('id')
+            ->limit(50);
+
+        // If patient selected, filter to that patient
+        if ($request->filled('patient_id')) {
+            $opdQuery->where('patient_id', $request->patient_id);
+        }
+
+        // Optional search
+        if ($request->filled('opd_search')) {
+            $search = $request->opd_search;
+            $opdQuery->where(function ($q) use ($search) {
+                $q->whereHas('patient', function ($pq) use ($search) {
+                    $pq->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('patient_no', 'like', "%{$search}%");
+                })->orWhere('id', $search);
+            });
+        }
+
+        $opdVisits = $opdQuery->get();
         $categories = TriageCategory::where('is_active', true)->orderBy('priority_level')->get();
+
         return view('hms.triage.create', compact('patients', 'opdVisits', 'categories'));
     }
 
@@ -82,16 +109,26 @@ class TriageController extends Controller
             'height_cm' => 'nullable|numeric|min:0|max:250',
             'chief_complaint' => 'nullable|string',
             'triage_notes' => 'nullable|string',
+            'allergies' => 'nullable|string|max:1000',
+            'disability' => 'nullable|boolean',
+            'disability_notes' => 'nullable|string|max:500',
+            'alcohol_use' => 'nullable|in:never,occasionally,regularly,heavy,unknown',
+            'alcohol_notes' => 'nullable|string|max:500',
         ]);
 
         $data['triage_number'] = 'TRI-' . date('Y') . '-' . str_pad(Triage::count() + 1, 6, '0', STR_PAD_LEFT);
         $data['triaged_by'] = auth()->id();
         $data['triaged_at'] = now();
         $data['pregnancy_status'] = $data['pregnancy_status'] ?? 'unknown';
+        $data['disability'] = $request->boolean('disability');
+        $data['alcohol_use'] = $data['alcohol_use'] ?? 'unknown';
 
         $triage = Triage::create($data);
 
-        // Update OPD visit status if linked
+        // Auto-handoff: queue + OPD status after triage
+        app(\App\Services\PatientFlowService::class)->afterTriage($triage);
+
+        // Update OPD visit status if linked (kept for compatibility)
         if (!empty($data['opd_visit_id'])) {
             OpdVisit::where('id', $data['opd_visit_id'])->update([
                 'status' => 'triaged',
@@ -99,7 +136,7 @@ class TriageController extends Controller
             ]);
         }
 
-        return redirect()->route('hms.triage.index')->with('success', 'Triage assessment recorded successfully!');
+        return redirect()->route('hms.triage.index')->with('success', 'Triage assessment recorded. Patient added to queue for clinical review.');
     }
 
     public function show(Triage $triage): View

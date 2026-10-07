@@ -20,6 +20,7 @@ class Triage extends Model
         'temperature', 'pulse_rate', 'systolic_bp', 'diastolic_bp',
         'respiratory_rate', 'oxygen_saturation', 'blood_glucose', 'weight_kg', 'height_cm',
         'chief_complaint', 'triage_notes', 'triaged_by', 'triaged_at',
+        'allergies', 'disability', 'disability_notes', 'alcohol_use', 'alcohol_notes',
     ];
 
     protected $casts = [
@@ -31,6 +32,7 @@ class Triage extends Model
         'pain_score' => 'integer',
         'gcs_score' => 'integer',
         'triaged_at' => 'datetime',
+        'disability' => 'boolean',
     ];
 
     public function patient(): BelongsTo
