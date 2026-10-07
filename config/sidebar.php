@@ -6,22 +6,13 @@ return [
     |--------------------------------------------------------------------------
     | HMS Sidebar Navigation
     |--------------------------------------------------------------------------
-    | Config-driven menu. Order is the display order.
-    | Administration is intentionally last.
-    |
-    | Each section:
-    |   key, label, icon, color, permission (any-of list), module (optional)
-    |   items: nested children (max depth 2 for mobile)
-    |
-    | Each item:
-    |   label, route (name), permission (optional), active (route pattern), external
+    | Order = display order. Administration is last.
+    | Section/item `permission` = any-of list (Spatie).
     */
 
     'sections' => [
 
-        // ---------------------------------------------------------------------
         // 1. DASHBOARD
-        // ---------------------------------------------------------------------
         [
             'key' => 'dashboard',
             'label' => 'Dashboard',
@@ -30,6 +21,7 @@ return [
             'permission' => ['view dashboard analytics', 'view analytics'],
             'items' => [
                 ['label' => 'Overview', 'route' => 'dashboard', 'icon' => 'fa-compass', 'active' => 'dashboard'],
+                ['label' => 'Clinician Worklist', 'route' => 'hms.worklist', 'icon' => 'fa-clipboard-list', 'active' => 'hms.worklist*', 'permission' => ['view patients', 'view appointments', 'create prescriptions', 'add test requests', 'view test results', 'manage queue']],
                 ['label' => 'Analytics', 'route' => 'analytics.bi-dashboard', 'icon' => 'fa-chart-bar', 'permission' => ['view analytics'], 'active' => 'analytics.bi-dashboard*'],
                 ['label' => 'Revenue Analytics', 'route' => 'analytics.revenue', 'icon' => 'fa-chart-line', 'permission' => ['view analytics'], 'active' => 'analytics.revenue*'],
                 ['label' => 'Patient Analytics', 'route' => 'analytics.patients', 'icon' => 'fa-users', 'permission' => ['view analytics'], 'active' => 'analytics.patients*'],
@@ -43,9 +35,7 @@ return [
             ],
         ],
 
-        // ---------------------------------------------------------------------
         // 2. CLINICAL
-        // ---------------------------------------------------------------------
         [
             'key' => 'clinical',
             'label' => 'Clinical',
@@ -83,6 +73,12 @@ return [
                 [
                     'label' => 'Specialty Care',
                     'icon' => 'fa-stethoscope',
+                    'permission' => [
+                        'manage immunization schedules', 'manage family planning visits', 'manage surveillance cases',
+                        'manage outbreak events', 'manage mh assessments', 'manage social assessments',
+                        'manage hts encounters', 'manage hiv care enrollments', 'manage tb cases',
+                        'manage nutrition records', 'manage diet orders', 'manage cancer registrations',
+                    ],
                     'children' => [
                         ['label' => 'Vaccination', 'route' => 'vaccination.index', 'active' => 'vaccination.index*'],
                         ['label' => 'Administer Vaccine', 'route' => 'vaccination.administer', 'active' => 'vaccination.administer*'],
@@ -187,6 +183,10 @@ return [
                 [
                     'label' => 'Mortuary & CSSD',
                     'icon' => 'fa-box',
+                    'permission' => [
+                        'manage mortuary records', 'manage mortuary slots', 'manage postmortems',
+                        'issue death certificates', 'manage cssd instruments', 'manage cssd cycles',
+                    ],
                     'children' => [
                         ['label' => 'Mortuary', 'route' => 'mortuary.index', 'active' => 'mortuary.*'],
                         ['label' => 'CSSD Overview', 'route' => 'cssd.index', 'active' => 'cssd.index*'],
@@ -196,9 +196,7 @@ return [
             ],
         ],
 
-        // ---------------------------------------------------------------------
         // 3. DIAGNOSTICS
-        // ---------------------------------------------------------------------
         [
             'key' => 'diagnostics',
             'label' => 'Diagnostics',
@@ -224,6 +222,7 @@ return [
                 [
                     'label' => 'Radiology / Imaging',
                     'icon' => 'fa-x-ray',
+                    'permission' => ['manage test categories', 'add test requests', 'enter test results', 'view test results'],
                     'children' => [
                         ['label' => 'Radiology Overview', 'route' => 'hms.radiology.index', 'active' => 'hms.radiology.index*'],
                         ['label' => 'Radiology Tests', 'route' => 'hms.radiology.tests.index', 'active' => 'hms.radiology.tests.*'],
@@ -252,9 +251,7 @@ return [
             ],
         ],
 
-        // ---------------------------------------------------------------------
         // 4. PHARMACY & INVENTORY
-        // ---------------------------------------------------------------------
         [
             'key' => 'pharmacy-inventory',
             'label' => 'Pharmacy & Inventory',
@@ -262,7 +259,7 @@ return [
             'color' => 'amber',
             'permission' => [
                 'view prescriptions', 'dispense medicines', 'manage medicine inventory',
-                'manage packages', 'manage inventory', 'manage suppliers',
+                'manage packages', 'manage assets',
             ],
             'items' => [
                 [
@@ -330,9 +327,7 @@ return [
             ],
         ],
 
-        // ---------------------------------------------------------------------
         // 5. FINANCE
-        // ---------------------------------------------------------------------
         [
             'key' => 'finance',
             'label' => 'Finance',
@@ -437,9 +432,7 @@ return [
             ],
         ],
 
-        // ---------------------------------------------------------------------
         // 6. PEOPLE & CONFIGURATION
-        // ---------------------------------------------------------------------
         [
             'key' => 'people',
             'label' => 'People & Configuration',
@@ -479,7 +472,6 @@ return [
                         ['label' => 'Roster / Schedules', 'route' => 'hms.hr.schedules.index', 'active' => 'hms.hr.schedules.*'],
                         ['label' => 'Public Holidays', 'route' => 'hms.hr.public-holidays.index', 'active' => 'hms.hr.public-holidays.*'],
                         ['label' => 'HR Settings', 'route' => 'hms.hr.settings.index', 'active' => 'hms.hr.settings.index*'],
-                        ['label' => 'HR Reports', 'route' => 'hms.hr.reports.index', 'active' => 'hms.hr.reports.index*'],
                     ],
                 ],
                 [
@@ -536,13 +528,10 @@ return [
                     'children' => [
                         ['label' => 'Hospital Info', 'route' => 'hms.settings.index', 'active' => 'hms.settings.index*'],
                         ['label' => 'General Settings', 'route' => 'hms.settings.general', 'active' => 'hms.settings.general*'],
-                        ['label' => 'Branch Setup', 'route' => 'hms.settings.branches', 'active' => 'hms.settings.branches*'],
-                        ['label' => 'Emergency Contacts', 'route' => 'hms.settings.emergency-contacts', 'active' => 'hms.settings.emergency-contacts*'],
-                        ['label' => 'Maps', 'route' => 'hms.system.maps', 'active' => 'hms.system.maps*'],
-                        ['label' => 'Contact Info', 'route' => 'hms.system.contact-info', 'active' => 'hms.system.contact-info*'],
-                        ['label' => 'Timezone', 'route' => 'hms.system.timezone', 'active' => 'hms.system.timezone*'],
                         ['label' => 'Theme / Branding', 'route' => 'hms.settings.theme', 'active' => 'hms.settings.theme*'],
                         ['label' => 'Theme Preview', 'route' => 'hms.system.theme', 'active' => 'hms.system.theme*'],
+                        ['label' => 'Branch Setup', 'route' => 'hms.settings.branches', 'active' => 'hms.settings.branches*'],
+                        ['label' => 'Emergency Contacts', 'route' => 'hms.settings.emergency-contacts', 'active' => 'hms.settings.emergency-contacts*'],
                         ['label' => 'ID Cards (Patients)', 'route' => 'hms.id-cards.bulk-patients', 'active' => 'hms.id-cards.bulk-patients*'],
                         ['label' => 'ID Cards (Staff)', 'route' => 'hms.id-cards.bulk-employees', 'active' => 'hms.id-cards.bulk-employees*'],
                     ],
@@ -550,9 +539,7 @@ return [
             ],
         ],
 
-        // ---------------------------------------------------------------------
         // 7. REPORTS & ANALYTICS
-        // ---------------------------------------------------------------------
         [
             'key' => 'reports',
             'label' => 'Reports & Analytics',
@@ -605,6 +592,7 @@ return [
                 [
                     'label' => 'HR Reports',
                     'icon' => 'fa-users',
+                    'permission' => ['manage staff profiles', 'view attendance', 'manage payrolls'],
                     'children' => [
                         ['label' => 'Employee List', 'route' => 'hms.hr.reports.employee-list', 'active' => 'hms.hr.reports.employee-list*'],
                         ['label' => 'Leave Report', 'route' => 'hms.hr.reports.leave', 'active' => 'hms.hr.reports.leave*'],
@@ -635,7 +623,6 @@ return [
                     'label' => 'More Reports',
                     'icon' => 'fa-folder-open',
                     'children' => [
-                        ['label' => 'Summary Reports', 'route' => 'hms.reports.summary', 'active' => 'hms.reports.summary*'],
                         ['label' => 'Custom Report Builder', 'route' => 'hms.reports.custom-builder.index', 'active' => 'hms.reports.custom-builder.*', 'badge' => 'Pro'],
                         ['label' => 'Saved Reports', 'route' => 'hms.reports.saved.index', 'active' => 'hms.reports.saved.*'],
                         ['label' => 'Export All Data', 'route' => 'hms.reports.export-patients', 'active' => 'hms.reports.export-patients*'],
@@ -644,9 +631,7 @@ return [
             ],
         ],
 
-        // ---------------------------------------------------------------------
         // 8. DIGITAL & INTEGRATIONS
-        // ---------------------------------------------------------------------
         [
             'key' => 'digital',
             'label' => 'Digital & Integrations',
@@ -718,9 +703,7 @@ return [
             ],
         ],
 
-        // ---------------------------------------------------------------------
         // 9. CMS & MARKETING
-        // ---------------------------------------------------------------------
         [
             'key' => 'cms-marketing',
             'label' => 'CMS & Marketing',
@@ -775,9 +758,7 @@ return [
             ],
         ],
 
-        // ---------------------------------------------------------------------
         // 10. ADMINISTRATION (BOTTOM)
-        // ---------------------------------------------------------------------
         [
             'key' => 'administration',
             'label' => 'Administration',
@@ -802,9 +783,18 @@ return [
                 [
                     'label' => 'System Settings',
                     'icon' => 'fa-sliders',
-                    'permission' => ['manage system settings', 'manage roles'],
+                    'permission' => ['manage system settings', 'manage roles', 'manage hospital info'],
                     'children' => [
-                        ['label' => 'Modules', 'route' => 'admin.modules.index', 'permission' => ['manage roles'], 'active' => 'admin.modules.*'],
+                        ['label' => 'General Settings', 'route' => 'hms.settings.general', 'active' => 'hms.settings.general*'],
+                        ['label' => 'Hospital Info', 'route' => 'hms.settings.index', 'active' => 'hms.settings.index*'],
+                        ['label' => 'Theme / Branding', 'route' => 'hms.settings.theme', 'active' => 'hms.settings.theme*'],
+                        ['label' => 'Theme Preview', 'route' => 'hms.system.theme', 'active' => 'hms.system.theme*'],
+                        ['label' => 'Maps', 'route' => 'hms.system.maps', 'active' => 'hms.system.maps*'],
+                        ['label' => 'Contact Info', 'route' => 'hms.system.contact-info', 'active' => 'hms.system.contact-info*'],
+                        ['label' => 'Timezone', 'route' => 'hms.system.timezone', 'active' => 'hms.system.timezone*'],
+                        ['label' => 'Branch Setup', 'route' => 'hms.settings.branches', 'active' => 'hms.settings.branches*'],
+                        ['label' => 'Emergency Contacts', 'route' => 'hms.settings.emergency-contacts', 'active' => 'hms.settings.emergency-contacts*'],
+                        ['label' => 'Modules', 'route' => 'admin.modules.index', 'permission' => ['manage roles'], 'active' => 'admin.modules.index*'],
                         ['label' => 'Localization', 'route' => 'hms.system.localization', 'permission' => ['manage roles'], 'active' => 'hms.system.localization*'],
                         ['label' => 'Multi-Currency', 'route' => 'admin.modules.multi-currency.index', 'permission' => ['manage roles'], 'active' => 'admin.modules.multi-currency.*'],
                     ],
@@ -827,7 +817,7 @@ return [
                 [
                     'label' => 'Audit & Security',
                     'icon' => 'fa-user-lock',
-                    'permission' => ['view audit logs', 'manage security incidents'],
+                    'permission' => ['view audit logs', 'manage security incidents', 'manage lost found items', 'manage access events'],
                     'children' => [
                         ['label' => 'Audit Logs', 'route' => 'hms.settings.audit-logs', 'active' => 'hms.settings.audit-logs*'],
                         ['label' => 'Break-Glass Access', 'route' => 'break-glass.index', 'active' => 'break-glass.*'],
