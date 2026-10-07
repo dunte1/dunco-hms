@@ -14,11 +14,16 @@
                     @php
                         $hasInsurance = \App\Models\PatientInsurance::where('patient_id', $patient->id)->where('is_active', true)->exists();
                     @endphp
-                    @if($hasInsurance)
-                        <a href="{{ route('biometric.index', ['patient_id' => $patient->id]) }}" 
+                    @if($hasInsurance && Route::has('biometric.index'))
+                        <a href="{{ route('biometric.index', ['patient_id' => $patient->id]) }}"
                            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
                            title="Enroll Biometric for Insurance Patient">
                             <i class="fas fa-fingerprint mr-2"></i> Enroll Biometric
+                        </a>
+                    @endif
+                    @if(Route::has('hms.patients.id-card'))
+                        <a href="{{ route('hms.patients.id-card', $patient) }}" target="_blank" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg">
+                            <i class="fa fa-id-card mr-2"></i> ID Card
                         </a>
                     @endif
                     <a href="{{ route('hms.patients.edit', $patient) }}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">

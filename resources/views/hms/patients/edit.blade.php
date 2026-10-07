@@ -1,10 +1,16 @@
 <x-app-layout>
     <div class="py-6">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            @if(empty($patient) || empty($patient->id))
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                    Patient not found. Please go back to the patient list and try again.
+                    <a href="{{ route('hms.patients.index') }}" class="underline ml-2">Patients</a>
+                </div>
+            @else
             <!-- Header -->
-            <div class="mb-6 flex items-center justify-between">
+            <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white flex items-center">
                         <i class="fa fa-user-edit text-green-600 mr-3"></i>
                         Edit Patient Information
                     </h1>
@@ -169,9 +175,9 @@
                     </div>
 
                     <!-- Form Actions -->
-                    <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <form action="{{ route('hms.patients.destroy', $patient) }}" 
-                              method="POST" 
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <form action="{{ route('hms.patients.destroy', $patient) }}"
+                              method="POST"
                               onsubmit="return confirm('Are you sure you want to delete this patient? This action cannot be undone.');">
                             @csrf
                             @method('DELETE')
@@ -180,7 +186,7 @@
                             </button>
                         </form>
 
-                        <div class="flex items-center gap-4">
+                        <div class="flex flex-wrap items-center gap-4">
                             <a href="{{ route('hms.patients.show', $patient) }}" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition">
                                 <i class="fa fa-times mr-2"></i> Cancel
                             </a>
@@ -191,6 +197,7 @@
                     </div>
                 </form>
             </div>
+            @endif
         </div>
     </div>
 </x-app-layout>

@@ -426,7 +426,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/patients/emergency', [PatientsController::class, 'emergencyRegistration'])->name('patients.emergency');
             Route::post('/patients/{patient}/merge', [PatientsController::class, 'merge'])->name('patients.merge');
             Route::get('/patients/{patient}', [PatientsController::class, 'show'])->name('patients.show');
-            Route::get('/patients/{appointment}/edit', [PatientsController::class, 'edit'])->name('patients.edit');
+            Route::get('/patients/{patient}/edit', [PatientsController::class, 'edit'])->name('patients.edit');
             Route::put('/patients/{patient}', [PatientsController::class, 'update'])->name('patients.update');
             Route::delete('/patients/{patient}', [PatientsController::class, 'destroy'])->name('patients.destroy');
         });
