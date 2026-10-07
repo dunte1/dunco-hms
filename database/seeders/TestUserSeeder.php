@@ -18,6 +18,12 @@ class TestUserSeeder extends Seeder
         $users = [
             [
                 'name' => 'Super Admin',
+                'email' => 'dunthecan02@gmail.com',
+                'password' => bcrypt('password'),
+                'role' => 'Super Admin'
+            ],
+            [
+                'name' => 'Hospital Admin',
                 'email' => 'admin@duncohms.com',
                 'password' => bcrypt('password'),
                 'role' => 'Super Admin'
@@ -53,11 +59,19 @@ class TestUserSeeder extends Seeder
                 ['email' => $userData['email']],
                 [
                     'name' => $userData['name'],
-                    'password' => $userData['password']
+                    'password' => $userData['password'],
+                    'email_verified_at' => now(),
                 ]
             );
 
-            // Assign role if it exists
+            // Always ensure Super Admin gets all permissions
+            if ($userData['role'] === 'Super Admin') {
+                $role = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
+                $role->syncPermissions(Permission::all());
+                $user->syncRoles(['Super Admin']);
+                continue;
+            }
+
             $role = Role::where('name', $userData['role'])->first();
             if ($role && !$user->hasRole($role)) {
                 $user->assignRole($role);
@@ -66,7 +80,8 @@ class TestUserSeeder extends Seeder
 
         echo "Test users created successfully!\n";
         echo "Login credentials:\n";
-        echo "- Super Admin: admin@duncohms.com / password\n";
+        echo "- Super Admin: dunthecan02@gmail.com / password\n";
+        echo "- Hospital Admin: admin@duncohms.com / password\n";
         echo "- Doctor: doctor@duncohms.com / password\n";
         echo "- Nurse: nurse@duncohms.com / password\n";
         echo "- Receptionist: receptionist@duncohms.com / password\n";

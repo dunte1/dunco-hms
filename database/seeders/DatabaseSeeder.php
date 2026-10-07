@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
 
         // Seed supplementary data
         $this->command->info('[+] Seeding supplementary data...');
+        $this->call(MedicineSeeder::class);
         $this->call(CurrencySeeder::class);
         $this->call(ThemeSettingsSeeder::class);
         $this->call(ICD10CodeSeeder::class);
