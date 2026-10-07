@@ -68,13 +68,13 @@ class MedicalHistoryController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
         return view('hms.medical-history.create', compact('patients'));
     }
 
     public function edit(MedicalHistory $history): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
         return view('hms.medical-history.edit', compact('history', 'patients'));
     }
 

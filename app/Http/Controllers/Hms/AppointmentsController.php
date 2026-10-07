@@ -45,7 +45,7 @@ class AppointmentsController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no', 'phone']);
+        $patients = Patient::forSelect();
         $doctors = Doctor::with('department')->orderBy('first_name')->get(['id', 'first_name', 'last_name', 'doctor_department_id', 'consultation_fee']);
         $departments = \App\Models\DoctorDepartment::orderBy('name')->get();
         $defaultConsultationFee = (float) \App\Models\SystemSetting::get('consultation_fee', 0);
@@ -121,8 +121,8 @@ class AppointmentsController extends Controller
     public function edit(Appointment $appointment): View
     {
         $appointment->load(['patient', 'doctor.department']);
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no', 'phone']);
-        $doctors = Doctor::with('department')->orderBy('first_name')->get();
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $departments = \App\Models\DoctorDepartment::orderBy('name')->get();
 
         return view('hms.appointments.edit', compact('appointment', 'patients', 'doctors', 'departments'));

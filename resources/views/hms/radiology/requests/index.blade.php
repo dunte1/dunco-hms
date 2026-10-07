@@ -48,7 +48,7 @@
                             <p class="text-3xl font-bold mt-2">{{ $radiologyRequests->where('status', 'in_progress')->count() }}</p>
                         </div>
                         <div class="p-3 bg-white bg-opacity-30 rounded-lg">
-                            <i class="fa fa-spinner text-2xl"></i>
+                            <i class="fa fa-spinner fa-spin text-2xl"></i>
                         </div>
                     </div>
                 </div>

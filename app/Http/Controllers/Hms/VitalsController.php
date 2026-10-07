@@ -41,17 +41,19 @@ class VitalsController extends Controller
 
         $vitals = $query->latest()->paginate(15)->withQueryString();
 
+        $patients = Patient::forSelect();
+
         $stats = [
             'total' => Vital::count(),
             'today' => Vital::whereDate('created_at', today())->count(),
         ];
 
-        return view('hms.vitals.index', compact('vitals', 'stats'));
+        return view('hms.vitals.index', compact('vitals', 'stats', 'patients'));
     }
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
+        $patients = Patient::forSelect();
         $opdVisits = OpdVisit::where('status', '!=', 'discharged')->with('patient')->latest()->get();
         $ipdAdmissions = IpdAdmission::where('status', 'admitted')->with('patient')->latest()->get();
         return view('hms.vitals.create', compact('patients', 'opdVisits', 'ipdAdmissions'));
@@ -89,7 +91,7 @@ class VitalsController extends Controller
 
     public function edit(Vital $vital): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
+        $patients = Patient::forSelect();
         return view('hms.vitals.edit', compact('vital', 'patients'));
     }
 

@@ -20,6 +20,15 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class AnalyticsReportsController extends Controller
 {
+    protected function appointmentDateColumn(): string
+    {
+        try {
+            return collect(\Schema::getColumnListing('appointments'))
+                ->contains('scheduled_at') ? 'scheduled_at' : 'appointment_date';
+        } catch (\Throwable) {
+            return 'scheduled_at';
+        }
+    }
     /**
      * Billing Report
      */
@@ -184,8 +193,8 @@ class AnalyticsReportsController extends Controller
         $dateFrom = $request->get('date_from', now()->subMonth()->format('Y-m-d'));
         $dateTo = $request->get('date_to', now()->format('Y-m-d'));
 
-        $doctors = Doctor::with(['appointments' => function($query) use ($dateFrom, $dateTo) {
-            $query->whereBetween('appointment_date', [$dateFrom, $dateTo]);
+        $doctors = Doctor::with(['appointments' => function ($query) use ($dateFrom, $dateTo) {
+            $query->whereBetween($this->appointmentDateColumn(), [$dateFrom, $dateTo]);
         }])->get();
 
         $doctorPerformance = $doctors->map(function($doctor) {
@@ -242,7 +251,7 @@ class AnalyticsReportsController extends Controller
         $doctorCount = Doctor::count();
         $employeeCount = \App\Models\Employee::count();
 
-        $todayAppointments = Appointment::whereDate('appointment_date', today())->count();
+        $todayAppointments = Appointment::whereDate($this->appointmentDateColumn(), today())->count();
         $todayRevenue = Payment::whereDate('payment_date', today())->sum('amount');
 
         return view('hms.reports.summary', compact(

@@ -131,6 +131,7 @@
         </div>
 
         <!-- Staff Attendance -->
+        @if(Route::has('hms.moh-reports.staff-attendance'))
         <div class="col-xl-3 col-md-6">
             <div class="card border-0 shadow-sm h-100 report-card" style="transition: all 0.3s ease;">
                 <div class="card-body p-4 text-center">
@@ -146,8 +147,10 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Bed Occupancy -->
+        @if(Route::has('hms.moh-reports.bed-occupancy') || Route::has('hms.reports.bed-occupancy'))
         <div class="col-xl-3 col-md-6">
             <div class="card border-0 shadow-sm h-100 report-card" style="transition: all 0.3s ease;">
                 <div class="card-body p-4 text-center">
@@ -157,12 +160,19 @@
                     </div>
                     <h5 class="fw-bold text-dark mb-2">Bed Occupancy</h5>
                     <p class="text-muted small mb-3">Ward-wise bed occupancy rates, available beds, and utilization metrics.</p>
-                    <a href="{{ route('hms.moh-reports.bed-occupancy') }}" class="btn btn-sm px-4" style="background: #6366f1; color: #fff;">
-                        <i class="fas fa-bed me-1"></i> Generate
-                    </a>
+                    @if(Route::has('hms.moh-reports.bed-occupancy'))
+                        <a href="{{ route('hms.moh-reports.bed-occupancy') }}" class="btn btn-sm px-4" style="background: #6366f1; color: #fff;">
+                            <i class="fas fa-bed me-1"></i> Generate
+                        </a>
+                    @else
+                        <a href="{{ route('hms.reports.bed-occupancy') }}" class="btn btn-sm px-4" style="background: #6366f1; color: #fff;">
+                            <i class="fas fa-bed me-1"></i> Generate
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
+        @endif
     </div>
 </div>
 

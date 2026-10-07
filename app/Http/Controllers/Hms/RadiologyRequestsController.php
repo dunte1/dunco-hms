@@ -22,8 +22,8 @@ class RadiologyRequestsController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $radiologyTests = RadiologyTest::where('is_active', true)->orderBy('test_name')->get(['id', 'test_name', 'price']);
         return view('hms.radiology.requests.create', compact('patients', 'doctors', 'radiologyTests'));
     }
@@ -58,8 +58,8 @@ class RadiologyRequestsController extends Controller
     {
         $this->authorize('update', $radiologyRequest);
 
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $radiologyTests = RadiologyTest::where('is_active', true)->orderBy('test_name')->get(['id', 'test_name', 'price']);
         return view('hms.radiology.requests.edit', compact('radiologyRequest', 'patients', 'doctors', 'radiologyTests'));
     }

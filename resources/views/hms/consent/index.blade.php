@@ -6,7 +6,7 @@
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center"><i class="fa fa-file-signature text-indigo-600 mr-3"></i>Consent Management</h1>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Patient consent forms for procedures and treatments</p>
                 </div>
-                <a href="{{ route('hms.consent.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition"><i class="fa fa-plus mr-2"></i> New Consent</a>
+                <a href="{{ route('consent.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition"><i class="fa fa-plus mr-2"></i> New Consent</a>
             </div>
 
             @if(session('status'))
@@ -37,9 +37,9 @@
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $consent->signed_at?->format('M d, Y') ?? '-' }}</td>
                                 <td class="px-6 py-4 text-right text-sm">
                                     <div class="flex justify-end gap-1">
-                                        <a href="{{ route('hms.consent.show', $consent) }}" class="px-2 py-1 bg-blue-600 text-white rounded text-xs"><i class="fa fa-eye"></i></a>
+                                        <a href="{{ route('consent.show', $consent) }}" class="px-2 py-1 bg-blue-600 text-white rounded text-xs"><i class="fa fa-eye"></i></a>
                                         @if($consent->status === 'pending')
-                                            <form action="{{ route('hms.consent.sign', $consent) }}" method="POST" class="inline">@csrf<button class="px-2 py-1 bg-green-600 text-white rounded text-xs"><i class="fa fa-check"></i> Sign</button></form>
+                                            <form action="{{ route('consent.sign', $consent) }}" method="POST" class="inline">@csrf<button class="px-2 py-1 bg-green-600 text-white rounded text-xs"><i class="fa fa-check"></i> Sign</button></form>
                                         @endif
                                     </div>
                                 </td>

@@ -30,7 +30,7 @@
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $record->storage_location ?? '-' }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">{{ $record->cause_of_death ?? '-' }}</td>
                                 <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-semibold rounded-full {{ $record->status === 'stored' ? 'bg-blue-100 text-blue-800' : ($record->status === 'released' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800') }}">{{ ucfirst($record->status) }}</span></td>
-                                <td class="px-6 py-4 text-right"><a href="{{ route('hms.mortuary.show', $record) }}" class="px-2 py-1 bg-blue-600 text-white rounded text-xs"><i class="fa fa-eye"></i></a></td>
+                                <td class="px-6 py-4 text-right"><a href="{{ route('mortuary.show', $record) }}" class="px-2 py-1 bg-blue-600 text-white rounded text-xs"><i class="fa fa-eye"></i></a></td>
                             </tr>
                         @empty
                             <tr><td colspan="6" class="px-6 py-12 text-center text-gray-500">No records in mortuary</td></tr>
@@ -44,7 +44,7 @@
     <div id="addBodyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md mx-4 p-6">
             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Register Body</h3>
-            <form action="{{ route('hms.mortuary.store') }}" method="POST" class="space-y-4">
+            <form action="{{ route('mortuary.store') }}" method="POST" class="space-y-4">
                 @csrf
                 <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Body ID *</label><input type="text" name="body_id" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="e.g., MORT-001"></div>
                 <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Storage Location</label><input type="text" name="storage_location" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="e.g., Cabinet A-3"></div>

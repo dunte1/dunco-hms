@@ -22,7 +22,7 @@
                         </nav>
                     </div>
                     <div class="mt-3 mt-sm-0">
-                        <a href="{{ route('hms.hr.internships.create') }}" class="btn btn-light btn-lg shadow-sm px-4">
+                        <a href="{{ route('hms.hr.internships.create') }}" class="btn btn-light shadow-sm px-4">
                             <i class="fas fa-plus-circle me-2"></i>New Internship
                         </a>
                     </div>
@@ -95,23 +95,23 @@
                             </h5>
                         </div>
                         <div class="col-md-6">
-                            <form method="GET" action="{{ route('hms.hr.internships.index') }}" class="d-flex gap-2 justify-content-md-end">
-                                <div class="flex-fill" style="max-width: 200px;">
-                                    <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-lg" placeholder="Search...">
+                            <form method="GET" action="{{ route('hms.hr.internships.index') }}" class="d-flex flex-wrap gap-2 justify-content-md-end search-bar-fixed">
+                                <div class="flex-fill search-bar-fixed" style="max-width: 200px;">
+                                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search...">
                                 </div>
-                                <select name="status" class="form-select form-select-lg" style="max-width: 150px;">
+                                <select name="status" class="form-select" style="max-width: 150px;">
                                     <option value="">All Status</option>
                                     <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                                     <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
                                     <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                                 </select>
-                                <select name="department_id" class="form-select form-select-lg" style="max-width: 180px;">
+                                <select name="department_id" class="form-select" style="max-width: 180px;">
                                     <option value="">All Departments</option>
                                     @foreach($departments as $dept)
                                     <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
                                     @endforeach
                                 </select>
-                                <button type="submit" class="btn btn-primary btn-lg" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border: none;">
+                                <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border: none;">
                                     <i class="fas fa-filter"></i>
                                 </button>
                             </form>
@@ -220,7 +220,7 @@
                             </div>
                             <h4 class="text-dark mb-3 fw-bold">No Internships Found</h4>
                             <p class="text-muted mb-4">Start by creating a new internship.</p>
-                            <a href="{{ route('hms.hr.internships.create') }}" class="btn btn-primary btn-lg px-5 shadow-sm">
+                            <a href="{{ route('hms.hr.internships.create') }}" class="btn btn-primary px-5 shadow-sm">
                                 <i class="fas fa-plus-circle me-2"></i>Create First Internship
                             </a>
                         </div>

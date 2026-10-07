@@ -66,5 +66,20 @@ class AppServiceProvider extends ServiceProvider
             \App\Events\DischargeCompleted::class,
             \App\Listeners\HandleDischargeCompletion::class
         );
+
+        Event::listen(
+            \Spatie\Backup\Events\BackupZipWasCreated::class,
+            [\App\Listeners\RecordBackupResult::class, 'zipCreated']
+        );
+
+        Event::listen(
+            \Spatie\Backup\Events\BackupWasSuccessful::class,
+            [\App\Listeners\RecordBackupResult::class, 'successful']
+        );
+
+        Event::listen(
+            \Spatie\Backup\Events\BackupHasFailed::class,
+            [\App\Listeners\RecordBackupResult::class, 'failed']
+        );
     }
 }

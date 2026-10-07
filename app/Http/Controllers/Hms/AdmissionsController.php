@@ -36,8 +36,8 @@ class AdmissionsController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get();
-        $doctors = Doctor::orderBy('first_name')->get();
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $beds = Bed::where('is_available', true)->get();
 
         return view('hms.admissions.create', compact('patients', 'doctors', 'beds'));
@@ -75,8 +75,8 @@ class AdmissionsController extends Controller
 
     public function edit(IpdAdmission $admission): View
     {
-        $patients = Patient::orderBy('first_name')->get();
-        $doctors = Doctor::orderBy('first_name')->get();
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $beds = Bed::where('is_available', true)
             ->orWhere('id', $admission->bed_id)
             ->get();

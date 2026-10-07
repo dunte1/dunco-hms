@@ -29,6 +29,32 @@ class Employee extends Model
         'salary' => 'decimal:2',
     ];
 
+    public function scopeForSelect($query)
+    {
+        return $query->orderBy('first_name')
+            ->orderBy('last_name')
+            ->limit(500)
+            ->get(['id', 'employee_id', 'first_name', 'last_name', 'position', 'department_id']);
+    }
+
+    public function scopeSearch($query, ?string $term)
+    {
+        if ($term === null || trim($term) === '') {
+            return $query;
+        }
+
+        $like = '%' . trim($term) . '%';
+
+        return $query->where(function ($q) use ($like) {
+            $q->where('first_name', 'like', $like)
+                ->orWhere('last_name', 'like', $like)
+                ->orWhere('employee_id', 'like', $like)
+                ->orWhere('email', 'like', $like)
+                ->orWhere('phone', 'like', $like)
+                ->orWhere('position', 'like', $like);
+        });
+    }
+
     protected static function boot()
     {
         parent::boot();

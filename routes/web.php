@@ -124,6 +124,11 @@ Route::post('/testimonials', [TestimonialsController::class, 'store'])->name('te
 
 // AI & Advanced Features Routes
 Route::prefix('hms')->middleware(['auth'])->group(function () {
+    // Search API for AJAX typeahead dropdowns
+    Route::get('/api/patients/search', [\App\Http\Controllers\Hms\SearchApiController::class, 'patients'])->name('api.patients.search');
+    Route::get('/api/doctors/search', [\App\Http\Controllers\Hms\SearchApiController::class, 'doctors'])->name('api.doctors.search');
+    Route::get('/api/employees/search', [\App\Http\Controllers\Hms\SearchApiController::class, 'employees'])->name('api.employees.search');
+
     // AI Features
     Route::get('/ai/appointment-suggestions', [\App\Http\Controllers\Ai\AiAssistantController::class, 'appointmentSuggestions'])->name('ai.appointment-suggestions')->middleware('permission:use ai assistant|manage ai suggestions');
     Route::post('/ai/appointment-suggestions/generate', [\App\Http\Controllers\Ai\AiAssistantController::class, 'generateAppointmentSuggestion'])->name('ai.appointment-suggestions.generate')->middleware('permission:use ai assistant|manage ai suggestions');
@@ -477,6 +482,12 @@ Route::middleware('auth')->group(function () {
             Route::get('/queue', [QueueManagementController::class, 'index'])->name('queue.index');
             Route::get('/queue/create', [QueueManagementController::class, 'create'])->name('queue.create');
             Route::post('/queue', [QueueManagementController::class, 'store'])->name('queue.store');
+            Route::get('/queue/display-board', [QueueManagementController::class, 'displayBoard'])->name('queue.display-board');
+            Route::get('/queue/kiosk', [QueueManagementController::class, 'kioskMode'])->name('queue.kiosk');
+            Route::get('/queue/smart-display', [QueueManagementController::class, 'smartDisplay'])->name('queue.smart-display');
+            Route::get('/queue/current', [QueueManagementController::class, 'getCurrentQueues'])->name('queue.current');
+            Route::get('/queue/token-generation', [QueueManagementController::class, 'tokenGeneration'])->name('queue.token-generation');
+            Route::post('/queue/generate-token', [QueueManagementController::class, 'generateToken'])->name('queue.generate-token');
             Route::get('/queue/{queue}', [QueueManagementController::class, 'show'])->name('queue.show');
             Route::get('/queue/{queue}/edit', [QueueManagementController::class, 'edit'])->name('queue.edit');
             Route::put('/queue/{queue}', [QueueManagementController::class, 'update'])->name('queue.update');
@@ -485,12 +496,6 @@ Route::middleware('auth')->group(function () {
             Route::post('/queue/{queue}/complete', [QueueManagementController::class, 'completeQueue'])->name('queue.complete');
             Route::delete('/queue/{queue}/cancel', [QueueManagementController::class, 'cancelQueue'])->name('queue.cancel');
             Route::delete('/queue/{queue}', [QueueManagementController::class, 'destroy'])->name('queue.destroy');
-            Route::get('/queue/display-board', [QueueManagementController::class, 'displayBoard'])->name('queue.display-board');
-            Route::get('/queue/kiosk', [QueueManagementController::class, 'kioskMode'])->name('queue.kiosk');
-            Route::get('/queue/smart-display', [QueueManagementController::class, 'smartDisplay'])->name('queue.smart-display');
-            Route::get('/queue/current', [QueueManagementController::class, 'getCurrentQueues'])->name('queue.current');
-            Route::get('/queue/token-generation', [QueueManagementController::class, 'tokenGeneration'])->name('queue.token-generation');
-            Route::post('/queue/generate-token', [QueueManagementController::class, 'generateToken'])->name('queue.generate-token');
             Route::get('/queue/token-success/{queue}', [QueueManagementController::class, 'tokenSuccess'])->name('queue.token-success');
         });
         
@@ -498,12 +503,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/visitors', [\App\Http\Controllers\Hms\VisitorController::class, 'index'])->name('visitors.index');
         Route::get('/visitors/create', [\App\Http\Controllers\Hms\VisitorController::class, 'create'])->name('visitors.create');
         Route::post('/visitors', [\App\Http\Controllers\Hms\VisitorController::class, 'store'])->name('visitors.store');
+        Route::get('/visitors/analytics', [\App\Http\Controllers\Hms\VisitorController::class, 'analytics'])->name('visitors.analytics');
         Route::get('/visitors/{visitor}', [\App\Http\Controllers\Hms\VisitorController::class, 'show'])->name('visitors.show');
         Route::get('/visitors/{visitor}/edit', [\App\Http\Controllers\Hms\VisitorController::class, 'edit'])->name('visitors.edit');
         Route::put('/visitors/{visitor}', [\App\Http\Controllers\Hms\VisitorController::class, 'update'])->name('visitors.update');
         Route::post('/visitors/{visitor}/check-out', [\App\Http\Controllers\Hms\VisitorController::class, 'checkOut'])->name('visitors.check-out');
         Route::get('/visitors/{visitor}/badge', [\App\Http\Controllers\Hms\VisitorController::class, 'printBadge'])->name('visitors.badge');
-        Route::get('/visitors/analytics', [\App\Http\Controllers\Hms\VisitorController::class, 'analytics'])->name('visitors.analytics');
         Route::delete('/visitors/{visitor}', [\App\Http\Controllers\Hms\VisitorController::class, 'destroy'])->name('visitors.destroy');
         
         Route::get('/doctors', [DoctorsController::class, 'index'])->name('doctors.index');
@@ -538,6 +543,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/stores', [StoreController::class, 'store'])->name('stores.store');
         Route::get('/stores/transfer', [StoreController::class, 'transfer'])->name('stores.transfer');
         Route::post('/stores/transfer', [StoreController::class, 'storeTransfer'])->name('stores.transfer-store');
+        Route::get('/stores/issues', [\App\Http\Controllers\Hms\StockIssueController::class, 'index'])->name('stores.issues.index');
+        Route::post('/stores/issues', [\App\Http\Controllers\Hms\StockIssueController::class, 'store'])->name('stores.issues.store');
         Route::get('/stores/{store}', [StoreController::class, 'show'])->name('stores.show');
         Route::get('/stores/{store}/edit', [StoreController::class, 'edit'])->name('stores.edit');
         Route::put('/stores/{store}', [StoreController::class, 'update'])->name('stores.update');
@@ -1266,14 +1273,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/nursing/handovers/{handover}/acknowledge', [\App\Http\Controllers\Hms\ShiftHandoverController::class, 'acknowledge'])->name('nursing.handovers.acknowledge');
         Route::post('/nursing/procedures', [\App\Http\Controllers\Hms\NursingProcedureController::class, 'store'])->name('nursing.procedures.store');
 
-        // Case Handlers & Social Workers
+        // Case Handlers & Social Workers — static /cases routes MUST come before {handler}
         Route::get('/case-handlers', [CaseHandlersController::class, 'index'])->name('case-handlers.index');
         Route::get('/case-handlers/create', [CaseHandlersController::class, 'create'])->name('case-handlers.create');
         Route::post('/case-handlers', [CaseHandlersController::class, 'store'])->name('case-handlers.store');
-        Route::get('/case-handlers/{handler}', [CaseHandlersController::class, 'show'])->name('case-handlers.show');
-        Route::get('/case-handlers/{handler}/edit', [CaseHandlersController::class, 'edit'])->name('case-handlers.edit');
-        Route::put('/case-handlers/{handler}', [CaseHandlersController::class, 'update'])->name('case-handlers.update');
-        Route::delete('/case-handlers/{handler}', [CaseHandlersController::class, 'destroy'])->name('case-handlers.destroy');
         Route::get('/case-handlers/cases', [CaseHandlersController::class, 'cases'])->name('case-handlers.cases');
         Route::get('/case-handlers/cases/create', [CaseHandlersController::class, 'createCase'])->name('case-handlers.cases.create');
         Route::post('/case-handlers/cases', [CaseHandlersController::class, 'storeCase'])->name('case-handlers.cases.store');
@@ -1281,6 +1284,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/case-handlers/cases/{case}/edit', [CaseHandlersController::class, 'editCase'])->name('case-handlers.cases.edit');
         Route::put('/case-handlers/cases/{case}', [CaseHandlersController::class, 'updateCase'])->name('case-handlers.cases.update');
         Route::delete('/case-handlers/cases/{case}', [CaseHandlersController::class, 'destroyCase'])->name('case-handlers.cases.destroy');
+        Route::get('/case-handlers/{handler}', [CaseHandlersController::class, 'show'])->name('case-handlers.show');
+        Route::get('/case-handlers/{handler}/edit', [CaseHandlersController::class, 'edit'])->name('case-handlers.edit');
+        Route::put('/case-handlers/{handler}', [CaseHandlersController::class, 'update'])->name('case-handlers.update');
+        Route::delete('/case-handlers/{handler}', [CaseHandlersController::class, 'destroy'])->name('case-handlers.destroy');
         
         // Birth & Death Reports
         Route::get('/reports/birth', [BirthDeathReportsController::class, 'birthReports'])->name('reports.birth')->middleware('permission:export reports|generate patient reports|generate billing reports|generate financial reports|generate birth reports|generate death reports|generate pathology reports|generate operation reports|view reports|manage saved reports|manage report schedules');
@@ -1457,11 +1464,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/settings/branches/create', [\App\Http\Controllers\Hms\SettingsController::class, 'createBranch'])->name('settings.branches.create');
         Route::post('/settings/branches', [\App\Http\Controllers\Hms\SettingsController::class, 'storeBranch'])->name('settings.branches.store');
         Route::get('/settings/audit-logs', [\App\Http\Controllers\Hms\SettingsController::class, 'auditLogs'])->name('settings.audit-logs')->middleware('permission:view audit logs|manage break glass events');
-        Route::get('/settings/backup', [\App\Http\Controllers\Hms\SettingsController::class, 'backup'])->name('settings.backup')->middleware('permission:manage backups');
-        Route::post('/settings/backup/create', [\App\Http\Controllers\Hms\SettingsController::class, 'createBackup'])->name('settings.backup.create')->middleware('permission:manage backups');
-        Route::post('/settings/backup/restore', [\App\Http\Controllers\Hms\SettingsController::class, 'restoreBackup'])->name('settings.backup.restore')->middleware('permission:manage backups');
-        Route::get('/settings/backup/download/{filename}', [\App\Http\Controllers\Hms\SettingsController::class, 'downloadBackup'])->name('settings.backup.download')->middleware('permission:manage backups');
-        Route::get('/settings/backup/download/{filename}', [\App\Http\Controllers\Hms\SettingsController::class, 'downloadBackup'])->name('settings.backup.download')->middleware('permission:manage backups');
+       Route::get('/settings/backup', [\App\Http\Controllers\Hms\SettingsController::class, 'backup'])->name('settings.backup')->middleware('permission:manage backups');
+       Route::post('/settings/backup/create', [\App\Http\Controllers\Hms\SettingsController::class, 'createBackup'])->name('settings.backup.create')->middleware('permission:manage backups');
+       Route::post('/settings/backup/restore', [\App\Http\Controllers\Hms\SettingsController::class, 'restoreBackup'])->name('settings.backup.restore')->middleware('permission:manage backups');
+       Route::get('/settings/backup/download/{filename}', [\App\Http\Controllers\Hms\SettingsController::class, 'downloadBackup'])->name('settings.backup.download')->middleware('permission:manage backups');
+       Route::delete('/settings/backup/delete/{filename}', [\App\Http\Controllers\Hms\SettingsController::class, 'deleteBackup'])->name('settings.backup.delete')->middleware('permission:manage backups');
+       Route::post('/settings/backup/verify/{filename}', [\App\Http\Controllers\Hms\SettingsController::class, 'verifyBackup'])->name('settings.backup.verify')->middleware('permission:manage backups');
         
         // Emergency Contacts Settings
         Route::get('/settings/emergency-contacts', [\App\Http\Controllers\Hms\SettingsController::class, 'emergencyContacts'])->name('settings.emergency-contacts');
@@ -1576,9 +1584,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/procurement/supplier-invoices/{invoice}/verify', [\App\Http\Controllers\Hms\SupplierInvoiceController::class, 'verify'])->name('procurement.supplier-invoices.verify');
 
         // Stock Issues (G064-G065)
-        Route::get('/stores/issues', [\App\Http\Controllers\Hms\StockIssueController::class, 'index'])->name('stores.issues.index');
-        Route::post('/stores/issues', [\App\Http\Controllers\Hms\StockIssueController::class, 'store'])->name('stores.issues.store');
-        
+        // Inventory / store issues live with stores routes above
         // Stock Take Sheet
         Route::get('/inventory/stock-take', [InventoryController::class, 'stockTake'])->name('inventory.stock-take');
         
@@ -1608,13 +1614,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/advance-payments', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'index'])->name('advance-payments.index');
         Route::get('/advance-payments/create', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'create'])->name('advance-payments.create');
         Route::post('/advance-payments', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'store'])->name('advance-payments.store');
+        Route::get('/advance-payments/deposits', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'deposits'])->name('advance-payments.deposits');
+        Route::get('/advance-payments/refunds', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'refunds'])->name('advance-payments.refunds');
+        Route::post('/advance-payments/refunds', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'processRefund'])->name('advance-payments.process-refund');
         Route::get('/advance-payments/{advancePayment}', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'show'])->name('advance-payments.show');
         Route::get('/advance-payments/{advancePayment}/edit', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'edit'])->name('advance-payments.edit');
         Route::put('/advance-payments/{advancePayment}', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'update'])->name('advance-payments.update');
         Route::delete('/advance-payments/{advancePayment}', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'destroy'])->name('advance-payments.destroy');
-        Route::get('/advance-payments/deposits', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'deposits'])->name('advance-payments.deposits');
-        Route::get('/advance-payments/refunds', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'refunds'])->name('advance-payments.refunds');
-        Route::post('/advance-payments/refunds', [\App\Http\Controllers\Hms\AdvancePaymentsController::class, 'processRefund'])->name('advance-payments.process-refund');
         
         // Finance - Accounts Management
         Route::get('/finance/accounts', [\App\Http\Controllers\Hms\AccountsController::class, 'index'])->name('finance.accounts.index');
@@ -2009,9 +2015,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/ict/tickets', [\App\Http\Controllers\Hms\ItTicketController::class, 'store'])->name('ict.tickets.store');
         Route::get('/ict/tickets', [\App\Http\Controllers\Hms\ItTicketController::class, 'index'])->name('ict.tickets.index');
         Route::post('/ict/tickets/{ticket}/resolve', [\App\Http\Controllers\Hms\ItTicketController::class, 'resolve'])->name('ict.tickets.resolve');
-        Route::post('/ict/backups', [\App\Http\Controllers\Hms\BackupController::class, 'store'])->name('ict.backups.store');
-        Route::get('/ict/backups', [\App\Http\Controllers\Hms\BackupController::class, 'index'])->name('ict.backups.index');
-        Route::post('/ict/backups/{backup}/verify', [\App\Http\Controllers\Hms\BackupController::class, 'verify'])->name('ict.backups.verify');
+       Route::post('/ict/backups', [\App\Http\Controllers\Hms\BackupController::class, 'store'])->name('ict.backups.store')->middleware('permission:manage backups');
+       Route::get('/ict/backups', [\App\Http\Controllers\Hms\BackupController::class, 'index'])->name('ict.backups.index')->middleware('permission:manage backups');
+       Route::post('/ict/backups/{backup}/verify', [\App\Http\Controllers\Hms\BackupController::class, 'verify'])->name('ict.backups.verify')->middleware('permission:manage backups');
+       Route::delete('/ict/backups/{backup}', [\App\Http\Controllers\Hms\BackupController::class, 'destroy'])->name('ict.backups.destroy')->middleware('permission:manage backups');
         Route::post('/ict/software-licences', [\App\Http\Controllers\Hms\SoftwareLicenceController::class, 'store'])->name('ict.software-licences.store');
         Route::get('/ict/software-licences', [\App\Http\Controllers\Hms\SoftwareLicenceController::class, 'index'])->name('ict.software-licences.index');
 

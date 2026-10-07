@@ -3,9 +3,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
             <div class="mb-6">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white flex items-center">
                             <i class="fa fa-file-invoice text-emerald-600 mr-3"></i>
                             Create New Invoice
                         </h1>
@@ -148,7 +148,7 @@
                                     <i class="fa fa-bolt text-yellow-500 mr-1"></i>
                                     Quick Add Service
                                 </label>
-                                <div class="flex gap-2">
+                                <div class="flex flex-wrap gap-2">
                                     <select 
                                         x-model="selectedService"
                                         class="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"

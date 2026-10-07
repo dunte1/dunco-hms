@@ -170,7 +170,7 @@ class AmbulanceController extends Controller
     public function createEmergency(): View
     {
         $ambulances = Ambulance::where('is_available', true)->get(['id', 'vehicle_number']);
-        $patients = \App\Models\Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = \App\Models\Patient::forSelect();
         return view('hms.ambulance.create-emergency', compact('ambulances', 'patients'));
     }
 
@@ -267,7 +267,7 @@ class AmbulanceController extends Controller
     public function editEmergency(EmergencyAdmission $emergency): View
     {
         $ambulances = Ambulance::where('is_available', true)->get(['id', 'vehicle_number']);
-        $patients = \App\Models\Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = \App\Models\Patient::forSelect();
         return view('hms.ambulance.edit-emergency', compact('emergency', 'ambulances', 'patients'));
     }
 

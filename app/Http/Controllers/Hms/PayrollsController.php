@@ -58,7 +58,7 @@ class PayrollsController extends Controller
 
     public function edit(Payroll $payroll): View
     {
-        $employees = Employee::orderBy('first_name')->get();
+        $employees = Employee::forSelect();
         return view('hms.hr.payrolls.edit', compact('payroll', 'employees'));
     }
 

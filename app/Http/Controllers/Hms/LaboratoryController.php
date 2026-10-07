@@ -128,8 +128,8 @@ class LaboratoryController extends Controller
 
     public function createRequest(): View
     {
-        $patients = Patient::all();
-        $doctors = Doctor::all();
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $tests = LabTest::where('is_active', true)->get();
         
         return view('hms.laboratory.requests.create', compact('patients', 'doctors', 'tests'));

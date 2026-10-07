@@ -45,7 +45,7 @@ class NursingCarePlanController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
+        $patients = Patient::forSelect();
         $ipdAdmissions = IpdAdmission::where('status', 'admitted')->with('patient')->latest()->get();
         $nurses = Nurse::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         return view('hms.nursing-care-plans.create', compact('patients', 'ipdAdmissions', 'nurses'));
@@ -79,7 +79,7 @@ class NursingCarePlanController extends Controller
 
     public function edit(NursingCarePlan $carePlan): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
+        $patients = Patient::forSelect();
         $nurses = Nurse::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         return view('hms.nursing-care-plans.edit', compact('carePlan', 'patients', 'nurses'));
     }

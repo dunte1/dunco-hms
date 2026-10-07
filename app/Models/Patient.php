@@ -39,6 +39,37 @@ class Patient extends Model
 
     protected $appends = ['full_name'];
 
+    /**
+     * Bounded option list for dropdowns (avoids loading entire patient table).
+     * Usage: Patient::forSelect()  → Eloquent Collection
+     *        Patient::search($q)->forSelect() is NOT chainable after get();
+     *        use Patient::search($q)->limit(50)->get([...]) for AJAX lists.
+     */
+    public function scopeForSelect($query)
+    {
+        return $query->orderBy('first_name')
+            ->orderBy('last_name')
+            ->limit(500)
+            ->get(['id', 'first_name', 'last_name', 'patient_no', 'phone']);
+    }
+
+    public function scopeSearch($query, ?string $term)
+    {
+        if ($term === null || trim($term) === '') {
+            return $query;
+        }
+
+        $like = '%' . trim($term) . '%';
+
+        return $query->where(function ($q) use ($like) {
+            $q->where('first_name', 'like', $like)
+                ->orWhere('last_name', 'like', $like)
+                ->orWhere('patient_no', 'like', $like)
+                ->orWhere('phone', 'like', $like)
+                ->orWhere('email', 'like', $like);
+        });
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim($this->first_name.' '.$this->last_name);

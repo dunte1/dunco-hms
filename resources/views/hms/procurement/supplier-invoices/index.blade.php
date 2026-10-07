@@ -1,0 +1,46 @@
+<x-app-layout>
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Supplier Invoices</h1>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Procurement supplier invoices</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4"><p class="text-sm text-gray-500">Total</p><p class="text-2xl font-bold">{{ $stats['total'] ?? 0 }}</p></div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4"><p class="text-sm text-gray-500">Received</p><p class="text-2xl font-bold">{{ $stats['received'] ?? 0 }}</p></div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4"><p class="text-sm text-gray-500">Verified</p><p class="text-2xl font-bold">{{ $stats['verified'] ?? 0 }}</p></div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4"><p class="text-sm text-gray-500">Paid</p><p class="text-2xl font-bold">{{ $stats['paid'] ?? 0 }}</p></div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Invoice #</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Supplier</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            @forelse(($invoices ?? collect()) as $invoice)
+                                <tr>
+                                    <td class="px-4 py-3 text-sm">{{ $invoice->invoice_number ?? $invoice->id }}</td>
+                                    <td class="px-4 py-3 text-sm">{{ $invoice->supplier->name ?? '—' }}</td>
+                                    <td class="px-4 py-3 text-sm">{{ number_format($invoice->amount ?? 0, 2) }}</td>
+                                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full bg-amber-100 text-amber-800">{{ $invoice->status ?? 'pending' }}</span></td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="4" class="px-4 py-8 text-center text-gray-500">No supplier invoices yet</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>

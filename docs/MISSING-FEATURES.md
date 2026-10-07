@@ -38,7 +38,7 @@ Statuses: Existing | Partial | Missing | Duplicate | Unknown | Blocked
 | Scope-aware My Work dashboards | Missing | No verified role-aware My Work section | P2 | Permission + query design | Implement only after scope model |
 | AI action audit trail | Partial | AI models/controllers exist; full audit of AI actions unverified | P2 | AuditLog integration | Log AI generate/accept/reject events |
 | Integration health checks | Partial | Integrations UI exists; health check depth unverified | P2 | Credentials for live status | Avoid fake success states |
-| Backup/disaster recovery | Existing (config) | manage backups permission + backup routes/settings | P3 | Ops runbook | Verify restore procedure |
+| Backup/disaster recovery | Implemented | Spatie laravel-backup wired via BackupService; Settings UI create/list/download/verify/delete/restore; scheduled run/clean/monitor; optional encryption | P3 | Set `BACKUP_ARCHIVE_PASSWORD` + off-server copies | Periodically test restore from an off-server archive |
 | Rate limiting / brute force | Unknown | Not fully audited this session | P1 | Middleware config | Audit auth + API throttle config |
 | Encryption at rest | Unknown | Not fully audited this session | P1 | Infra | Verify DB/disk encryption posture |
 | DPIA / data protection docs | Missing | No DPIA artefacts found in docs/ | P4 | Legal/compliance | Flag for human/legal review |

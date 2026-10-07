@@ -36,7 +36,7 @@ class VaccinationController extends Controller
 
     public function administer(): View
     {
-        $patients = Patient::orderBy('first_name')->pluck(function ($p) { return $p->first_name . ' ' . $p->last_name; }, 'id');
+        $patients = Patient::forSelect()->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
         $vaccines = Vaccine::where('stock_quantity', '>', 0)->orderBy('name')->pluck('name', 'id');
         return view('hms.vaccination.administer', compact('patients', 'vaccines'));
     }

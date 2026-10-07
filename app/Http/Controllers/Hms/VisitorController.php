@@ -30,7 +30,7 @@ class VisitorController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
+        $patients = Patient::forSelect();
         return view('hms.visitors.create', compact('patients'));
     }
 
@@ -77,7 +77,7 @@ class VisitorController extends Controller
     public function edit(VisitorLog $visitor): View
     {
         $visitor->load('patient');
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
+        $patients = Patient::forSelect();
         return view('hms.visitors.edit', compact('visitor', 'patients'));
     }
 

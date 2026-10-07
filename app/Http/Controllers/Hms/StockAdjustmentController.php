@@ -36,6 +36,8 @@ class StockAdjustmentController extends Controller
         $stats = [
             'total' => StockAdjustment::count(),
             'pending' => StockAdjustment::where('status', 'pending')->count(),
+            'approved' => StockAdjustment::where('status', 'approved')->count(),
+            'rejected' => StockAdjustment::where('status', 'rejected')->count(),
             'approved_today' => StockAdjustment::where('status', 'approved')
                 ->whereDate('approved_at', today())->count(),
         ];

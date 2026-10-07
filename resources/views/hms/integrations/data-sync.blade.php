@@ -9,11 +9,14 @@
                 <i class="fa fa-sync-alt text-indigo-600 mr-3"></i>
                 Data Sync & Backup Scheduler
             </h2>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Schedule automatic backups and data synchronization</p>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Operational view of automated backups and recovery readiness</p>
         </div>
+        <a href="{{ route('hms.settings.backup') }}"
+           class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition inline-flex items-center">
+            <i class="fa fa-database mr-2"></i> Open Backup & Restore
+        </a>
     </div>
 
-    <!-- Success Messages -->
     @if(session('success'))
         <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
             <i class="fa fa-check-circle mr-2"></i>
@@ -21,150 +24,69 @@
         </div>
     @endif
 
-    <!-- Backup Configuration -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Backup Settings</h3>
-        
-        <form action="#" method="POST">
-            @csrf
-            
-            <div class="mb-4">
-                <label class="flex items-center mb-2">
-                    <input type="checkbox" name="enable_backups" value="1" checked
-                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                    <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Enable automatic backups</span>
-                </label>
+    @if(session('error'))
+        <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+            <i class="fa fa-exclamation-circle mr-2"></i>
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <!-- Schedule Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="text-xs uppercase text-gray-500 font-semibold">Archives</div>
+            <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ $stats['archive_count'] ?? 0 }}</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="text-xs uppercase text-gray-500 font-semibold">Total Size</div>
+            <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ number_format($stats['total_size_mb'] ?? 0, 2) }} MB</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="text-xs uppercase text-gray-500 font-semibold">Last Backup</div>
+            <div class="text-lg font-bold text-gray-800 dark:text-gray-100">{{ $stats['last_backup_at'] ?? 'Not yet created' }}</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="text-xs uppercase text-gray-500 font-semibold">Schedule</div>
+            <div class="text-lg font-bold text-gray-800 dark:text-gray-100">
+                @if(!empty($stats['schedule_enabled']))
+                    Daily {{ $stats['schedule'] ?? '02:00' }}
+                @else
+                    Disabled
+                @endif
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Backup Frequency
-                    </label>
-                    <select name="backup_frequency" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Backup Time
-                    </label>
-                    <input type="time" name="backup_time" value="02:00"
-                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Retention Period (Days)
-                </label>
-                <input type="number" name="retention_days" value="30" min="1" max="365"
-                    placeholder="How long to keep backups"
-                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Backup Storage Location
-                </label>
-                <select name="storage_location" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="local">Local Storage</option>
-                    <option value="cloud">Cloud Storage (Google Drive)</option>
-                    <option value="s3">AWS S3</option>
-                </select>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 mb-3">
-                    What to Backup
-                </label>
-                <div class="space-y-2">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="backup_database" value="1" checked
-                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Database</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="checkbox" name="backup_files" value="1" checked
-                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Uploaded Files</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="checkbox" name="backup_reports" value="1"
-                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Reports</span>
-                    </label>
-                </div>
-            </div>
-
-            <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">
-                <i class="fa fa-save mr-2"></i> Save Settings
-            </button>
-        </form>
+        </div>
     </div>
 
-    <!-- Data Sync -->
+    <!-- Configuration Summary -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Data Synchronization</h3>
-        
-        <form action="#" method="POST">
-            @csrf
-            
-            <div class="mb-4">
-                <label class="flex items-center mb-2">
-                    <input type="checkbox" name="enable_sync" value="1"
-                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                    <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Enable data synchronization</span>
-                </label>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Backup Configuration</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="p-3 border rounded-lg">
+                <div class="font-semibold text-gray-700 dark:text-gray-300 mb-1">Storage Disk</div>
+                <div class="text-gray-600 dark:text-gray-400"><code>{{ $stats['disk'] ?? 'backups' }}</code> → {{ $stats['path'] ?? storage_path('app/backups') }}</div>
             </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Sync With
-                </label>
-                <select name="sync_target" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="">Select sync target</option>
-                    <option value="central_server">Central Server</option>
-                    <option value="mobile_app">Mobile Application</option>
-                    <option value="third_party_api">Third-Party API</option>
-                </select>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 mb-3">
-                    Sync Data Types
-                </label>
-                <div class="space-y-2">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="sync_patients" value="1" checked
-                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Patients</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="checkbox" name="sync_appointments" value="1" checked
-                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Appointments</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="checkbox" name="sync_invoices" value="1"
-                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Invoices</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="checkbox" name="sync_records" value="1"
-                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Medical Records</span>
-                    </label>
+            <div class="p-3 border rounded-lg">
+                <div class="font-semibold text-gray-700 dark:text-gray-300 mb-1">Encryption</div>
+                <div class="text-gray-600 dark:text-gray-400">
+                    @if(!empty($stats['encrypted']))
+                        <span class="text-green-600 font-semibold">Enabled (archive password set)</span>
+                    @else
+                        <span class="text-amber-600 font-semibold">Disabled — set BACKUP_ARCHIVE_PASSWORD in .env</span>
+                    @endif
                 </div>
             </div>
-
-            <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">
-                <i class="fa fa-sync-alt mr-2"></i> Save Sync Settings
-            </button>
-        </form>
+            <div class="p-3 border rounded-lg">
+                <div class="font-semibold text-gray-700 dark:text-gray-300 mb-1">Retention (keep all)</div>
+                <div class="text-gray-600 dark:text-gray-400">{{ $stats['retention_days'] ?? 7 }} days (longer-term strategy applied by <code>backup:clean</code>)</div>
+            </div>
+            <div class="p-3 border rounded-lg">
+                <div class="font-semibold text-gray-700 dark:text-gray-300 mb-1">Engine</div>
+                <div class="text-gray-600 dark:text-gray-400">Spatie laravel-backup (database + uploaded files)</div>
+            </div>
+        </div>
+        <div class="mt-4 text-xs text-gray-500 dark:text-gray-400">
+            Schedule time is controlled by <code>BACKUP_SCHEDULE_TIME</code> (default 02:00). Cleanup and monitoring run via <code>backup:clean</code> and <code>backup:monitor</code>.
+        </div>
     </div>
 
     <!-- Recent Backups -->
@@ -175,34 +97,64 @@
                 <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Location</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Size</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Verified</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                            No backups yet
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">-</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">-</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">-</td>
-                    </tr>
+                    @forelse($records as $record)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                                {{ optional($record->created_at)->format('Y-m-d H:i:s') }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 max-w-xs truncate">
+                                {{ $record->backup_location }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                                {{ $record->file_size_mb ? $record->file_size_mb . ' MB' : '—' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                @if($record->status === 'completed')
+                                    <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">completed</span>
+                                @elseif($record->status === 'failed')
+                                    <span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">failed</span>
+                                @else
+                                    <span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">{{ $record->status }}</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                                {{ $record->verified ? 'Yes' : 'No' }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
+                                No backups recorded yet. Create one from Backup & Restore.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
-        <div class="mt-4">
-            <button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">
-                <i class="fa fa-download mr-2"></i> Create Manual Backup Now
-            </button>
-        </div>
+
+        @can('manage backups')
+            <div class="mt-4">
+                <form method="POST" action="{{ route('hms.settings.backup.create') }}" class="d-inline">
+                    @csrf
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">
+                        <i class="fa fa-download mr-2"></i> Create Manual Backup Now
+                    </button>
+                </form>
+            </div>
+        @endcan
     </div>
 
     <!-- Information -->
     <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2 flex items-center">
-            <i class="fa fa-info-circle text-blue-600 mr-2"></i> About Backups & Sync
+            <i class="fa fa-info-circle text-blue-600 mr-2"></i> About Backups & Recovery
         </h3>
         <div class="text-sm text-gray-600 dark:text-gray-300 space-y-2">
             <p>Regular backups ensure your data is safe and can be recovered in case of:</p>
@@ -212,7 +164,8 @@
                 <li>Security breaches or ransomware attacks</li>
                 <li>Natural disasters</li>
             </ul>
-            <p class="mt-3"><strong>Best Practice:</strong> Keep backups in multiple locations (local and cloud) and test restoration procedures regularly.</p>
+            <p class="mt-3"><strong>Best Practice:</strong> Keep encrypted off-server copies of backup archives and test restoration regularly from Backup & Restore.</p>
+            <p class="mt-2 text-xs">Cross-site data synchronization is not part of the backup engine. Use Backup & Restore for recovery, and schedule jobs via <code>php artisan schedule:work</code> or system cron.</p>
         </div>
     </div>
 </div>

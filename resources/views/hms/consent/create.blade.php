@@ -2,12 +2,12 @@
     <div class="py-6">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-6">
-                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2"><a href="{{ route('hms.consent.index') }}" class="hover:text-blue-600">Consent</a><i class="fa fa-chevron-right text-xs"></i><span>New Consent</span></div>
+                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2"><a href="{{ route('consent.index') }}" class="hover:text-blue-600">Consent</a><i class="fa fa-chevron-right text-xs"></i><span>New Consent</span></div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><i class="fa fa-plus text-indigo-600 mr-3"></i>New Consent Form</h1>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
                 <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 h-2"></div>
-                <form method="POST" action="{{ route('hms.consent.store') }}" class="p-6 space-y-6">
+                <form method="POST" action="{{ route('consent.store') }}" class="p-6 space-y-6">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Patient *</label><select name="patient_id" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"><option value="">Select Patient</option>@foreach($patients as $id => $name)<option value="{{ $id }}">{{ $name }}</option>@endforeach</select></div>
@@ -21,7 +21,7 @@
                     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes</label><textarea name="notes" rows="2" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></textarea></div>
                     <div class="flex gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <button type="submit" class="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg"><i class="fa fa-save mr-2"></i> Create</button>
-                        <a href="{{ route('hms.consent.index') }}" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg">Cancel</a>
+                        <a href="{{ route('consent.index') }}" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg">Cancel</a>
                     </div>
                 </form>
             </div>

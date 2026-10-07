@@ -3,7 +3,7 @@
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-6">
                 <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <a href="{{ route('hms.drug-interactions.index') }}" class="hover:text-blue-600">Drug Interactions</a>
+                    <a href="{{ route('drug-interactions.index') }}" class="hover:text-blue-600">Drug Interactions</a>
                     <i class="fa fa-chevron-right text-xs"></i>
                     <span>Add New Rule</span>
                 </div>
@@ -66,7 +66,7 @@
                     </div>
                     <div class="flex gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <button type="submit" class="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition"><i class="fa fa-save mr-2"></i> Save Rule</button>
-                        <a href="{{ route('hms.drug-interactions.index') }}" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-md transition"><i class="fa fa-times mr-2"></i> Cancel</a>
+                        <a href="{{ route('drug-interactions.index') }}" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-md transition"><i class="fa fa-times mr-2"></i> Cancel</a>
                     </div>
                 </form>
             </div>

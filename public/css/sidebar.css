@@ -90,17 +90,24 @@
     background: #718096;
 }
 
-/* Menu Items */
+/* Menu Items — readable fonts for clinical staff on desktop, tablet, mobile */
 .menu-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 1rem;
+    padding: 0.7rem 0.85rem;
     cursor: pointer;
     border-radius: 0.5rem;
     transition: all 0.2s ease-in-out;
     position: relative;
     z-index: 10;
+    min-height: 44px;
+}
+
+.menu-item .menu-label {
+    font-size: 0.9375rem; /* 15px */
+    line-height: 1.35;
+    letter-spacing: 0.01em;
 }
 
 .menu-item:hover {
@@ -111,6 +118,7 @@
     flex: 1;
     display: flex;
     align-items: center;
+    min-width: 0;
 }
 
 .menu-item .fa-chevron-down {
@@ -118,7 +126,7 @@
     flex-shrink: 0;
 }
 
-/* Icon Styles with Gradients */
+/* Icon Styles with Gradients — hardcoded so all section icons always render */
 .menu-icon {
     width: 2rem;
     height: 2rem;
@@ -128,7 +136,21 @@
     justify-content: center;
     margin-right: 0.75rem;
     transition: transform 0.2s ease-in-out;
+    background: linear-gradient(135deg, #64748b, #334155); /* default slate */
+    color: #fff;
+    flex-shrink: 0;
 }
+
+.menu-icon-emerald { background: linear-gradient(135deg, #10b981, #047857) !important; }
+.menu-icon-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important; }
+.menu-icon-rose { background: linear-gradient(135deg, #f43f5e, #be123c) !important; }
+.menu-icon-amber { background: linear-gradient(135deg, #f59e0b, #b45309) !important; }
+.menu-icon-cyan { background: linear-gradient(135deg, #06b6d4, #0e7490) !important; }
+.menu-icon-indigo { background: linear-gradient(135deg, #6366f1, #4338ca) !important; }
+.menu-icon-violet { background: linear-gradient(135deg, #8b5cf6, #6d28d9) !important; }
+.menu-icon-teal { background: linear-gradient(135deg, #14b8a6, #0f766e) !important; }
+.menu-icon-pink { background: linear-gradient(135deg, #ec4899, #be185d) !important; }
+.menu-icon-slate { background: linear-gradient(135deg, #64748b, #334155) !important; }
 
 .menu-item:hover .menu-icon {
     transform: scale(1.1);
@@ -304,14 +326,21 @@
     border-color: rgb(67 56 202);
 }
 
-/* Submenu Links */
+/* Submenu Links — readable size + touch targets */
 .submenu-link {
     display: flex;
     align-items: center;
-    padding: 0.5rem 0.75rem;
+    padding: 0.65rem 0.75rem;
+    min-height: 44px;
     border-radius: 0.5rem;
-    font-size: 0.875rem;
+    font-size: 0.9rem; /* 14.4px */
+    line-height: 1.35;
     transition: all 0.2s ease-in-out;
+    text-decoration: none;
+}
+
+.submenu-link .menu-label {
+    font-size: 0.9rem;
 }
 
 .submenu-link:not(.active) {
@@ -349,10 +378,16 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 0.85rem;
+    min-height: 44px;
     cursor: pointer;
     border-radius: 0.375rem;
     transition: all 0.15s ease-in-out;
+}
+
+.nested-menu-item .menu-label {
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
 .nested-menu-item:hover {
@@ -372,10 +407,15 @@
 .nested-link {
     display: flex;
     align-items: center;
-    padding: 0.375rem 1rem;
-    font-size: 0.875rem;
+    padding: 0.55rem 1rem;
+    min-height: 44px;
+    font-size: 0.9rem;
     border-radius: 0.5rem;
     transition: all 0.15s ease-in-out;
+}
+
+.nested-link .menu-label {
+    font-size: 0.9rem;
 }
 
 .nested-link:not(.active) {
@@ -453,11 +493,43 @@
     }
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments — mobile + tablet */
 @media (max-width: 768px) {
     .sidebar-container {
-        width: 100%;
+        width: 100% !important;
+        max-width: 100% !important;
     }
+
+    .menu-item .menu-label,
+    .submenu-link .menu-label,
+    .nested-menu-item .menu-label,
+    .nested-link .menu-label {
+        font-size: 0.95rem;
+    }
+}
+
+/* Tablet landscape / small laptops — slightly larger labels */
+@media (min-width: 768px) and (max-width: 1199.98px) {
+    .menu-item .menu-label {
+        font-size: 0.95rem;
+    }
+
+    .submenu-link,
+    .submenu-link .menu-label {
+        font-size: 0.925rem;
+    }
+}
+
+/* Premium badge in sidebar */
+.badge-premium {
+    margin-left: auto;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.3rem;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #fff;
+    flex-shrink: 0;
 }
 
 /* Print styles */

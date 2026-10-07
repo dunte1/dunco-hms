@@ -85,7 +85,7 @@
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ $batch->expiry_date?->format('M d, H:i') ?? '-' }}</td>
                                     <td class="px-6 py-4 text-right">
                                         @if($batch->status === 'processing')
-                                            <form action="{{ route('hms.cssd.batch-complete', $batch) }}" method="POST" class="inline">@csrf<button class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded">Complete</button></form>
+                                            <form action="{{ route('hms.cssd.cycles.complete', $batch) }}" method="POST" class="inline">@csrf<button class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded">Complete</button></form>
                                         @endif
                                     </td>
                                 </tr>
@@ -103,7 +103,7 @@
     <div id="addInstrumentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md mx-4 p-6">
             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Add Instrument</h3>
-            <form action="{{ route('hms.cssd.instrument-store') }}" method="POST" class="space-y-4">
+            <form action="{{ route('cssd.instrument-store') }}" method="POST" class="space-y-4">
                 @csrf
                 <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label><input type="text" name="name" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>
                 <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label><input type="text" name="category" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="Surgical, Diagnostic, etc."></div>

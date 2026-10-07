@@ -94,8 +94,8 @@ class RadiologyController extends Controller
 
     public function createRequest(): View
     {
-        $patients = Patient::all();
-        $doctors = Doctor::all();
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $tests = RadiologyTest::where('is_active', true)->get();
         
         return view('hms.radiology.requests.create', compact('patients', 'doctors', 'tests'));

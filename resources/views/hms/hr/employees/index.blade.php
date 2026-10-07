@@ -23,10 +23,10 @@
                     </div>
                     <div class="mt-3 mt-sm-0">
                         <div class="btn-group">
-                            <a href="{{ route('hms.hr.employees.create') }}" class="btn btn-light btn-lg shadow-sm px-4">
+                            <a href="{{ route('hms.hr.employees.create') }}" class="btn btn-light shadow-sm px-4">
                                 <i class="fas fa-user-plus me-2"></i>Add New Employee
                             </a>
-                            <button type="button" class="btn btn-light btn-lg shadow-sm px-3 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                            <button type="button" class="btn btn-light shadow-sm px-3 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
                                 <span class="visually-hidden">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
@@ -140,9 +140,9 @@
                             </h5>
                         </div>
                         <div class="col-md-6">
-                            <div class="d-flex gap-2 justify-content-md-end">
-                                <div class="flex-fill" style="max-width: 300px;">
-                                    <div class="input-group input-group-lg">
+                            <div class="d-flex flex-wrap gap-2 justify-content-md-end search-bar-fixed">
+                                <div class="flex-fill search-bar-fixed" style="max-width: 300px;">
+                                    <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0">
                                             <i class="fas fa-search text-muted"></i>
                                         </span>
@@ -291,7 +291,7 @@
                             </div>
                             <h4 class="text-dark mb-3 fw-bold">No Employees Found</h4>
                             <p class="text-muted mb-4">Start by adding your first employee to the system.</p>
-                            <a href="{{ route('hms.hr.employees.create') }}" class="btn btn-primary btn-lg px-5 shadow-sm">
+                            <a href="{{ route('hms.hr.employees.create') }}" class="btn btn-primary px-5 shadow-sm">
                                 <i class="fas fa-user-plus me-2"></i>Add First Employee
                             </a>
                         </div>

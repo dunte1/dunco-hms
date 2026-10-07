@@ -54,7 +54,7 @@
                 </div>
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
                     <div class="flex items-center">
-                        <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg"><i class="fa fa-spinner text-blue-600 text-xl"></i></div>
+                        <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg"><i class="fa fa-spinner fa-spin text-blue-600 text-xl"></i></div>
                         <div class="ml-4"><p class="text-sm text-gray-600 dark:text-gray-400">In Progress</p><p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['today_in_progress'] }}</p></div>
                     </div>
                 </div>

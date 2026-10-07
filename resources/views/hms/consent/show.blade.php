@@ -3,14 +3,14 @@
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2"><a href="{{ route('hms.consent.index') }}" class="hover:text-blue-600">Consent</a><i class="fa fa-chevron-right text-xs"></i><span>Details</span></div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2"><a href="{{ route('consent.index') }}" class="hover:text-blue-600">Consent</a><i class="fa fa-chevron-right text-xs"></i><span>Details</span></div>
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><i class="fa fa-file-signature text-indigo-600 mr-3"></i>Consent Form</h1>
                 </div>
                 <div class="flex gap-3">
                     @if($consent->status === 'pending')
-                        <form action="{{ route('hms.consent.sign', $consent) }}" method="POST">@csrf<button class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"><i class="fa fa-check mr-1"></i> Sign Consent</button></form>
+                        <form action="{{ route('consent.sign', $consent) }}" method="POST">@csrf<button class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"><i class="fa fa-check mr-1"></i> Sign Consent</button></form>
                     @endif
-                    <a href="{{ route('hms.consent.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"><i class="fa fa-arrow-left mr-1"></i> Back</a>
+                    <a href="{{ route('consent.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"><i class="fa fa-arrow-left mr-1"></i> Back</a>
                 </div>
             </div>
             @if(session('status'))

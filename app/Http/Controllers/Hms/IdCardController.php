@@ -455,56 +455,22 @@ class IdCardController extends Controller
     }
 
     /**
-     * Generate bulk patient ID cards
+     * Generate bulk patient ID cards as printable HTML
      */
-    public function bulkPatientCards(): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function bulkPatientCards(): View
     {
-        $patients = Patient::latest()->get();
+        $patients = Patient::orderBy('first_name')->limit(200)->get(['id', 'patient_no', 'first_name', 'last_name', 'dob', 'gender']);
 
-        foreach ($patients as $patient) {
-            $patient->base64Photo = null;
-            if ($patient->photo_path && file_exists(storage_path('app/public/' . $patient->photo_path))) {
-                $patient->base64Photo = base64_encode(file_get_contents(storage_path('app/public/' . $patient->photo_path)));
-            }
-            try {
-                $barcodeGenerator = new BarcodeGeneratorPNG();
-                $barcode = $barcodeGenerator->generate($patient->patient_no ?? $patient->id);
-                $patient->base64Barcode = base64_encode($barcode);
-            } catch (\Exception $e) {
-                $patient->base64Barcode = null;
-            }
-            $qrData = json_encode(['type' => 'patient', 'id' => $patient->id, 'patient_no' => $patient->patient_no, 'name' => $patient->full_name]);
-            $patient->base64Qr = base64_encode(QrCode::format('png')->size(150)->generate($qrData));
-        }
-
-        $pdf = Pdf::loadView('hms.id-cards.bulk-patient-cards', compact('patients'));
-        return $pdf->download('patient-id-cards-bulk.pdf');
+        return view('hms.id-cards.bulk-patients', compact('patients'));
     }
 
     /**
-     * Generate bulk employee ID cards
+     * Generate bulk employee ID cards as printable HTML
      */
-    public function bulkEmployeeCards(): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function bulkEmployeeCards(): View
     {
-        $employees = Employee::latest()->get();
+        $employees = Employee::orderBy('first_name')->limit(200)->get(['id', 'employee_id', 'first_name', 'last_name', 'position', 'department_id']);
 
-        foreach ($employees as $employee) {
-            $employee->base64Photo = null;
-            if ($employee->photo && Storage::disk('public')->exists($employee->photo)) {
-                $employee->base64Photo = base64_encode(file_get_contents(storage_path('app/public/' . $employee->photo)));
-            }
-            try {
-                $barcodeGenerator = new BarcodeGeneratorPNG();
-                $barcode = $barcodeGenerator->generate($employee->employee_id ?? $employee->id);
-                $employee->base64Barcode = base64_encode($barcode);
-            } catch (\Exception $e) {
-                $employee->base64Barcode = null;
-            }
-            $qrData = json_encode(['type' => 'employee', 'id' => $employee->id, 'employee_id' => $employee->employee_id, 'name' => $employee->full_name]);
-            $employee->base64Qr = base64_encode(QrCode::format('png')->size(150)->generate($qrData));
-        }
-
-        $pdf = Pdf::loadView('hms.id-cards.bulk-employee-cards', compact('employees'));
-        return $pdf->download('employee-id-cards-bulk.pdf');
+        return view('hms.id-cards.bulk-employees', compact('employees'));
     }
 }

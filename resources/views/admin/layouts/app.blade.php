@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" 
       x-data="{ 
-          sidebarOpen: false, 
+          sidebarOpen: false,
+          sidebarCollapsed: localStorage.getItem('sidebar-collapsed') === 'true',
           darkMode: {{ !empty($themeSettings['dark_mode']) ? 'true' : 'false' }}
       }"
       :class="{ 'dark': darkMode }"
       x-init="
           document.documentElement.classList.toggle('dark', darkMode);
+          $watch('sidebarCollapsed', val => localStorage.setItem('sidebar-collapsed', val));
           $watch('darkMode', val => {
               document.documentElement.classList.toggle('dark', val);
               localStorage.setItem('darkMode', val);
@@ -68,7 +70,7 @@
             }
 
             .sidebar {
-                transition: transform 0.3s ease-in-out;
+                transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
             }
             .sidebar.closed {
                 transform: translateX(-100%);
@@ -77,6 +79,21 @@
                 .sidebar.closed {
                     transform: translateX(0);
                 }
+            }
+            .sidebar.collapsed { width: 72px !important; max-width: 72px !important; }
+            .sidebar.collapsed .sidebar-container { width: 72px !important; max-width: 72px !important; overflow: hidden; }
+            .sidebar.collapsed .sidebar-header-text,
+            .sidebar.collapsed .menu-item span,
+            .sidebar.collapsed .submenu-link span,
+            .sidebar.collapsed .nested-link span,
+            .sidebar.collapsed .menu-item .fa-chevron-down,
+            .sidebar.collapsed .submenu-link .badge,
+            .sidebar.collapsed .sidebar-nav .submenu,
+            .sidebar.collapsed .sidebar-nav .nested-submenu { display: none !important; }
+            @media (max-width: 767px) {
+                .sidebar { width: min(280px, 85vw) !important; }
+                .sidebar.collapsed { width: min(280px, 85vw) !important; }
+                .sidebar.collapsed .sidebar-container { width: 100% !important; }
             }
 
             /* Logo styling */
@@ -291,12 +308,13 @@
             }
         </style>
     </head>
-    <body class="font-sans antialiased bg-gray-50 dark:bg-gray-800" 
-@toggle-sidebar.window="sidebarOpen = !sidebarOpen">
-        
+    <body class="font-sans antialiased bg-gray-50 dark:bg-gray-800"
+          @toggle-sidebar.window="sidebarOpen = !sidebarOpen"
+          @toggle-sidebar-collapse.window="sidebarCollapsed = !sidebarCollapsed">
+
         @auth
             <!-- Mobile Sidebar Overlay -->
-            <div x-show="sidebarOpen" 
+            <div x-show="sidebarOpen"
                  x-transition:enter="transition-opacity ease-linear duration-300"
                  x-transition:enter-start="opacity-0"
                  x-transition:enter-end="opacity-100"
@@ -308,8 +326,8 @@
             </div>
 
             <!-- Sidebar -->
-            <aside class="fixed inset-y-0 left-0 z-50 w-64 sidebar"
-                   :class="sidebarOpen ? '' : 'closed'"
+            <aside class="fixed inset-y-0 left-0 z-50 sidebar"
+                   :class="(sidebarOpen ? '' : 'closed') + (sidebarCollapsed ? ' collapsed' : '')"
                    x-transition:enter="transition-transform ease-in-out duration-300"
                    x-transition:enter-start="-translate-x-full"
                    x-transition:enter-end="translate-x-0"
@@ -320,7 +338,7 @@
             </aside>
 
             <!-- Main Content -->
-            <div class="md:ml-64">
+            <div class="md:ml-64" :style="sidebarCollapsed ? 'margin-left: 72px' : ''">
                 
                 <nav class="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
                     <div class="px-4 sm:px-6 lg:px-8">
@@ -391,6 +409,7 @@
 
                 <!-- Page Content -->
                 <main class="p-4 md:p-6">
+                    <x-flash />
                     @yield('content')
                 </main>
             </div>

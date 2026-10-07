@@ -66,7 +66,7 @@ class IncomeController extends Controller
     public function create(): View
     {
         $accounts = Account::active()->ofType('revenue')->orderBy('account_name')->get();
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
+        $patients = Patient::forSelect();
         
         // Generate income number
         $lastIncome = Income::latest()->first();
@@ -113,7 +113,7 @@ class IncomeController extends Controller
     public function edit(Income $income): View
     {
         $accounts = Account::active()->ofType('revenue')->orderBy('account_name')->get();
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
+        $patients = Patient::forSelect();
         
         return view('hms.finance.income.edit', compact('income', 'accounts', 'patients'));
     }

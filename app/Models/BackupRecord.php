@@ -20,6 +20,7 @@ class BackupRecord extends Model
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
         'verified_at' => 'datetime',
+        'created_at' => 'datetime',
         'verified' => 'boolean',
         'file_size_mb' => 'decimal:2',
     ];

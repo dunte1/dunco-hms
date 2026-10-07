@@ -22,7 +22,7 @@ class PatientPortalController extends Controller
         return view('patient-portal.login');
     }
 
-    public function authenticate(Request $request): JsonResponse
+    public function authenticate(Request $request)
     {
         $data = $request->validate([
             'username' => 'required|string',
@@ -34,10 +34,16 @@ class PatientPortalController extends Controller
             ->first();
 
         if (!$account || !Hash::check($data['password'], $account->password_hash)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials'
-            ], 401);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid credentials'
+                ], 401);
+            }
+
+            return back()->withErrors([
+                'username' => 'Invalid username or password.',
+            ])->onlyInput('username');
         }
 
         $account->update(['last_login' => now()]);
@@ -45,18 +51,22 @@ class PatientPortalController extends Controller
         // Set session for patient portal
         session(['patient_portal_user' => $account->id]);
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => $account->id,
-                'username' => $account->username,
-                'email' => $account->email,
-                'patient_id' => $account->patient_id,
-                'is_active' => $account->is_active,
-                'two_factor_enabled' => $account->two_factor_enabled,
-            ],
-            'message' => 'Login successful'
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $account->id,
+                    'username' => $account->username,
+                    'email' => $account->email,
+                    'patient_id' => $account->patient_id,
+                    'is_active' => $account->is_active,
+                    'two_factor_enabled' => $account->two_factor_enabled,
+                ],
+                'message' => 'Login successful'
+            ]);
+        }
+
+        return redirect()->intended(route('patient-portal.dashboard'));
     }
 
     public function dashboard(): View
@@ -64,10 +74,13 @@ class PatientPortalController extends Controller
         $account = $this->getCurrentAccount();
         $patient = $account->patient;
 
+        $appointmentDateColumn = collect(\Schema::getColumnListing('appointments'))
+            ->contains('scheduled_at') ? 'scheduled_at' : 'appointment_date';
+
         $stats = [
             'total_appointments' => Appointment::where('patient_id', $patient->id)->count(),
             'upcoming_appointments' => Appointment::where('patient_id', $patient->id)
-                ->where('appointment_date', '>=', now())
+                ->where($appointmentDateColumn, '>=', now())
                 ->count(),
             'total_prescriptions' => Prescription::where('patient_id', $patient->id)->count(),
             'pending_lab_results' => LabRequest::where('patient_id', $patient->id)
@@ -87,7 +100,7 @@ class PatientPortalController extends Controller
             ->take(5)
             ->get();
 
-        return view('patient-portal.dashboard', compact('stats', 'recentAppointments', 'recentPrescriptions'));
+        return view('patient-portal.dashboard', compact('stats', 'recentAppointments', 'recentPrescriptions', 'account', 'patient'));
     }
 
     public function appointments(): View
@@ -285,14 +298,18 @@ class PatientPortalController extends Controller
         ]);
     }
 
-    public function logout(): JsonResponse
+    public function logout(Request $request)
     {
         session()->forget('patient_portal_user');
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Logged out successfully'
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Logged out successfully'
+            ]);
+        }
+
+        return redirect()->route('patient-portal.login');
     }
 
     private function getCurrentAccount(): PatientPortalAccount

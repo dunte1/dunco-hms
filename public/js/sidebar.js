@@ -11,20 +11,18 @@ document.addEventListener('alpine:init', () => {
         openMenus: {},
         currentTopMenu: '',
         
-        // Top-level menu identifiers (fixed to match actual menu IDs)
+        // Top-level menu identifiers (must match config/sidebar.php section keys)
         topLevelMenus: [
             'dashboard',
-            'hospital-management',
             'clinical',
             'diagnostics',
             'pharmacy-inventory',
             'finance',
-            'hr',
+            'people',
             'reports',
-            'communication',
-            'settings',
-            'cms',
-            'ai-integrations'
+            'digital',
+            'cms-marketing',
+            'administration'
         ],
         
         /**

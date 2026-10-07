@@ -48,7 +48,7 @@
                             <p class="text-3xl font-bold mt-2">{{ $stats['in_progress'] }}</p>
                         </div>
                         <div class="p-4 bg-white bg-opacity-30 rounded-lg">
-                            <i class="fa fa-spinner text-3xl"></i>
+                            <i class="fa fa-spinner fa-spin text-3xl"></i>
                         </div>
                     </div>
                 </div>

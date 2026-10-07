@@ -23,8 +23,8 @@ class LabRequestsController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'phone']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $labTests = LabTest::where('is_active', true)->orderBy('test_name')->get(['id', 'test_name', 'price']);
         return view('hms.laboratory.requests.create', compact('patients', 'doctors', 'labTests'));
     }
@@ -141,8 +141,8 @@ class LabRequestsController extends Controller
         $this->authorize('update', $labRequest);
 
         $labRequest->load(['items.labTest']);
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $labTests = LabTest::where('is_active', true)->orderBy('test_name')->get(['id', 'test_name', 'price']);
         return view('hms.laboratory.requests.edit', compact('labRequest', 'patients', 'doctors', 'labTests'));
     }

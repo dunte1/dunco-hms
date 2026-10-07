@@ -60,6 +60,9 @@
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         
+        <!-- Bootstrap CSS (for legacy Bootstrap HMS views using this layout) -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
         <!-- Sidebar Styles -->
         <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}">
         
@@ -279,7 +282,8 @@
                 @endisset
 
                 <!-- Page Content -->
-                <main>
+                <main class="p-4 md:p-6">
+                    <x-flash />
                     {{ $slot ?? '' }}
                     @yield('content')
                 </main>
@@ -295,7 +299,10 @@
                 </footer>
             </div>
         @endauth
-        
+
+        <!-- Bootstrap JS (for legacy Bootstrap HMS views using this layout) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
         <!-- Sidebar JavaScript -->
         <script src="{{ asset('js/sidebar.js') }}"></script>
         

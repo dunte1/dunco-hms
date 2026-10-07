@@ -54,18 +54,11 @@ class OtSchedulingController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->pluck(function ($p) {
-            return $p->first_name . ' ' . $p->last_name;
-        }, 'id');
-        $surgeons = Doctor::orderBy('first_name')->pluck(function ($d) {
-            return $d->first_name . ' ' . $d->last_name;
-        }, 'id');
-        $anesthetists = Doctor::orderBy('first_name')->pluck(function ($d) {
-            return $d->first_name . ' ' . $d->last_name;
-        }, 'id');
-        $nurses = Nurse::orderBy('first_name')->pluck(function ($n) {
-            return $n->first_name . ' ' . $n->last_name;
-        }, 'id');
+        $patients = Patient::forSelect()->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
+        $surgeons = Doctor::forSelect()->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
+        $anesthetists = Doctor::forSelect()->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
+        $nurses = Nurse::orderBy('first_name')->limit(500)->get(['id', 'first_name', 'last_name'])
+            ->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
         $rooms = OtRoom::available()->orderBy('name')->pluck('name', 'id');
 
         return view('hms.ot.create', compact('patients', 'surgeons', 'anesthetists', 'nurses', 'rooms'));
@@ -112,18 +105,11 @@ class OtSchedulingController extends Controller
 
     public function edit(OtSchedule $schedule): View
     {
-        $patients = Patient::orderBy('first_name')->pluck(function ($p) {
-            return $p->first_name . ' ' . $p->last_name;
-        }, 'id');
-        $surgeons = Doctor::orderBy('first_name')->pluck(function ($d) {
-            return $d->first_name . ' ' . $d->last_name;
-        }, 'id');
-        $anesthetists = Doctor::orderBy('first_name')->pluck(function ($d) {
-            return $d->first_name . ' ' . $d->last_name;
-        }, 'id');
-        $nurses = Nurse::orderBy('first_name')->pluck(function ($n) {
-            return $n->first_name . ' ' . $n->last_name;
-        }, 'id');
+        $patients = Patient::forSelect()->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
+        $surgeons = Doctor::forSelect()->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
+        $anesthetists = Doctor::forSelect()->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
+        $nurses = Nurse::orderBy('first_name')->limit(500)->get(['id', 'first_name', 'last_name'])
+            ->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
         $rooms = OtRoom::orderBy('name')->pluck('name', 'id');
 
         return view('hms.ot.edit', compact('schedule', 'patients', 'surgeons', 'anesthetists', 'nurses', 'rooms'));

@@ -43,7 +43,7 @@
                     <form method="GET" action="{{ route('hms.hr.leave-balances.index') }}" class="row g-3 align-items-end">
                         <div class="col-md-4">
                             <label class="form-label fw-bold text-dark small">Employee</label>
-                            <select name="employee_id" class="form-select form-select-lg">
+                            <select name="employee_id" class="form-select">
                                 <option value="">All Employees</option>
                                 @foreach($employees as $emp)
                                 <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>
@@ -54,14 +54,14 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label fw-bold text-dark small">Year</label>
-                            <select name="year" class="form-select form-select-lg">
+                            <select name="year" class="form-select">
                                 @for($y = date('Y'); $y >= date('Y') - 5; $y--)
                                 <option value="{{ $y }}" {{ request('year', date('Y')) == $y ? 'selected' : '' }}>{{ $y }}</option>
                                 @endfor
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <button type="submit" class="btn btn-primary btn-lg w-100" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); border: none;">
+                            <button type="submit" class="btn btn-primary w-100" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); border: none;">
                                 <i class="fas fa-filter me-2"></i>Filter
                             </button>
                         </div>
@@ -86,9 +86,9 @@
                             </h5>
                         </div>
                         <div class="col-md-6">
-                            <div class="d-flex gap-2 justify-content-md-end">
-                                <div class="flex-fill" style="max-width: 300px;">
-                                    <div class="input-group input-group-lg">
+                            <div class="d-flex flex-wrap gap-2 justify-content-md-end search-bar-fixed">
+                                <div class="flex-fill search-bar-fixed" style="max-width: 300px;">
+                                    <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0">
                                             <i class="fas fa-search text-muted"></i>
                                         </span>

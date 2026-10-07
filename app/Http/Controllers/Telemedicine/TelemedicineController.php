@@ -29,8 +29,8 @@ class TelemedicineController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::latest()->get();
-        $doctors = Doctor::with('department')->latest()->get();
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         
         return view('hms.telemedicine.create', compact('patients', 'doctors'));
     }

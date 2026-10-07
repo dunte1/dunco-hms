@@ -15,6 +15,15 @@ use Carbon\Carbon;
 
 class DailySummaryController extends Controller
 {
+    protected function appointmentDateColumn(): string
+    {
+        try {
+            return collect(\Schema::getColumnListing('appointments'))
+                ->contains('scheduled_at') ? 'scheduled_at' : 'appointment_date';
+        } catch (\Throwable) {
+            return 'scheduled_at';
+        }
+    }
     /**
      * Display daily summary dashboard
      */
@@ -68,23 +77,24 @@ class DailySummaryController extends Controller
      */
     private function generateSummary($date): array
     {
+        $dateCol = $this->appointmentDateColumn();
         $startOfDay = $date->copy()->startOfDay();
         $endOfDay = $date->copy()->endOfDay();
-        
+
         return [
             'date' => $date->format('Y-m-d'),
             'patients' => [
                 'new' => Patient::whereDate('created_at', $date)->count(),
                 'total' => Patient::count(),
-                'active' => Patient::whereHas('appointments', function($q) use ($startOfDay, $endOfDay) {
-                    $q->whereBetween('appointment_date', [$startOfDay, $endOfDay]);
+                'active' => Patient::whereHas('appointments', function ($q) use ($startOfDay, $endOfDay, $dateCol) {
+                    $q->whereBetween($dateCol, [$startOfDay, $endOfDay]);
                 })->count(),
             ],
             'appointments' => [
-                'scheduled' => Appointment::whereDate('appointment_date', $date)->count(),
-                'completed' => Appointment::whereDate('appointment_date', $date)
+                'scheduled' => Appointment::whereDate($dateCol, $date)->count(),
+                'completed' => Appointment::whereDate($dateCol, $date)
                     ->where('status', 'completed')->count(),
-                'cancelled' => Appointment::whereDate('appointment_date', $date)
+                'cancelled' => Appointment::whereDate($dateCol, $date)
                     ->where('status', 'cancelled')->count(),
             ],
             'opd' => [
@@ -112,13 +122,15 @@ class DailySummaryController extends Controller
      */
     private function getTopDoctors($date): array
     {
-        return \App\Models\Doctor::withCount(['appointments' => function($q) use ($date) {
-            $q->whereDate('appointment_date', $date);
+        $dateCol = $this->appointmentDateColumn();
+
+        return \App\Models\Doctor::withCount(['appointments' => function ($q) use ($date, $dateCol) {
+            $q->whereDate($dateCol, $date);
         }])
         ->orderBy('appointments_count', 'desc')
         ->limit(5)
         ->get(['id', 'first_name', 'last_name', 'appointments_count'])
-        ->map(function($doctor) {
+        ->map(function ($doctor) {
             return [
                 'name' => $doctor->first_name . ' ' . $doctor->last_name,
                 'appointments' => $doctor->appointments_count,
@@ -144,7 +156,7 @@ class DailySummaryController extends Controller
         }
         
         // Pending appointments
-        $pendingAppointments = Appointment::whereDate('appointment_date', $date)
+        $pendingAppointments = Appointment::whereDate($this->appointmentDateColumn(), $date)
             ->where('status', 'pending')->count();
         if ($pendingAppointments > 0) {
             $alerts[] = [

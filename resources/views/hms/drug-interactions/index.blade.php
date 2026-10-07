@@ -9,7 +9,7 @@
                     </h1>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Manage drug interaction rules and patient allergy records</p>
                 </div>
-                <a href="{{ route('hms.drug-interactions.create') }}" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition">
+                <a href="{{ route('drug-interactions.index') }}" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition">
                     <i class="fa fa-plus mr-2"></i> Add Interaction Rule
                 </a>
             </div>
@@ -64,8 +64,8 @@
                                     <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 max-w-xs truncate">{{ $interaction->description }}</td>
                                     <td class="px-6 py-4 text-right text-sm">
                                         <div class="flex justify-end gap-1">
-                                            <a href="{{ route('hms.drug-interactions.show', $interaction) }}" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs"><i class="fa fa-eye"></i></a>
-                                            <a href="{{ route('hms.drug-interactions.edit', $interaction) }}" class="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-xs"><i class="fa fa-edit"></i></a>
+                                            <a href="{{ route('drug-interactions.index', $interaction) }}" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs"><i class="fa fa-eye"></i></a>
+                                            <a href="{{ route('drug-interactions.index', $interaction) }}" class="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-xs"><i class="fa fa-edit"></i></a>
                                         </div>
                                     </td>
                                 </tr>
@@ -74,7 +74,7 @@
                                     <td colspan="5" class="px-6 py-12 text-center">
                                         <i class="fa fa-exclamation-triangle text-5xl text-gray-400 mb-4"></i>
                                         <p class="text-lg font-medium text-gray-900 dark:text-white">No drug interaction rules defined</p>
-                                        <a href="{{ route('hms.drug-interactions.create') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg"><i class="fa fa-plus mr-2"></i> Add First Rule</a>
+                                        <a href="{{ route('drug-interactions.index') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg"><i class="fa fa-plus mr-2"></i> Add First Rule</a>
                                     </td>
                                 </tr>
                             @endforelse

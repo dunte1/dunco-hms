@@ -106,7 +106,7 @@ class AdvancePaymentsController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no', 'phone']);
+        $patients = Patient::forSelect();
         return view('hms.billing.advance-payments.create', compact('patients'));
     }
 

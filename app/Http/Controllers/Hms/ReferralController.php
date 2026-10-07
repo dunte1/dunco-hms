@@ -56,8 +56,8 @@ class ReferralController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $opdVisits = OpdVisit::where('status', '!=', 'discharged')->with('patient')->latest()->get();
         $ipdAdmissions = IpdAdmission::where('status', 'admitted')->with('patient')->latest()->get();
         return view('hms.referrals.create', compact('patients', 'doctors', 'opdVisits', 'ipdAdmissions'));
@@ -94,8 +94,8 @@ class ReferralController extends Controller
 
     public function edit(Referral $referral): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         return view('hms.referrals.edit', compact('referral', 'patients', 'doctors'));
     }
 

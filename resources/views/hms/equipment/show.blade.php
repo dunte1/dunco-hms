@@ -3,10 +3,10 @@
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2"><a href="{{ route('hms.equipment.index') }}" class="hover:text-blue-600">Equipment</a><i class="fa fa-chevron-right text-xs"></i><span>{{ $equipment->name }}</span></div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2"><a href="{{ route('equipment.index') }}" class="hover:text-blue-600">Equipment</a><i class="fa fa-chevron-right text-xs"></i><span>{{ $equipment->name }}</span></div>
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><i class="fa fa-cogs text-teal-600 mr-3"></i>{{ $equipment->name }}</h1>
                 </div>
-                <a href="{{ route('hms.equipment.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"><i class="fa fa-arrow-left mr-1"></i> Back</a>
+                <a href="{{ route('equipment.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"><i class="fa fa-arrow-left mr-1"></i> Back</a>
             </div>
             @if(session('status'))
                 <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg"><i class="fa fa-check-circle mr-2"></i>{{ session('status') }}</div>
@@ -47,7 +47,7 @@
                     <!-- Log Maintenance -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Log Maintenance</h3>
-                        <form action="{{ route('hms.equipment.maintenance', $equipment) }}" method="POST" class="space-y-3">
+                        <form action="{{ route('equipment.maintenance', $equipment) }}" method="POST" class="space-y-3">
                             @csrf
                             <div><label class="block text-xs text-gray-500 mb-1">Type *</label><select name="maintenance_type" required class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"><option value="preventive">Preventive</option><option value="corrective">Corrective</option><option value="calibration">Calibration</option><option value="emergency">Emergency</option></select></div>
                             <div><label class="block text-xs text-gray-500 mb-1">Description</label><textarea name="description" rows="2" class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></textarea></div>
@@ -59,7 +59,7 @@
                     <!-- Status Update -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Update Status</h3>
-                        <form action="{{ route('hms.equipment.status', $equipment) }}" method="POST" class="space-y-3">
+                        <form action="{{ route('equipment.status', $equipment) }}" method="POST" class="space-y-3">
                             @csrf @method('PUT')
                             <select name="status" class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                                 <option value="operational" {{ $equipment->status === 'operational' ? 'selected' : '' }}>Operational</option>

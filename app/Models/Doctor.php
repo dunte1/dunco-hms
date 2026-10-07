@@ -18,6 +18,31 @@ class Doctor extends Model
 
     protected $appends = ['full_name'];
 
+    public function scopeForSelect($query)
+    {
+        return $query->with('department')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->limit(500)
+            ->get(['id', 'first_name', 'last_name', 'doctor_department_id', 'email', 'phone']);
+    }
+
+    public function scopeSearch($query, ?string $term)
+    {
+        if ($term === null || trim($term) === '') {
+            return $query;
+        }
+
+        $like = '%' . trim($term) . '%';
+
+        return $query->where(function ($q) use ($like) {
+            $q->where('first_name', 'like', $like)
+                ->orWhere('last_name', 'like', $like)
+                ->orWhere('email', 'like', $like)
+                ->orWhere('phone', 'like', $like);
+        });
+    }
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(DoctorDepartment::class, 'doctor_department_id');

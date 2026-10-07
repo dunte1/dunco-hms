@@ -221,14 +221,26 @@ class NursesController extends Controller
         $nurses = $query->orderBy('first_name')->paginate(15)->withQueryString();
         
         // Statistics - Count nurses assigned to beds (ward assignments)
-        $assignedNurses = Nurse::whereHas('bedAssignments', function($query) {
-            $query->where('status', 'active');
-        })->count();
-        
+        // bed_assignments may not have nurse_id/status columns on all installs
+        $assignedNurses = 0;
+        try {
+            if (\Schema::hasColumn('bed_assignments', 'nurse_id')) {
+                $assignedNurses = Nurse::whereHas('bedAssignments', function ($query) {
+                    if (\Schema::hasColumn('bed_assignments', 'status')) {
+                        $query->where('status', 'active');
+                    }
+                })->count();
+            }
+        } catch (\Throwable) {
+            $assignedNurses = 0;
+        }
+
+        $totalNurses = Nurse::count();
+
         $stats = [
-            'total_nurses' => Nurse::count(),
+            'total_nurses' => $totalNurses,
             'assigned' => $assignedNurses,
-            'unassigned' => Nurse::count() - $assignedNurses,
+            'unassigned' => max(0, $totalNurses - $assignedNurses),
             'departments' => NurseDepartment::count(),
         ];
         

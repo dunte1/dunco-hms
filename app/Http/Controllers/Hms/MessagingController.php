@@ -26,7 +26,7 @@ class MessagingController extends Controller
 
     public function bulk(): View
     {
-        $patients = Patient::orderBy('first_name')->get();
+        $patients = Patient::forSelect();
         return view('hms.communication.messaging.bulk', compact('patients'));
     }
 

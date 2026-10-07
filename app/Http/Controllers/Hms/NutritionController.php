@@ -9,8 +9,22 @@ use Illuminate\Http\Request;
 
 class NutritionController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
+        if ($request->expectsJson()) {
+            $query = NutritionRecord::with(['patient', 'nutritionist']);
+
+            if ($request->filled('patient_id')) {
+                $query->where('patient_id', $request->patient_id);
+            }
+
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            return response()->json($query->latest()->paginate(15));
+        }
+
         $query = NutritionRecord::with(['patient', 'nutritionist']);
 
         if ($request->filled('patient_id')) {
@@ -21,9 +35,27 @@ class NutritionController extends Controller
             $query->where('status', $request->status);
         }
 
-        $records = $query->latest()->paginate(15);
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('patient', function ($pq) use ($search) {
+                    $pq->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('patient_no', 'like', "%{$search}%");
+                })->orWhere('diet_plan', 'like', "%{$search}%");
+            });
+        }
 
-        return response()->json($records);
+        $records = $query->latest()->paginate(20)->withQueryString();
+
+        $stats = [
+            'total' => NutritionRecord::count(),
+            'active' => NutritionRecord::where('status', 'active')->count(),
+            'completed' => NutritionRecord::where('status', 'completed')->count(),
+            'high_risk' => NutritionRecord::where('malnutrition_risk', 'high')->count(),
+        ];
+
+        return view('hms.nutrition.records', compact('records', 'stats'));
     }
 
     public function store(Request $request): JsonResponse

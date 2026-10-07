@@ -30,6 +30,7 @@
             @endif
             <!-- Equipment Table -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
@@ -51,13 +52,14 @@
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $item->department ?? '-' }}</td>
                                 <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-semibold rounded-full {{ $item->status === 'operational' ? 'bg-green-100 text-green-800' : ($item->status === 'maintenance' ? 'bg-yellow-100 text-yellow-800' : ($item->status === 'out_of_service' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')) }}">{{ ucfirst(str_replace('_', ' ', $item->status)) }}</span></td>
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $item->next_maintenance?->format('M d, Y') ?? '-' }}</td>
-                                <td class="px-6 py-4 text-right text-sm"><a href="{{ route('hms.equipment.show', $item) }}" class="px-2 py-1 bg-blue-600 text-white rounded text-xs"><i class="fa fa-eye"></i></a></td>
+                                <td class="px-6 py-4 text-right text-sm"><a href="{{ route('equipment.show', $item) }}" class="px-2 py-1 bg-blue-600 text-white rounded text-xs"><i class="fa fa-eye"></i></a></td>
                             </tr>
                         @empty
                             <tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">No equipment registered</td></tr>
                         @endforelse
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>
@@ -65,7 +67,7 @@
     <div id="addEquipmentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[80vh] overflow-y-auto">
             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Register Equipment</h3>
-            <form action="{{ route('hms.equipment.store') }}" method="POST" class="space-y-4">
+            <form action="{{ route('equipment.store') }}" method="POST" class="space-y-4">
                 @csrf
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2"><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label><input type="text" name="name" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>

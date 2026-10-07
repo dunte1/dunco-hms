@@ -3,7 +3,7 @@
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-6">
                 <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <a href="{{ route('hms.mortuary.index') }}" class="hover:text-gray-600">Mortuary</a>
+                    <a href="{{ route('mortuary.index') }}" class="hover:text-gray-600">Mortuary</a>
                     <i class="fa fa-chevron-right text-xs"></i>
                     <span>Edit {{ $record->body_id }}</span>
                 </div>
@@ -11,7 +11,7 @@
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
                 <div class="bg-gradient-to-r from-gray-500 to-gray-600 h-2"></div>
-                <form method="POST" action="{{ route('hms.mortuary.update', $record) }}" class="p-6 space-y-4">
+                <form method="POST" action="{{ route('mortuary.update', $record) }}" class="p-6 space-y-4">
                     @csrf
                     @method('PUT')
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -40,7 +40,7 @@
                     </div>
                     <div class="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <button type="submit" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium"><i class="fa fa-save mr-2"></i> Update</button>
-                        <a href="{{ route('hms.mortuary.index') }}" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium">Cancel</a>
+                        <a href="{{ route('mortuary.index') }}" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium">Cancel</a>
                     </div>
                 </form>
             </div>

@@ -89,7 +89,7 @@ class SchedulesController extends Controller
 
     public function edit(Schedule $schedule): View
     {
-        $employees = Employee::orderBy('first_name')->get();
+        $employees = Employee::forSelect();
         return view('hms.hr.schedules.edit', compact('schedule', 'employees'));
     }
 

@@ -46,15 +46,16 @@ class BillingController extends Controller
     {
         $payments = Payment::with(['invoice.patient', 'invoice.doctor'])
             ->latest('payment_date')
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
 
-        $totalPayments = $payments->sum('amount');
-        $totalCount = $payments->count();
-        $todayPayments = $payments->where('payment_date', today())->sum('amount');
-        $thisMonthPayments = $payments->whereBetween('payment_date', [
+        $totalPayments = Payment::sum('amount') ?? 0;
+        $totalCount = Payment::count();
+        $todayPayments = Payment::whereDate('payment_date', today())->sum('amount') ?? 0;
+        $thisMonthPayments = Payment::whereBetween('payment_date', [
             now()->startOfMonth(),
             now()->endOfMonth()
-        ])->sum('amount');
+        ])->sum('amount') ?? 0;
 
         return view('hms.billing.payment-reports.index', compact(
             'payments',

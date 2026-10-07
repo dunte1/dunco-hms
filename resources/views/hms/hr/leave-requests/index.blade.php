@@ -22,7 +22,7 @@
                         </nav>
                     </div>
                     <div class="mt-3 mt-sm-0">
-                        <a href="{{ route('hms.hr.leave-requests.create') }}" class="btn btn-light btn-lg shadow-sm px-4">
+                        <a href="{{ route('hms.hr.leave-requests.create') }}" class="btn btn-light shadow-sm px-4">
                             <i class="fas fa-plus me-2"></i>New Leave Request
                         </a>
                     </div>
@@ -118,9 +118,9 @@
                             </h5>
                         </div>
                         <div class="col-md-6">
-                            <div class="d-flex gap-2 justify-content-md-end">
-                                <div class="flex-fill" style="max-width: 300px;">
-                                    <div class="input-group input-group-lg">
+                            <div class="d-flex flex-wrap gap-2 justify-content-md-end search-bar-fixed">
+                                <div class="flex-fill search-bar-fixed" style="max-width: 300px;">
+                                    <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0">
                                             <i class="fas fa-search text-muted"></i>
                                         </span>
@@ -266,7 +266,7 @@
                             </div>
                             <h4 class="text-dark mb-3 fw-bold">No Leave Requests Found</h4>
                             <p class="text-muted mb-4">Start by creating your first leave request.</p>
-                            <a href="{{ route('hms.hr.leave-requests.create') }}" class="btn btn-primary btn-lg px-5 shadow-sm" style="background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); border: none;">
+                            <a href="{{ route('hms.hr.leave-requests.create') }}" class="btn btn-primary px-5 shadow-sm" style="background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); border: none;">
                                 <i class="fas fa-plus me-2"></i>Create First Leave Request
                             </a>
                         </div>
@@ -292,7 +292,7 @@
                 <div class="modal-body p-4">
                     <div class="mb-3">
                         <label class="form-label fw-bold text-dark">Reason for Rejection</label>
-                        <textarea name="admin_notes" class="form-control form-control-lg" rows="4" required placeholder="Please provide a reason for rejection..."></textarea>
+                        <textarea name="admin_notes" class="form-control" rows="4" required placeholder="Please provide a reason for rejection..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-0 bg-light px-4 py-3">

@@ -113,7 +113,7 @@ class CaseHandlersController extends Controller
 
     public function createCase(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
         $caseHandlers = CaseHandler::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         return view('hms.case-handlers.create-case', compact('patients', 'caseHandlers'));
     }
@@ -179,7 +179,7 @@ class CaseHandlersController extends Controller
 
     public function editCase(PatientCase $case): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
         $caseHandlers = CaseHandler::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         return view('hms.case-handlers.edit-case', compact('case', 'patients', 'caseHandlers'));
     }

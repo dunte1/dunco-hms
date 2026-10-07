@@ -35,6 +35,7 @@ class User extends Authenticatable
         'status_notes',
         'verification_code',
         'verification_code_expires_at',
+        'email_verified_at',
         'branch_id',
     ];
 

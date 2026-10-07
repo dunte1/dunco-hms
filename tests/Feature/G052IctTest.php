@@ -8,6 +8,7 @@ use App\Models\ItTicket;
 use App\Models\BackupRecord;
 use App\Models\SoftwareLicence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class G052IctTest extends TestCase
@@ -19,7 +20,9 @@ class G052IctTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Permission::firstOrCreate(['name' => 'manage backups']);
         $this->user = User::factory()->create();
+        $this->user->givePermissionTo('manage backups');
     }
 
     public function test_it_asset_creation_and_tracking(): void
@@ -122,6 +125,19 @@ class G052IctTest extends TestCase
 
         $response = $this->actingAs($this->user)->get(route('hms.ict.backups.index'));
         $response->assertOk();
+    }
+
+    public function test_backup_routes_require_manage_backups_permission(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('hms.ict.backups.index'))
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->get(route('hms.settings.backup'))
+            ->assertForbidden();
     }
 
     public function test_software_licence_management(): void

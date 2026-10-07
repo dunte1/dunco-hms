@@ -3,7 +3,7 @@
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-6">
                 <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <a href="{{ route('hms.equipment.index') }}" class="hover:text-teal-600">Equipment</a>
+                    <a href="{{ route('equipment.index') }}" class="hover:text-teal-600">Equipment</a>
                     <i class="fa fa-chevron-right text-xs"></i>
                     <span>Add New</span>
                 </div>
@@ -11,7 +11,7 @@
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
                 <div class="bg-gradient-to-r from-teal-500 to-teal-600 h-2"></div>
-                <form method="POST" action="{{ route('hms.equipment.store') }}" class="p-6 space-y-4">
+                <form method="POST" action="{{ route('equipment.store') }}" class="p-6 space-y-4">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name <span class="text-red-500">*</span></label>
@@ -42,7 +42,7 @@
                     </div>
                     <div class="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <button type="submit" class="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium"><i class="fa fa-save mr-2"></i> Create</button>
-                        <a href="{{ route('hms.equipment.index') }}" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium">Cancel</a>
+                        <a href="{{ route('equipment.index') }}" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium">Cancel</a>
                     </div>
                 </form>
             </div>

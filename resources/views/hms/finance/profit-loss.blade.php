@@ -84,6 +84,7 @@
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 px-4 py-2">
                             REVENUE
                         </h3>
+                        <div class="overflow-x-auto">
                         <table class="w-full mt-2">
                             <tbody>
                                 @if($revenue['patient_services'] > 0)
@@ -142,6 +143,7 @@
                                 </tr>
                             </tbody>
                         </table>
+                        </div>
                     </div>
 
                     <!-- Expenses Section -->
@@ -149,6 +151,7 @@
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 px-4 py-2">
                             EXPENSES
                         </h3>
+                        <div class="overflow-x-auto">
                         <table class="w-full mt-2">
                             <tbody>
                                 @forelse($expenses as $expense)
@@ -173,10 +176,12 @@
                                 </tr>
                             </tbody>
                         </table>
+                        </div>
                     </div>
 
                     <!-- Net Profit Section -->
                     <div class="border-t-4 border-gray-900 dark:border-gray-100 pt-4">
+                        <div class="overflow-x-auto">
                         <table class="w-full">
                             <tbody>
                                 <tr class="font-bold text-xl">
@@ -195,6 +200,7 @@
                                 </tr>
                             </tbody>
                         </table>
+                        </div>
                     </div>
 
                     <!-- Footer -->

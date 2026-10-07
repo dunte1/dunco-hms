@@ -60,7 +60,7 @@ class DischargeSummaryController extends Controller
                 ->whereYear('discharge_date', now()->year)->count(),
         ];
         
-        $doctors = Doctor::orderBy('first_name')->get();
+        $doctors = Doctor::forSelect();
         
         return view('hms.discharge-summary.index', compact('discharges', 'stats', 'doctors'));
     }
@@ -74,8 +74,8 @@ class DischargeSummaryController extends Controller
     
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get();
-        $doctors = Doctor::orderBy('first_name')->get();
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         
         return view('hms.discharge-summary.create', compact('patients', 'doctors'));
     }
@@ -109,8 +109,8 @@ class DischargeSummaryController extends Controller
 
     public function edit(IpdAdmission $discharge): View
     {
-        $patients = Patient::orderBy('first_name')->get();
-        $doctors = Doctor::orderBy('first_name')->get();
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         return view('hms.discharge-summary.edit', compact('discharge', 'patients', 'doctors'));
     }
 

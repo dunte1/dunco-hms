@@ -22,7 +22,7 @@
                         </nav>
                     </div>
                     <div class="mt-3 mt-sm-0">
-                        <button type="button" class="btn btn-light btn-lg shadow-sm px-4" data-bs-toggle="modal" data-bs-target="#addDesignationModal">
+                        <button type="button" class="btn btn-light shadow-sm px-4" data-bs-toggle="modal" data-bs-target="#addDesignationModal">
                             <i class="fas fa-plus-circle me-2"></i>Add New Designation
                         </button>
                     </div>
@@ -118,9 +118,9 @@
                             </h5>
                         </div>
                         <div class="col-md-6">
-                            <div class="d-flex gap-2 justify-content-md-end">
-                                <div class="flex-fill" style="max-width: 300px;">
-                                    <div class="input-group input-group-lg">
+                            <div class="d-flex flex-wrap gap-2 justify-content-md-end search-bar-fixed">
+                                <div class="flex-fill search-bar-fixed" style="max-width: 300px;">
+                                    <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0">
                                             <i class="fas fa-search text-muted"></i>
                                         </span>
@@ -259,7 +259,7 @@
                             </div>
                             <h4 class="text-dark mb-3 fw-bold">No Designations Found</h4>
                             <p class="text-muted mb-4">Start by creating your first designation to organize your staff roles effectively.</p>
-                            <button type="button" class="btn btn-primary btn-lg px-5 shadow-sm" data-bs-toggle="modal" data-bs-target="#addDesignationModal">
+                            <button type="button" class="btn btn-primary px-5 shadow-sm" data-bs-toggle="modal" data-bs-target="#addDesignationModal">
                                 <i class="fas fa-plus-circle me-2"></i>Create First Designation
                             </button>
                         </div>
@@ -288,7 +288,7 @@
                             <label for="name" class="form-label fw-bold text-dark">
                                 Designation Name <span class="text-danger">*</span>
                             </label>
-                            <input type="text" class="form-control form-control-lg @error('name') is-invalid @enderror" 
+                            <input type="text" class="form-control @error('name') is-invalid @enderror" 
                                    id="name" name="name" value="{{ old('name') }}" 
                                    placeholder="e.g., Senior Doctor" required>
                             @error('name')
@@ -307,7 +307,7 @@
                                     </div>
                                 </div>
                             @endif
-                            <select class="form-select form-select-lg @error('department') is-invalid @enderror" 
+                            <select class="form-select @error('department') is-invalid @enderror" 
                                     id="department" name="department" {{ $departments->isEmpty() ? 'disabled' : '' }}>
                                 <option value="">Select Department</option>
                                 @foreach($departments as $dept)
@@ -323,7 +323,7 @@
                     <div class="row g-3 mt-1">
                         <div class="col-md-6">
                             <label for="level" class="form-label fw-bold text-dark">Level</label>
-                            <select class="form-select form-select-lg @error('level') is-invalid @enderror" 
+                            <select class="form-select @error('level') is-invalid @enderror" 
                                     id="level" name="level">
                                 <option value="">Select Level</option>
                                 <option value="Entry" {{ old('level') == 'Entry' ? 'selected' : '' }}>Entry Level</option>
@@ -339,7 +339,7 @@
 
                         <div class="col-md-6">
                             <label for="description" class="form-label fw-bold text-dark">Description</label>
-                            <textarea class="form-control form-control-lg @error('description') is-invalid @enderror" 
+                            <textarea class="form-control @error('description') is-invalid @enderror" 
                                       id="description" name="description" rows="3" 
                                       placeholder="Brief description...">{{ old('description') }}</textarea>
                             @error('description')
@@ -380,12 +380,12 @@
                             <label for="edit_name" class="form-label fw-bold text-dark">
                                 Designation Name <span class="text-danger">*</span>
                             </label>
-                            <input type="text" class="form-control form-control-lg" id="edit_name" name="name" required>
+                            <input type="text" class="form-control" id="edit_name" name="name" required>
                         </div>
 
                         <div class="col-md-6">
                             <label for="edit_department" class="form-label fw-bold text-dark">Department</label>
-                            <select class="form-select form-select-lg" id="edit_department" name="department">
+                            <select class="form-select" id="edit_department" name="department">
                                 <option value="">Select Department</option>
                                 @foreach($departments as $dept)
                                 <option value="{{ $dept->name }}">{{ $dept->name }}</option>
@@ -397,7 +397,7 @@
                     <div class="row g-3 mt-1">
                         <div class="col-md-6">
                             <label for="edit_level" class="form-label fw-bold text-dark">Level</label>
-                            <select class="form-select form-select-lg" id="edit_level" name="level">
+                            <select class="form-select" id="edit_level" name="level">
                                 <option value="">Select Level</option>
                                 <option value="Entry">Entry Level</option>
                                 <option value="Mid">Mid Level</option>
@@ -409,7 +409,7 @@
 
                         <div class="col-md-6">
                             <label for="edit_description" class="form-label fw-bold text-dark">Description</label>
-                            <textarea class="form-control form-control-lg" id="edit_description" name="description" rows="3"></textarea>
+                            <textarea class="form-control" id="edit_description" name="description" rows="3"></textarea>
                         </div>
                     </div>
                 </div>

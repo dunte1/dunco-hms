@@ -155,7 +155,7 @@ class LeaveRequestsController extends Controller
     public function edit(LeaveRequest $leaveRequest): View
     {
         $leaveTypes = \App\Models\LeaveType::orderBy('name')->pluck('name', 'id');
-        $employees = Employee::orderBy('first_name')->get();
+        $employees = Employee::forSelect();
         return view('hms.hr.leave-requests.edit', compact('leaveRequest', 'leaveTypes', 'employees'));
     }
 

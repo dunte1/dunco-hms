@@ -46,8 +46,8 @@ class QueueManagementController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no', 'phone']);
-        $doctors = Doctor::with('department')->orderBy('first_name')->get();
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $departments = DoctorDepartment::orderBy('name')->get();
 
         return view('hms.queue.create', compact('patients', 'doctors', 'departments'));
@@ -176,8 +176,8 @@ class QueueManagementController extends Controller
     public function edit(QueueManagement $queue): View
     {
         $queue->load(['patient', 'doctor']);
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::with('department')->orderBy('first_name')->get();
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $departments = DoctorDepartment::orderBy('name')->get();
         return view('hms.queue.edit', compact('queue', 'patients', 'doctors', 'departments'));
     }

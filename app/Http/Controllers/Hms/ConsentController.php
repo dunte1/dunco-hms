@@ -20,8 +20,8 @@ class ConsentController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->pluck(function ($p) { return $p->first_name . ' ' . $p->last_name; }, 'id');
-        $doctors = Doctor::orderBy('first_name')->pluck(function ($d) { return $d->first_name . ' ' . $d->last_name; }, 'id');
+        $patients = Patient::forSelect()->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
+        $doctors = Doctor::forSelect()->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
         return view('hms.consent.create', compact('patients', 'doctors'));
     }
 
@@ -50,8 +50,8 @@ class ConsentController extends Controller
 
     public function edit(ConsentForm $consent): View
     {
-        $patients = Patient::orderBy('first_name')->pluck(function ($p) { return $p->first_name . ' ' . $p->last_name; }, 'id');
-        $doctors = Doctor::orderBy('first_name')->pluck(function ($d) { return $d->first_name . ' ' . $d->last_name; }, 'id');
+        $patients = Patient::forSelect()->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
+        $doctors = Doctor::forSelect()->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
         return view('hms.consent.edit', compact('consent', 'patients', 'doctors'));
     }
 

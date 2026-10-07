@@ -76,7 +76,7 @@ Gap: not all clinical record changes audited until Auditable trait applied.
 | Encryption in transit | Existing (assumed HTTPS deployment) | Not re-verified in this audit |
 | Encryption at rest | Unknown | Infra-level; not verified |
 | Secret management | Config/env based | .env not committed as live secrets in audit sample; production secrets must be env-injected |
-| Backup | Existing permission/manage backups | Ops restore procedure not verified |
+| Backup | Implemented | Spatie laravel-backup + BackupService; permission `manage backups`; optional archive encryption via `BACKUP_ARCHIVE_PASSWORD`; scheduled `backup:run` / `backup:clean` / `backup:monitor`; restore supports .sql and Spatie .zip archives |
 | Data retention | Unknown | Not fully audited |
 
 ---

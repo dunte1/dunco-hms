@@ -22,7 +22,7 @@
                         </nav>
                     </div>
                     <div class="mt-3 mt-sm-0">
-                        <a href="{{ route('hms.hr.payrolls.create') }}" class="btn btn-light btn-lg shadow-sm px-4">
+                        <a href="{{ route('hms.hr.payrolls.create') }}" class="btn btn-light shadow-sm px-4">
                             <i class="fas fa-calculator me-2"></i>Generate New Payroll
                         </a>
                     </div>
@@ -118,9 +118,9 @@
                             </h5>
                         </div>
                         <div class="col-md-6">
-                            <div class="d-flex gap-2 justify-content-md-end">
-                                <div class="flex-fill" style="max-width: 300px;">
-                                    <div class="input-group input-group-lg">
+                            <div class="d-flex flex-wrap gap-2 justify-content-md-end search-bar-fixed">
+                                <div class="flex-fill search-bar-fixed" style="max-width: 300px;">
+                                    <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0">
                                             <i class="fas fa-search text-muted"></i>
                                         </span>

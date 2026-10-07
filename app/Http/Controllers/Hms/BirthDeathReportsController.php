@@ -34,7 +34,7 @@ class BirthDeathReportsController extends Controller
 
     public function createBirthReport(): View
     {
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $doctors = Doctor::forSelect();
         $nurses = Nurse::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         return view('hms.reports.create-birth', compact('doctors', 'nurses'));
     }
@@ -82,8 +82,8 @@ class BirthDeathReportsController extends Controller
 
     public function createDeathReport(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $nurses = Nurse::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         return view('hms.reports.create-death', compact('patients', 'doctors', 'nurses'));
     }
@@ -120,7 +120,7 @@ class BirthDeathReportsController extends Controller
 
     public function editBirthReport(BirthReport $report): View
     {
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $doctors = Doctor::forSelect();
         $nurses = Nurse::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         return view('hms.reports.edit-birth', compact('report', 'doctors', 'nurses'));
     }
@@ -163,8 +163,8 @@ class BirthDeathReportsController extends Controller
 
     public function editDeathReport(DeathReport $report): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $nurses = Nurse::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         return view('hms.reports.edit-death', compact('report', 'patients', 'doctors', 'nurses'));
     }

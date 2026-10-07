@@ -22,7 +22,7 @@
                         </nav>
                     </div>
                     <div class="mt-3 mt-sm-0">
-                        <a href="{{ route('hms.hr.attendance.create') }}" class="btn btn-light btn-lg shadow-sm px-4">
+                        <a href="{{ route('hms.hr.attendance.create') }}" class="btn btn-light shadow-sm px-4">
                             <i class="fas fa-plus me-2"></i>Record Attendance
                         </a>
                     </div>
@@ -118,9 +118,9 @@
                             </h5>
                         </div>
                         <div class="col-md-6">
-                            <div class="d-flex gap-2 justify-content-md-end">
-                                <div class="flex-fill" style="max-width: 300px;">
-                                    <div class="input-group input-group-lg">
+                            <div class="d-flex flex-wrap gap-2 justify-content-md-end search-bar-fixed">
+                                <div class="flex-fill search-bar-fixed" style="max-width: 300px;">
+                                    <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0">
                                             <i class="fas fa-search text-muted"></i>
                                         </span>
@@ -252,7 +252,7 @@
                             </div>
                             <h4 class="text-dark mb-3 fw-bold">No Attendance Records Found</h4>
                             <p class="text-muted mb-4">Start by recording attendance for employees.</p>
-                            <a href="{{ route('hms.hr.attendance.create') }}" class="btn btn-primary btn-lg px-5 shadow-sm" style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); border: none;">
+                            <a href="{{ route('hms.hr.attendance.create') }}" class="btn btn-primary px-5 shadow-sm" style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); border: none;">
                                 <i class="fas fa-plus me-2"></i>Record First Attendance
                             </a>
                         </div>

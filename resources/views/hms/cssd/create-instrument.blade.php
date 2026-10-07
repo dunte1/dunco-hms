@@ -3,14 +3,14 @@
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-6">
                 <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <a href="{{ route('hms.cssd.index') }}" class="hover:text-blue-600">CSSD</a>
+                    <a href="{{ route('cssd.index') }}" class="hover:text-blue-600">CSSD</a>
                     <i class="fa fa-chevron-right text-xs"></i>
                     <span>Create Instrument</span>
                 </div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><i class="fa fa-plus-circle text-teal-600 mr-3"></i>Add Instrument</h1>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                <form action="{{ route('hms.cssd.instrument-store') }}" method="POST" class="space-y-4">
+                <form action="{{ route('cssd.instrument-store') }}" method="POST" class="space-y-4">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -33,7 +33,7 @@
                     </div>
                     <div class="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <button type="submit" class="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium"><i class="fa fa-save mr-2"></i> Create</button>
-                        <a href="{{ route('hms.cssd.index') }}" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium">Cancel</a>
+                        <a href="{{ route('cssd.index') }}" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium">Cancel</a>
                     </div>
                 </form>
             </div>

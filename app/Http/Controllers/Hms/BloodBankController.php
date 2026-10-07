@@ -91,8 +91,8 @@ class BloodBankController extends Controller
 
     public function createRequest(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $bloodGroups = BloodGroup::orderBy('name')->pluck('name', 'id');
         return view('hms.bloodbank.create-request', compact('patients', 'doctors', 'bloodGroups'));
     }
@@ -157,8 +157,8 @@ class BloodBankController extends Controller
 
     public function editRequest(BloodRequest $request): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $bloodGroups = BloodGroup::orderBy('name')->pluck('name', 'id');
         return view('hms.bloodbank.edit-request', compact('request', 'patients', 'doctors', 'bloodGroups'));
     }

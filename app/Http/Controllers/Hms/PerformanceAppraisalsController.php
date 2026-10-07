@@ -37,7 +37,7 @@ class PerformanceAppraisalsController extends Controller
         }
         
         $appraisals = $query->orderBy('appraisal_date', 'desc')->paginate(15);
-        $employees = Employee::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $employees = Employee::forSelect();
         
         return view('hms.hr.appraisals.index', compact('appraisals', 'employees'));
     }
@@ -47,7 +47,7 @@ class PerformanceAppraisalsController extends Controller
      */
     public function create(): View
     {
-        $employees = Employee::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'position']);
+        $employees = Employee::forSelect();
         return view('hms.hr.appraisals.create', compact('employees'));
     }
 
@@ -112,7 +112,7 @@ class PerformanceAppraisalsController extends Controller
      */
     public function edit(PerformanceAppraisal $appraisal): View
     {
-        $employees = Employee::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'position']);
+        $employees = Employee::forSelect();
         return view('hms.hr.appraisals.edit', compact('appraisal', 'employees'));
     }
 

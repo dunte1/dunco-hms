@@ -41,12 +41,12 @@
                                 <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-semibold rounded-full {{ $file->status === 'in_library' ? 'bg-green-100 text-green-800' : ($file->status === 'issued' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">{{ ucfirst(str_replace('_', ' ', $file->status)) }}</span></td>
                                 <td class="px-6 py-4 text-right text-sm">
                                     <div class="flex justify-end gap-1">
-                                        <a href="{{ route('hms.mrd.show', $file) }}" class="px-2 py-1 bg-blue-600 text-white rounded text-xs"><i class="fa fa-eye"></i></a>
+                                        <a href="{{ route('mrd.show', $file) }}" class="px-2 py-1 bg-blue-600 text-white rounded text-xs"><i class="fa fa-eye"></i></a>
                                         @if($file->status === 'in_library')
-                                            <form action="{{ route('hms.mrd.issue', $file) }}" method="POST" class="inline">@csrf<button class="px-2 py-1 bg-yellow-600 text-white rounded text-xs"><i class="fa fa-sign-out-alt"></i> Issue</button></form>
+                                            <form action="{{ route('mrd.issue', $file) }}" method="POST" class="inline">@csrf<button class="px-2 py-1 bg-yellow-600 text-white rounded text-xs"><i class="fa fa-sign-out-alt"></i> Issue</button></form>
                                         @endif
                                         @if($file->status === 'issued')
-                                            <form action="{{ route('hms.mrd.return', $file) }}" method="POST" class="inline">@csrf<button class="px-2 py-1 bg-green-600 text-white rounded text-xs"><i class="fa fa-sign-in-alt"></i> Return</button></form>
+                                            <form action="{{ route('mrd.return', $file) }}" method="POST" class="inline">@csrf<button class="px-2 py-1 bg-green-600 text-white rounded text-xs"><i class="fa fa-sign-in-alt"></i> Return</button></form>
                                         @endif
                                     </div>
                                 </td>
@@ -63,7 +63,7 @@
     <div id="addFileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md mx-4 p-6">
             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Register MRD File</h3>
-            <form action="{{ route('hms.mrd.store') }}" method="POST" class="space-y-4">
+            <form action="{{ route('mrd.store') }}" method="POST" class="space-y-4">
                 @csrf
                 <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Patient ID *</label><input type="number" name="patient_id" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>
                 <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">File Type *</label><select name="file_type" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"><option value="discharge_summary">Discharge Summary</option><option value="lab_report">Lab Report</option><option value="imaging">Imaging</option><option value="consent">Consent</option><option value="operation_note">Operation Note</option><option value="correspondence">Correspondence</option><option value="other">Other</option></select></div>

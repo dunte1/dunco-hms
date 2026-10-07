@@ -245,7 +245,7 @@ class InsuranceController extends Controller
 
     public function createPolicy(): View
     {
-        $patients = \App\Models\Patient::orderBy('first_name')->get();
+        $patients = \App\Models\Patient::forSelect();
         $insuranceProviders = InsuranceProvider::where('is_active', true)->orderBy('name')->get();
         
         return view('hms.insurance.policies.create', compact('patients', 'insuranceProviders'));
@@ -287,7 +287,7 @@ class InsuranceController extends Controller
 
     public function editPolicy(PatientInsurance $policy): View
     {
-        $patients = \App\Models\Patient::orderBy('first_name')->get();
+        $patients = \App\Models\Patient::forSelect();
         $insuranceProviders = InsuranceProvider::where('is_active', true)->orderBy('name')->get();
         
         return view('hms.insurance.policies.edit', compact('policy', 'patients', 'insuranceProviders'));

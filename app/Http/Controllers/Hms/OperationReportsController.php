@@ -23,8 +23,8 @@ class OperationReportsController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $nurses = Nurse::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         return view('hms.operations.create', compact('patients', 'doctors', 'nurses'));
     }
@@ -71,8 +71,8 @@ class OperationReportsController extends Controller
     public function edit(OperationReport $report): View
     {
         $report->load(['surgeon', 'assistantDoctor', 'anesthesiologist', 'nurse']);
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $nurses = Nurse::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']);
         return view('hms.operations.edit', compact('report', 'patients', 'doctors', 'nurses'));
     }

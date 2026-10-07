@@ -80,8 +80,8 @@ class DiagnosisController extends Controller
 
     public function createDiagnosis(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $categories = DiagnosisCategory::orderBy('name')->pluck('name', 'id');
         return view('hms.diagnosis.create-diagnosis', compact('patients', 'doctors', 'categories'));
     }
@@ -142,8 +142,8 @@ class DiagnosisController extends Controller
     public function editDiagnosis(PatientDiagnosis $diagnosis): View
     {
         $diagnosis->load(['patient', 'doctor', 'diagnosisCategory']);
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $categories = DiagnosisCategory::orderBy('name')->pluck('name', 'id');
         return view('hms.diagnosis.edit-diagnosis', compact('diagnosis', 'patients', 'doctors', 'categories'));
     }

@@ -23,7 +23,7 @@ class RfidController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::latest()->get();
+        $patients = Patient::forSelect();
         $employees = Employee::latest()->get();
         
         return view('hms.rfid.create', compact('patients', 'employees'));

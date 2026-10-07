@@ -54,7 +54,7 @@ class TriageController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
+        $patients = Patient::forSelect();
         $opdVisits = OpdVisit::where('status', '!=', 'discharged')->with('patient')->latest()->get();
         $categories = TriageCategory::where('is_active', true)->orderBy('priority_level')->get();
         return view('hms.triage.create', compact('patients', 'opdVisits', 'categories'));
@@ -110,7 +110,7 @@ class TriageController extends Controller
 
     public function edit(Triage $triage): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
+        $patients = Patient::forSelect();
         return view('hms.triage.edit', compact('triage', 'patients'));
     }
 

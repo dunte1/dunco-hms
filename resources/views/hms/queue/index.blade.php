@@ -96,7 +96,7 @@
                         </div>
                         <div class="stats-icon">
                             <div class="rounded-circle p-3" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-spinner text-white fs-4"></i>
+                                <i class="fas fa-spinner fa-spin text-white fs-4"></i>
                             </div>
                         </div>
                     </div>

@@ -76,13 +76,13 @@ class MrdController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->pluck(function ($p) { return $p->first_name . ' ' . $p->last_name; }, 'id');
+        $patients = Patient::forSelect()->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
         return view('hms.mrd.create', compact('patients'));
     }
 
     public function edit(MrdFile $file): View
     {
-        $patients = Patient::orderBy('first_name')->pluck(function ($p) { return $p->first_name . ' ' . $p->last_name; }, 'id');
+        $patients = Patient::forSelect()->mapWithKeys(fn ($item) => [$item->id => trim($item->first_name . ' ' . $item->last_name)]);
         return view('hms.mrd.edit', compact('file', 'patients'));
     }
 

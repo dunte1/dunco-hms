@@ -15,7 +15,7 @@
 | | Audit Logs | ✅ Implemented | Spatie ActivityLog |
 | | Theme Customization | ✅ Implemented | SettingsController |
 | | Localization | ✅ Implemented | SetLocaleFromSession middleware |
-| | Backup & Restore | ✅ Implemented | Spatie Backup |
+| | Backup & Restore | ✅ Implemented | Spatie laravel-backup + BackupService + Settings UI + scheduled run/clean/monitor |
 | **Patient Management** | | | |
 | | Patient Registration | ✅ Implemented | PatientsController |
 | | Patient Profile | ✅ Implemented | Patient model + views |

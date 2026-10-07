@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class SystemSetting extends Model
 {
@@ -20,8 +21,14 @@ class SystemSetting extends Model
     public static function get($key, $default = null)
     {
         try {
-            $setting = static::where('key', $key)->first();
-            
+            $setting = Cache::remember(
+                'system_setting:' . $key,
+                now()->addHour(),
+                function () use ($key) {
+                    return static::where('key', $key)->first();
+                }
+            );
+
             if (!$setting) {
                 return $default;
             }
@@ -43,7 +50,7 @@ class SystemSetting extends Model
 
     public static function set($key, $value, $type = 'string', $description = null, $isPublic = false)
     {
-        return static::updateOrCreate(
+        $setting = static::updateOrCreate(
             ['key' => $key],
             [
                 'value' => is_array($value) ? json_encode($value) : $value,
@@ -52,5 +59,9 @@ class SystemSetting extends Model
                 'is_public' => $isPublic,
             ]
         );
+
+        Cache::forget('system_setting:' . $key);
+
+        return $setting;
     }
 }

@@ -46,8 +46,8 @@ class EPrescriptionController extends Controller
         $templateId = $request->get('template_id');
         $template = $templateId ? EPrescriptionTemplate::findOrFail($templateId) : null;
         
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $medicines = Medicine::orderBy('name')->get(['id', 'name', 'dosage_form', 'strength']);
         $templates = EPrescriptionTemplate::where('is_active', true)->get();
         
@@ -152,8 +152,8 @@ class EPrescriptionController extends Controller
     public function edit(Prescription $prescription): View
     {
         $prescription->load(['patient', 'doctor', 'items.medicine']);
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $medicines = Medicine::orderBy('name')->get(['id', 'name', 'dosage_form', 'strength']);
         $templates = EPrescriptionTemplate::where('is_active', true)->get();
         return view('hms.prescriptions.e-prescription.edit', compact('prescription', 'patients', 'doctors', 'medicines', 'templates'));

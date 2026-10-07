@@ -56,15 +56,15 @@ class PrescriptionsController extends Controller
                 ->whereYear('prescription_date', now()->year)->count(),
         ];
         
-        $doctors = Doctor::orderBy('first_name')->get();
+        $doctors = Doctor::forSelect();
         
         return view('hms.pharmacy.prescriptions.index', compact('prescriptions', 'stats', 'doctors'));
     }
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $medicines = Medicine::orderBy('name')->get(['id', 'name', 'dosage_form', 'strength']);
         return view('hms.pharmacy.prescriptions.create', compact('patients', 'doctors', 'medicines'));
     }
@@ -127,8 +127,8 @@ class PrescriptionsController extends Controller
     public function edit(Prescription $prescription): View
     {
         $prescription->load('items');
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $medicines = Medicine::orderBy('name')->get(['id', 'name', 'dosage_form', 'strength']);
         return view('hms.pharmacy.prescriptions.edit', compact('prescription', 'patients', 'doctors', 'medicines'));
     }

@@ -4,15 +4,15 @@
             <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        <a href="{{ route('hms.vaccination.index') }}" class="hover:text-emerald-600">Vaccination</a>
+                        <a href="{{ route('vaccination.index') }}" class="hover:text-emerald-600">Vaccination</a>
                         <i class="fa fa-chevron-right text-xs"></i>
                         <span>Record #{{ $record->id }}</span>
                     </div>
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><i class="fa fa-syringe text-emerald-600 mr-3"></i>Vaccination Record</h1>
                 </div>
                 <div class="flex gap-3">
-                    <a href="{{ route('hms.vaccination.edit', $record) }}" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg"><i class="fa fa-edit mr-1"></i> Edit</a>
-                    <a href="{{ route('hms.vaccination.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"><i class="fa fa-arrow-left mr-1"></i> Back</a>
+                    <a href="{{ route('vaccination.edit', $record) }}" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg"><i class="fa fa-edit mr-1"></i> Edit</a>
+                    <a href="{{ route('vaccination.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"><i class="fa fa-arrow-left mr-1"></i> Back</a>
                 </div>
             </div>
             @if(session('status'))

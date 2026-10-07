@@ -81,7 +81,7 @@ class HrDocumentsController extends Controller
 
     public function create(): View
     {
-        $employees = Employee::orderBy('first_name')->get();
+        $employees = Employee::forSelect();
         $documentTypes = DocumentType::orderBy('name')->pluck('name', 'id');
         return view('hms.hr.documents.create', compact('employees', 'documentTypes'));
     }
@@ -94,7 +94,7 @@ class HrDocumentsController extends Controller
 
     public function edit(Document $document): View
     {
-        $employees = Employee::orderBy('first_name')->get();
+        $employees = Employee::forSelect();
         $documentTypes = DocumentType::orderBy('name')->pluck('name', 'id');
         return view('hms.hr.documents.edit', compact('document', 'employees', 'documentTypes'));
     }

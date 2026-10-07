@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hms;
 
 use App\Http\Controllers\Controller;
+use App\Services\BackupService;
 use App\Services\PaymentGatewayService;
 use App\Services\SmsService;
 use Illuminate\Http\Request;
@@ -62,8 +63,11 @@ class IntegrationsController extends Controller
         return view('hms.integrations.alerts', compact('smsConfigured'));
     }
     
-    public function dataSync(): View
+    public function dataSync(BackupService $backupService): View
     {
-        return view('hms.integrations.data-sync');
+        $stats = $backupService->stats();
+        $records = $backupService->records(10);
+
+        return view('hms.integrations.data-sync', compact('stats', 'records'));
     }
 }

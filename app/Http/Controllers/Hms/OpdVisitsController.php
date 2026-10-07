@@ -58,7 +58,7 @@ class OpdVisitsController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no', 'phone']);
+        $patients = Patient::forSelect();
         $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'consultation_fee']);
         $defaultConsultationFee = (float) \App\Models\SystemSetting::get('consultation_fee', 0);
         return view('hms.opd.create', compact('patients', 'doctors', 'defaultConsultationFee'));
@@ -117,8 +117,8 @@ class OpdVisitsController extends Controller
     
     public function edit(OpdVisit $opd): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         return view('hms.opd.edit', compact('opd', 'patients', 'doctors'));
     }
     

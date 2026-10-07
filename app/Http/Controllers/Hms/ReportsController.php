@@ -19,6 +19,16 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportsController extends Controller
 {
+    protected function appointmentDateColumn(): string
+    {
+        try {
+            return collect(\Schema::getColumnListing('appointments'))
+                ->contains('scheduled_at') ? 'scheduled_at' : 'appointment_date';
+        } catch (\Throwable) {
+            return 'scheduled_at';
+        }
+    }
+
     public function index(): View
     {
         return view('hms.reports.index');
@@ -26,26 +36,27 @@ class ReportsController extends Controller
 
     public function patientReports(Request $request): View
     {
+        $dateCol = $this->appointmentDateColumn();
         $query = Patient::query();
-        
+
         if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);
         }
-        
+
         if ($request->filled('date_to')) {
             $query->whereDate('created_at', '<=', $request->date_to);
         }
-        
+
         $patients = $query->with(['appointments', 'opdVisits', 'ipdAdmissions'])
             ->latest()
             ->paginate(20);
-            
+
         $totalPatients = Patient::count();
         $newPatients = Patient::whereDate('created_at', '>=', now()->subDays(30))->count();
-        $activePatients = Patient::whereHas('appointments', function($q) {
-            $q->whereDate('appointment_date', '>=', now()->subDays(30));
+        $activePatients = Patient::whereHas('appointments', function ($q) use ($dateCol) {
+            $q->whereDate($dateCol, '>=', now()->subDays(30));
         })->count();
-        
+
         return view('hms.reports.patients', compact('patients', 'totalPatients', 'newPatients', 'activePatients'));
     }
 
@@ -81,28 +92,29 @@ class ReportsController extends Controller
 
     public function appointmentReports(Request $request): View
     {
+        $dateCol = $this->appointmentDateColumn();
         $query = Appointment::with(['patient', 'doctor']);
-        
+
         if ($request->filled('date_from')) {
-            $query->whereDate('appointment_date', '>=', $request->date_from);
+            $query->whereDate($dateCol, '>=', $request->date_from);
         }
-        
+
         if ($request->filled('date_to')) {
-            $query->whereDate('appointment_date', '<=', $request->date_to);
+            $query->whereDate($dateCol, '<=', $request->date_to);
         }
-        
+
         if ($request->filled('doctor_id')) {
             $query->where('doctor_id', $request->doctor_id);
         }
-        
-        $appointments = $query->latest('appointment_date')->paginate(20);
-        
+
+        $appointments = $query->latest($dateCol)->paginate(20);
+
         // Appointment statistics
         $totalAppointments = Appointment::count();
-        $todayAppointments = Appointment::whereDate('appointment_date', today())->count();
+        $todayAppointments = Appointment::whereDate($dateCol, today())->count();
         $completedAppointments = Appointment::where('status', 'completed')->count();
         $cancelledAppointments = Appointment::where('status', 'cancelled')->count();
-        
+
         // Doctor performance
         $doctorPerformance = Appointment::selectRaw('doctor_id, COUNT(*) as total_appointments, COUNT(CASE WHEN status = "completed" THEN 1 END) as completed_appointments')
             ->with('doctor')
@@ -110,9 +122,9 @@ class ReportsController extends Controller
             ->orderByDesc('total_appointments')
             ->limit(10)
             ->get();
-        
-        $doctors = \App\Models\Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
-        
+
+        $doctors = \App\Models\Doctor::forSelect();
+
         return view('hms.reports.appointments', compact('appointments', 'totalAppointments', 'todayAppointments', 'completedAppointments', 'cancelledAppointments', 'doctorPerformance', 'doctors'));
     }
 

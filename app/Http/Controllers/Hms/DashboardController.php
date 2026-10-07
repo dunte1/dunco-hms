@@ -79,40 +79,59 @@ class DashboardController extends Controller
             'pending_claims' => InsuranceClaim::where('status', 'pending')->count(),
         ];
 
-        // Revenue data for the last 12 months (chart)
+        // Revenue data for the last 12 months (chart) — grouped aggregates, not per-month loops
+        $chartStart = Carbon::now()->subMonths(11)->startOfMonth();
+        $paymentByMonth = Payment::where('payment_date', '>=', $chartStart)
+            ->selectRaw("DATE_FORMAT(payment_date, '%Y-%m') as ym, SUM(amount) as total")
+            ->groupBy('ym')
+            ->pluck('total', 'ym');
+        $invoiceByMonth = Invoice::where('invoice_date', '>=', $chartStart)
+            ->selectRaw("DATE_FORMAT(invoice_date, '%Y-%m') as ym, SUM(total_amount) as total")
+            ->groupBy('ym')
+            ->pluck('total', 'ym');
+
         $revenueChart = [];
         for ($i = 11; $i >= 0; $i--) {
             $month = Carbon::now()->subMonths($i);
+            $ym = $month->format('Y-m');
             $revenueChart[] = [
                 'month' => $month->format('M'),
-                'revenue' => Payment::whereMonth('payment_date', $month->month)
-                    ->whereYear('payment_date', $month->year)
-                    ->sum('amount') ?? 0,
-                'invoices' => Invoice::whereMonth('invoice_date', $month->month)
-                    ->whereYear('invoice_date', $month->year)
-                    ->sum('total_amount') ?? 0,
+                'revenue' => (float) ($paymentByMonth[$ym] ?? 0),
+                'invoices' => (float) ($invoiceByMonth[$ym] ?? 0),
             ];
         }
 
-        // Patient registrations over time (last 30 days)
+        // Patient registrations over time (last 30 days) — one grouped query
+        $patientByDay = Patient::where('created_at', '>=', Carbon::today()->subDays(29)->startOfDay())
+            ->selectRaw("DATE(created_at) as d, COUNT(*) as total")
+            ->groupBy('d')
+            ->pluck('total', 'd');
+
         $patientChart = [];
         for ($i = 29; $i >= 0; $i--) {
-            $date = Carbon::now()->subDays($i);
+            $date = Carbon::today()->subDays($i);
             $patientChart[] = [
                 'date' => $date->format('M d'),
-                'count' => Patient::whereDate('created_at', $date)->count(),
+                'count' => (int) ($patientByDay[$date->toDateString()] ?? 0),
             ];
         }
 
-        // Appointments over time (last 7 days)
+        // Appointments over time (last 7 days) — one grouped query
+        $appointmentByDay = Appointment::where('scheduled_at', '>=', Carbon::today()->subDays(6)->startOfDay())
+            ->selectRaw("DATE(scheduled_at) as d, COUNT(*) as total, SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed, SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending")
+            ->groupBy('d')
+            ->get()
+            ->keyBy('d');
+
         $appointmentChart = [];
         for ($i = 6; $i >= 0; $i--) {
-            $date = Carbon::now()->subDays($i);
+            $date = Carbon::today()->subDays($i);
+            $row = $appointmentByDay[$date->toDateString()] ?? null;
             $appointmentChart[] = [
                 'day' => $date->format('D'),
-                'total' => Appointment::whereDate('scheduled_at', $date)->count(),
-                'completed' => Appointment::whereDate('scheduled_at', $date)->where('status', 'completed')->count(),
-                'pending' => Appointment::whereDate('scheduled_at', $date)->where('status', 'pending')->count(),
+                'total' => (int) ($row->total ?? 0),
+                'completed' => (int) ($row->completed ?? 0),
+                'pending' => (int) ($row->pending ?? 0),
             ];
         }
 
@@ -133,14 +152,23 @@ class DashboardController extends Controller
             ->sortDesc()
             ->take(8);
 
-        // OPD visits vs IPD admissions (last 7 days)
+        // OPD visits vs IPD admissions (last 7 days) — grouped queries
+        $opdByDay = OpdVisit::where('visit_date', '>=', Carbon::today()->subDays(6))
+            ->selectRaw("DATE(visit_date) as d, COUNT(*) as total")
+            ->groupBy('d')
+            ->pluck('total', 'd');
+        $ipdByDay = IpdAdmission::where('admission_date', '>=', Carbon::today()->subDays(6))
+            ->selectRaw("DATE(admission_date) as d, COUNT(*) as total")
+            ->groupBy('d')
+            ->pluck('total', 'd');
+
         $visitChart = [];
         for ($i = 6; $i >= 0; $i--) {
-            $date = Carbon::now()->subDays($i);
+            $date = Carbon::today()->subDays($i);
             $visitChart[] = [
                 'day' => $date->format('D'),
-                'opd' => OpdVisit::whereDate('visit_date', $date)->count(),
-                'ipd' => IpdAdmission::whereDate('admission_date', $date)->count(),
+                'opd' => (int) ($opdByDay[$date->toDateString()] ?? 0),
+                'ipd' => (int) ($ipdByDay[$date->toDateString()] ?? 0),
             ];
         }
 

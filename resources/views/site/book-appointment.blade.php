@@ -174,8 +174,9 @@
                     </div>
                 </div>
 
-                <button 
+                <button
                     type="submit"
+                    id="bookAppointmentSubmit"
                     class="w-full px-6 py-4 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center"
                 >
                     Submit Appointment Request
@@ -183,6 +184,18 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                     </svg>
                 </button>
+                <script>
+                    document.querySelectorAll('form').forEach(function (form) {
+                        if (!form.querySelector('#bookAppointmentSubmit')) return;
+                        form.addEventListener('submit', function () {
+                            var btn = document.getElementById('bookAppointmentSubmit');
+                            if (btn) {
+                                btn.disabled = true;
+                                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+                            }
+                        });
+                    });
+                </script>
             </form>
         </div>
     </section>

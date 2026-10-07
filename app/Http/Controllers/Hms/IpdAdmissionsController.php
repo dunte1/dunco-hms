@@ -61,8 +61,8 @@ class IpdAdmissionsController extends Controller
 
     public function create(): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no', 'phone']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $beds = Bed::where('is_available', true)->with('bedType')->get(['id', 'bed_number', 'ward_name', 'bed_type_id']);
         $wards = Ward::where('is_active', true)->orderBy('name')->get(['id', 'name', 'code', 'ward_type']);
         $admissionFee = (float) \App\Models\SystemSetting::get('admission_fee', 0);
@@ -156,8 +156,8 @@ class IpdAdmissionsController extends Controller
     
     public function edit(IpdAdmission $ipd): View
     {
-        $patients = Patient::orderBy('first_name')->get(['id', 'first_name', 'last_name', 'patient_no']);
-        $doctors = Doctor::orderBy('first_name')->get(['id', 'first_name', 'last_name']);
+        $patients = Patient::forSelect();
+        $doctors = Doctor::forSelect();
         $beds = Bed::where(function($query) use ($ipd) {
             $query->where('is_available', true)
                   ->orWhere('id', $ipd->bed_id);

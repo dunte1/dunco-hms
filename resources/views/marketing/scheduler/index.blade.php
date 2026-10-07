@@ -8,6 +8,7 @@
             @if($scheduledPosts->count() > 0)
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
+                        <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead>
                                 <tr>
@@ -41,6 +42,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        </div>
                         <div class="mt-4">{{ $scheduledPosts->links() }}</div>
                     </div>
                 </div>

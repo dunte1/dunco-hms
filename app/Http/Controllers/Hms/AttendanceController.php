@@ -54,7 +54,7 @@ class AttendanceController extends Controller
 
     public function edit(Attendance $attendance): View
     {
-        $employees = Employee::orderBy('first_name')->get();
+        $employees = Employee::forSelect();
         return view('hms.hr.attendance.edit', compact('attendance', 'employees'));
     }
 
