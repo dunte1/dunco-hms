@@ -15,6 +15,7 @@ class TestUserSeeder extends Seeder
     public function run(): void
     {
         // Create test users with different roles
+        // ONE Super Admin only; Hospital Admin is a separate limited role
         $users = [
             [
                 'name' => 'Super Admin',
@@ -26,7 +27,7 @@ class TestUserSeeder extends Seeder
                 'name' => 'Hospital Admin',
                 'email' => 'admin@duncohms.com',
                 'password' => bcrypt('password'),
-                'role' => 'Super Admin'
+                'role' => 'Hospital Admin'
             ],
             [
                 'name' => 'Dr. John Smith',
@@ -64,7 +65,7 @@ class TestUserSeeder extends Seeder
                 ]
             );
 
-            // Always ensure Super Admin gets all permissions
+            // Only Super Admin account gets ALL permissions
             if ($userData['role'] === 'Super Admin') {
                 $role = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
                 $role->syncPermissions(Permission::all());
@@ -73,15 +74,15 @@ class TestUserSeeder extends Seeder
             }
 
             $role = Role::where('name', $userData['role'])->first();
-            if ($role && !$user->hasRole($role)) {
-                $user->assignRole($role);
+            if ($role) {
+                $user->syncRoles([$userData['role']]);
             }
         }
 
         echo "Test users created successfully!\n";
         echo "Login credentials:\n";
-        echo "- Super Admin: dunthecan02@gmail.com / password\n";
-        echo "- Hospital Admin: admin@duncohms.com / password\n";
+        echo "- Super Admin (ALL access): dunthecan02@gmail.com / password\n";
+        echo "- Hospital Admin (ops only): admin@duncohms.com / password\n";
         echo "- Doctor: doctor@duncohms.com / password\n";
         echo "- Nurse: nurse@duncohms.com / password\n";
         echo "- Receptionist: receptionist@duncohms.com / password\n";

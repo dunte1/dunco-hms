@@ -36,23 +36,26 @@ class GrantAdminAllPermissions extends Seeder
         $superAdminRole->syncPermissions($allPermissions);
         $this->command->info('✅ Super Admin role now has ' . $allPermissions->count() . ' permissions');
 
-        // Step 3: Find your admin user and assign Super Admin role
-        // Try multiple common admin emails
-        $adminEmails = [
-            'admin@duncohms.com',
-            'admin@example.com',
-            'admin@duncowebsolutions.co.ke',
-            'info@duncowebsolutions.co.ke',
-        ];
+        // Step 3: Only dunthecan02@gmail.com is Super Admin
+        $superAdminEmails = ['dunthecan02@gmail.com'];
+
+        // Remove Super Admin from everyone else
+        User::whereHas('roles', fn ($q) => $q->where('name', 'Super Admin'))
+            ->whereNotIn('email', $superAdminEmails)
+            ->get()
+            ->each(function ($user) {
+                $remaining = $user->roles->where('name', '!=', 'Super Admin')->pluck('name')->all();
+                $user->syncRoles($remaining);
+            });
 
         $adminFound = false;
-        foreach ($adminEmails as $email) {
+        foreach ($superAdminEmails as $email) {
             $admin = User::where('email', $email)->first();
-            
+
             if ($admin) {
                 $admin->syncRoles(['Super Admin']);
                 $admin->save();
-                
+
                 $this->command->info('✅ Super Admin role assigned to: ' . $email);
                 $this->command->info('   User: ' . $admin->name);
                 $this->command->info('   Total permissions: ' . $allPermissions->count());
@@ -62,11 +65,7 @@ class GrantAdminAllPermissions extends Seeder
         }
 
         if (!$adminFound) {
-            $this->command->error('❌ No admin user found with common email addresses.');
-            $this->command->info('');
-            $this->command->info('Please provide the admin email address:');
-            $this->command->info('Run: php artisan tinker');
-            $this->command->info('Then: $user = User::find(ID); $user->assignRole(\'Super Admin\');');
+            $this->command->error('❌ Super Admin user not found: dunthecan02@gmail.com');
         }
 
         // Clear cache again
