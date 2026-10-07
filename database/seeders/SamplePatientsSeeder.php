@@ -12,14 +12,20 @@ class SamplePatientsSeeder extends Seeder
     {
         $faker = Faker::create();
         
-        // Create 50 sample patients
+        // Create 50 sample patients (skip if patient_no already exists)
+        $created = 0;
         for ($i = 1; $i <= 50; $i++) {
+            $patientNo = 'PAT-' . str_pad($i, 5, '0', STR_PAD_LEFT);
+            if (Patient::where('patient_no', $patientNo)->exists()) {
+                continue;
+            }
+
             $gender = $faker->randomElement(['male', 'female', 'other']);
             $firstName = $faker->firstName($gender == 'other' ? null : $gender);
             $lastName = $faker->lastName();
-            
+
             Patient::create([
-                'patient_no' => 'PAT-' . str_pad($i, 5, '0', STR_PAD_LEFT),
+                'patient_no' => $patientNo,
                 'first_name' => $firstName,
                 'last_name' => $lastName,
                 'email' => $faker->optional(0.8)->email(),
@@ -30,9 +36,10 @@ class SamplePatientsSeeder extends Seeder
                 'created_at' => $faker->dateTimeBetween('-2 years', 'now'),
                 'updated_at' => now(),
             ]);
+            $created++;
         }
-        
-        $this->command->info('✅ Successfully created 50 sample patients');
+
+        $this->command->info("✅ Sample patients: {$created} created, " . Patient::count() . " total");
         
         // Display statistics
         $this->command->info("\n📊 Patient Statistics:");

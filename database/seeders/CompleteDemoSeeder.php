@@ -118,15 +118,17 @@ class CompleteDemoSeeder extends Seeder
         ];
 
         foreach ($ambulances as $amb) {
-            Ambulance::create([
-                'vehicle_number' => $amb[0],
-                'driver_name' => $amb[1],
-                'driver_phone' => $amb[2],
-                'vehicle_type' => $amb[3],
-                'equipment_list' => $amb[4],
-                'is_available' => true,
-                'status' => 'active',
-            ]);
+            Ambulance::updateOrCreate(
+                ['vehicle_number' => $amb[0]],
+                [
+                    'driver_name' => $amb[1],
+                    'driver_phone' => $amb[2],
+                    'vehicle_type' => $amb[3],
+                    'equipment_list' => $amb[4],
+                    'is_available' => true,
+                    'status' => 'active',
+                ]
+            );
         }
     }
 
@@ -144,14 +146,16 @@ class CompleteDemoSeeder extends Seeder
         ];
 
         foreach ($rooms as $room) {
-            OtRoom::create([
-                'name' => $room[0],
-                'floor' => $room[1],
-                'type' => $room[2],
-                'equipment_notes' => $room[3],
-                'status' => $room[4],
-                'capacity' => 1,
-            ]);
+            OtRoom::firstOrCreate(
+                ['name' => $room[0]],
+                [
+                    'floor' => $room[1],
+                    'type' => $room[2],
+                    'equipment_notes' => $room[3],
+                    'status' => $room[4],
+                    'capacity' => 1,
+                ]
+            );
         }
     }
 
@@ -179,16 +183,17 @@ class CompleteDemoSeeder extends Seeder
             $drugA = Medicine::where('name', 'like', "%{$int[0]}%")->first();
             $drugB = Medicine::where('name', 'like', "%{$int[1]}%")->first();
             if ($drugA && $drugB) {
-                DrugInteraction::create([
-                    'drug_a_id' => $drugA->id,
-                    'drug_b_id' => $drugB->id,
-                    'severity' => $int[2],
-                    'description' => $int[3],
-                    'clinical_effect' => $int[4],
-                    'management_advice' => $int[5],
-                    'source' => 'DrugBank/Medscape',
-                    'is_active' => true,
-                ]);
+                DrugInteraction::firstOrCreate(
+                    ['drug_a_id' => $drugA->id, 'drug_b_id' => $drugB->id],
+                    [
+                        'severity' => $int[2],
+                        'description' => $int[3],
+                        'clinical_effect' => $int[4],
+                        'management_advice' => $int[5],
+                        'source' => 'DrugBank/Medscape',
+                        'is_active' => true,
+                    ]
+                );
             }
         }
     }
@@ -197,17 +202,18 @@ class CompleteDemoSeeder extends Seeder
     {
         $types = ['procedure', 'anesthesia', 'blood_transfusion'];
         foreach ($types as $i => $type) {
-            ConsentForm::create([
-                'patient_id' => $patient->id,
-                'doctor_id' => $doctor->id,
-                'consent_type' => $type,
-                'procedure_name' => ucfirst(str_replace('_', ' ', $type)) . ' Consent',
-                'description' => "Standard consent form for {$type}",
-                'risks_disclosed' => 'Standard risks associated with the procedure have been explained.',
-                'alternatives_disclosed' => 'Alternative treatment options have been discussed.',
-                'status' => $i === 0 ? 'signed' : 'pending',
-                'signed_at' => $i === 0 ? now()->subDays(5) : null,
-            ]);
+            ConsentForm::firstOrCreate(
+                ['patient_id' => $patient->id, 'consent_type' => $type],
+                [
+                    'doctor_id' => $doctor->id,
+                    'procedure_name' => ucfirst(str_replace('_', ' ', $type)) . ' Consent',
+                    'description' => "Standard consent form for {$type}",
+                    'risks_disclosed' => 'Standard risks associated with the procedure have been explained.',
+                    'alternatives_disclosed' => 'Alternative treatment options have been discussed.',
+                    'status' => $i === 0 ? 'signed' : 'pending',
+                    'signed_at' => $i === 0 ? now()->subDays(5) : null,
+                ]
+            );
         }
     }
 
@@ -215,6 +221,9 @@ class CompleteDemoSeeder extends Seeder
     {
         $types = ['discharge_summary', 'lab_report', 'imaging', 'consent', 'operation_note'];
         foreach ($types as $i => $type) {
+            if (MrdFile::where('patient_id', $patient->id)->where('file_type', $type)->exists()) {
+                continue;
+            }
             MrdFile::create([
                 'patient_id' => $patient->id,
                 'file_number' => MrdFile::generateFileNumber(),
@@ -241,15 +250,17 @@ class CompleteDemoSeeder extends Seeder
         ];
 
         foreach ($vaccines as $v) {
-            Vaccine::create([
-                'name' => $v[0],
-                'manufacturer' => $v[1],
-                'dose_count' => $v[2],
-                'stock_quantity' => $v[3],
-                'expiry_date' => now()->addMonths(rand(6, 24)),
-                'batch_number' => $v[4],
-                'cost' => $v[5],
-            ]);
+            Vaccine::firstOrCreate(
+                ['name' => $v[0]],
+                [
+                    'manufacturer' => $v[1],
+                    'dose_count' => $v[2],
+                    'stock_quantity' => $v[3],
+                    'expiry_date' => now()->addMonths(rand(6, 24)),
+                    'batch_number' => $v[4],
+                    'cost' => $v[5],
+                ]
+            );
         }
     }
 
@@ -262,17 +273,19 @@ class CompleteDemoSeeder extends Seeder
         ];
 
         foreach ($records as $rec) {
-            MortuaryRecord::create([
-                'body_id' => $rec[0],
-                'received_at' => now()->subDays(rand(1, 10)),
-                'received_by' => $admin->id,
-                'storage_location' => $rec[2],
-                'cause_of_death' => $rec[1],
-                'status' => 'stored',
-                'family_contact_name' => $rec[3],
-                'family_contact_phone' => $rec[4],
-                'identification_method' => 'Photo ID and family identification',
-            ]);
+            MortuaryRecord::firstOrCreate(
+                ['body_id' => $rec[0]],
+                [
+                    'received_at' => now()->subDays(rand(1, 10)),
+                    'received_by' => $admin->id,
+                    'storage_location' => $rec[2],
+                    'cause_of_death' => $rec[1],
+                    'status' => 'stored',
+                    'family_contact_name' => $rec[3],
+                    'family_contact_phone' => $rec[4],
+                    'identification_method' => 'Photo ID and family identification',
+                ]
+            );
         }
     }
 
@@ -297,15 +310,16 @@ class CompleteDemoSeeder extends Seeder
         ];
 
         foreach ($equipment as $eq) {
-            MedicalEquipment::create([
-                'name' => $eq[0],
-                'category' => $eq[1],
-                'department' => $eq[2],
-                'serial_number' => $eq[3],
-                'manufacturer' => $eq[4],
-                'purchase_date' => now()->subYears(rand(1, 5)),
-                'warranty_expiry' => now()->addMonths(rand(6, 36)),
-                'status' => $eq[5],
+            MedicalEquipment::firstOrCreate(
+                ['serial_number' => $eq[3]],
+                [
+                    'name' => $eq[0],
+                    'category' => $eq[1],
+                    'department' => $eq[2],
+                    'manufacturer' => $eq[4],
+                    'purchase_date' => now()->subYears(rand(1, 5)),
+                    'warranty_expiry' => now()->addMonths(rand(6, 36)),
+                    'status' => $eq[5],
                 'location' => $eq[2],
                 'current_value' => rand(5000, 500000),
             ]);
