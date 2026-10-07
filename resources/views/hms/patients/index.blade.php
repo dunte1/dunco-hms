@@ -68,8 +68,8 @@
 
             <!-- Success Message -->
             @if(session('success'))
-                <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center" role="alert">
-                    <i class="fa fa-check-circle mr-2"></i>
+                <div class="mb-4 bg-green-50 border border-green-300 text-green-800 px-4 py-3 rounded-lg flex flex-wrap items-center gap-3">
+                    <i class="fa fa-check-circle"></i>
                     <span>{{ session('success') }}</span>
                 </div>
             @endif
@@ -110,30 +110,30 @@
             </div>
 
             <!-- Patients Table -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     Patient No
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     Full Name
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell">
                                     Gender
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden sm:table-cell">
                                     Contact
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">
                                     Age
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden xl:table-cell">
                                     Registered
                                 </th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th class="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sticky right-0 bg-gray-50 dark:bg-gray-700 z-10">
                                     Actions
                                 </th>
                             </tr>
@@ -141,75 +141,61 @@
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             @forelse($patients as $patient)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                                                <span class="text-blue-600 dark:text-blue-400 font-bold">{{ substr($patient->patient_no, -4) }}</span>
-                                            </div>
-                                            <div class="ml-3">
-                                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $patient->patient_no }}</div>
-                                            </div>
-                                        </div>
+                                    <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $patient->patient_no }}</div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $patient->full_name }}</div>
-                                        @if($patient->email)
-                                            <div class="text-xs text-gray-500 dark:text-gray-400">
-                                                <i class="fa fa-envelope mr-1"></i>{{ $patient->email }}
-                                            </div>
-                                        @endif
+                                    <td class="px-4 sm:px-6 py-4">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $patient->first_name }} {{ $patient->last_name }}</div>
+                                        <div class="text-xs text-gray-500 md:hidden">{{ $patient->phone ?? '' }}</div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-4 sm:px-6 py-4 whitespace-nowrap hidden md:table-cell">
                                         @if($patient->gender)
-                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                {{ $patient->gender == 'male' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 
-                                                   ($patient->gender == 'female' ? 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200' : 
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                                {{ $patient->gender == 'male' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                                                   ($patient->gender == 'female' ? 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200' :
                                                    'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200') }}">
-                                                <i class="fa fa-{{ $patient->gender == 'male' ? 'male' : ($patient->gender == 'female' ? 'female' : 'genderless') }} mr-1"></i>
                                                 {{ ucfirst($patient->gender) }}
                                             </span>
                                         @else
-                                            <span class="text-gray-400 dark:text-gray-500 text-sm">N/A</span>
+                                            <span class="text-gray-400 text-sm">N/A</span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                                        @if($patient->phone)
-                                            <div><i class="fa fa-phone mr-1"></i>{{ $patient->phone }}</div>
-                                        @else
-                                            <span class="text-gray-400 dark:text-gray-500">No phone</span>
-                                        @endif
+                                    <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 hidden sm:table-cell">
+                                        {{ $patient->phone ?? 'No phone' }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                                        @if($patient->dob)
-                                            {{ \Carbon\Carbon::parse($patient->dob)->age }} years
-                                        @else
-                                            <span class="text-gray-400 dark:text-gray-500">N/A</span>
-                                        @endif
+                                    <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 hidden lg:table-cell">
+                                        {{ $patient->dob ? \Carbon\Carbon::parse($patient->dob)->age . ' years' : 'N/A' }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                                        {{ $patient->created_at->format('M d, Y') }}
-                                        <div class="text-xs text-gray-400">{{ $patient->created_at->diffForHumans() }}</div>
+                                    <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 hidden xl:table-cell">
+                                        {{ optional($patient->created_at)->format('M d, Y') }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <a href="{{ route('hms.patients.show', $patient) }}" 
-                                               class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                                               title="View Details">
+                                    <td class="px-2 sm:px-6 py-4 text-right sticky right-0 bg-white dark:bg-gray-800 z-10">
+                                        <div class="flex flex-wrap items-center justify-end gap-1.5 min-w-[132px]">
+                                            @if(Route::has('hms.patients.receipt'))
+                                                <a href="{{ route('hms.patients.receipt', $patient) }}" target="_blank"
+                                                   class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100"
+                                                   title="Print Registration Receipt">
+                                                    <i class="fa fa-print"></i>
+                                                </a>
+                                            @endif
+                                            <a href="{{ route('hms.patients.show', $patient) }}"
+                                               class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200"
+                                               title="View">
                                                 <i class="fa fa-eye"></i>
                                             </a>
-                                            <a href="{{ route('hms.patients.edit', $patient) }}" 
-                                               class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                                            <a href="{{ route('hms.patients.edit', $patient) }}"
+                                               class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-green-50 text-green-700 hover:bg-green-100"
                                                title="Edit">
                                                 <i class="fa fa-edit"></i>
                                             </a>
-                                            <form action="{{ route('hms.patients.destroy', $patient) }}" 
-                                                  method="POST" 
+                                            <form action="{{ route('hms.patients.destroy', $patient) }}"
+                                                  method="POST"
                                                   class="inline"
                                                   onsubmit="return confirm('Are you sure you want to delete this patient?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" 
-                                                        class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                                <button type="submit"
+                                                        class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100"
                                                         title="Delete">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
@@ -237,7 +223,7 @@
 
                 <!-- Pagination -->
                 @if($patients->hasPages())
-                    <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600">
+                    <div class="bg-gray-50 dark:bg-gray-700 px-4 sm:px-6 py-4 border-t border-gray-200 dark:border-gray-600">
                         {{ $patients->links() }}
                     </div>
                 @endif

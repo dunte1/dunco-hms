@@ -20,10 +20,12 @@ class SearchApiController extends Controller
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->limit((int) $request->query('limit', 20))
-            ->get(['id', 'first_name', 'last_name', 'patient_no', 'phone'])
+            ->get(['id', 'first_name', 'last_name', 'patient_no', 'phone', 'national_id'])
             ->map(fn ($patient) => [
                 'id' => $patient->id,
-                'label' => trim("{$patient->first_name} {$patient->last_name}") . ($patient->patient_no ? " ({$patient->patient_no})" : ''),
+                'label' => trim("{$patient->first_name} {$patient->last_name}")
+                    . ($patient->patient_no ? " ({$patient->patient_no})" : '')
+                    . ($patient->national_id ? " · ID {$patient->national_id}" : ''),
                 'patient_no' => $patient->patient_no,
                 'phone' => $patient->phone,
             ]);

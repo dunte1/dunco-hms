@@ -21,6 +21,11 @@
                             <i class="fas fa-fingerprint mr-2"></i> Enroll Biometric
                         </a>
                     @endif
+                    @if(Route::has('hms.patients.receipt'))
+                        <a href="{{ route('hms.patients.receipt', $patient) }}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                            <i class="fa fa-print mr-2"></i> Registration Receipt
+                        </a>
+                    @endif
                     @if(Route::has('hms.patients.id-card'))
                         <a href="{{ route('hms.patients.id-card', $patient) }}" target="_blank" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg">
                             <i class="fa fa-id-card mr-2"></i> ID Card

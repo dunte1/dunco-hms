@@ -66,7 +66,8 @@ class Patient extends Model
                 ->orWhere('last_name', 'like', $like)
                 ->orWhere('patient_no', 'like', $like)
                 ->orWhere('phone', 'like', $like)
-                ->orWhere('email', 'like', $like);
+                ->orWhere('email', 'like', $like)
+                ->orWhere('national_id', 'like', $like);
         });
     }
 

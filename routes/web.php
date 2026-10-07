@@ -386,6 +386,11 @@ Route::get('/dashboard', [\App\Http\Controllers\Hms\DashboardController::class, 
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+// Clinician worklist (reception → triage → doctor → pharmacy/lab handoff)
+Route::get('/hms/worklist', [\App\Http\Controllers\Hms\ClinicianWorklistController::class, 'index'])
+    ->middleware(['auth', 'verified', 'permission:view patients|view appointments|create prescriptions|add test requests|view test results|manage queue'])
+    ->name('hms.worklist');
+
 // Role Management Routes ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â requires role management permissions
 Route::prefix('admin')->middleware(['auth', 'permission:manage roles|manage permissions'])->group(function () {
     Route::get('/roles', [\App\Http\Controllers\Admin\RoleManagementController::class, 'index'])->name('admin.roles.index');
@@ -423,6 +428,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/patients', [PatientsController::class, 'index'])->name('patients.index');
             Route::get('/patients/create', [PatientsController::class, 'create'])->name('patients.create');
             Route::post('/patients', [PatientsController::class, 'store'])->name('patients.store');
+            Route::get('/patients/{patient}/receipt', [\App\Http\Controllers\Hms\PatientReceiptController::class, 'show'])->name('patients.receipt');
             Route::post('/patients/emergency', [PatientsController::class, 'emergencyRegistration'])->name('patients.emergency');
             Route::post('/patients/{patient}/merge', [PatientsController::class, 'merge'])->name('patients.merge');
             Route::get('/patients/{patient}', [PatientsController::class, 'show'])->name('patients.show');
@@ -964,6 +970,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/laboratory/tests/{labTest}', [LabTestsController::class, 'destroy'])->name('laboratory.tests.destroy');
         
         Route::get('/laboratory/requests', [LabRequestsController::class, 'index'])->name('laboratory.requests.index')->middleware('permission:add test requests|view test results|manage lab specimens|manage lab worklists|verify lab results|print lab reports|download lab reports|enter test results|approve test results');
+        Route::get('/laboratory/requests/{labRequest}/results', [\App\Http\Controllers\Hms\LaboratoryController::class, 'resultsForm'])->name('laboratory.requests.results')->middleware('permission:enter test results|verify lab results|approve test results');
+        Route::post('/laboratory/requests/{labRequest}/results', [\App\Http\Controllers\Hms\LaboratoryController::class, 'processRequest'])->name('laboratory.requests.results.store')->middleware('permission:enter test results|verify lab results|approve test results');
         Route::get('/laboratory/requests/create', [LabRequestsController::class, 'create'])->name('laboratory.requests.create')->middleware('permission:add test requests|view test results|manage lab specimens|manage lab worklists|verify lab results|print lab reports|download lab reports|enter test results|approve test results');
         Route::post('/laboratory/requests', [LabRequestsController::class, 'store'])->name('laboratory.requests.store')->middleware('permission:add test requests|view test results|manage lab specimens|manage lab worklists|verify lab results|print lab reports|download lab reports|enter test results|approve test results');
         Route::get('/laboratory/requests/{labRequest}', [LabRequestsController::class, 'show'])->name('laboratory.requests.show')->middleware('permission:add test requests|view test results|manage lab specimens|manage lab worklists|verify lab results|print lab reports|download lab reports|enter test results|approve test results');

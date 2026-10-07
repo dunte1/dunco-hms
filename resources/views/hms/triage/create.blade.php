@@ -22,17 +22,14 @@
                     <!-- Patient & Visit Selection -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Patient <span class="text-red-500">*</span>
-                            </label>
-                            <select name="patient_id" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-red-500">
-                                <option value="">Select Patient</option>
-                                @foreach($patients as $patient)
-                                    <option value="{{ $patient->id }}" {{ old('patient_id') == $patient->id ? 'selected' : '' }}>
-                                        {{ $patient->first_name }} {{ $patient->last_name }} ({{ $patient->patient_no ?? '' }})
-                                    </option>
-                                @endforeach
-                            </select>
+                            <x-searchable-select
+                                name="patient_id"
+                                label="Patient (search name, registration #, phone, or National ID)"
+                                endpoint="{{ route('api.patients.search') }}"
+                                :selected="old('patient_id')"
+                                placeholder="Type patient name or registration number..."
+                                :required="true"
+                            />
                             @error('patient_id')
                                 <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                             @enderror
@@ -42,7 +39,7 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 OPD Visit <span class="text-gray-400">(optional)</span>
                             </label>
-                            <select name="opd_visit_id" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-red-500">
+                            <select name="opd_visit_id" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-red-500 min-h-[42px]">
                                 <option value="">Select OPD Visit</option>
                                 @foreach($opdVisits as $visit)
                                     <option value="{{ $visit->id }}" {{ old('opd_visit_id') == $visit->id ? 'selected' : '' }}>
@@ -54,6 +51,11 @@
                                 <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                             @enderror
                         </div>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 text-blue-800 text-sm px-4 py-3 rounded-lg">
+                        <i class="fa fa-info-circle me-1"></i>
+                        Search by <strong>registration number</strong> (e.g. PAT-00001), <strong>full name</strong>, <strong>phone</strong>, or <strong>National ID</strong> — same data as the reception receipt.
                     </div>
 
                     <!-- Priority Level -->

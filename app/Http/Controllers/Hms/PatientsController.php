@@ -212,17 +212,31 @@ class PatientsController extends Controller
             
             DB::commit();
 
-            // Redirect based on biometric enrollment option
+            // Auto-handoff: open OPD visit + queue token so triage/clinical can pick the patient up
+            $flow = app(\App\Services\PatientFlowService::class)->afterRegistration($patient, [
+                'queue_type' => $request->input('queue_type', 'walk_in'),
+                'department' => $request->input('department', 'General'),
+                'notes' => 'Auto-created at reception registration',
+            ]);
+
+            $flowMsg = ! empty($flow['messages']) ? ' ' . implode(' ', $flow['messages']) : '';
+            $receiptUrl = route('hms.patients.receipt', $patient);
+
+            // Redirect to printable registration receipt (reception handoff)
             if ($request->has('enroll_biometric') && $request->enroll_biometric) {
                 return redirect()->route('biometric.index', ['patient_id' => $patient->id])
-                    ->with('success', 'Patient registered successfully! Please complete biometric enrollment for insurance verification.')
-                    ->with('patient_name', $patient->full_name);
+                    ->with('success', 'Patient registered successfully!' . $flowMsg)
+                    ->with('patient_name', $patient->full_name)
+                    ->with('patient_no', $patient->patient_no)
+                    ->with('receipt_url', $receiptUrl)
+                    ->with('duplicate_warnings', $duplicateWarnings);
             }
 
-            return redirect()->route('hms.patients.index')
-                ->with('success', 'Patient registered successfully!')
-                ->with('duplicate_warnings', $duplicateWarnings);
-                
+            return redirect()->route('hms.patients.receipt', $patient)
+                ->with('success', 'Patient registered successfully! Please print the receipt for triage.' . $flowMsg)
+                ->with('duplicate_warnings', $duplicateWarnings)
+                ->with('flow', $flow);
+
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Patient registration failed. Please try again or contact support.'])
