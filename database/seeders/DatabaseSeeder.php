@@ -37,6 +37,12 @@ class DatabaseSeeder extends Seeder
         $this->call(ShaServiceCodeSeeder::class);
         $this->call(ModuleSeeder::class);
         $this->call(DefaultConfigSeeder::class);
+        $this->call(BedsSeeder::class);
+        $this->call(InsuranceProviderSeeder::class);
+        $this->call(DashboardDefinitionSeeder::class);
+        $this->call(BiAnalyticSeeder::class);
+        $this->call(KpiDefinitionSeeder::class);
+        $this->call(MessageTemplateSeeder::class);
 
         $this->command->info('');
         $this->command->info('==============================================');

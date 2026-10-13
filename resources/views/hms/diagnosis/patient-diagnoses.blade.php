@@ -185,15 +185,19 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex items-center justify-end gap-2">
-                                            <button class="text-blue-600 hover:text-blue-900 dark:text-blue-400" title="View Details">
+                                            <a href="{{ route('hms.diagnosis.patient-diagnoses.show', $diagnosis) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400" title="View Details">
                                                 <i class="fa fa-eye"></i>
-                                            </button>
-                                            <button class="text-green-600 hover:text-green-900 dark:text-green-400" title="Edit">
+                                            </a>
+                                            <a href="{{ route('hms.diagnosis.patient-diagnoses.edit', $diagnosis) }}" class="text-green-600 hover:text-green-900 dark:text-green-400" title="Edit">
                                                 <i class="fa fa-edit"></i>
-                                            </button>
-                                            <button class="text-red-600 hover:text-red-900 dark:text-red-400" title="Delete">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
+                                            </a>
+                                            <form method="POST" action="{{ route('hms.diagnosis.patient-diagnoses.destroy', $diagnosis) }}" class="inline" onsubmit="return confirm('Delete this diagnosis record?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400" title="Delete">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

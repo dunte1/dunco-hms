@@ -4,7 +4,9 @@ namespace App\Listeners;
 
 use App\Events\DischargeCompleted;
 use App\Models\Bed;
+use App\Models\MessageTemplate;
 use App\Services\InvoiceService;
+use App\Services\SmsService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -14,7 +16,7 @@ class HandleDischargeCompletion implements ShouldQueue
 
     protected $invoiceService;
 
-    public function __construct(InvoiceService $invoiceService)
+    public function __construct(InvoiceService $invoiceService, protected SmsService $smsService)
     {
         $this->invoiceService = $invoiceService;
     }
@@ -58,6 +60,22 @@ class HandleDischargeCompletion implements ShouldQueue
                 $admission->update(['invoice_id' => $invoice->id]);
             } catch (\Exception $e) {
                 \Log::error('Failed to generate invoice on discharge: ' . $e->getMessage());
+            }
+        }
+
+        // Send discharge SMS
+        if ($admission->patient && $admission->patient->phone && $this->smsService->isConfigured()) {
+            try {
+                $message = MessageTemplate::renderByName('Patient Discharge', [
+                    'patient_name' => $admission->patient->first_name,
+                    'facility_name' => config('app.name'),
+                    'date' => now()->format('M d, Y'),
+                ], fallback: "Dear {$admission->patient->first_name}, you have been discharged from " .
+                    config('app.name') . ' on ' . now()->format('M d, Y') . '. We wish you a full recovery.');
+
+                $this->smsService->send($admission->patient->phone, $message);
+            } catch (\Exception $e) {
+                \Log::error('Failed to send discharge SMS: ' . $e->getMessage());
             }
         }
 

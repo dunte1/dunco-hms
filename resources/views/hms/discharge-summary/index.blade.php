@@ -197,15 +197,12 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex items-center justify-end gap-2">
-                                            <button class="text-blue-600 hover:text-blue-900 dark:text-blue-400" title="View Summary" onclick="window.print()">
+                                            <a href="{{ route('hms.discharge-summary.show', $discharge) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400" title="View Summary">
                                                 <i class="fa fa-eye"></i>
-                                            </button>
-                                            <button class="text-green-600 hover:text-green-900 dark:text-green-400" title="Print Summary" onclick="window.print()">
-                                                <i class="fa fa-print"></i>
-                                            </button>
-                                            <button class="text-purple-600 hover:text-purple-900 dark:text-purple-400" title="Download PDF">
+                                            </a>
+                                            <a href="{{ route('hms.discharge-summary.pdf', $discharge) }}" class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400" title="Download PDF">
                                                 <i class="fa fa-file-pdf"></i>
-                                            </button>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>

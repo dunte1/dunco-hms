@@ -45,7 +45,23 @@ class LabRequestController extends ApiController
         $data = $request->validated();
         $data['request_number'] = 'LAB-' . str_pad(LabRequest::count() + 1, 6, '0', STR_PAD_LEFT);
 
+        if (empty($data['opd_visit_id']) && ! empty($data['patient_id'])) {
+            $data['opd_visit_id'] = \App\Models\OpdVisit::where('patient_id', $data['patient_id'])
+                ->whereNotIn('status', ['completed', 'discharged'])
+                ->latest('id')
+                ->value('id');
+        }
+
         $labRequest = LabRequest::create($data);
+
+        try {
+            app(\App\Services\PatientFlowService::class)->afterLabRequest($labRequest);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('API lab request handoff failed', [
+                'lab_request_id' => $labRequest->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return $this->created($labRequest->load(['patient', 'doctor']), 'Lab request created successfully');
     }

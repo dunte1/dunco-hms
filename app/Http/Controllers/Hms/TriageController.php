@@ -89,6 +89,14 @@ class TriageController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // Fallback: if patient search wasn't clicked, take patient from selected OPD visit
+        if (! $request->filled('patient_id') && $request->filled('opd_visit_id')) {
+            $opd = OpdVisit::find($request->input('opd_visit_id'));
+            if ($opd && $opd->patient_id) {
+                $request->merge(['patient_id' => $opd->patient_id]);
+            }
+        }
+
         $data = $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'opd_visit_id' => 'nullable|exists:opd_visits,id',
@@ -123,16 +131,26 @@ class TriageController extends Controller
         $data['disability'] = $request->boolean('disability');
         $data['alcohol_use'] = $data['alcohol_use'] ?? 'unknown';
 
-        $triage = Triage::create($data);
+        try {
+            $triage = Triage::create($data);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Triage create failed', [
+                'error' => $e->getMessage(),
+                'payload' => $data,
+            ]);
 
-        // Auto-handoff: queue + OPD status after triage
-        app(\App\Services\PatientFlowService::class)->afterTriage($triage);
+            return redirect()->route('hms.triage.create')->withErrors([
+                'patient_id' => 'Could not save triage: ' . $e->getMessage(),
+            ])->withInput();
+        }
 
-        // Update OPD visit status if linked (kept for compatibility)
-        if (!empty($data['opd_visit_id'])) {
-            OpdVisit::where('id', $data['opd_visit_id'])->update([
-                'status' => 'triaged',
-                'triage_notes' => $data['triage_notes'] ?? null,
+        // Auto-handoff: queue + OPD status after triage (single write path via service)
+        try {
+            app(\App\Services\PatientFlowService::class)->afterTriage($triage);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('afterTriage handoff failed', [
+                'triage_id' => $triage->id,
+                'error' => $e->getMessage(),
             ]);
         }
 

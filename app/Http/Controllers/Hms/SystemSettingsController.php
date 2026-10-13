@@ -118,10 +118,21 @@ class SystemSettingsController extends Controller
                 }
                 SystemSetting::set('hospital_logo', $logoUrl, 'string', 'Hospital logo', false);
                 $uploadedFiles[] = 'logo';
-                
+
+                // Copy to public/ (storage symlink is blocked on cPanel/LiteSpeed)
+                try {
+                    $source = Storage::disk('public')->path($logoPath);
+                    if (file_exists($source)) {
+                        copy($source, public_path('hospital-logo.png'));
+                        @chmod(public_path('hospital-logo.png'), 0644);
+                    }
+                } catch (\Throwable $e) {
+                    // Non-fatal
+                }
+
                 // Update favicon in browser
                 $this->updateFavicon($logoUrl);
-                
+
             } catch (\Exception $e) {
                 return redirect()->back()->withErrors(['hospital_logo' => 'Failed to upload logo: ' . $e->getMessage()]);
             }
@@ -146,10 +157,23 @@ class SystemSettingsController extends Controller
                 }
                 SystemSetting::set('favicon', $faviconUrl, 'string', 'Favicon', false);
                 $uploadedFiles[] = 'favicon';
-                
+
+                // Copy to public/ (storage symlink is blocked on cPanel/LiteSpeed)
+                try {
+                    $source = Storage::disk('public')->path($faviconPath);
+                    if (file_exists($source)) {
+                        copy($source, public_path('favicon-hms.png'));
+                        copy($source, public_path('favicon.ico'));
+                        @chmod(public_path('favicon-hms.png'), 0644);
+                        @chmod(public_path('favicon.ico'), 0644);
+                    }
+                } catch (\Throwable $e) {
+                    // Non-fatal: layout falls back to favicon.ico
+                }
+
                 // Update favicon in browser
                 $this->updateFavicon($faviconUrl);
-                
+
             } catch (\Exception $e) {
                 return redirect()->back()->withErrors(['favicon' => 'Failed to upload favicon: ' . $e->getMessage()]);
             }

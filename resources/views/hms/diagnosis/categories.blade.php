@@ -55,12 +55,16 @@
                                     <span>{{ $category->patient_diagnoses_count }} diagnoses</span>
                                 </div>
                                 <div class="flex gap-2">
-                                    <button class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition">
+                                    <a href="{{ route('hms.diagnosis.categories.edit', $category) }}" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition" title="Edit">
                                         <i class="fa fa-edit"></i>
-                                    </button>
-                                    <button class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded transition">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
+                                    </a>
+                                    <form method="POST" action="{{ route('hms.diagnosis.categories.destroy', $category) }}" class="inline" onsubmit="return confirm('Delete this category?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded transition" title="Delete">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>

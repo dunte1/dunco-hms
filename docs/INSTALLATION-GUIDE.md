@@ -79,7 +79,7 @@ php artisan queue:work
 5. Create user accounts and assign roles
 6. Configure SHA/EHA credentials (if using SHA integration)
 7. Configure M-Pesa credentials (if using mobile payments)
-8. Configure Twilio credentials (if using SMS)
+8. Configure SMS credentials — TalkSasa (`SMS_PROVIDER=talksasa` + `TALKSASA_*`) or Twilio (see `docs/SMS-INTEGRATION.md`)
 
 ## Environment Variables
 

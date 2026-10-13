@@ -62,7 +62,11 @@ class PatientsController extends Controller
      */
     public function create(): View
     {
-        return view('hms.patients.create');
+        $insuranceProviders = \App\Models\InsuranceProvider::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'code']);
+
+        return view('hms.patients.create', compact('insuranceProviders'));
     }
 
     /**

@@ -11,6 +11,7 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class BiDashboardController extends Controller
 {
@@ -18,8 +19,49 @@ class BiDashboardController extends Controller
     {
         $metrics = $this->getDashboardMetrics();
         $analytics = BiAnalytic::latest()->take(10)->get();
-        
+
         return view('hms.analytics.bi-dashboard', compact('metrics', 'analytics'));
+    }
+
+    /**
+     * Show a single analytics report (was blank — route was missing).
+     */
+    public function show(BiAnalytic $analytic): View
+    {
+        $dataPoints = is_array($analytic->data_points ?? null) ? $analytic->data_points : [];
+        $predictions = is_array($analytic->predictions ?? null) ? $analytic->predictions : [];
+
+        return view('hms.analytics.show', compact('analytic', 'dataPoints', 'predictions'));
+    }
+
+    /**
+     * Download a single analytics report as branded PDF.
+     */
+    public function exportPdf(BiAnalytic $analytic)
+    {
+        $dataPoints = is_array($analytic->data_points ?? null) ? $analytic->data_points : [];
+        $predictions = is_array($analytic->predictions ?? null) ? $analytic->predictions : [];
+        $insights = is_string($analytic->insights ?? null) ? $analytic->insights : '';
+
+        $pdf = Pdf::loadView('hms.analytics.analytic-pdf', compact('analytic', 'dataPoints', 'predictions', 'insights'))
+            ->setPaper('a4');
+
+        $name = preg_replace('/[^A-Za-z0-9\-_]/', '-', $analytic->metric_name ?: 'analytics');
+        return $pdf->download("Analytics-{$analytic->id}-{$name}.pdf");
+    }
+
+    /**
+     * Download full BI dashboard as branded PDF.
+     */
+    public function dashboardPdf()
+    {
+        $metrics = $this->getDashboardMetrics();
+        $analytics = BiAnalytic::latest()->take(15)->get();
+
+        $pdf = Pdf::loadView('hms.analytics.bi-dashboard-pdf', compact('metrics', 'analytics'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download('BI-Dashboard-' . now()->format('Y-m-d') . '.pdf');
     }
 
     public function generateAnalytics(Request $request): JsonResponse
@@ -40,55 +82,48 @@ class BiDashboardController extends Controller
         ]);
     }
 
-    public function getRevenueAnalytics(Request $request): JsonResponse
+    public function getRevenueAnalytics(Request $request): View
     {
         $dateFrom = $request->get('date_from', now()->subMonth());
         $dateTo = $request->get('date_to', now());
 
         $revenueData = $this->calculateRevenueMetrics($dateFrom, $dateTo);
         $predictions = $this->generateRevenuePredictions($revenueData);
+        $insights = 'Average daily collection $' . number_format((float)($revenueData['daily_average'] ?? 0), 2)
+            . '. Growth ' . number_format((float)($revenueData['growth_rate'] ?? 0), 1) . '%.';
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'revenue' => $revenueData,
-                'predictions' => $predictions
-            ]
-        ]);
+        return view('hms.analytics.revenue', compact('revenueData', 'predictions', 'insights'))
+            ->with('revenue', $revenueData);
     }
 
-    public function getPatientAnalytics(Request $request): JsonResponse
+    public function getPatientAnalytics(Request $request): View
     {
         $dateFrom = $request->get('date_from', now()->subMonth());
         $dateTo = $request->get('date_to', now());
 
         $patientData = $this->calculatePatientMetrics($dateFrom, $dateTo);
         $predictions = $this->generatePatientPredictions($patientData);
+        $insights = number_format((int)($patientData['total_patients'] ?? 0))
+            . ' patients in range. New: ' . number_format((int)($patientData['new_patients'] ?? 0))
+            . '. Returning: ' . number_format((int)($patientData['returning_patients'] ?? 0)) . '.';
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'patients' => $patientData,
-                'predictions' => $predictions
-            ]
-        ]);
+        return view('hms.analytics.patients', compact('patientData', 'predictions', 'insights'))
+            ->with('patients', $patientData);
     }
 
-    public function getOccupancyAnalytics(Request $request): JsonResponse
+    public function getOccupancyAnalytics(Request $request): View
     {
         $dateFrom = $request->get('date_from', now()->subMonth());
         $dateTo = $request->get('date_to', now());
 
         $occupancyData = $this->calculateOccupancyMetrics($dateFrom, $dateTo);
         $predictions = $this->generateOccupancyPredictions($occupancyData);
+        $insights = 'Average occupancy ' . number_format((float)($occupancyData['average_occupancy'] ?? 0), 1)
+            . '%. Peak ' . number_format((float)($occupancyData['peak_occupancy'] ?? 0), 1)
+            . '%. Lowest ' . number_format((float)($occupancyData['lowest_occupancy'] ?? 0), 1) . '%.';
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'occupancy' => $occupancyData,
-                'predictions' => $predictions
-            ]
-        ]);
+        return view('hms.analytics.occupancy', compact('occupancyData', 'predictions', 'insights'))
+            ->with('occupancy', $occupancyData);
     }
 
     private function getDashboardMetrics(): array

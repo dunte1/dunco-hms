@@ -94,6 +94,10 @@
                         if (this.selected && this.selectedLabel) {
                             this.query = this.selectedLabel;
                         }
+                        var hidden = this.$el ? this.$el.querySelector('input[type="hidden"]') : null;
+                        if (hidden && this.selected) {
+                            hidden.value = this.selected;
+                        }
                     },
                     async search() {
                         if (!this.endpoint) return;
@@ -116,6 +120,8 @@
                         this.open = false;
                         this.options = [];
                         this.$dispatch('option-selected', { value: option.id, label: option.label });
+                        var hidden = this.$el ? this.$el.querySelector('input[type="hidden"]') : null;
+                        if (hidden) hidden.value = option.id;
                     },
                 };
             }

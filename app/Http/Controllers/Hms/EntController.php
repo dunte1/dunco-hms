@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Hms;
 
 use App\Http\Controllers\Controller;
 use App\Models\EntRecord;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class EntController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): View
     {
         $query = EntRecord::with(['patient', 'examiner']);
 
@@ -19,7 +19,7 @@ class EntController extends Controller
 
         $records = $query->latest()->paginate(15);
 
-        return response()->json($records);
+        return view('hms.ent.records.index', compact('records'));
     }
 
     public function store(Request $request): JsonResponse

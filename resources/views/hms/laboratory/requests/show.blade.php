@@ -96,9 +96,11 @@
                             <button class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
                                 <i class="fa fa-print mr-2"></i> Print Request
                             </button>
-                            <button class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition">
-                                <i class="fa fa-file-medical mr-2"></i> Add Results
-                            </button>
+                            @if(Route::has('hms.laboratory.requests.results'))
+                                <a href="{{ route('hms.laboratory.requests.results', $labRequest ?? $request) }}" class="block w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-center">
+                                    <i class="fa fa-file-medical mr-2"></i> Add Results
+                                </a>
+                            @endif
                             <button class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition">
                                 <i class="fa fa-edit mr-2"></i> Edit Request
                             </button>

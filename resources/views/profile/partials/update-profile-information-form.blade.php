@@ -146,35 +146,26 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
-            <div class="flex items-center space-x-4">
-                <button type="submit" 
-                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex flex-wrap items-center gap-3">
+                <button type="submit"
+                        class="inline-flex items-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                     <i class="fas fa-save mr-2"></i>
                     {{ __('Save Changes') }}
                 </button>
-                
-                <button type="button" 
+
+                <button type="button"
                         onclick="window.location.reload()"
-                        class="inline-flex items-center px-6 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors">
+                        class="inline-flex items-center px-5 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg transition-colors">
                     <i class="fas fa-times mr-2"></i>
                     {{ __('Cancel') }}
                 </button>
             </div>
 
             @if (session('status') === 'profile-updated')
-                <div x-data="{ show: true }" 
-                    x-show="show"
-                     x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="opacity-0 transform scale-95"
-                     x-transition:enter-end="opacity-100 transform scale-100"
-                     x-transition:leave="transition ease-in duration-200"
-                     x-transition:leave-start="opacity-100 transform scale-100"
-                     x-transition:leave-end="opacity-0 transform scale-95"
-                     x-init="setTimeout(() => show = false, 3000)"
-                     class="flex items-center px-4 py-2 bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 rounded-lg border border-green-200 dark:border-green-800">
+                <div class="flex items-center px-3 py-2 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 rounded-lg border border-green-200 dark:border-green-800 text-sm">
                     <i class="fas fa-check-circle mr-2"></i>
-                    <span class="text-sm font-medium">{{ __('Profile updated successfully!') }}</span>
+                    <span class="font-medium">{{ __('Profile updated successfully!') }}</span>
                 </div>
             @endif
         </div>

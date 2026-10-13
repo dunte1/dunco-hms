@@ -9,14 +9,27 @@
             </h1>
             <p class="text-gray-600 dark:text-gray-400 mt-1">Advanced Analytics & Predictive Insights</p>
         </div>
-        <div class="flex space-x-3">
+        <div class="flex space-x-3 no-print">
             <button onclick="window.print()" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition flex items-center">
                 <i class="fas fa-print mr-2"></i> Print
             </button>
-            <button onclick="exportDashboard()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center">
-                <i class="fas fa-download mr-2"></i> Export
-            </button>
+            <a href="{{ route('analytics.bi-dashboard.pdf') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center">
+                <i class="fas fa-download mr-2"></i> Export PDF
+            </a>
         </div>
+    </div>
+
+    <!-- Print-only branded header -->
+    <div class="hidden print:block mb-4 pb-3 border-b-2 border-blue-600">
+        @php
+            $printLogo = public_path('hospital-logo.png');
+        @endphp
+        @if(file_exists($printLogo))
+            <img src="{{ asset('hospital-logo.png') }}" alt="Hospital Logo" style="height: 48px; margin-bottom: 6px;">
+        @endif
+        <h1 class="text-xl font-bold text-gray-900">{{ $themeSettings['hospital_name'] ?? config('app.name') }}</h1>
+        <p class="text-sm text-gray-600">{{ $themeSettings['hospital_address'] ?? '' }}</p>
+        <p class="text-xs text-gray-500">Business Intelligence Dashboard · Printed {{ now()->format('M d, Y H:i') }}</p>
     </div>
 
     <!-- Key Metrics Grid -->
@@ -585,7 +598,7 @@ function exportAnalytic(id) {
 }
 
 function exportDashboard() {
-    alert('Exporting dashboard data...');
+    window.location.href = `{{ route('analytics.bi-dashboard.pdf') }}`;
 }
 
 // Load predictions on page load
@@ -594,4 +607,14 @@ document.addEventListener('DOMContentLoaded', function() {
     loadPatientPredictions();
 });
 </script>
+
+<style>
+    @media print {
+        .no-print, nav, aside, .sidebar, .main-content > nav, footer { display: none !important; }
+        .main-content { margin-left: 0 !important; padding: 0 !important; }
+        body { background: #fff !important; }
+        .print\:block { display: block !important; }
+        a[href]:after { content: none !important; }
+    }
+</style>
 </x-app-layout>

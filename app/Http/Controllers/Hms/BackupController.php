@@ -6,17 +6,22 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\BackupRecord;
 use App\Services\BackupService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class BackupController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(): View
     {
         $backups = BackupRecord::orderByDesc('created_at')->paginate(20);
+        $stats = [
+            'total' => BackupRecord::count(),
+            'today' => BackupRecord::whereDate('created_at', today())->count(),
+            'verified' => BackupRecord::where('verified', true)->count(),
+        ];
 
-        return response()->json($backups);
+        return view('hms.ict.backups.index', compact('backups', 'stats'));
     }
 
     public function store(Request $request, BackupService $backupService): RedirectResponse

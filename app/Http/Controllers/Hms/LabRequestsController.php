@@ -68,10 +68,8 @@ class LabRequestsController extends Controller
 
         $labRequest = LabRequest::create($data);
 
-        // Update OPD visit status if linked
-        if (!empty($data['opd_visit_id'])) {
-            OpdVisit::where('id', $data['opd_visit_id'])->update(['status' => 'lab_pending']);
-        }
+        // Auto-handoff: OPD → lab_pending + in-app lab alert
+        app(\App\Services\PatientFlowService::class)->afterLabRequest($labRequest);
 
         // Create lab request items
         foreach ($data['lab_tests'] as $testId) {

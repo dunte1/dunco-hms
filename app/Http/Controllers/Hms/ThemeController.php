@@ -3,101 +3,61 @@
 namespace App\Http\Controllers\Hms;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Hms\SystemSettingsController;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
 
 class ThemeController extends Controller
 {
     /**
-     * Display theme customizer
+     * Display theme page — consolidated to System Settings Theme & Branding.
      */
-    public function index(): View
+    public function index(): RedirectResponse
     {
-        $currentTheme = $this->getCurrentTheme();
-        return view('hms.settings.theme-customizer', compact('currentTheme'));
+        return redirect()->route('hms.system.theme');
     }
 
     /**
-     * Update theme settings
+     * Update theme settings — delegate to SystemSettingsController.
      */
     public function update(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'primary_color' => 'nullable|string|regex:/^#[a-fA-F0-9]{6}$/',
-            'secondary_color' => 'nullable|string|regex:/^#[a-fA-F0-9]{6}$/',
-            'accent_color' => 'nullable|string|regex:/^#[a-fA-F0-9]{6}$/',
-            'font_family' => 'nullable|string',
-            'dark_mode' => 'nullable|boolean',
-            'sidebar_style' => 'nullable|in:default,compact,wide',
-            'logo' => 'nullable|image|max:2048',
-        ]);
-
-        $themeSettings = [
-            'primary_color' => $validated['primary_color'] ?? '#10b981',
-            'secondary_color' => $validated['secondary_color'] ?? '#3b82f6',
-            'accent_color' => $validated['accent_color'] ?? '#f59e0b',
-            'font_family' => $validated['font_family'] ?? 'Inter',
-            'dark_mode' => $request->has('dark_mode'),
-            'sidebar_style' => $validated['sidebar_style'] ?? 'default',
-        ];
-
-        // Handle logo upload
-        if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('themes', 'public');
-            $themeSettings['logo'] = Storage::url($logoPath);
-        }
-
-        // Save to settings
-        \App\Models\SystemSetting::updateOrCreate(
-            ['key' => 'theme_settings'],
-            ['value' => json_encode($themeSettings)]
-        );
-
-        return redirect()
-            ->route('hms.settings.theme')
-            ->with('success', 'Theme updated successfully.');
+        return app(SystemSettingsController::class)->updateTheme($request);
     }
 
     /**
-     * Preview theme
+     * Preview theme (legacy).
      */
-    public function preview(Request $request): View
+    public function preview(Request $request)
     {
-        $theme = $request->only([
-            'primary_color', 'secondary_color', 'accent_color',
-            'font_family', 'dark_mode', 'sidebar_style'
-        ]);
-
-        return view('hms.settings.theme-preview', compact('theme'));
+        return redirect()->route('hms.system.theme');
     }
 
     /**
-     * Reset to default theme
+     * Reset to default theme (legacy).
      */
     public function reset(): RedirectResponse
     {
         \App\Models\SystemSetting::where('key', 'theme_settings')->delete();
 
         return redirect()
-            ->route('hms.settings.theme')
-            ->with('success', 'Theme reset to default.');
+            ->route('hms.system.theme')
+            ->with('status', 'Legacy theme settings cleared. Save colors on Theme & Branding.');
     }
 
     /**
-     * Export theme
+     * Export theme JSON (legacy).
      */
     public function export()
     {
         $theme = $this->getCurrentTheme();
-        
+
         return response()->json($theme)
             ->header('Content-Disposition', 'attachment; filename="theme-' . now()->format('Y-m-d') . '.json"');
     }
 
     /**
-     * Import theme
+     * Import theme JSON (legacy).
      */
     public function import(Request $request): RedirectResponse
     {
@@ -118,19 +78,19 @@ class ThemeController extends Controller
         );
 
         return redirect()
-            ->route('hms.settings.theme')
-            ->with('success', 'Theme imported successfully.');
+            ->route('hms.system.theme')
+            ->with('success', 'Theme imported (legacy key). Apply colors on Theme & Branding if needed.');
     }
 
     /**
-     * Get current theme settings
+     * Get current theme settings (legacy JSON key).
      */
     private function getCurrentTheme(): array
     {
         $settings = \App\Models\SystemSetting::where('key', 'theme_settings')->first();
-        
+
         if ($settings) {
-            return json_decode($settings->value, true);
+            return json_decode($settings->value, true) ?: [];
         }
 
         return [
@@ -144,7 +104,7 @@ class ThemeController extends Controller
     }
 
     /**
-     * Toggle dark mode
+     * Toggle dark mode (legacy API used by some UIs).
      */
     public function toggleDarkMode(Request $request)
     {
@@ -155,6 +115,9 @@ class ThemeController extends Controller
             ['key' => 'theme_settings'],
             ['value' => json_encode($theme)]
         );
+
+        // Also sync primary settings dark_mode used by layouts
+        \App\Models\SystemSetting::set('dark_mode', $theme['dark_mode'], 'boolean');
 
         return response()->json([
             'success' => true,

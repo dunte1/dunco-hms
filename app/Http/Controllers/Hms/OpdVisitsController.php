@@ -106,6 +106,24 @@ class OpdVisitsController extends Controller
             $mpesa->attachSource($data['payment_id'], 'opd_visit', $visit->id);
         }
 
+        try {
+            $patient = Patient::find($data['patient_id']);
+            if ($patient) {
+                app(\App\Services\PatientFlowService::class)->createQueueToken(
+                    $patient,
+                    'General',
+                    'walk_in',
+                    $data['doctor_id'] ?? null,
+                    $visit->id
+                );
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('OPD store queue token failed', [
+                'opd_visit_id' => $visit->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return redirect()->route('hms.opd.index')->with('success', 'OPD visit recorded successfully!');
     }
     
@@ -143,13 +161,54 @@ class OpdVisitsController extends Controller
     public function updateStatus(Request $request, OpdVisit $opd): RedirectResponse
     {
         $data = $request->validate([
-            'status' => 'required|string|in:registered,triaged,in_consultation,lab_pending,pharmacy_pending,billing_pending,completed,discharged',
+            'status' => 'required|string|in:' . implode(',', \App\Models\OpdVisit::STATUSES),
             'triage_notes' => 'nullable|string',
         ]);
 
+        if (! $opd->canTransitionTo($data['status'])) {
+            return back()->withErrors([
+                'status' => "Cannot move visit from {$opd->status_label} to {$data['status']}.",
+            ]);
+        }
+
         $opd->update($data);
 
+        try {
+            app(\App\Services\PatientFlowService::class)->syncQueueForOpd($opd);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Queue sync after OPD status update failed', [
+                'opd_visit_id' => $opd->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return back()->with('success', 'Visit status updated to ' . $opd->status_label . '.');
+    }
+
+    /**
+     * Manual doctor action: start consultation.
+     */
+    public function startConsultation(Request $request, OpdVisit $opd): \Illuminate\Http\RedirectResponse
+    {
+        $advanced = app(\App\Services\PatientFlowService::class)->startConsultation($opd);
+
+        if (! $advanced) {
+            return redirect()->route('hms.opd.show', $opd)
+                ->with('error', 'Cannot start consultation from status: ' . $opd->status_label . '.');
+        }
+
+        \App\Models\AuditLog::log(
+            'user',
+            auth()->id(),
+            'opd.visit.start-consultation',
+            'OpdVisit',
+            $opd->id,
+            null,
+            ['status' => 'in_consultation'],
+            'Consultation started'
+        );
+
+        return redirect()->route('hms.opd.show', $opd)->with('status', 'Consultation started.');
     }
 
     /**
@@ -166,11 +225,8 @@ class OpdVisitsController extends Controller
                 ->with('error', 'Cannot finalize: add diagnosis or clinical notes before locking the encounter.');
         }
 
-        $opd->update([
-            'status' => 'completed',
-            'finalized_at' => now(),
-            'finalized_by' => auth()->id(),
-        ]);
+        app(\App\Services\PatientFlowService::class)->finalizeVisit($opd);
+        $opd->refresh();
 
         \App\Models\AuditLog::log(
             'user',

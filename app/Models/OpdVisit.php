@@ -12,6 +12,28 @@ class OpdVisit extends Model
 {
     use HasFactory;
 
+    public const STATUSES = [
+        'registered',
+        'triaged',
+        'in_consultation',
+        'lab_pending',
+        'pharmacy_pending',
+        'billing_pending',
+        'completed',
+        'discharged',
+    ];
+
+    public const TRANSITIONS = [
+        'registered' => ['triaged', 'in_consultation', 'lab_pending', 'pharmacy_pending', 'billing_pending', 'completed', 'discharged'],
+        'triaged' => ['in_consultation', 'lab_pending', 'pharmacy_pending', 'billing_pending', 'completed', 'discharged'],
+        'in_consultation' => ['lab_pending', 'pharmacy_pending', 'billing_pending', 'completed', 'discharged'],
+        'lab_pending' => ['in_consultation', 'pharmacy_pending', 'billing_pending', 'completed', 'discharged'],
+        'pharmacy_pending' => ['in_consultation', 'lab_pending', 'billing_pending', 'completed', 'discharged'],
+        'billing_pending' => ['in_consultation', 'completed', 'discharged'],
+        'completed' => [],
+        'discharged' => [],
+    ];
+
     protected $fillable = [
         'patient_id', 'doctor_id', 'visit_date', 'visit_type', 'status',
         'triage_id', 'triage_notes', 'chief_complaint', 'diagnosis',
@@ -22,7 +44,17 @@ class OpdVisit extends Model
     protected $casts = [
         'visit_date' => 'datetime',
         'consultation_fee' => 'decimal:2',
+        'finalized_at' => 'datetime',
     ];
+
+    public function canTransitionTo(string $status): bool
+    {
+        if ($this->status === $status) {
+            return true;
+        }
+
+        return in_array($status, self::TRANSITIONS[$this->status] ?? [], true);
+    }
 
     public function patient(): BelongsTo
     {

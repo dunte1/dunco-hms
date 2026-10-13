@@ -10,11 +10,41 @@
                 <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Write a prescription for a patient</p>
             </div>
 
+            @if(session('success') || session('status') || session('error') || $errors->any())
+                <div class="mb-4 space-y-2">
+                    @if(session('success') || session('status'))
+                        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg flex items-center" role="alert">
+                            <i class="fa fa-check-circle mr-2"></i>
+                            <span>{{ session('success') ?: session('status') }}</span>
+                        </div>
+                    @endif
+                    @if(session('error') || $errors->any())
+                        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg" role="alert">
+                            <div class="flex items-start">
+                                <i class="fa fa-exclamation-circle mr-2 mt-0.5"></i>
+                                <div class="flex-1">
+                                    @if(session('error'))
+                                        <p class="font-medium">{{ session('error') }}</p>
+                                    @endif
+                                    @if($errors->any())
+                                        <ul class="mt-1 list-disc list-inside text-sm space-y-0.5">
+                                            @foreach($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
             <!-- Form -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
 <form action="{{ route('hms.pharmacy.prescriptions.store') }}" method="POST" id="prescriptionForm">
 @csrf
-<input type="hidden" name="opd_visit_id" id="opd_visit_id" value="{{ request('opd_visit_id') }}">
+<input type="hidden" name="opd_visit_id" id="opd_visit_id" value="{{ old('opd_visit_id', request('opd_visit_id')) }}">
 
 {{-- Weight-based dosing helper --}}
 <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -68,9 +98,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <select name="patient_id" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-green-500 focus:border-green-500">
                                     <option value="">Select patient...</option>
                                     @foreach($patients as $patient)
-                                        <option value="{{ $patient->id }}" @selected(request('patient_id') == $patient->id)>{{ $patient->first_name }} {{ $patient->last_name }}</option>
+                                        <option value="{{ $patient->id }}" @selected(old('patient_id', request('patient_id')) == $patient->id)>{{ $patient->first_name }} {{ $patient->last_name }}</option>
                                     @endforeach
                                 </select>
+                                @error('patient_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -79,15 +110,20 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <select name="doctor_id" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-green-500 focus:border-green-500">
                                     <option value="">Select doctor...</option>
                                     @foreach($doctors as $doctor)
-                                        <option value="{{ $doctor->id }}">Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}</option>
+                                        <option value="{{ $doctor->id }}" @selected(old('doctor_id') == $doctor->id)>Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}</option>
                                     @endforeach
                                 </select>
+                                @error('doctor_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                                @if(($doctors->count() ?? 0) === 0)
+                                    <p class="mt-1 text-sm text-amber-600">No doctors found. Add a doctor before creating prescriptions.</p>
+                                @endif
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Prescription Date <span class="text-red-500">*</span>
                                 </label>
-                                <input type="date" name="prescription_date" value="{{ date('Y-m-d') }}" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-green-500 focus:border-green-500">
+                                <input type="date" name="prescription_date" value="{{ old('prescription_date', date('Y-m-d')) }}" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-green-500 focus:border-green-500">
+                                @error('prescription_date')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                             </div>
                         </div>
                     </div>
@@ -100,11 +136,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Symptoms</label>
-                                <textarea name="symptoms" rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-green-500 focus:border-green-500"></textarea>
+                                <textarea name="symptoms" rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-green-500 focus:border-green-500">{{ old('symptoms') }}</textarea>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Diagnosis</label>
-                                <textarea name="diagnosis" rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-green-500 focus:border-green-500"></textarea>
+                                <textarea name="diagnosis" rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-green-500 focus:border-green-500">{{ old('diagnosis') }}</textarea>
+                                @error('diagnosis')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                             </div>
                         </div>
                     </div>
@@ -123,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <!-- Notes -->
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Additional Notes</label>
-                        <textarea name="notes" rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-green-500 focus:border-green-500"></textarea>
+                        <textarea name="notes" rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-green-500 focus:border-green-500">{{ old('notes') }}</textarea>
                     </div>
 
                     <!-- Action Buttons -->
@@ -131,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <a href="{{ route('hms.pharmacy.prescriptions.index') }}" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg">
                             <i class="fa fa-times mr-2"></i> Cancel
                         </a>
-                        <button type="submit" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">
+                        <button type="submit" id="submitBtn" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">
                             <i class="fa fa-save mr-2"></i> Create Prescription
                         </button>
                     </div>
@@ -139,6 +176,16 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('prescriptionForm').addEventListener('submit', function () {
+            const btn = document.getElementById('submitBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> Saving...';
+            }
+        });
+    </script>
 
     <script>
         let medicineIndex = 0;

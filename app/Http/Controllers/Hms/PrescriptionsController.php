@@ -74,7 +74,7 @@ class PrescriptionsController extends Controller
         $data = $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'doctor_id' => 'required|exists:doctors,id',
-            'opd_visit_id' => 'nullable|exists:opd_visits,id',
+            'opd_visit_id' => 'nullable|integer|exists:opd_visits,id',
             'prescription_date' => 'required|date',
             'symptoms' => 'nullable|string',
             'diagnosis' => 'nullable|string',
@@ -88,34 +88,52 @@ class PrescriptionsController extends Controller
             'medicines.*.instructions' => 'nullable|string',
         ]);
 
-        $prescription = Prescription::create([
-            'patient_id' => $data['patient_id'],
-            'doctor_id' => $data['doctor_id'],
-            'opd_visit_id' => $data['opd_visit_id'] ?? null,
-            'prescription_date' => $data['prescription_date'],
-            'symptoms' => $data['symptoms'],
-            'diagnosis' => $data['diagnosis'],
-            'notes' => $data['notes'],
-        ]);
-
-        // Update OPD visit status if linked
-        if (!empty($data['opd_visit_id'])) {
-            OpdVisit::where('id', $data['opd_visit_id'])->update(['status' => 'pharmacy_pending']);
-        }
-
-        // Create prescription items
-        foreach ($data['medicines'] as $medicine) {
-            $prescription->items()->create([
-                'medicine_id' => $medicine['medicine_id'],
-                'dosage' => $medicine['dosage'],
-                'frequency' => $medicine['frequency'],
-                'quantity' => $medicine['quantity'],
-                'duration_days' => $medicine['duration_days'],
-                'instructions' => $medicine['instructions'],
+        try {
+            $prescription = Prescription::create([
+                'patient_id' => $data['patient_id'],
+                'doctor_id' => $data['doctor_id'],
+                'opd_visit_id' => $data['opd_visit_id'] ?? null,
+                'prescription_date' => $data['prescription_date'],
+                'symptoms' => $data['symptoms'] ?? null,
+                'diagnosis' => $data['diagnosis'] ?? null,
+                'notes' => $data['notes'] ?? null,
             ]);
-        }
 
-        return redirect()->route('hms.pharmacy.prescriptions.index')->with('status', 'Prescription created');
+            foreach ($data['medicines'] as $medicine) {
+                $prescription->items()->create([
+                    'medicine_id' => $medicine['medicine_id'],
+                    'dosage' => $medicine['dosage'],
+                    'frequency' => $medicine['frequency'],
+                    'quantity' => $medicine['quantity'],
+                    'duration_days' => $medicine['duration_days'],
+                    'instructions' => $medicine['instructions'] ?? null,
+                ]);
+            }
+
+            // Hybrid handoff: OPD → pharmacy_pending + pharmacy alert (non-fatal)
+            try {
+                app(\App\Services\PatientFlowService::class)->afterPrescription($prescription->fresh());
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('afterPrescription handoff failed', [
+                    'prescription_id' => $prescription->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            return redirect()
+                ->route('hms.pharmacy.prescriptions.show', $prescription)
+                ->with('success', 'Prescription created successfully for ' . ($prescription->patient->full_name ?? 'patient') . '.')
+                ->with('status', 'Prescription created successfully.');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Prescription store failed', [
+                'error' => $e->getMessage(),
+                'payload' => $data,
+            ]);
+
+            return back()
+                ->withErrors(['error' => 'Could not save prescription: ' . $e->getMessage()])
+                ->withInput();
+        }
     }
 
     public function show(Prescription $prescription): View

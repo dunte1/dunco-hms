@@ -17,16 +17,22 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Patient <span class="text-red-500">*</span></label>
                             <select name="patient_id" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                                @foreach($patients as $id => $name)
-                                    <option value="{{ $id }}" {{ $ipd->patient_id == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                <option value="">-- Select Patient --</option>
+                                @foreach($patients as $patient)
+                                    <option value="{{ $patient->id }}" {{ $ipd->patient_id == $patient->id ? 'selected' : '' }}>
+                                        {{ $patient->patient_no }} - {{ $patient->first_name }} {{ $patient->last_name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Doctor <span class="text-red-500">*</span></label>
                             <select name="doctor_id" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                                @foreach($doctors as $id => $name)
-                                    <option value="{{ $id }}" {{ $ipd->doctor_id == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                <option value="">-- Select Doctor --</option>
+                                @foreach($doctors as $doctor)
+                                    <option value="{{ $doctor->id }}" {{ $ipd->doctor_id == $doctor->id ? 'selected' : '' }}>
+                                        Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -34,10 +40,20 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bed</label>
                             <select name="bed_id" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                                 <option value="">Select Bed</option>
-                                @foreach($beds as $id => $name)
-                                    <option value="{{ $id }}" {{ $ipd->bed_id == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                @foreach($beds as $bed)
+                                    <option value="{{ $bed->id }}" {{ $ipd->bed_id == $bed->id ? 'selected' : '' }}>
+                                        {{ $bed->ward_name }} - Bed {{ $bed->bed_number }}
+                                        @if($bed->bedType)
+                                            ({{ $bed->bedType->name }})
+                                        @endif
+                                    </option>
                                 @endforeach
                             </select>
+                            @if($beds->isEmpty())
+                                <p class="mt-1 text-sm text-yellow-600 dark:text-yellow-400">
+                                    <i class="fa fa-exclamation-triangle mr-1"></i> No beds available
+                                </p>
+                            @endif
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Admission Date <span class="text-red-500">*</span></label>

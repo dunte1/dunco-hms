@@ -165,10 +165,13 @@ Route::prefix('hms')->middleware(['auth'])->group(function () {
     
     // Analytics & BI
     Route::get('/analytics/bi-dashboard', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'index'])->name('analytics.bi-dashboard')->middleware('permission:view analytics|view dashboard analytics');
+    Route::get('/analytics/bi-dashboard/pdf', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'dashboardPdf'])->name('analytics.bi-dashboard.pdf')->middleware('permission:view analytics|view dashboard analytics|export reports');
     Route::post('/analytics/generate', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'generateAnalytics'])->name('analytics.generate')->middleware('permission:view analytics|view dashboard analytics');
     Route::get('/analytics/revenue', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'getRevenueAnalytics'])->name('analytics.revenue')->middleware('permission:view analytics|view dashboard analytics');
     Route::get('/analytics/patients', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'getPatientAnalytics'])->name('analytics.patients')->middleware('permission:view analytics|view dashboard analytics');
     Route::get('/analytics/occupancy', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'getOccupancyAnalytics'])->name('analytics.occupancy')->middleware('permission:view analytics|view dashboard analytics');
+    Route::get('/analytics/view/{analytic}', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'show'])->whereNumber('analytic')->name('analytics.view')->middleware('permission:view analytics|view dashboard analytics');
+    Route::get('/analytics/export/{analytic}', [\App\Http\Controllers\Analytics\BiDashboardController::class, 'exportPdf'])->whereNumber('analytic')->name('analytics.export')->middleware('permission:view analytics|view dashboard analytics|export reports');
     
     // Telemedicine
     Route::get('/telemedicine', [\App\Http\Controllers\Telemedicine\TelemedicineController::class, 'index'])->name('telemedicine.index')->middleware('permission:use telemedicine|manage telemedicine sessions');
@@ -708,6 +711,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('/opd/{opd}', [OpdVisitsController::class, 'destroy'])->name('opd.destroy');
             Route::post('/opd/{opd}/status', [OpdVisitsController::class, 'updateStatus'])->name('opd.update-status');
         Route::post('/opd/{opd}/finalize', [OpdVisitsController::class, 'finalize'])->name('opd.finalize');
+        Route::post('/opd/{opd}/start-consultation', [OpdVisitsController::class, 'startConsultation'])->name('opd.start-consultation');
 
             // IPD Inpatient Completion (G017-G018)
             Route::get('/ipd/{ipd}/ward-rounds', [\App\Http\Controllers\Hms\WardRoundController::class, 'index'])->name('ipd.ward-rounds.index');
@@ -1824,7 +1828,7 @@ Route::middleware('auth')->group(function () {
         // Dashboard Definitions
         Route::get('/dashboard/definitions', [\App\Http\Controllers\Hms\DashboardDefinitionController::class, 'index'])->name('dashboard.definitions.index');
         Route::post('/dashboard/definitions', [\App\Http\Controllers\Hms\DashboardDefinitionController::class, 'store'])->name('dashboard.definitions.store');
-        Route::get('/dashboard/definitions/{dashboard}', [\App\Http\Controllers\Hms\DashboardDefinitionController::class, 'show'])->name('dashboard.definitions.show');
+        Route::get('/dashboard/definitions/{dashboard}', [\App\Http\Controllers\Hms\DashboardDefinitionController::class, 'show'])->name('dashboard.definitions.show')->whereNumber('dashboard');
 
         // KPI Management
         Route::get('/dashboard/kpis', [\App\Http\Controllers\Hms\KpiController::class, 'index'])->name('dashboard.kpis.index');
@@ -1850,6 +1854,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/messaging', [\App\Http\Controllers\Hms\MessagingController::class, 'index'])->name('messaging.index');
         Route::get('/messaging/bulk', [\App\Http\Controllers\Hms\MessagingController::class, 'bulk'])->name('messaging.bulk');
         Route::get('/messaging/templates', [\App\Http\Controllers\Hms\MessagingController::class, 'templates'])->name('messaging.templates');
+        Route::post('/messaging/templates', [\App\Http\Controllers\Hms\MessagingController::class, 'storeTemplate'])->name('messaging.templates.store');
+        Route::delete('/messaging/templates/{template}', [\App\Http\Controllers\Hms\MessagingController::class, 'destroyTemplate'])->name('messaging.templates.destroy');
         Route::post('/messaging/send', [\App\Http\Controllers\Hms\MessagingController::class, 'send'])->name('messaging.send');
         
         Route::get('/reminders', [\App\Http\Controllers\Hms\RemindersController::class, 'index'])->name('reminders.index');
@@ -1890,12 +1896,25 @@ Route::middleware('auth')->group(function () {
         Route::post('/system/maps', [\App\Http\Controllers\Hms\SystemSettingsController::class, 'updateMaps'])->name('system.maps.update');
         Route::get('/system/contact-info', [\App\Http\Controllers\Hms\SystemSettingsController::class, 'contactInfo'])->name('system.contact-info');
         Route::post('/system/contact-info', [\App\Http\Controllers\Hms\SystemSettingsController::class, 'updateContactInfo'])->name('system.contact-info.update');
+
+        // Integrations settings (M-Pesa, DHA, SHA/EHA)
+        Route::get('/settings/integrations', [\App\Http\Controllers\Hms\IntegrationsSettingsController::class, 'index'])->name('settings.integrations');
+        Route::post('/settings/integrations/mpesa', [\App\Http\Controllers\Hms\IntegrationsSettingsController::class, 'updateMpesa'])->name('settings.integrations.mpesa');
+        Route::post('/settings/integrations/dha', [\App\Http\Controllers\Hms\IntegrationsSettingsController::class, 'updateDha'])->name('settings.integrations.dha');
+        Route::post('/settings/integrations/eha', [\App\Http\Controllers\Hms\IntegrationsSettingsController::class, 'updateEha'])->name('settings.integrations.eha');
+        Route::get('/settings/integrations/test/{slug}', [\App\Http\Controllers\Hms\IntegrationsSettingsController::class, 'test'])->name('settings.integrations.test');
         
-        // Theme Customizer
-        Route::get('/settings/theme', [\App\Http\Controllers\Hms\ThemeController::class, 'index'])->name('settings.theme');
-        Route::put('/settings/theme', [\App\Http\Controllers\Hms\ThemeController::class, 'update'])->name('settings.theme.update');
-        Route::get('/settings/theme/preview', [\App\Http\Controllers\Hms\ThemeController::class, 'preview'])->name('settings.theme.preview');
-        Route::post('/settings/theme/reset', [\App\Http\Controllers\Hms\ThemeController::class, 'reset'])->name('settings.theme.reset');
+        // Theme (consolidated → System Settings Theme & Branding page)
+        Route::get('/settings/theme', function () {
+            return redirect()->route('hms.system.theme');
+        })->name('settings.theme');
+        Route::match(['put', 'post'], '/settings/theme', [\App\Http\Controllers\Hms\SystemSettingsController::class, 'updateTheme'])->name('settings.theme.update');
+        Route::get('/settings/theme/preview', function () {
+            return redirect()->route('hms.system.theme');
+        })->name('settings.theme.preview');
+        Route::post('/settings/theme/reset', function () {
+            return redirect()->route('hms.system.theme')->with('status', 'Theme reset requires re-saving colors on the Theme & Branding page.');
+        })->name('settings.theme.reset');
         Route::get('/settings/theme/export', [\App\Http\Controllers\Hms\ThemeController::class, 'export'])->name('settings.theme.export')->middleware('permission:manage system settings');
         Route::post('/settings/theme/import', [\App\Http\Controllers\Hms\ThemeController::class, 'import'])->name('settings.theme.import');
         Route::post('/settings/theme/toggle-dark-mode', [\App\Http\Controllers\Hms\ThemeController::class, 'toggleDarkMode'])->name('settings.theme.toggle-dark-mode');

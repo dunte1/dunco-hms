@@ -39,18 +39,19 @@
 </head>
 <body>
     @php
-        $themeSettings = [
-            'primary_color' => \App\Models\SystemSetting::get('primary_color', '#10b981'),
-            'hospital_logo' => \App\Models\SystemSetting::get('hospital_logo', ''),
-            'hospital_name' => \App\Models\SystemSetting::get('hospital_name', config('app.name', 'DuncoHMS')),
-            'hospital_address' => \App\Models\SystemSetting::get('hospital_address', ''),
-            'hospital_phone' => \App\Models\SystemSetting::get('hospital_phone', ''),
-            'hospital_email' => \App\Models\SystemSetting::get('hospital_email', ''),
-        ];
+        $logoUrl = \App\Support\Logo::url(\App\Models\SystemSetting::get('hospital_logo', ''));
+        $logoHtml = '';
+        if ($logoUrl && str_starts_with($logoUrl, 'http')) {
+            $logoHtml = '<img src="'.$logoUrl.'" style="height: 48px; margin-bottom: 8px;">';
+        } elseif ($logoUrl && file_exists(public_path(ltrim(parse_url($logoUrl, PHP_URL_PATH) ?: '', '/')))) {
+            $logoHtml = '<img src="'.public_path(ltrim(parse_url($logoUrl, PHP_URL_PATH), '/')).'" style="height: 48px; margin-bottom: 8px;">';
+        } elseif (file_exists(public_path('hospital-logo.png'))) {
+            $logoHtml = '<img src="'.public_path('hospital-logo.png').'" style="height: 48px; margin-bottom: 8px;">';
+        }
     @endphp
     <div class="header">
-        @if(!empty($themeSettings['hospital_logo']))
-            <img src="data:image/png;base64,{{ $themeSettings['hospital_logo'] }}" style="height: 50px; margin-right: 10px;">
+        @if($logoHtml)
+            {!! $logoHtml !!}
         @endif
         <h1>{{ \App\Models\SystemSetting::get('hospital_name', config('app.name')) }}</h1>
         <p>{{ \App\Models\SystemSetting::get('hospital_address', '') }}</p>

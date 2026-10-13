@@ -76,6 +76,14 @@ RESEND_KEY=
 # ============================================
 # SMS/COMMUNICATION SERVICES
 # ============================================
+# Active provider: twilio | africas_talking | nexmo | talksasa
+SMS_PROVIDER=twilio
+
+# TalkSasa BulkSMS (https://bulksms.talksasa.com - Developers > API Documents)
+TALKSASA_API_TOKEN=
+TALKSASA_SENDER_ID=
+TALKSASA_API_URL=https://bulksms.talksasa.com/api/v3
+
 # Twilio SMS Configuration
 TWILIO_SID=
 TWILIO_TOKEN=

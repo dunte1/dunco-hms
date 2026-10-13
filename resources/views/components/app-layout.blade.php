@@ -16,7 +16,7 @@
                   method: 'POST',
                   headers: {
                       'Content-Type': 'application/json',
-                      'X-CSRF-TOKEN': document.querySelector('meta[name=\"csrf-token\"]').content
+                      'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
                   },
                   body: JSON.stringify({
                       dark_mode: val,
@@ -42,11 +42,9 @@
         <link rel="apple-touch-icon" href="{{ asset('images/pwa/icon-152x152.png') }}">
 
         <!-- Favicon -->
-        @if(!empty($themeSettings['favicon']))
-            <link rel="icon" type="image/x-icon" href="{{ $themeSettings['favicon'] }}">
-        @else
-            <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-        @endif
+        <link rel="icon" type="image/png" href="{{ \App\Support\Favicon::url($themeSettings['favicon'] ?? null) }}?v=2">
+        <link rel="shortcut icon" type="image/png" href="{{ \App\Support\Favicon::url($themeSettings['favicon'] ?? null) }}?v=2">
+        <link rel="apple-touch-icon" href="{{ \App\Support\Favicon::url($themeSettings['favicon'] ?? null) }}?v=2">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -178,7 +176,15 @@
                                 </div>
                                 <div class="relative" x-data="{ open: false }">
                                     <button @click="open = !open" class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                        <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center"><span class="text-white font-medium text-sm">{{ substr(auth()->user()->name, 0, 1) }}</span></div>
+                                        @php $navPhoto = \App\Support\ProfilePhoto::url(auth()->user()->profile_photo_path ?? null); @endphp
+                                        <div class="h-8 w-8 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0" style="background:#2563EB;">
+                                            @if($navPhoto)
+                                                <img src="{{ $navPhoto }}" alt="{{ auth()->user()->name }}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                                                <span class="text-white font-medium text-sm" style="display:none;">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                                            @else
+                                                <span class="text-white font-medium text-sm">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                                            @endif
+                                        </div>
                                         <span class="ml-2 text-gray-700 dark:text-gray-300 hidden md:block">{{ auth()->user()->name }}</span>
                                         <i class="fa fa-chevron-down ml-1 text-gray-400"></i>
                                     </button>

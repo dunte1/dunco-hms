@@ -147,10 +147,16 @@ class LaboratoryController extends Controller
         ]);
 
         DB::transaction(function () use ($validated) {
+            $openOpd = \App\Models\OpdVisit::where('patient_id', $validated['patient_id'])
+                ->whereNotIn('status', ['completed', 'discharged'])
+                ->latest('id')
+                ->first();
+
             $labRequest = LabRequest::create([
                 'request_number' => 'LAB-' . str_pad(LabRequest::count() + 1, 6, '0', STR_PAD_LEFT),
                 'patient_id' => $validated['patient_id'],
                 'doctor_id' => $validated['doctor_id'],
+                'opd_visit_id' => $openOpd?->id,
                 'request_date' => $validated['request_date'],
                 'clinical_notes' => $validated['clinical_notes'],
                 'status' => 'pending',
@@ -161,6 +167,16 @@ class LaboratoryController extends Controller
                     'lab_request_id' => $labRequest->id,
                     'lab_test_id' => $testId,
                     'status' => 'pending',
+                ]);
+            }
+
+            // Hybrid handoff: OPD → lab_pending + alert
+            try {
+                app(\App\Services\PatientFlowService::class)->afterLabRequest($labRequest);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('afterLabRequest handoff failed', [
+                    'lab_request_id' => $labRequest->id,
+                    'error' => $e->getMessage(),
                 ]);
             }
         });
@@ -199,12 +215,30 @@ class LaboratoryController extends Controller
 
             $labRequest->update([
                 'status' => 'completed',
-                'results_notes' => $validated['results_notes'],
+                'results_notes' => $validated['results_notes'] ?? null,
             ]);
         });
 
-        return redirect()->route('hms.laboratory.requests')
-            ->with('success', 'Lab request processed successfully.');
+        // Auto-handoff: OPD lab_pending → in_consultation
+        // LabResultReady notification is fired by LabRequestObserver when status → completed
+        try {
+            app(\App\Services\PatientFlowService::class)->afterLabResultsComplete($labRequest->fresh());
+        } catch (\Throwable $e) {
+            \Log::warning('Post lab-result flow failed', ['id' => $labRequest->id, 'error' => $e->getMessage()]);
+        }
+
+        return redirect()->route('hms.laboratory.requests.index')
+            ->with('success', 'Lab results saved. Doctor and patient notified. Patient returned to consultation.');
+    }
+
+    /**
+     * Results entry form for a lab request (missing UI — was dead code).
+     */
+    public function resultsForm(LabRequest $labRequest): View
+    {
+        $labRequest->load(['patient', 'doctor', 'items.labTest']);
+
+        return view('hms.laboratory.requests.results', compact('labRequest'));
     }
 
     // Technician Management

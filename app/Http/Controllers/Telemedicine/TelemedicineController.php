@@ -141,7 +141,7 @@ class TelemedicineController extends Controller
         ]);
     }
 
-    public function getUpcomingSessions(Request $request): JsonResponse
+    public function getUpcomingSessions(Request $request)
     {
         $doctorId = $request->get('doctor_id');
         $patientId = $request->get('patient_id');
@@ -160,10 +160,7 @@ class TelemedicineController extends Controller
 
         $sessions = $query->orderBy('scheduled_time')->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $sessions
-        ]);
+        return view('hms.telemedicine.upcoming', compact('sessions'));
     }
 
     private function generateMeetingDetails(string $platform, array $data = []): array

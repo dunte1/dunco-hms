@@ -27,9 +27,44 @@ class LabVerificationController extends Controller
 
         $item->update(['status' => 'completed']);
         $this->maybeCreateCriticalAlert($item);
+        $this->maybeCompleteLabRequest($item->lab_request_id);
 
         return redirect()->route('hms.laboratory.requests.show', $item->lab_request_id)
             ->with('status', 'Result verified successfully');
+    }
+
+    /**
+     * When all items are done, complete the request + return OPD to consultation.
+     */
+    private function maybeCompleteLabRequest($labRequestId): void
+    {
+        if (! $labRequestId) {
+            return;
+        }
+
+        $labRequest = \App\Models\LabRequest::find($labRequestId);
+        if (! $labRequest || in_array($labRequest->status, ['completed', 'cancelled'], true)) {
+            return;
+        }
+
+        $openItems = $labRequest->items()
+            ->whereNotIn('status', ['completed', 'verified'])
+            ->count();
+
+        if ($openItems > 0) {
+            return;
+        }
+
+        $labRequest->update(['status' => 'completed']);
+
+        try {
+            app(\App\Services\PatientFlowService::class)->afterLabResultsComplete($labRequest->fresh());
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Verification lab handoff failed', [
+                'lab_request_id' => $labRequest->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private function maybeCreateCriticalAlert(LabRequestItem $item): void
@@ -133,6 +168,7 @@ class LabVerificationController extends Controller
         ]);
 
         $item->update(['status' => 'verified']);
+        $this->maybeCompleteLabRequest($item->lab_request_id);
 
         return redirect()->route('hms.laboratory.requests.show', $item->lab_request_id)
             ->with('status', 'Result approved successfully');

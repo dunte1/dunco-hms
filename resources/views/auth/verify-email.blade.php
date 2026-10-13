@@ -10,7 +10,7 @@
         $secondaryColor = \App\Models\SystemSetting::get('secondary_color', '#00001A');
         $hospitalName = \App\Models\SystemSetting::get('hospital_name', 'Dunco HMS');
     @endphp
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ \App\Support\Favicon::url() }}?v=2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">

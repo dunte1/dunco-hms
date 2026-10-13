@@ -45,7 +45,7 @@ Dunco HMS is a full-featured healthcare management platform designed for hospita
 | Authorization | Spatie Permission (21 roles, 93 permissions) |
 | PDF | barryvdh/laravel-dompdf |
 | Excel | maatwebsite/excel |
-| SMS | Twilio SDK |
+| SMS | TalkSasa BulkSMS (default), Twilio SDK, Africa's Talking, Nexmo |
 | Logging | spatie/laravel-activitylog |
 | Backups | spatie/laravel-backup |
 

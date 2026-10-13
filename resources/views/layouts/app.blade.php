@@ -17,7 +17,7 @@
                   method: 'POST',
                   headers: {
                       'Content-Type': 'application/json',
-                      'X-CSRF-TOKEN': document.querySelector('meta[name=\"csrf-token\"]').content
+                      'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
                   },
                   body: JSON.stringify({
                       dark_mode: val,
@@ -41,17 +41,13 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="{{ $themeSettings['hospital_name'] ?? 'Dunco HMS' }}">
-        <link rel="apple-touch-icon" href="{{ asset('images/pwa/icon-152x152.png') }}">
-        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/pwa/icon-192x192.png') }}">
+        <link rel="apple-touch-icon" href="{{ \App\Support\Favicon::url($themeSettings['favicon'] ?? null) }}">
+        <link rel="icon" type="image/png" sizes="192x192" href="{{ \App\Support\Favicon::url($themeSettings['favicon'] ?? null) }}">
 
         <!-- Favicon -->
-        @if($themeSettings['favicon'] ?? false)
-            <link rel="icon" type="image/x-icon" href="{{ $themeSettings['favicon'] }}">
-            <link rel="shortcut icon" type="image/x-icon" href="{{ $themeSettings['favicon'] }}">
-        @else
-            <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-            <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-        @endif
+        <link rel="icon" type="image/png" href="{{ \App\Support\Favicon::url($themeSettings['favicon'] ?? null) }}?v=2">
+        <link rel="shortcut icon" type="image/png" href="{{ \App\Support\Favicon::url($themeSettings['favicon'] ?? null) }}?v=2">
+        <link rel="apple-touch-icon" href="{{ \App\Support\Favicon::url($themeSettings['favicon'] ?? null) }}?v=2">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -86,33 +82,80 @@
                     transform: translateX(0);
                 }
             }
-            .sidebar.collapsed { width: 72px !important; max-width: 72px !important; }
-            .sidebar.collapsed .sidebar-container { width: 72px !important; max-width: 72px !important; overflow: hidden; transition: width 0.3s ease-in-out; }
-            .sidebar.collapsed .sidebar-header-text,
-            .sidebar.collapsed .menu-item span,
-            .sidebar.collapsed .nested-menu-item span,
-            .sidebar.collapsed .submenu-link span,
-            .sidebar.collapsed .nested-link span,
-            .sidebar.collapsed .menu-item .fa-chevron-down,
-            .sidebar.collapsed .nested-menu-item .fa-chevron-down,
-            .sidebar.collapsed .submenu-link .badge,
-            .sidebar.collapsed .sidebar-nav .submenu,
-            .sidebar.collapsed .sidebar-nav .nested-submenu { display: none !important; }
-            .sidebar.collapsed .menu-item { justify-content: center; padding: 0.75rem; }
-            .sidebar.collapsed .menu-icon { margin-right: 0; }
-            .sidebar.collapsed .submenu-link { justify-content: center; padding: 0.5rem; }
-            .sidebar.collapsed .nested-link { justify-content: center; padding: 0.375rem; }
-            .sidebar.collapsed .sidebar-header { padding: 1rem !important; }
-            .sidebar.collapsed .sidebar-header .hospital-name,
-            .sidebar.collapsed .sidebar-header .hospital-subtitle { display: none; }
-            .sidebar.collapsed .sidebar-header .toggle-btn { margin: 0; }
-            .sidebar.collapsed .sidebar-header .logo-wrapper { margin: 0; }
-            .main-content { transition: margin-left 0.3s ease-in-out; }
-            @media (max-width: 767px) {
-                .sidebar { width: 280px !important; }
-                .sidebar.collapsed { width: 280px !important; }
+            /* Desktop collapse: icon rail only */
+            @media (min-width: 768px) {
+                .sidebar.collapsed { width: 72px !important; max-width: 72px !important; }
+                .sidebar.collapsed .sidebar-container { width: 72px !important; max-width: 72px !important; overflow: visible !important; }
                 .sidebar.collapsed .sidebar-header-text,
-                .sidebar.collapsed .menu-item span,
+                .sidebar.collapsed .menu-item > .flex > span,
+                .sidebar.collapsed .nested-menu-item span,
+                .sidebar.collapsed .submenu-link span,
+                .sidebar.collapsed .nested-link span,
+                .sidebar.collapsed .menu-item .fa-chevron-down,
+                .sidebar.collapsed .nested-menu-item .fa-chevron-down,
+                .sidebar.collapsed .submenu-link .badge { display: none !important; }
+                .sidebar.collapsed .sidebar-nav .submenu,
+                .sidebar.collapsed .sidebar-nav .nested-submenu { display: none !important; }
+                .sidebar.collapsed .menu-item { justify-content: center; padding: 0.75rem 0.5rem; }
+                .sidebar.collapsed .menu-icon { margin-right: 0 !important; }
+                .sidebar.collapsed .sidebar-header { padding: 0.75rem !important; }
+                .sidebar.collapsed .sidebar-header .hospital-name,
+                .sidebar.collapsed .sidebar-header .hospital-subtitle { display: none; }
+                .sidebar.collapsed .sidebar-header .toggle-btn { margin: 0; }
+                /* Flyout submenu on hover when collapsed */
+                .sidebar.collapsed .sidebar-nav li { position: relative; }
+                .sidebar.collapsed .sidebar-nav li > ul.submenu,
+                .sidebar.collapsed .sidebar-nav li > ul.nested-submenu {
+                    display: none !important;
+                    position: absolute;
+                    left: 100%;
+                    top: 0;
+                    min-width: 200px;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    margin-left: 0;
+                    padding: 0.35rem;
+                    background: #fff;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 0.5rem;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+                    z-index: 60;
+                }
+                .sidebar.collapsed .sidebar-nav li:hover > ul.submenu,
+                .sidebar.collapsed .sidebar-nav li:hover > ul.nested-submenu {
+                    display: block !important;
+                }
+                .sidebar.collapsed .sidebar-nav li:hover > ul.submenu .submenu-link,
+                .sidebar.collapsed .sidebar-nav li:hover > ul.nested-submenu .nested-link {
+                    justify-content: flex-start !important;
+                    padding: 0.55rem 0.75rem !important;
+                }
+                .sidebar.collapsed .sidebar-nav li:hover > ul.submenu .menu-label,
+                .sidebar.collapsed .sidebar-nav li:hover > ul.nested-submenu .menu-label {
+                    display: inline !important;
+                }
+                .sidebar.collapsed .sidebar-nav li:hover > ul.submenu .badge {
+                    display: inline-flex !important;
+                }
+                .dark .sidebar.collapsed .sidebar-nav li:hover > ul.submenu,
+                .dark .sidebar.collapsed .sidebar-nav li:hover > ul.nested-submenu {
+                    background: #1f2937;
+                    border-color: #374151;
+                }
+            }
+            /* Main content margins */
+            .main-content { transition: margin-left 0.3s ease-in-out; margin-left: 0; }
+            @media (min-width: 768px) {
+                .main-content { margin-left: 16rem; } /* md:ml-64 */
+                .main-content.is-collapsed { margin-left: 72px; }
+            }
+            /* Mobile: drawer only, no dead space */
+            @media (max-width: 767px) {
+                .sidebar { width: min(280px, 85vw) !important; max-width: min(280px, 85vw) !important; }
+                .sidebar.collapsed { width: min(280px, 85vw) !important; max-width: min(280px, 85vw) !important; }
+                .sidebar.collapsed .sidebar-container { width: 100% !important; max-width: 100% !important; }
+                .sidebar.collapsed .sidebar-header-text,
+                .sidebar.collapsed .menu-item > .flex > span,
                 .sidebar.collapsed .nested-menu-item span,
                 .sidebar.collapsed .submenu-link span,
                 .sidebar.collapsed .nested-link span,
@@ -125,11 +168,12 @@
                 .sidebar.collapsed .menu-icon { margin-right: 0.75rem; }
                 .sidebar.collapsed .submenu-link { justify-content: flex-start; padding: 0.5rem 0.75rem; }
                 .sidebar.collapsed .nested-link { justify-content: flex-start; padding: 0.375rem 1rem; }
-                .sidebar.collapsed .sidebar-header { padding: 1.5rem !important; }
+                .sidebar.collapsed .sidebar-header { padding: 1rem !important; }
                 .sidebar.collapsed .sidebar-header .hospital-name,
                 .sidebar.collapsed .sidebar-header .hospital-subtitle { display: revert; }
                 .sidebar.collapsed .sidebar-header .toggle-btn { margin-left: auto; }
-                .sidebar.collapsed .sidebar-header .logo-wrapper { margin-right: 0.75rem; }
+                .main-content, .main-content.is-collapsed { margin-left: 0 !important; }
+                .sidebar-container { width: 100% !important; max-width: 100% !important; }
             }
         </style>
     </head>
@@ -164,7 +208,7 @@
             </aside>
 
             <!-- Main Content -->
-            <div class="main-content md:ml-64" :style="sidebarCollapsed ? 'margin-left: 72px' : ''">
+            <div class="main-content" :class="sidebarCollapsed ? 'is-collapsed' : ''">
                 <!-- Top Navigation -->
                 <nav class="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
                     <div class="px-4 sm:px-6 lg:px-8">
@@ -197,10 +241,14 @@
                                 <div class="relative" x-data="{ open: false }">
                                     <button @click="open = !open" 
                                             class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                        <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
-                                            <span class="text-white font-medium text-sm">
-                                                {{ substr(auth()->user()->name, 0, 1) }}
-                                            </span>
+                                        @php $navPhoto = \App\Support\ProfilePhoto::url(auth()->user()->profile_photo_path ?? null); @endphp
+                                        <div class="h-8 w-8 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0" style="background:#2563EB;">
+                                            @if($navPhoto)
+                                                <img src="{{ $navPhoto }}" alt="{{ auth()->user()->name }}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                                                <span class="text-white font-medium text-sm" style="display:none;">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                                            @else
+                                                <span class="text-white font-medium text-sm">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                                            @endif
                                         </div>
                                         <span class="ml-2 text-gray-700 dark:text-gray-300 hidden md:block">
                                             {{ auth()->user()->name }}

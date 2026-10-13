@@ -67,10 +67,23 @@
             </div>
 
             <!-- Success Message -->
-            @if(session('status'))
+            @if(session('success') || session('status'))
                 <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center" role="alert">
                     <i class="fa fa-check-circle mr-2"></i>
-                    <span>{{ session('status') }}</span>
+                    <span>{{ session('success') ?: session('status') }}</span>
+                </div>
+            @endif
+            @if(session('error') || $errors->any())
+                <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg" role="alert">
+                    <i class="fa fa-exclamation-circle mr-2"></i>
+                    {{ session('error') ?: 'Please fix the highlighted errors.' }}
+                    @if($errors->any() && !session('error'))
+                        <ul class="mt-2 list-disc list-inside text-sm">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    @endif
                 </div>
             @endif
 

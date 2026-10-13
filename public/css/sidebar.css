@@ -506,6 +506,17 @@
     .nested-link .menu-label {
         font-size: 0.95rem;
     }
+
+    /* Full-width drawer when open — no dead space */
+    .sidebar {
+        width: min(280px, 85vw) !important;
+        max-width: min(280px, 85vw) !important;
+    }
+
+    .sidebar.collapsed {
+        width: min(280px, 85vw) !important;
+        max-width: min(280px, 85vw) !important;
+    }
 }
 
 /* Tablet landscape / small laptops — slightly larger labels */
@@ -532,10 +543,56 @@
     flex-shrink: 0;
 }
 
+/* Collapsed rail flyout submenus (desktop hover) */
+@media (min-width: 768px) {
+    .sidebar.collapsed .sidebar-nav .submenu,
+    .sidebar.collapsed .sidebar-nav .nested-submenu {
+        position: absolute;
+        left: 100%;
+        top: 0;
+        min-width: 200px;
+        max-height: 80vh;
+        overflow-y: auto;
+        margin-left: 0 !important;
+        padding: 0.35rem;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        z-index: 60;
+        display: none !important;
+    }
+
+    .sidebar.collapsed .sidebar-nav li:hover > .submenu,
+    .sidebar.collapsed .sidebar-nav li:hover > .nested-submenu {
+        display: block !important;
+    }
+
+    .sidebar.collapsed .sidebar-nav li:hover > .submenu .submenu-link,
+    .sidebar.collapsed .sidebar-nav li:hover > .nested-submenu .nested-link {
+        justify-content: flex-start !important;
+        padding: 0.55rem 0.75rem !important;
+    }
+
+    .sidebar.collapsed .sidebar-nav li:hover > .submenu .menu-label,
+    .sidebar.collapsed .sidebar-nav li:hover > .nested-submenu .menu-label {
+        display: inline !important;
+    }
+
+    .dark .sidebar.collapsed .sidebar-nav li:hover > .submenu,
+    .dark .sidebar.collapsed .sidebar-nav li:hover > .nested-submenu {
+        background: #1f2937;
+        border-color: #374151;
+    }
+}
+
 /* Print styles */
 @media print {
-    .sidebar-container {
-        display: none;
+    .sidebar-container,
+    .sidebar,
+    .main-content {
+        display: none !important;
+        margin-left: 0 !important;
     }
 }
 

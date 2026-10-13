@@ -5,18 +5,18 @@ namespace App\Http\Controllers\Hms;
 use App\Http\Controllers\Controller;
 use App\Models\WardDischargePlan;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class DischargePlanController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(): View
     {
         $plans = WardDischargePlan::with(['patient', 'ipdAdmission', 'createdByUser'])
             ->orderByDesc('created_at')
             ->paginate(20);
 
-        return response()->json($plans);
+        return view('hms.social.discharge-plans.index', compact('plans'));
     }
 
     public function store(Request $request): RedirectResponse

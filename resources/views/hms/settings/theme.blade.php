@@ -1,718 +1,326 @@
-@extends('admin.layouts.app')
+<x-app-layout>
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="min-w-0">
+                    <nav class="text-sm text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-2 flex-wrap">
+                        <a href="{{ route('hms.settings.index') }}" class="hover:text-pink-600">Settings</a>
+                        <i class="fa fa-chevron-right text-[10px]"></i>
+                        <span class="text-gray-700 dark:text-gray-300">Theme & Branding</span>
+                    </nav>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Theme & Branding</h1>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        Customize hospital colors, logo, and favicon
+                    </p>
+                </div>
+                <a href="{{ route('hms.settings.index') }}"
+                   class="shrink-0 inline-flex items-center justify-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium">
+                    <i class="fa fa-arrow-left mr-2"></i> Back to Settings
+                </a>
+            </div>
 
-@section('title', 'Theme & Branding')
-
-@section('content')
-<div class="container-fluid px-4">
-    <!-- Enhanced Page Header with Gradient -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="page-header-box p-4 rounded-4" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); box-shadow: 0 10px 30px rgba(236, 72, 153, 0.3);">
-                <div class="d-sm-flex align-items-center justify-content-between">
-                    <div>
-                        <h2 class="text-white mb-2 fw-bold">
-                            <i class="fas fa-palette me-3"></i>Theme & Branding
-                        </h2>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb mb-0" style="background: transparent;">
-                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-white-50">Dashboard</a></li>
-                                <li class="breadcrumb-item"><a href="{{ route('hms.settings.index') }}" class="text-white-50">Settings</a></li>
-                                <li class="breadcrumb-item text-white active">Theme</li>
-                            </ol>
-                        </nav>
+            @if(session('success'))
+                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <p class="text-sm font-medium text-green-800 dark:text-green-200">{{ session('success') }}</p>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
+            @endif
 
-    <!-- Settings Form -->
-    <div class="row">
-        <div class="col-lg-10 mx-auto">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom py-4">
-                    <h5 class="mb-0 fw-bold text-dark d-flex align-items-center">
-                        <span class="badge bg-pink-subtle text-pink px-3 py-2 me-3">
-                            <i class="fas fa-palette me-1"></i>
-                        </span>
-                        Customize Appearance
-                    </h5>
+            @if(session('status'))
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                        <p class="text-sm font-medium text-blue-800 dark:text-blue-200">{{ session('status') }}</p>
+                    </div>
                 </div>
-                <div class="card-body p-4">
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
+            @endif
 
-                    @if(session('status'))
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            <i class="fas fa-info-circle me-2"></i>{{ session('status') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
+            @if($errors->any())
+                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+                    <p class="text-sm font-semibold text-red-800 dark:text-red-200 mb-1">Please fix the following:</p>
+                    <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-300 space-y-0.5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-                    @if($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <ul class="mb-0">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
+            <form method="POST" action="{{ route('hms.system.theme.update') }}" enctype="multipart/form-data" id="themeForm">
+                @csrf
 
-                    <form method="POST" action="{{ route('hms.system.theme.update') }}" enctype="multipart/form-data" id="themeForm">
-                        @csrf
-
-                        <h5 class="fw-bold text-dark mb-4">Color Scheme</h5>
-
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-dark">Primary Color <span class="text-danger">*</span></label>
-                                <div class="input-group input-group-lg">
-                                    <input type="color" name="primary_color" value="{{ old('primary_color', $settings['primary_color']) }}" class="form-control form-control-color" style="height: 60px;" required>
-                                    <input type="text" value="{{ old('primary_color', $settings['primary_color']) }}" class="form-control" readonly>
-                                </div>
-                                <small class="text-muted">Main brand color used throughout the application</small>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Color Scheme -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                            <div class="w-9 h-9 rounded-lg bg-pink-50 dark:bg-pink-900/40 flex items-center justify-center mr-3">
+                                <i class="fas fa-palette text-pink-600 dark:text-pink-400"></i>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-dark">Secondary Color <span class="text-danger">*</span></label>
-                                <div class="input-group input-group-lg">
-                                    <input type="color" name="secondary_color" value="{{ old('secondary_color', $settings['secondary_color']) }}" class="form-control form-control-color" style="height: 60px;" required>
-                                    <input type="text" value="{{ old('secondary_color', $settings['secondary_color']) }}" class="form-control" readonly>
-                                </div>
-                                <small class="text-muted">Secondary brand color for accents</small>
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-900 dark:text-white">Color Scheme</h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Brand colors used across the app</p>
                             </div>
                         </div>
-
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <label class="form-label fw-bold text-dark">Color Preview</label>
-                                <div class="p-4 rounded border" style="background: linear-gradient(135deg, {{ $settings['primary_color'] }} 0%, {{ $settings['secondary_color'] }} 100%); min-height: 100px;">
-                                    <p class="text-white mb-0 fw-bold">Your Brand Gradient Preview</p>
+                        <div class="p-5 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Primary Color <span class="text-red-500">*</span>
+                                </label>
+                                <div class="flex items-center gap-3 flex-wrap">
+                                    <input type="color" name="primary_color" id="primary_color"
+                                           value="{{ old('primary_color', $settings['primary_color']) }}"
+                                           class="w-14 h-12 shrink-0 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer bg-white dark:bg-gray-700">
+                                    <input type="text" value="{{ old('primary_color', $settings['primary_color']) }}"
+                                           class="min-w-0 flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 font-mono text-sm"
+                                           readonly id="primary_color_text">
                                 </div>
+                                <p class="mt-1 text-xs text-gray-500">Main brand color — headers, buttons, accents</p>
                             </div>
-                        </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Secondary Color <span class="text-red-500">*</span>
+                                </label>
+                                <div class="flex items-center gap-3 flex-wrap">
+                                    <input type="color" name="secondary_color" id="secondary_color"
+                                           value="{{ old('secondary_color', $settings['secondary_color']) }}"
+                                           class="w-14 h-12 shrink-0 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer bg-white dark:bg-gray-700">
+                                    <input type="text" value="{{ old('secondary_color', $settings['secondary_color']) }}"
+                                           class="min-w-0 flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 font-mono text-sm"
+                                           readonly id="secondary_color_text">
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">Secondary brand color for gradients and hover states</p>
+                            </div>
 
-                        <hr class="my-5">
-
-                        <h5 class="fw-bold text-dark mb-4">Hospital Branding</h5>
-
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-dark">Hospital Logo</label>
-                                <div class="upload-area" id="logoUploadArea">
-                                    <input type="file" name="hospital_logo" id="hospital_logo" class="form-control form-control-lg d-none" accept="image/*" onchange="handleLogoUpload(this)">
-                                    <input type="hidden" name="hospital_logo_cropped" id="hospital_logo_cropped">
-                                    <div class="upload-placeholder" onclick="document.getElementById('hospital_logo').click()">
-                                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                                        <p class="mb-2">Click to upload hospital logo</p>
-                                        <small class="text-muted">Recommended size: 200x60 pixels (PNG, JPG)</small>
-                                    </div>
-                                    <div class="upload-preview d-none" id="logoPreview">
-                                        <img id="logoPreviewImg" src="" alt="Logo Preview" class="img-thumbnail" style="max-width: 200px;">
-                                        <div class="mt-2">
-                                            <button type="button" class="btn btn-sm btn-primary" onclick="openCropModal('logo')">
-                                                <i class="fas fa-crop me-1"></i>Crop Logo
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeLogo()">
-                                                <i class="fas fa-trash me-1"></i>Remove
-                                            </button>
+                                <div class="rounded-xl p-4 border border-gray-200 dark:border-gray-600 overflow-hidden"
+                                     id="live_preview"
+                                     style="background: linear-gradient(135deg, {{ old('primary_color', $settings['primary_color']) }} 0%, {{ old('secondary_color', $settings['secondary_color']) }} 100%); min-height: 120px;">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-10 h-10 shrink-0 rounded-lg bg-white/20 flex items-center justify-center">
+                                            <i class="fas fa-hospital text-white"></i>
                                         </div>
+                                        <div class="min-w-0">
+                                            <p class="text-white font-bold truncate">{{ $themeSettings['hospital_name'] ?? config('app.name') }}</p>
+                                            <p class="text-white/80 text-xs truncate">Live brand preview</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 flex flex-wrap gap-2">
+                                        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white" style="background: rgba(255,255,255,0.2);">Primary</span>
+                                        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white" style="background: rgba(255,255,255,0.35);">Secondary</span>
+                                        <span class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-gray-900">Button</span>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+
+                    <!-- Branding -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                            <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/40 flex items-center justify-center mr-3">
+                                <i class="fas fa-image text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-900 dark:text-white">Branding Assets</h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Hospital logo and browser favicon</p>
+                            </div>
+                        </div>
+                        <div class="p-5 space-y-5">
+                            <!-- Logo -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hospital Logo</label>
+                                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition px-3 text-center" for="hospital_logo">
+                                    <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">Click to upload logo</span>
+                                    <span class="text-xs text-gray-400 mt-1">Recommended: 200×60 PNG</span>
+                                    <input type="file" name="hospital_logo" id="hospital_logo" class="hidden" accept="image/*,.png,.jpg,.jpeg,.gif,.webp">
+                                </label>
+                                <input type="hidden" name="hospital_logo_cropped" id="hospital_logo_cropped">
+                                <div id="logoPreviewWrap" class="mt-3 hidden">
+                                    <p class="text-xs text-gray-500 mb-1">Preview:</p>
+                                    <div class="flex items-center gap-3">
+                                        <img id="logoPreviewImg" alt="Logo Preview" class="max-h-16 max-w-[70%] object-contain rounded border border-gray-200 dark:border-gray-600 p-1 bg-white">
+                                        <button type="button" onclick="removeLogo()" class="shrink-0 text-xs text-red-600 hover:text-red-700">
+                                            <i class="fa fa-trash mr-1"></i>Remove
+                                        </button>
                                     </div>
                                 </div>
                                 @if($settings['hospital_logo'])
-                                    <div class="mt-3">
-                                        <p class="text-success mb-1"><i class="fas fa-check-circle me-1"></i>Current Logo:</p>
-                                        @php
-                                            $logoUrl = $settings['hospital_logo'];
-                                            if (!str_starts_with($logoUrl, 'http') && !str_starts_with($logoUrl, '/')) {
-                                                $logoUrl = asset('storage/' . $logoUrl);
-                                            } elseif (str_starts_with($logoUrl, '/storage/')) {
-                                                $logoUrl = asset($logoUrl);
-                                            }
-                                        @endphp
-                                        <img src="{{ $logoUrl }}" alt="Current Logo" class="img-thumbnail" style="max-width: 200px;" onerror="this.parentElement.style.display='none';">
+                                    <div class="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <p class="text-xs text-gray-500 mb-1">Current logo:</p>
+                                        <img src="{{ \App\Support\Logo::url($settings['hospital_logo'] ?? null) }}" alt="Current Logo" class="max-h-14 max-w-full object-contain rounded" onerror="this.style.display='none'">
                                     </div>
                                 @endif
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-dark">Favicon</label>
-                                <div class="upload-area" id="faviconUploadArea">
-                                    <input type="file" name="favicon" id="favicon" class="form-control form-control-lg d-none" accept="image/*" onchange="previewFavicon(this)">
-                                    <div class="upload-placeholder" onclick="document.getElementById('favicon').click()">
-                                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                                        <p class="mb-2">Click to upload favicon</p>
-                                        <small class="text-muted">Recommended size: 32x32 pixels (ICO, PNG)</small>
-                                    </div>
-                                    <div class="upload-preview d-none" id="faviconPreview">
-                                        <img id="faviconPreviewImg" src="" alt="Favicon Preview" class="img-thumbnail" style="width: 32px; height: 32px;">
-                                        <div class="mt-2">
-                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFavicon()">
-                                                <i class="fas fa-trash me-1"></i>Remove
-                                            </button>
-                                        </div>
+
+                            <hr class="border-gray-200 dark:border-gray-700">
+
+                            <!-- Favicon -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Favicon</label>
+                                <label class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition px-3 text-center" for="favicon">
+                                    <i class="fas fa-icons text-2xl text-gray-400 mb-2"></i>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">Click to upload favicon</span>
+                                    <span class="text-xs text-gray-400 mt-1">Recommended: 32×32 PNG/ICO</span>
+                                    <input type="file" name="favicon" id="favicon" class="hidden" accept="image/*,.ico,.png">
+                                </label>
+                                <div id="faviconPreviewWrap" class="mt-3 hidden">
+                                    <p class="text-xs text-gray-500 mb-1">Preview:</p>
+                                    <div class="flex items-center gap-3">
+                                        <img id="faviconPreviewImg" alt="Favicon Preview" class="w-8 h-8 shrink-0 rounded border border-gray-200 dark:border-gray-600">
+                                        <button type="button" onclick="removeFavicon()" class="text-xs text-red-600 hover:text-red-700">
+                                            <i class="fa fa-trash mr-1"></i>Remove
+                                        </button>
                                     </div>
                                 </div>
                                 @if($settings['favicon'])
-                                    <div class="mt-3">
-                                        <p class="text-success mb-1"><i class="fas fa-check-circle me-1"></i>Current Favicon:</p>
-                                        @php
-                                            $faviconUrl = $settings['favicon'];
-                                            if (!str_starts_with($faviconUrl, 'http') && !str_starts_with($faviconUrl, '/')) {
-                                                $faviconUrl = asset('storage/' . $faviconUrl);
-                                            } elseif (str_starts_with($faviconUrl, '/storage/')) {
-                                                $faviconUrl = asset($faviconUrl);
-                                            }
-                                        @endphp
-                                        <img src="{{ $faviconUrl }}" alt="Current Favicon" class="img-thumbnail" style="width: 32px; height: 32px;" onerror="this.parentElement.style.display='none';">
+                                    <div class="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg flex items-center gap-3">
+                                        <img src="{{ \App\Support\Favicon::url($settings['favicon'] ?? null) }}" alt="Current Favicon" class="w-8 h-8 shrink-0 rounded" onerror="this.style.display='none'">
+                                        <div class="min-w-0">
+                                            <p class="text-xs text-gray-500">Current favicon</p>
+                                            <p class="text-xs text-gray-400">Applied on next page load</p>
+                                        </div>
                                     </div>
                                 @endif
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <hr class="my-5">
-
-                        <h5 class="fw-bold text-dark mb-4">Display Preferences</h5>
-
-                        <div class="mb-4">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="dark_mode" id="darkMode" value="1" {{ $settings['dark_mode'] ? 'checked' : '' }}>
-                                <label class="form-check-label fw-bold text-dark" for="darkMode">
-                                    Enable Dark Mode
-                                </label>
-                            </div>
-                            <small class="text-muted">Allow users to switch between light and dark themes</small>
+                <!-- Display Preferences -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mt-6">
+                    <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                        <div class="w-9 h-9 rounded-lg bg-purple-50 dark:bg-purple-900/40 flex items-center justify-center mr-3">
+                            <i class="fas fa-moon text-purple-600 dark:text-purple-400"></i>
                         </div>
+                        <div>
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Display Preferences</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Dark mode and appearance defaults</p>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" name="dark_mode" id="darkMode" value="1"
+                                   {{ $settings['dark_mode'] ? 'checked' : '' }}
+                                   class="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">Enable Dark Mode by default</p>
+                                <p class="text-xs text-gray-500">Users can still toggle from the navbar</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
 
-                        <div class="alert alert-info">
-                            <h6 class="fw-bold mb-2"><i class="fas fa-lightbulb me-2"></i>Branding Tips:</h6>
-                            <ul class="mb-0">
-                                <li>Use high-contrast colors for better accessibility</li>
-                                <li>Ensure your logo is clear and readable at all sizes</li>
-                                <li>Test color combinations for colorblind users</li>
-                                <li>Dark mode is recommended for reduced eye strain</li>
+                <!-- Tips -->
+                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mt-6">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-lightbulb text-amber-500 mt-0.5"></i>
+                        <div>
+                            <p class="text-sm font-semibold text-amber-900 dark:text-amber-200">Branding tips</p>
+                            <ul class="mt-1 text-xs text-amber-800 dark:text-amber-300 space-y-0.5 list-disc list-inside">
+                                <li>Use high-contrast colors for accessibility</li>
+                                <li>Keep the logo clear at small sizes (sidebar + navbar)</li>
+                                <li>Favicon appears in browser tabs after save</li>
                             </ul>
                         </div>
-
-                        <div class="d-flex justify-content-end gap-3">
-                            <a href="{{ route('hms.settings.index') }}" class="btn btn-secondary btn-lg px-5">
-                                <i class="fas fa-times me-2"></i>Cancel
-                            </a>
-                            <button type="submit" class="btn btn-lg px-5" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); border: none; color: white;" id="saveBtn">
-                                <i class="fas fa-save me-2"></i>Save Settings
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col sm:flex-row gap-3 sm:justify-end mt-6">
+                    <a href="{{ route('hms.settings.index') }}"
+                       class="w-full sm:w-auto px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium rounded-lg text-center">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                            class="w-full sm:w-auto px-6 py-3 text-white font-semibold rounded-lg text-center"
+                            style="background: linear-gradient(135deg, {{ $settings['primary_color'] }} 0%, {{ $settings['secondary_color'] }} 100%);"
+                            id="saveBtn">
+                        <i class="fas fa-save mr-2"></i> Save Theme
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-</div>
 
-<!-- Image Cropper Modal -->
-<div class="modal fade" id="cropModal" tabindex="-1" aria-labelledby="cropModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="cropModalLabel">Crop Image</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="text-center">
-                    <img id="cropImage" src="" style="max-width: 100%; max-height: 500px;">
-                </div>
-                <div class="mt-3 text-center">
-                    <small class="text-muted">Drag to adjust, scroll to zoom</small>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="cropAndSaveBtn">
-                    <i class="fas fa-check me-2"></i>Crop & Save
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+    @push('scripts')
+    <script>
+        (function () {
+            var primary = document.getElementById('primary_color');
+            var secondary = document.getElementById('secondary_color');
+            var primaryText = document.getElementById('primary_color_text');
+            var secondaryText = document.getElementById('secondary_color_text');
+            var preview = document.getElementById('live_preview');
+            var saveBtn = document.getElementById('saveBtn');
 
-<!-- Cropper.js CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" integrity="sha512-cyzxRvewl+FOKTtpBzYjW6x6IAYUCZy3sGP40hn+DQkqeluGRCax7qztK2ImL64SA+C7kVWdLI6wvdlStawhyw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-<!-- Cropper.js JS - Load before scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" integrity="sha512-6lplKUSl86rUVprDIjiW8DuOniNX8UDoRATqZSds/7t6zCQZfaCe3e5zcGaQwxa8Kpn5RTM9Fvl3X2lLV4grPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-<style>
-    .card:hover {
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1) !important;
-    }
-
-    .form-control:focus, .form-select:focus {
-        border-color: #ec4899;
-        box-shadow: 0 0 0 0.2rem rgba(236, 72, 153, 0.25);
-    }
-
-    .form-control-color {
-        cursor: pointer;
-    }
-
-    .upload-area {
-        border: 2px dashed #dee2e6;
-        border-radius: 8px;
-        padding: 20px;
-        text-align: center;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .upload-area:hover {
-        border-color: #ec4899;
-        background-color: #f8f9fa;
-    }
-
-    .upload-placeholder {
-        cursor: pointer;
-    }
-
-    .upload-preview img {
-        border-radius: 8px;
-    }
-
-    .btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    /* Dark mode styles */
-    .dark {
-        background-color: #1a1a1a !important;
-        color: #ffffff !important;
-    }
-
-    .dark .card {
-        background-color: #2d2d2d !important;
-        border-color: #404040 !important;
-        color: #ffffff !important;
-    }
-
-    .dark .card-header {
-        background-color: #2d2d2d !important;
-        border-color: #404040 !important;
-    }
-
-    .dark .text-dark {
-        color: #ffffff !important;
-    }
-
-    .dark .text-muted {
-        color: #b0b0b0 !important;
-    }
-
-    .dark .form-label {
-        color: #ffffff !important;
-    }
-
-    .dark .form-control {
-        background-color: #3d3d3d !important;
-        border-color: #404040 !important;
-        color: #ffffff !important;
-    }
-
-    .dark .form-control:focus {
-        background-color: #3d3d3d !important;
-        border-color: #ec4899 !important;
-        color: #ffffff !important;
-        box-shadow: 0 0 0 0.2rem rgba(236, 72, 153, 0.25) !important;
-    }
-
-    .dark .form-control-color {
-        background-color: #3d3d3d !important;
-        border-color: #404040 !important;
-    }
-
-    .dark .upload-area {
-        border-color: #404040 !important;
-        background-color: #2d2d2d !important;
-        color: #ffffff !important;
-    }
-
-    .dark .upload-area:hover {
-        border-color: #ec4899 !important;
-        background-color: #3d3d3d !important;
-    }
-
-    .dark .upload-placeholder {
-        color: #ffffff !important;
-    }
-
-    .dark .upload-placeholder .text-muted {
-        color: #b0b0b0 !important;
-    }
-
-    .dark .btn-secondary {
-        background-color: #6b7280 !important;
-        border-color: #6b7280 !important;
-        color: #ffffff !important;
-    }
-
-    .dark .btn-secondary:hover {
-        background-color: #4b5563 !important;
-        border-color: #4b5563 !important;
-        color: #ffffff !important;
-    }
-
-    .dark .alert-info {
-        background-color: #1e3a8a !important;
-        border-color: #3b82f6 !important;
-        color: #dbeafe !important;
-    }
-
-    .dark .alert-success {
-        background-color: #166534 !important;
-        border-color: #16a34a !important;
-        color: #dcfce7 !important;
-    }
-
-    .dark .alert-danger {
-        background-color: #991b1b !important;
-        border-color: #dc2626 !important;
-        color: #fecaca !important;
-    }
-
-    .dark .alert-warning {
-        background-color: #92400e !important;
-        border-color: #d97706 !important;
-        color: #fef3c7 !important;
-    }
-
-    .dark .form-check-label {
-        color: #ffffff !important;
-    }
-
-    .dark .form-check-input:checked {
-        background-color: #ec4899 !important;
-        border-color: #ec4899 !important;
-    }
-
-    .dark .form-check-input {
-        background-color: #3d3d3d !important;
-        border-color: #404040 !important;
-    }
-
-    .dark .small {
-        color: #b0b0b0 !important;
-    }
-
-    .dark .breadcrumb {
-        background-color: transparent !important;
-    }
-
-    .dark .breadcrumb-item a {
-        color: rgba(255, 255, 255, 0.7) !important;
-    }
-
-    .dark .breadcrumb-item.active {
-        color: #ffffff !important;
-    }
-
-    /* Cropper Modal Styles */
-    #cropModal .modal-body {
-        position: relative;
-        min-height: 400px;
-    }
-
-    #cropImage {
-        max-width: 100%;
-        display: block;
-    }
-
-    .cropper-container {
-        direction: ltr !important;
-    }
-
-    .cropper-crop-box,
-    .cropper-view-box {
-        border-radius: 4px;
-    }
-
-    .cropper-face {
-        background-color: inherit !important;
-    }
-
-    .cropper-line {
-        background-color: #ec4899;
-    }
-
-    .cropper-point {
-        background-color: #ec4899;
-        border-color: #ec4899;
-    }
-
-    .cropper-point:hover,
-    .cropper-point.point-se {
-        background-color: #db2777;
-    }
-</style>
-
-<script>
-// Color preview functionality
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeColorPreview);
-} else {
-    initializeColorPreview();
-}
-
-function initializeColorPreview() {
-    try {
-        const primaryColor = document.querySelector('input[name="primary_color"]');
-        const secondaryColor = document.querySelector('input[name="secondary_color"]');
-        const preview = document.querySelector('.border');
-        
-        if (primaryColor && secondaryColor && preview) {
-            function updatePreview() {
-                preview.style.background = `linear-gradient(135deg, ${primaryColor.value} 0%, ${secondaryColor.value} 100%)`;
+            function syncPreview() {
+                if (primaryText && primary) primaryText.value = primary.value;
+                if (secondaryText && secondary) secondaryText.value = secondary.value;
+                if (preview && primary && secondary) {
+                    preview.style.background = 'linear-gradient(135deg, ' + primary.value + ' 0%, ' + secondary.value + ' 100%)';
+                }
+                if (saveBtn && primary && secondary) {
+                    saveBtn.style.background = 'linear-gradient(135deg, ' + primary.value + ' 0%, ' + secondary.value + ' 100%)';
+                }
             }
-            
-            primaryColor.addEventListener('input', updatePreview);
-            secondaryColor.addEventListener('input', updatePreview);
-            
-            // Initialize preview on page load
-            updatePreview();
-        }
-    } catch (error) {
-        console.warn('Color preview initialization failed:', error);
-    }
-}
 
-// Global variables for cropper
-window.cropper = null;
-window.currentCropType = null;
-window.originalImageData = null;
+            if (primary) primary.addEventListener('input', syncPreview);
+            if (secondary) secondary.addEventListener('input', syncPreview);
+            syncPreview();
 
-// Handle logo upload
-function handleLogoUpload(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            window.originalImageData = e.target.result;
-            document.getElementById('logoPreviewImg').src = e.target.result;
-            document.getElementById('logoPreview').classList.remove('d-none');
-            document.querySelector('#logoUploadArea .upload-placeholder').classList.add('d-none');
-            
-            // Show crop button
-            const cropBtn = document.querySelector('#logoPreview .btn-primary');
-            if (cropBtn) cropBtn.style.display = 'inline-block';
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
+            var logoInput = document.getElementById('hospital_logo');
+            var logoWrap = document.getElementById('logoPreviewWrap');
+            var logoImg = document.getElementById('logoPreviewImg');
+            if (logoInput) {
+                logoInput.addEventListener('change', function () {
+                    var file = this.files[0];
+                    if (!file) return;
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        logoImg.src = e.target.result;
+                        logoWrap.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
 
-function previewFavicon(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('faviconPreviewImg').src = e.target.result;
-            document.getElementById('faviconPreview').classList.remove('d-none');
-            document.querySelector('#faviconUploadArea .upload-placeholder').classList.add('d-none');
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
+            var favInput = document.getElementById('favicon');
+            var favWrap = document.getElementById('faviconPreviewWrap');
+            var favImg = document.getElementById('faviconPreviewImg');
+            if (favInput) {
+                favInput.addEventListener('change', function () {
+                    var file = this.files[0];
+                    if (!file) return;
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        favImg.src = e.target.result;
+                        favWrap.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
 
-function removeLogo() {
-    document.getElementById('hospital_logo').value = '';
-    document.getElementById('hospital_logo_cropped').value = '';
-    document.getElementById('logoPreview').classList.add('d-none');
-    document.querySelector('#logoUploadArea .upload-placeholder').classList.remove('d-none');
-    window.originalImageData = null;
-}
+            window.removeLogo = function () {
+                if (logoInput) logoInput.value = '';
+                if (logoWrap) logoWrap.classList.add('hidden');
+            };
+            window.removeFavicon = function () {
+                if (favInput) favInput.value = '';
+                if (favWrap) favWrap.classList.add('hidden');
+            };
 
-// Open crop modal with proper Cropper initialization
-function openCropModal(type) {
-    if (typeof Cropper === 'undefined') {
-        alert('Image cropper library failed to load. Please refresh the page.');
-        return;
-    }
-    
-    window.currentCropType = type;
-    const modalElement = document.getElementById('cropModal');
-    const cropImage = document.getElementById('cropImage');
-    
-    // Set image source based on type
-    if (type === 'logo') {
-        cropImage.src = window.originalImageData || document.getElementById('logoPreviewImg').src;
-    }
-    
-    const modal = new bootstrap.Modal(modalElement);
-    
-    // Clean up cropper when modal is hidden
-    modalElement.addEventListener('hidden.bs.modal', function() {
-        if (window.cropper) {
-            window.cropper.destroy();
-            window.cropper = null;
-        }
-    }, { once: true });
-    
-    modal.show();
-    
-    // Initialize cropper after modal is fully shown
-    modalElement.addEventListener('shown.bs.modal', function() {
-        // Destroy existing cropper if any
-        if (window.cropper) {
-            window.cropper.destroy();
-        }
-        
-        // Wait a bit for image to load
-        setTimeout(function() {
-            try {
-                window.cropper = new Cropper(cropImage, {
-                    aspectRatio: type === 'logo' ? NaN : 1,
-                    viewMode: 1,
-                    dragMode: 'move',
-                    autoCropArea: 0.8,
-                    restore: false,
-                    guides: true,
-                    center: true,
-                    highlight: false,
-                    cropBoxMovable: true,
-                    cropBoxResizable: true,
-                    toggleable: true,
-                    minCropBoxWidth: 50,
-                    minCropBoxHeight: 50,
-                    ready: function() {
-                        console.log('Cropper ready');
+            var form = document.getElementById('themeForm');
+            if (form) {
+                form.addEventListener('submit', function () {
+                    var btn = document.getElementById('saveBtn');
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
                     }
                 });
-            } catch(e) {
-                console.error('Cropper initialization error:', e);
-                alert('Failed to initialize image cropper: ' + e.message);
             }
-        }, 300);
-    }, { once: true });
-}
-
-function removeFavicon() {
-    document.getElementById('favicon').value = '';
-    document.getElementById('faviconPreview').classList.add('d-none');
-    document.querySelector('#faviconUploadArea .upload-placeholder').classList.remove('d-none');
-}
-
-// Handle cropped image in form submission
-document.getElementById('themeForm').addEventListener('submit', function(e) {
-    const saveBtn = document.getElementById('saveBtn');
-    const form = this;
-
-    // Convert base64 cropped image to blob if exists
-    const croppedLogo = document.getElementById('hospital_logo_cropped').value;
-    if (croppedLogo) {
-        // Convert base64 to blob
-        fetch(croppedLogo)
-            .then(res => res.blob())
-            .then(blob => {
-                try {
-                    const file = new File([blob], 'hospital-logo.png', { type: 'image/png' });
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(file);
-                    document.getElementById('hospital_logo').files = dataTransfer.files;
-                    submitForm();
-                    // Actually submit the form after updating files
-                    form.submit();
-                } catch (err) {
-                    restoreSaveBtn();
-                    alert('There was an error uploading the logo.');
-                }
-            })
-            .catch(() => {
-                restoreSaveBtn();
-                alert('There was an error processing the cropped logo.');
-            });
-        e.preventDefault();
-        return false;
-    } else {
-        submitForm();
-    }
-
-    function submitForm() {
-        // Show loading state
-        saveBtn.disabled = true;
-        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
-
-        // Add hidden input for dark mode if unchecked
-        const darkModeInput = document.getElementById('darkMode');
-        if (!darkModeInput.checked) {
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'dark_mode';
-            hiddenInput.value = '0';
-            form.appendChild(hiddenInput);
-        }
-
-        // Re-enable button after 10 seconds as fallback
-        setTimeout(restoreSaveBtn, 10000);
-    }
-
-    function restoreSaveBtn() {
-        saveBtn.disabled = false;
-        saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Settings';
-    }
-});
-</script>
-
-@endsection
-
-<script>
-// Initialize crop and save button handler on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const cropBtn = document.getElementById('cropAndSaveBtn');
-    if (cropBtn && typeof Cropper !== 'undefined') {
-        cropBtn.addEventListener('click', function() {
-            if (!window.cropper) {
-                alert('Cropper not initialized. Please try cropping again.');
-                return;
-            }
-            
-            try {
-                const canvas = window.cropper.getCroppedCanvas({
-                    width: window.currentCropType === 'logo' ? 400 : 256,
-                    height: window.currentCropType === 'logo' ? 120 : 256,
-                    imageSmoothingEnabled: true,
-                    imageSmoothingQuality: 'high',
-                });
-                
-                canvas.toBlob(function(blob) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const croppedData = e.target.result;
-                        
-                        if (window.currentCropType === 'logo') {
-                            document.getElementById('logoPreviewImg').src = croppedData;
-                            document.getElementById('hospital_logo_cropped').value = croppedData;
-                            // Create a new File from blob to replace the original
-                            const file = new File([blob], 'cropped-logo.png', { type: 'image/png' });
-                            const dataTransfer = new DataTransfer();
-                            dataTransfer.items.add(file);
-                            document.getElementById('hospital_logo').files = dataTransfer.files;
-                        }
-                        
-                        // Close modal
-                        bootstrap.Modal.getInstance(document.getElementById('cropModal')).hide();
-                        
-                        if (window.cropper) {
-                            window.cropper.destroy();
-                            window.cropper = null;
-                        }
-                    };
-                    reader.readAsDataURL(blob);
-                }, 'image/png', 0.95);
-            } catch(e) {
-                console.error('Error cropping:', e);
-                alert('Error cropping image: ' + e.message);
-            }
-        });
-    }
-});
-</script>
+        })();
+    </script>
+    @endpush
+</x-app-layout>

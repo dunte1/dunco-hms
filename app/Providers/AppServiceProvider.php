@@ -81,5 +81,25 @@ class AppServiceProvider extends ServiceProvider
             \Spatie\Backup\Events\BackupHasFailed::class,
             [\App\Listeners\RecordBackupResult::class, 'failed']
         );
+
+        // Apply DB-stored integration credentials (M-Pesa / DHA / SHA) over .env
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('integration_configs')) {
+                app(\App\Services\IntegrationSettingsService::class);
+                foreach (['mpesa', 'dha', 'eha-sha'] as $slug) {
+                    $record = \App\Models\IntegrationConfig::where('slug', $slug)
+                        ->where('is_active', true)
+                        ->first();
+                    if ($record) {
+                        app(\App\Services\IntegrationSettingsService::class)->put($slug, array_merge(
+                            is_array($record->credentials ?? null) ? $record->credentials : [],
+                            is_array($record->config ?? null) ? $record->config : []
+                        ));
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // Integration settings are optional; never block boot
+        }
     }
 }

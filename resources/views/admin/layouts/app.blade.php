@@ -16,7 +16,7 @@
                   method: 'POST',
                   headers: {
                       'Content-Type': 'application/json',
-                      'X-CSRF-TOKEN': document.querySelector('meta[name=\"csrf-token\"]').content
+                      'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
                   },
                   body: JSON.stringify({
                       dark_mode: val,
@@ -34,12 +34,9 @@
         <title>{{ $themeSettings['hospital_name'] ?? config('app.name', 'DuncoHMS') }}</title>
 
         <!-- Favicon -->
-        @if($themeSettings['favicon'] ?? false)
-            <link rel="icon" type="image/x-icon" href="{{ $themeSettings['favicon'] }}">
-            <link rel="shortcut icon" type="image/x-icon" href="{{ $themeSettings['favicon'] }}">
-        @else
-            <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-        @endif
+        <link rel="icon" type="image/png" href="{{ \App\Support\Favicon::url($themeSettings['favicon'] ?? null) }}?v=2">
+        <link rel="shortcut icon" type="image/png" href="{{ \App\Support\Favicon::url($themeSettings['favicon'] ?? null) }}?v=2">
+        <link rel="apple-touch-icon" href="{{ \App\Support\Favicon::url($themeSettings['favicon'] ?? null) }}?v=2">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -79,21 +76,75 @@
                 .sidebar.closed {
                     transform: translateX(0);
                 }
+                .sidebar.collapsed { width: 72px !important; max-width: 72px !important; }
+                .sidebar.collapsed .sidebar-container { width: 72px !important; max-width: 72px !important; overflow: visible !important; }
+                .sidebar.collapsed .sidebar-header-text,
+                .sidebar.collapsed .menu-item > .flex > span,
+                .sidebar.collapsed .submenu-link span,
+                .sidebar.collapsed .nested-link span,
+                .sidebar.collapsed .menu-item .fa-chevron-down,
+                .sidebar.collapsed .submenu-link .badge { display: none !important; }
+                .sidebar.collapsed .sidebar-nav .submenu,
+                .sidebar.collapsed .sidebar-nav .nested-submenu { display: none !important; }
+                .sidebar.collapsed .menu-item { justify-content: center; padding: 0.75rem 0.5rem; }
+                .sidebar.collapsed .menu-icon { margin-right: 0 !important; }
+                .sidebar.collapsed .sidebar-nav li { position: relative; }
+                .sidebar.collapsed .sidebar-nav li > ul.submenu,
+                .sidebar.collapsed .sidebar-nav li > ul.nested-submenu {
+                    display: none !important;
+                    position: absolute;
+                    left: 100%;
+                    top: 0;
+                    min-width: 200px;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    margin-left: 0;
+                    padding: 0.35rem;
+                    background: #fff;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 0.5rem;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+                    z-index: 60;
+                }
+                .sidebar.collapsed .sidebar-nav li:hover > ul.submenu,
+                .sidebar.collapsed .sidebar-nav li:hover > ul.nested-submenu {
+                    display: block !important;
+                }
+                .sidebar.collapsed .sidebar-nav li:hover > ul.submenu .submenu-link,
+                .sidebar.collapsed .sidebar-nav li:hover > ul.nested-submenu .nested-link {
+                    justify-content: flex-start !important;
+                    padding: 0.55rem 0.75rem !important;
+                }
+                .sidebar.collapsed .sidebar-nav li:hover > ul.submenu .menu-label,
+                .sidebar.collapsed .sidebar-nav li:hover > ul.nested-submenu .menu-label {
+                    display: inline !important;
+                }
+                .dark .sidebar.collapsed .sidebar-nav li:hover > ul.submenu,
+                .dark .sidebar.collapsed .sidebar-nav li:hover > ul.nested-submenu {
+                    background: #1f2937;
+                    border-color: #374151;
+                }
             }
-            .sidebar.collapsed { width: 72px !important; max-width: 72px !important; }
-            .sidebar.collapsed .sidebar-container { width: 72px !important; max-width: 72px !important; overflow: hidden; }
-            .sidebar.collapsed .sidebar-header-text,
-            .sidebar.collapsed .menu-item span,
-            .sidebar.collapsed .submenu-link span,
-            .sidebar.collapsed .nested-link span,
-            .sidebar.collapsed .menu-item .fa-chevron-down,
-            .sidebar.collapsed .submenu-link .badge,
-            .sidebar.collapsed .sidebar-nav .submenu,
-            .sidebar.collapsed .sidebar-nav .nested-submenu { display: none !important; }
+            .main-content { transition: margin-left 0.3s ease-in-out; margin-left: 0; }
+            @media (min-width: 768px) {
+                .main-content { margin-left: 16rem; }
+                .main-content.is-collapsed { margin-left: 72px; }
+            }
             @media (max-width: 767px) {
-                .sidebar { width: min(280px, 85vw) !important; }
-                .sidebar.collapsed { width: min(280px, 85vw) !important; }
-                .sidebar.collapsed .sidebar-container { width: 100% !important; }
+                .sidebar { width: min(280px, 85vw) !important; max-width: min(280px, 85vw) !important; }
+                .sidebar.collapsed { width: min(280px, 85vw) !important; max-width: min(280px, 85vw) !important; }
+                .sidebar.collapsed .sidebar-container { width: 100% !important; max-width: 100% !important; }
+                .sidebar.collapsed .sidebar-header-text,
+                .sidebar.collapsed .menu-item > .flex > span,
+                .sidebar.collapsed .submenu-link span,
+                .sidebar.collapsed .nested-link span,
+                .sidebar.collapsed .menu-item .fa-chevron-down,
+                .sidebar.collapsed .submenu-link .badge,
+                .sidebar.collapsed .sidebar-nav .submenu,
+                .sidebar.collapsed .sidebar-nav .nested-submenu { display: revert !important; }
+                .sidebar.collapsed .menu-item { justify-content: space-between; padding: 0.75rem 1rem; }
+                .sidebar.collapsed .menu-icon { margin-right: 0.75rem; }
+                .main-content, .main-content.is-collapsed { margin-left: 0 !important; }
             }
 
             /* Logo styling */
@@ -338,7 +389,7 @@
             </aside>
 
             <!-- Main Content -->
-            <div class="md:ml-64" :style="sidebarCollapsed ? 'margin-left: 72px' : ''">
+            <div class="main-content" :class="sidebarCollapsed ? 'is-collapsed' : ''">
                 
                 <nav class="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
                     <div class="px-4 sm:px-6 lg:px-8">
@@ -353,7 +404,7 @@
                                 <!-- Brand/Logo -->
                                 <div class="flex items-center ml-4 md:ml-0">
                                     @if($themeSettings['hospital_logo'] ?? false)
-                                        <img src="{{ $themeSettings['hospital_logo'] }}" alt="Hospital Logo" class="me-3" style="max-height: 44px;">
+                                        <img src="{{ \App\Support\Logo::url($themeSettings['hospital_logo'] ?? null) }}" alt="Hospital Logo" class="me-3" style="max-height: 44px;">
                                     @endif
                                     <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
                                         @yield('title', 'Dashboard')
@@ -375,8 +426,14 @@
                                 <!-- User Dropdown -->
                                 <div x-data="{ open: false }" class="relative">
                                     <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">
-                                        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-                                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                        @php $navPhoto = \App\Support\ProfilePhoto::url(auth()->user()->profile_photo_path ?? null); @endphp
+                                        <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-white font-semibold flex-shrink-0" style="background:#2563EB;">
+                                            @if($navPhoto)
+                                                <img src="{{ $navPhoto }}" alt="{{ auth()->user()->name }}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                                                <span style="display:none;">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                                            @else
+                                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                            @endif
                                         </div>
                                         <span class="hidden md:block">{{ auth()->user()->name }}</span>
                                         <i class="fa fa-chevron-down text-xs"></i>

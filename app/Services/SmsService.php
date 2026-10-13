@@ -32,6 +32,7 @@ class SmsService
             'twilio' => $this->sendViaTwilio($to, $message, $options),
             'africas_talking' => $this->sendViaAfricasTalking($to, $message, $options),
             'nexmo' => $this->sendViaNexmo($to, $message, $options),
+            'talksasa' => $this->sendViaTalksasa($to, $message, $options),
             default => [
                 'success' => false,
                 'message' => 'SMS provider not configured'
@@ -166,6 +167,79 @@ class SmsService
     }
 
     /**
+     * Send SMS via TalkSasa BulkSMS (v3 API)
+     */
+    protected function sendViaTalksasa(string $to, string $message, array $options): array
+    {
+        try {
+            $token = config('services.talksasa.token');
+            $senderId = $options['from'] ?? config('services.talksasa.sender_id');
+            $baseUrl = rtrim(config('services.talksasa.url', 'https://bulksms.talksasa.com/api/v3'), '/');
+
+            $response = Http::withToken($token)
+                ->withHeaders(['Accept' => 'application/json'])
+                ->post("{$baseUrl}/sms/send", [
+                    'recipient' => $this->normalizeTalksasaNumber($to),
+                    'sender_id' => $senderId,
+                    'type' => 'plain',
+                    'message' => $message,
+                ]);
+
+            $data = $response->json();
+
+            if ($response->successful() && ($data['status'] ?? null) === 'success') {
+                return [
+                    'success' => true,
+                    'message_id' => $data['data']['uid'] ?? $data['data']['queue_uid'] ?? $data['data']['id'] ?? null,
+                    'status' => $data['status'],
+                    'message' => 'SMS sent successfully',
+                    'raw' => $data['data'] ?? null,
+                ];
+            }
+
+            Log::error('TalkSasa SMS failed', [
+                'to' => $to,
+                'http_status' => $response->status(),
+                'response' => $data,
+            ]);
+
+            return [
+                'success' => false,
+                'message' => $data['message'] ?? 'Failed to send SMS via TalkSasa (HTTP ' . $response->status() . ')'
+            ];
+        } catch (\Exception $e) {
+            Log::error('TalkSasa SMS failed', ['to' => $to, 'error' => $e->getMessage()]);
+
+            return [
+                'success' => false,
+                'message' => 'Failed to send SMS: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Normalize a phone number for TalkSasa (Kenya-centric: 07xx / 01xx / +254 / 254 -> 254XXXXXXXXX)
+     */
+    protected function normalizeTalksasaNumber(string $number): string
+    {
+        $number = preg_replace('/[\s\-().]/', '', $number);
+
+        if (str_starts_with($number, '+')) {
+            return substr($number, 1);
+        }
+
+        if (str_starts_with($number, '254')) {
+            return $number;
+        }
+
+        if (str_starts_with($number, '0')) {
+            return '254' . substr($number, 1);
+        }
+
+        return $number;
+    }
+
+    /**
      * Send bulk SMS
      */
     public function sendBulk(array $recipients, string $message, array $options = []): array
@@ -208,6 +282,8 @@ class SmsService
                                 !empty(config('services.africas_talking.username')),
             'nexmo' => !empty(config('services.nexmo.api_key')) &&
                        !empty(config('services.nexmo.api_secret')),
+            'talksasa' => !empty(config('services.talksasa.token')) &&
+                          !empty(config('services.talksasa.sender_id')),
             default => false
         };
     }

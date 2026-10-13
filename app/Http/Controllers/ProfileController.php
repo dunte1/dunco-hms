@@ -71,7 +71,9 @@ class ProfileController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Profile updated successfully',
-                    'photo_url' => $user->profile_photo_path ? asset('storage/' . $user->profile_photo_path) : null
+                    'photo_url' => $user->profile_photo_path
+                        ? \App\Support\ProfilePhoto::url($user->profile_photo_path)
+                        : null
                 ]);
             }
 

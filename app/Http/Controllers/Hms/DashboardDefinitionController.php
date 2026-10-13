@@ -4,22 +4,25 @@ namespace App\Http\Controllers\Hms;
 
 use App\Http\Controllers\Controller;
 use App\Models\DashboardDefinition;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
 
 class DashboardDefinitionController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(): View
     {
         $dashboards = DashboardDefinition::with('owner')->latest()->get();
+        $stats = [
+            'total' => DashboardDefinition::count(),
+            'published' => DashboardDefinition::where('status', 'published')->count(),
+            'drafts' => DashboardDefinition::where('status', 'draft')->count(),
+        ];
 
-        return response()->json([
-            'success' => true,
-            'data' => $dashboards,
-        ]);
+        return view('hms.dashboard.definitions.index', compact('dashboards', 'stats'));
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
@@ -32,22 +35,16 @@ class DashboardDefinitionController extends Controller
 
         $data['owner_id'] = auth()->id();
 
-        $dashboard = DashboardDefinition::create($data);
+        DashboardDefinition::create($data);
 
-        return response()->json([
-            'success' => true,
-            'data' => $dashboard,
-            'message' => 'Dashboard definition created successfully',
-        ], 201);
+        return redirect()->route('hms.dashboard.definitions.index')
+            ->with('status', 'Dashboard definition created.');
     }
 
-    public function show(DashboardDefinition $dashboard): JsonResponse
+    public function show(DashboardDefinition $dashboard): View
     {
         $dashboard->load('owner');
 
-        return response()->json([
-            'success' => true,
-            'data' => $dashboard,
-        ]);
+        return view('hms.dashboard.definitions.show', compact('dashboard'));
     }
 }

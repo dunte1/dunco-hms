@@ -590,17 +590,24 @@ class MpesaCallbackController extends Controller
      */
     protected function formatReceiptMessage(Payment $payment, Invoice $invoice): string
     {
-        $currency = $invoice->currency ?? 'KES';
         $symbol = $invoice->currency_symbol ?? 'KSh';
-        
-        return "📧 Payment Receipt\n\n" .
+
+        return \App\Models\MessageTemplate::renderByName('Payment Receipt', [
+            'patient_name' => $invoice->patient->first_name ?? 'valued patient',
+            'facility_name' => config('app.name'),
+            'amount' => $symbol . ' ' . number_format($payment->amount, 2),
+            'invoice_number' => $invoice->invoice_number,
+            'date' => $payment->payment_date->format('M d, Y H:i'),
+            'method' => ucwords(str_replace('_', ' ', $payment->payment_method)),
+            'balance' => $symbol . ' ' . number_format($invoice->balance_amount, 2),
+        ], fallback: "Payment Receipt\n\n" .
                "Invoice: {$invoice->invoice_number}\n" .
                "Amount Paid: {$symbol} " . number_format($payment->amount, 2) . "\n" .
                "Payment Method: " . ucwords(str_replace('_', ' ', $payment->payment_method)) . "\n" .
                "Date: " . $payment->payment_date->format('M d, Y H:i') . "\n" .
                "Reference: {$payment->payment_reference}\n\n" .
                "Remaining Balance: {$symbol} " . number_format($invoice->balance_amount, 2) . "\n\n" .
-               "Thank you for your payment!";
+               "Thank you for your payment!");
     }
 }
 

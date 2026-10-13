@@ -244,7 +244,8 @@ class ReportsController extends Controller
             $query->whereDate('payment_date', '<=', $request->to_date);
         }
         $payments = $query->latest('payment_date')->get();
-        $pdf = Pdf::loadView('hms.reports.revenue-pdf', compact('payments'));
+        $branding = \App\Services\DocumentService::branding();
+        $pdf = Pdf::loadView('hms.reports.revenue-pdf', compact('payments', 'branding'));
         return $pdf->download('revenue-report-' . now()->format('Y-m-d') . '.pdf');
     }
 }

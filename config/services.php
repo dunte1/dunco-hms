@@ -102,7 +102,13 @@ return [
     ],
 
     'sms' => [
-        'provider' => env('SMS_PROVIDER', 'twilio'), // twilio, africas_talking, nexmo
+        'provider' => env('SMS_PROVIDER', 'twilio'), // twilio, africas_talking, nexmo, talksasa
+    ],
+
+    'talksasa' => [
+        'token' => env('TALKSASA_API_TOKEN'),
+        'sender_id' => env('TALKSASA_SENDER_ID'),
+        'url' => env('TALKSASA_API_URL', 'https://bulksms.talksasa.com/api/v3'),
     ],
 
     'africas_talking' => [

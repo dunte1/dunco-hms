@@ -4,16 +4,7 @@
     $sidebarSections = $sidebarService->sections();
 
     $favicon = $themeSettings['favicon'] ?? '';
-    $faviconSrc = '';
-    if ($favicon) {
-        if (str_starts_with($favicon, 'http') || str_starts_with($favicon, 'data:')) {
-            $faviconSrc = $favicon;
-        } elseif (str_starts_with($favicon, '/storage/')) {
-            $faviconSrc = $favicon;
-        } else {
-            $faviconSrc = '/storage/' . ltrim($favicon, '/');
-        }
-    }
+    $faviconSrc = \App\Support\Favicon::url($favicon ?: null);
     $hospitalName = $themeSettings['hospital_name'] ?? config('app.name', 'DuncoHMS');
 @endphp
 

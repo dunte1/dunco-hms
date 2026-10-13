@@ -4,6 +4,18 @@
 
 @section('content')
 <div class="container-fluid px-4">
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
     <!-- Enhanced Page Header with Gradient -->
     <div class="row mb-4">
         <div class="col-12">
@@ -37,26 +49,28 @@
                     <div class="card-header bg-white border-bottom py-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <h6 class="mb-0 fw-bold text-dark">{{ $template['name'] }}</h6>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Use Template">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Delete">
+                            <form method="POST" action="{{ route('hms.messaging.templates.destroy', $template) }}" onsubmit="return confirm('Delete this template?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                                     <i class="fas fa-trash"></i>
                                 </button>
-                            </div>
+                            </form>
                         </div>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted mb-3">{{ Str::limit($template['content'], 120) }}</p>
-                        <div class="d-flex gap-2">
-                            <span class="badge bg-primary-subtle text-primary px-2 py-1">Variables:</span>
-                            <span class="badge bg-secondary-subtle text-secondary px-2 py-1">{patient_name}</span>
-                            <span class="badge bg-secondary-subtle text-secondary px-2 py-1">{date}</span>
-                        </div>
+                        <p class="text-muted mb-3">{{ $template['content'] }}</p>
+                        @if($template['variables'])
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-primary-subtle text-primary px-2 py-1">Variables:</span>
+                                @foreach($template['variables'] as $variable)
+                                    <span class="badge bg-secondary-subtle text-secondary px-2 py-1">{{ '{' . $variable . '}' }}</span>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                     <div class="card-footer bg-white border-top py-3">
-                        <button class="btn btn-primary w-100" onclick="useTemplate({{ json_encode($template) }})">
+                        <button class="btn btn-primary w-100" onclick="useTemplate({{ json_encode($template['content']) }})">
                             <i class="fas fa-paper-plane me-2"></i>Use This Template
                         </button>
                     </div>
@@ -95,23 +109,26 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="templateForm">
+                <form id="templateForm" method="POST" action="{{ route('hms.messaging.templates.store') }}">
+                    @csrf
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-dark">Template Name</label>
-                        <input type="text" class="form-control form-control-lg" id="templateName" placeholder="e.g., Appointment Reminder">
+                        <label class="form-label fw-bold text-dark">Template Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-lg" name="name" id="templateName" placeholder="e.g., Appointment Reminder" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-dark">Message Content</label>
-                        <textarea class="form-control" rows="6" id="templateContent" placeholder="Enter your message template..."></textarea>
+                        <label class="form-label fw-bold text-dark">Message Content <span class="text-danger">*</span></label>
+                        <textarea class="form-control" rows="6" name="content" id="templateContent" placeholder="Enter your message template..." required></textarea>
                         <small class="text-muted">Use variables: {patient_name}, {date}, {time}, {amount}, etc.</small>
                     </div>
                     <div class="alert alert-info">
                         <strong><i class="fas fa-info-circle me-2"></i>Available Variables:</strong>
                         <div class="mt-2 d-flex flex-wrap gap-2">
                             <span class="badge bg-secondary">{patient_name}</span>
+                            <span class="badge bg-secondary">{facility_name}</span>
                             <span class="badge bg-secondary">{date}</span>
                             <span class="badge bg-secondary">{time}</span>
                             <span class="badge bg-secondary">{amount}</span>
+                            <span class="badge bg-secondary">{balance}</span>
                             <span class="badge bg-secondary">{invoice_number}</span>
                             <span class="badge bg-secondary">{doctor_name}</span>
                         </div>
@@ -120,7 +137,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="saveTemplate()" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border: none;">
+                <button type="submit" form="templateForm" class="btn btn-primary" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border: none;">
                     <i class="fas fa-save me-2"></i>Save Template
                 </button>
             </div>
@@ -160,29 +177,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function useTemplate(template) {
-    // Redirect to bulk messaging with template data
-    window.location.href = '{{ route("hms.messaging.bulk") }}?template=' + encodeURIComponent(JSON.stringify(template));
-}
-
-function saveTemplate() {
-    const name = document.getElementById('templateName').value;
-    const content = document.getElementById('templateContent').value;
-    
-    if (!name || !content) {
-        alert('Please fill in all fields');
-        return;
-    }
-    
-    // Here you would save the template via AJAX
-    alert('Template saved! (Note: This is a demo. Full implementation would save to database)');
-    
-    // Close modal
-    const modal = bootstrap.Modal.getInstance(document.getElementById('createTemplateModal'));
-    modal.hide();
-    
-    // Clear form
-    document.getElementById('templateForm').reset();
+function useTemplate(content) {
+    window.location.href = '{{ route("hms.messaging.bulk") }}?template=' + encodeURIComponent(content);
 }
 </script>
 @endsection

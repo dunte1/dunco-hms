@@ -72,22 +72,8 @@
         @endif
 
         <!-- Favicon -->
-        @if($themeSettings['favicon'] ?? false)
-            @php
-                $faviconUrl = $themeSettings['favicon'];
-                // Ensure proper URL format
-                if (!str_starts_with($faviconUrl, 'http') && !str_starts_with($faviconUrl, '/')) {
-                    $faviconUrl = asset('storage/' . $faviconUrl);
-                } elseif (str_starts_with($faviconUrl, '/storage/')) {
-                    $faviconUrl = asset($faviconUrl);
-                }
-            @endphp
-            <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}">
-            <link rel="shortcut icon" type="image/x-icon" href="{{ $faviconUrl }}">
-        @else
-            <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-            <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-        @endif
+        <link rel="icon" type="image/png" href="{{ \App\Support\Favicon::url($themeSettings['favicon'] ?? null) }}">
+        <link rel="shortcut icon" type="image/png" href="{{ \App\Support\Favicon::url($themeSettings['favicon'] ?? null) }}">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
@@ -124,17 +110,8 @@
             <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                 <a href="{{ route('home') }}" class="flex items-center gap-2" aria-label="{{ config('app.name', 'DuncoHMS') }} home">
                     @php
-                        $headerLogo = $themeSettings['favicon'] ?? $themeSettings['hospital_logo'] ?? '';
-                        $headerLogoSrc = '';
-                        if ($headerLogo) {
-                            if (str_starts_with($headerLogo, 'http') || str_starts_with($headerLogo, 'data:')) {
-                                $headerLogoSrc = $headerLogo;
-                            } elseif (str_starts_with($headerLogo, '/storage/')) {
-                                $headerLogoSrc = $headerLogo;
-                            } else {
-                                $headerLogoSrc = '/storage/' . ltrim($headerLogo, '/');
-                            }
-                        }
+                        $headerLogo = $themeSettings['hospital_logo'] ?? '';
+                        $headerLogoSrc = $headerLogo ? \App\Support\Logo::url($headerLogo) : '';
                         $hasHeaderLogo = !empty($headerLogoSrc);
                     @endphp
                     @if($hasHeaderLogo)

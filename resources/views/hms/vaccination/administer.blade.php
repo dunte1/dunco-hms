@@ -5,6 +5,18 @@
                 <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2"><a href="{{ route('vaccination.index') }}" class="hover:text-blue-600">Vaccination</a><i class="fa fa-chevron-right text-xs"></i><span>Administer</span></div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><i class="fa fa-syringe text-emerald-600 mr-3"></i>Administer Vaccination</h1>
             </div>
+            @if(session('success') || session('status') || $errors->any())
+                <div class="mb-4">
+                    @if(session('success') || session('status'))
+                        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg">{{ session('success') ?: session('status') }}</div>
+                    @endif
+                    @if($errors->any())
+                        <div class="mt-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg">
+                            <ul class="list-disc list-inside text-sm">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+                        </div>
+                    @endif
+                </div>
+            @endif
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
                 <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2"></div>
                 <form method="POST" action="{{ route('vaccination.administer-store') }}" class="p-6 space-y-6">

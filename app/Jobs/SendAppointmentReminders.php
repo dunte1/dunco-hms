@@ -36,7 +36,12 @@ class SendAppointmentReminders implements ShouldQueue
 
             // Send SMS reminder if configured
             if ($appointment->patient && $appointment->patient->phone && $smsService->isConfigured()) {
-                $message = "Reminder: You have an appointment with Dr. {$appointment->doctor->full_name} tomorrow at {$appointment->scheduled_at->format('h:i A')}. Please arrive 10 minutes early.";
+                $message = \App\Models\MessageTemplate::renderByName('Appointment Reminder', [
+                    'patient_name' => $appointment->patient->first_name,
+                    'doctor_name' => $appointment->doctor->full_name,
+                    'date' => $appointment->scheduled_at->format('M d, Y'),
+                    'time' => $appointment->scheduled_at->format('h:i A'),
+                ], fallback: "Reminder: You have an appointment with Dr. {$appointment->doctor->full_name} tomorrow at {$appointment->scheduled_at->format('h:i A')}. Please arrive 10 minutes early.");
                 $smsService->send($appointment->patient->phone, $message);
             }
         }

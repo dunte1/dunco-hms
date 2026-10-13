@@ -35,7 +35,13 @@ class SendPaymentReminders implements ShouldQueue
             // Send SMS reminder if configured
             if ($invoice->patient && $invoice->patient->phone && $smsService->isConfigured()) {
                 $amount = number_format($invoice->total_amount - $invoice->paid_amount, 2);
-                $message = "Payment Reminder: You have an outstanding balance of {$invoice->currency_symbol}{$amount} on invoice {$invoice->invoice_number}. Due date: {$invoice->due_date->format('M d, Y')}.";
+                $message = \App\Models\MessageTemplate::renderByName('Payment Reminder', [
+                    'patient_name' => $invoice->patient->first_name,
+                    'facility_name' => config('app.name'),
+                    'balance' => ($invoice->currency_symbol ?? 'KSh') . $amount,
+                    'invoice_number' => $invoice->invoice_number,
+                    'due_date' => $invoice->due_date->format('M d, Y'),
+                ], fallback: "Payment Reminder: You have an outstanding balance of {$invoice->currency_symbol}{$amount} on invoice {$invoice->invoice_number}. Due date: {$invoice->due_date->format('M d, Y')}.");
                 $smsService->send($invoice->patient->phone, $message);
             }
         }

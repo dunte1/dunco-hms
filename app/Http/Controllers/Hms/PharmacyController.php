@@ -185,6 +185,16 @@ class PharmacyController extends Controller
             }
         });
 
+        // Hybrid handoff: if last active Rx for the visit is done → OPD billing_pending
+        try {
+            app(\App\Services\PatientFlowService::class)->afterDispense($prescription->fresh());
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('afterDispense handoff failed', [
+                'prescription_id' => $prescription->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return redirect()->route('hms.pharmacy.prescriptions')
             ->with('success', 'Prescription dispensed successfully.');
     }

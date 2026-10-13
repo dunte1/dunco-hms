@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Hms;
 
 use App\Http\Controllers\Controller;
 use App\Models\DentalRecord;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class DentalController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): View
     {
         $query = DentalRecord::with(['patient', 'dentist']);
 
@@ -23,7 +23,7 @@ class DentalController extends Controller
 
         $records = $query->latest()->paginate(15);
 
-        return response()->json($records);
+        return view('hms.dental.records.index', compact('records'));
     }
 
     public function store(Request $request): JsonResponse

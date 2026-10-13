@@ -24,8 +24,30 @@
                 </a>
             </div>
 
-            <form method="POST" action="{{ route('hms.triage.store') }}" class="space-y-5">
+            <form method="POST" action="{{ route('hms.triage.store') }}" class="space-y-5" id="triageForm">
                 @csrf
+
+                @if($errors->any())
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg" role="alert">
+                        <div class="flex items-start gap-2">
+                            <i class="fa fa-exclamation-circle mt-0.5"></i>
+                            <div>
+                                <p class="font-semibold">Please fix the following:</p>
+                                <ul class="mt-1 list-disc list-inside text-sm space-y-0.5">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                @if(session('success'))
+                    <div class="bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg">
+                        <i class="fa fa-check-circle mr-2"></i>{{ session('success') }}
+                    </div>
+                @endif
 
                 {{-- Patient & OPD Visit --}}
                 <section class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
@@ -35,7 +57,7 @@
                         </span>
                         <div>
                             <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Patient &amp; Visit</h2>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Search by registration #, name, phone, or National ID</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Search by registration #, name, phone, or National ID — or pick an open OPD visit</p>
                         </div>
                     </div>
                     <div class="p-4 sm:p-6">
@@ -52,11 +74,12 @@
                                 @error('patient_id')
                                     <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                                 @enderror
+                                <p class="mt-1.5 text-xs text-gray-500">Must click a result from the list, or select an OPD visit below (patient fills automatically).</p>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    OPD Visit <span class="text-gray-400 font-normal">(optional)</span>
+                                    OPD Visit <span class="text-gray-400 font-normal">(optional — fills patient)</span>
                                 </label>
                                 <input type="text" id="opd-search"
                                        placeholder="Filter by visit #, name, or registration #..."
@@ -66,6 +89,8 @@
                                     <option value="">{{ ($opdVisits ?? collect())->isEmpty() ? 'No open OPD visits — register at reception first' : 'Select open visit (' . ($opdVisits ?? collect())->count() . ')' }}</option>
                                     @foreach(($opdVisits ?? []) as $visit)
                                         <option value="{{ $visit->id }}"
+                                                data-patient-id="{{ $visit->patient_id }}"
+                                                data-patient-label="{{ trim(($visit->patient->patient_no ?? '') . ' — ' . ($visit->patient->first_name ?? '') . ' ' . ($visit->patient->last_name ?? '')) }}"
                                                 data-search="{{ strtolower(trim(($visit->patient->first_name ?? '') . ' ' . ($visit->patient->last_name ?? '') . ' ' . ($visit->patient->patient_no ?? '') . ' ' . $visit->id . ' ' . $visit->status)) }}"
                                                 {{ old('opd_visit_id') == $visit->id ? 'selected' : '' }}>
                                             #{{ $visit->id }} · {{ $visit->patient->first_name ?? '' }} {{ $visit->patient->last_name ?? '' }}
@@ -85,6 +110,32 @@
                                 var search = document.getElementById('opd-search');
                                 var select = document.getElementById('opd-visit-select');
                                 if (!search || !select) return;
+
+                                function setHiddenPatient(patientId, label) {
+                                    var hidden = document.querySelector('input[name="patient_id"]');
+                                    if (!hidden) return;
+                                    if (patientId) {
+                                        hidden.value = patientId;
+                                        var input = document.getElementById('patient_id_input');
+                                        if (input && label) {
+                                            input.value = label;
+                                            // Keep Alpine state in sync when possible
+                                            var root = hidden.closest('[x-data]');
+                                            if (root && root._x_dataStack && root._x_dataStack[0]) {
+                                                root._x_dataStack[0].selected = String(patientId);
+                                                root._x_dataStack[0].query = label;
+                                                root._x_dataStack[0].selectedLabel = label;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                select.addEventListener('change', function () {
+                                    var opt = select.options[select.selectedIndex];
+                                    if (!opt || !opt.dataset.patientId) return;
+                                    setHiddenPatient(opt.dataset.patientId, opt.dataset.patientLabel || opt.textContent.trim());
+                                });
+
                                 search.addEventListener('input', function () {
                                     var q = (this.value || '').toLowerCase().trim();
                                     var options = select.querySelectorAll('option[data-search]');
@@ -101,6 +152,34 @@
                                             : ('Select open visit (' + options.length + ')');
                                     }
                                 });
+
+                                // Pre-fill patient if an OPD visit is already selected (validation redirect)
+                                if (select.value) {
+                                    var selectedOpt = select.options[select.selectedIndex];
+                                    if (selectedOpt && selectedOpt.dataset.patientId) {
+                                        setHiddenPatient(selectedOpt.dataset.patientId, selectedOpt.dataset.patientLabel || selectedOpt.textContent.trim());
+                                    }
+                                }
+
+                                var form = document.getElementById('triageForm');
+                                if (form) {
+                                    form.addEventListener('submit', function (e) {
+                                        var patientHidden = document.querySelector('input[name="patient_id"]');
+                                        var patientInput = document.getElementById('patient_id_input');
+                                        var priority = form.querySelector('input[name="priority_level"]:checked');
+                                        if (!patientHidden || !patientHidden.value) {
+                                            e.preventDefault();
+                                            alert('Please select a patient from the search results, or pick an open OPD visit.');
+                                            if (patientInput) patientInput.focus();
+                                            return;
+                                        }
+                                        if (!priority) {
+                                            e.preventDefault();
+                                            alert('Please select a priority level (Emergency, Urgent, Semi-Urgent, or Non-Urgent).');
+                                            return;
+                                        }
+                                    });
+                                }
                             })();
                         </script>
                     </div>

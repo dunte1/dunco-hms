@@ -1,239 +1,257 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Profile Settings') }}
-            </h2>
-            <div class="text-sm text-gray-500 dark:text-gray-400">
-                Last updated: {{ auth()->user()->updated_at->format('M d, Y \a\t g:i A') }}
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <!-- Header -->
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Profile Settings</h1>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        Manage your account information, security, and preferences
+                    </p>
+                </div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    Last updated: {{ auth()->user()->updated_at->format('M d, Y \a\t g:i A') }}
+                </div>
             </div>
-        </div>
-    </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            @if(session('status') === 'profile-updated')
+                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <p class="text-sm font-medium text-green-800 dark:text-green-200">Profile updated successfully!</p>
+                    </div>
+                </div>
+            @endif
+
             <!-- Profile Header Card -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-2xl mb-8">
-                <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 px-8 py-12">
-                    <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
-                        <!-- Avatar Section -->
-                        <div class="relative group">
-                            <div id="avatar-container" class="w-32 h-32 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center shadow-2xl border-4 border-white dark:border-gray-600 overflow-hidden">
-                                @if(auth()->user()->profile_photo_path)
-                                    <img id="avatar-image" src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" 
-                                         alt="{{ auth()->user()->name }}" 
-                                         class="w-full h-full object-cover">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="px-6 py-6" style="background: linear-gradient(135deg, {{ $themeSettings['primary_color'] ?? '#2563EB' }} 0%, {{ $themeSettings['secondary_color'] ?? '#1D4ED8' }} 100%);">
+                    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                        <!-- Avatar -->
+                        <div class="relative shrink-0" style="width: 112px; height: 112px;">
+                            <div id="avatar-container"
+                                 style="width: 112px; height: 112px; border-radius: 9999px; overflow: hidden; background: rgba(255,255,255,0.18); border: 4px solid rgba(255,255,255,0.55); box-shadow: 0 8px 20px rgba(0,0,0,0.18); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                @php
+                                    $photoUrl = \App\Support\ProfilePhoto::url(auth()->user()->profile_photo_path ?? null);
+                                @endphp
+                                @if($photoUrl)
+                                    <img id="avatar-image"
+                                         src="{{ $photoUrl }}"
+                                         alt="{{ auth()->user()->name }}"
+                                         style="width: 100%; height: 100%; object-fit: cover; display: block;"
+                                         onerror="this.style.display='none';var p=document.getElementById('avatar-placeholder');if(p){p.style.display='flex';}">
+                                    <div id="avatar-placeholder" style="display:none; width:100%; height:100%; align-items:center; justify-content:center; background: linear-gradient(135deg,#3b82f6,#8b5cf6);">
+                                        <span style="color:#fff; font-size:1.75rem; font-weight:700;">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</span>
+                                    </div>
                                 @else
-                                    <div id="avatar-placeholder" class="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                        <span class="text-white text-4xl font-bold">
-                                            {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-                                        </span>
+                                    <div id="avatar-placeholder" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg,#3b82f6,#8b5cf6);">
+                                        <span style="color:#fff; font-size:1.75rem; font-weight:700;">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</span>
                                     </div>
                                 @endif
-                                <!-- Loading Overlay -->
-                                <div id="upload-loading" class="hidden absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                                    <i class="fas fa-spinner fa-spin text-white text-2xl"></i>
+                                <div id="upload-loading" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.45); align-items:center; justify-content:center; border-radius:9999px;">
+                                    <i class="fas fa-spinner fa-spin" style="color:#fff; font-size:1.5rem;"></i>
                                 </div>
                             </div>
-                            
-                            <!-- Upload Button -->
-                            <label for="profile-photo" class="absolute -bottom-2 -right-2 bg-white dark:bg-gray-700 rounded-full p-3 shadow-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 group-hover:scale-110">
-                                <i id="camera-icon" class="fas fa-camera text-gray-600 dark:text-gray-300 text-lg"></i>
-                                <input type="file" id="profile-photo" name="profile_photo" accept="image/jpeg,image/jpg,image/png,image/gif" class="hidden">
+
+                            <label for="profile-photo"
+                                   style="position:absolute; bottom:-4px; right:-4px; background:#fff; border-radius:9999px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.18);"
+                                   title="Change photo">
+                                <i id="camera-icon" class="fas fa-camera" style="color:#4b5563; font-size:0.875rem;"></i>
+                                <input type="file" id="profile-photo" name="profile_photo" accept="image/jpeg,image/jpg,image/png,image/gif" style="display:none;">
                             </label>
-                            
-                            <!-- Status Indicator -->
-                            <div class="absolute top-2 right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-700"></div>
                         </div>
 
                         <!-- User Info -->
-                        <div class="text-center md:text-left text-white flex-1">
-                            <h1 class="text-3xl font-bold mb-2">{{ auth()->user()->name }}</h1>
-                            <p class="text-blue-100 text-lg mb-1">{{ auth()->user()->email }}</p>
-                            <p class="text-blue-200 text-sm mb-4">
-                                {{ auth()->user()->roles->first()->name ?? 'User' }} • 
-                                Member since {{ auth()->user()->created_at->format('M Y') }}
-                            </p>
-                            
-                            <!-- Email Verification Status -->
-                            <div class="flex items-center justify-center md:justify-start space-x-2">
+                        <div class="text-center sm:text-left text-white flex-1 min-w-0">
+                            <h2 class="text-xl font-bold truncate" style="margin:0;">{{ auth()->user()->name }}</h2>
+                            <p class="truncate" style="margin:4px 0 0; color:rgba(255,255,255,0.85); font-size:0.95rem;">{{ auth()->user()->email }}</p>
+                            <div class="mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background:rgba(255,255,255,0.2); color:#fff;">
+                                    <i class="fas fa-user-tag mr-1"></i>
+                                    {{ auth()->user()->roles->first()->name ?? 'User' }}
+                                </span>
                                 @if(auth()->user()->email_verified_at)
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                        <i class="fas fa-check-circle mr-1"></i>
-                                        Verified
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background:#22c55e; color:#fff;">
+                                        <i class="fas fa-check-circle mr-1"></i> Verified
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                                        <i class="fas fa-exclamation-triangle mr-1"></i>
-                                        Unverified
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background:#eab308; color:#fff;">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i> Unverified
                                     </span>
                                 @endif
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background:rgba(255,255,255,0.2); color:#fff;">
+                                    Member since {{ auth()->user()->created_at->format('M Y') }}
+                                </span>
                             </div>
                         </div>
 
                         <!-- Quick Stats -->
-                        <div class="grid grid-cols-2 gap-4 text-center">
-                            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4">
-                                <div class="text-2xl font-bold">{{ auth()->user()->roles->count() }}</div>
-                                <div class="text-sm text-blue-100">Roles</div>
+                        <div class="grid grid-cols-2 gap-3 w-full sm:w-auto" style="flex-shrink:0;">
+                            <div style="background:rgba(255,255,255,0.16); border-radius:10px; padding:10px 14px; text-align:center; min-width:84px;">
+                                <div style="font-size:1.35rem; font-weight:700; color:#fff;">{{ auth()->user()->roles->count() }}</div>
+                                <div style="font-size:0.72rem; color:rgba(255,255,255,0.85); margin-top:2px;">Roles</div>
                             </div>
-                            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4">
-                                <div class="text-2xl font-bold">{{ auth()->user()->permissions->count() }}</div>
-                                <div class="text-sm text-blue-100">Permissions</div>
+                            <div style="background:rgba(255,255,255,0.16); border-radius:10px; padding:10px 14px; text-align:center; min-width:84px;">
+                                <div style="font-size:1.35rem; font-weight:700; color:#fff;">{{ auth()->user()->permissions->count() }}</div>
+                                <div style="font-size:0.72rem; color:rgba(255,255,255,0.85); margin-top:2px;">Permissions</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Main Content Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Main Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Profile Information -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-2xl">
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                            <i class="fas fa-user-edit text-blue-600 mr-3"></i>
-                            Profile Information
-                        </h3>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                        <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/40 flex items-center justify-center mr-3">
+                            <i class="fas fa-user-edit text-blue-600 dark:text-blue-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Profile Information</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Update your personal details</p>
+                        </div>
                     </div>
-                    <div class="p-6">
+                    <div class="p-5">
                         @include('profile.partials.update-profile-information-form')
                     </div>
                 </div>
 
                 <!-- Security Settings -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-2xl">
-                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-700 dark:to-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                            <i class="fas fa-shield-alt text-green-600 mr-3"></i>
-                            Security Settings
-                        </h3>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                        <div class="w-9 h-9 rounded-lg bg-green-50 dark:bg-green-900/40 flex items-center justify-center mr-3">
+                            <i class="fas fa-shield-alt text-green-600 dark:text-green-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Security</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Change password and session settings</p>
+                        </div>
                     </div>
-                    <div class="p-6">
+                    <div class="p-5">
                         @include('profile.partials.update-password-form')
                     </div>
                 </div>
 
-                <!-- Activity & Sessions -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-2xl">
-                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-700 dark:to-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                            <i class="fas fa-history text-purple-600 mr-3"></i>
-                            Activity & Sessions
-                        </h3>
+                <!-- Activity -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                        <div class="w-9 h-9 rounded-lg bg-purple-50 dark:bg-purple-900/40 flex items-center justify-center mr-3">
+                            <i class="fas fa-history text-purple-600 dark:text-purple-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Activity</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Session and login information</p>
+                        </div>
                     </div>
-                    <div class="p-6">
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-sign-in-alt text-green-600 dark:text-green-400"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium text-gray-900 dark:text-white">Last Login</p>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                                            {{ auth()->user()->last_login_at ? auth()->user()->last_login_at->format('M d, Y \a\t g:i A') : 'Never' }}
-                                        </p>
-                                    </div>
+                    <div class="p-5 space-y-3">
+                        <div class="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-sign-in-alt text-green-600 dark:text-green-400"></i>
                                 </div>
-                            </div>
-
-                            <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-desktop text-blue-600 dark:text-blue-400"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium text-gray-900 dark:text-white">Current Session</p>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                                            {{ request()->ip() }} • {{ request()->userAgent() ? substr(request()->userAgent(), 0, 50) . '...' : 'Unknown Device' }}
-                                        </p>
-                                    </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">Last Login</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ auth()->user()->last_login_at ? auth()->user()->last_login_at->format('M d, Y \a\t g:i A') : 'Never' }}
+                                    </p>
                                 </div>
-                            </div>
-
-                            <div class="pt-4">
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center">
-                                        <i class="fas fa-sign-out-alt mr-2"></i>
-                                        Logout from All Devices
-                                    </button>
-                                </form>
                             </div>
                         </div>
+
+                        <div class="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-desktop text-blue-600 dark:text-blue-400"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">Current Session</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                        {{ request()->ip() }} • {{ request()->userAgent() ? \Illuminate\Support\Str::limit(request()->userAgent(), 48) : 'Unknown device' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-lg transition flex items-center justify-center">
+                                <i class="fas fa-sign-out-alt mr-2"></i>
+                                Logout from All Devices
+                            </button>
+                        </form>
                     </div>
                 </div>
 
                 <!-- Quick Actions -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-2xl">
-                    <div class="bg-gradient-to-r from-orange-50 to-red-50 dark:from-gray-700 dark:to-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                            <i class="fas fa-bolt text-orange-600 mr-3"></i>
-                            Quick Actions
-                        </h3>
-                    </div>
-                    <div class="p-6">
-                        <div class="grid grid-cols-1 gap-4">
-                            <a href="#" class="flex items-center p-4 bg-blue-50 dark:bg-blue-900 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-lg transition duration-200 group">
-                                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-700 rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-download text-blue-600 dark:text-blue-400"></i>
-                                </div>
-                                <div>
-                                    <p class="font-medium text-gray-900 dark:text-white">Export Data</p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Download your account data</p>
-                                </div>
-                            </a>
-
-                            <a href="#" class="flex items-center p-4 bg-green-50 dark:bg-green-900 hover:bg-green-100 dark:hover:bg-green-800 rounded-lg transition duration-200 group">
-                                <div class="w-10 h-10 bg-green-100 dark:bg-green-700 rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-bell text-green-600 dark:text-green-400"></i>
-                                </div>
-                                <div>
-                                    <p class="font-medium text-gray-900 dark:text-white">Notifications</p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Manage your preferences</p>
-                                </div>
-                            </a>
-
-                            <a href="{{ route('hms.system.theme') }}" class="flex items-center p-4 bg-purple-50 dark:bg-purple-900 hover:bg-purple-100 dark:hover:bg-purple-800 rounded-lg transition duration-200 group">
-                                <div class="w-10 h-10 bg-purple-100 dark:bg-purple-700 rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-palette text-purple-600 dark:text-purple-400"></i>
-                                </div>
-                                <div>
-                                    <p class="font-medium text-gray-900 dark:text-white">Theme Settings</p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Customize appearance</p>
-                                </div>
-                            </a>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                        <div class="w-9 h-9 rounded-lg bg-orange-50 dark:bg-orange-900/40 flex items-center justify-center mr-3">
+                            <i class="fas fa-bolt text-orange-600 dark:text-orange-400"></i>
                         </div>
+                        <div>
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Quick Actions</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Common account shortcuts</p>
+                        </div>
+                    </div>
+                    <div class="p-5 space-y-3">
+                        <a href="{{ route('hms.system.theme') }}" class="flex items-center p-3.5 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-lg transition group">
+                            <div class="w-9 h-9 bg-purple-100 dark:bg-purple-800 rounded-lg flex items-center justify-center mr-3 group-hover:scale-105 transition-transform">
+                                <i class="fas fa-palette text-purple-600 dark:text-purple-300"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">Theme & Branding</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Customize colors and logo</p>
+                            </div>
+                            <i class="fas fa-chevron-right ml-auto text-gray-400 text-xs"></i>
+                        </a>
+
+                        <a href="{{ route('hms.settings.index') }}" class="flex items-center p-3.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition group">
+                            <div class="w-9 h-9 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center mr-3 group-hover:scale-105 transition-transform">
+                                <i class="fas fa-cog text-blue-600 dark:text-blue-300"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">System Settings</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Hospital configuration</p>
+                            </div>
+                            <i class="fas fa-chevron-right ml-auto text-gray-400 text-xs"></i>
+                        </a>
+
+                        <a href="{{ route('dashboard') }}" class="flex items-center p-3.5 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-lg transition group">
+                            <div class="w-9 h-9 bg-green-100 dark:bg-green-800 rounded-lg flex items-center justify-center mr-3 group-hover:scale-105 transition-transform">
+                                <i class="fas fa-tachometer-alt text-green-600 dark:text-green-300"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">Dashboard</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Return to main dashboard</p>
+                            </div>
+                            <i class="fas fa-chevron-right ml-auto text-gray-400 text-xs"></i>
+                        </a>
                     </div>
                 </div>
             </div>
 
             <!-- Danger Zone -->
-            <div class="mt-8 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-2xl">
-                <div class="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900 dark:to-pink-900 px-6 py-4 border-b border-red-200 dark:border-red-700">
-                    <h3 class="text-lg font-semibold text-red-900 dark:text-red-100 flex items-center">
-                        <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 mr-3 animate-pulse"></i>
-                        Danger Zone
-                    </h3>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-red-200 dark:border-red-800 overflow-hidden">
+                <div class="px-5 py-4 border-b border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 flex items-center">
+                    <div class="w-9 h-9 rounded-lg bg-red-100 dark:bg-red-800/60 flex items-center justify-center mr-3">
+                        <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-semibold text-red-900 dark:text-red-100">Danger Zone</h3>
+                        <p class="text-xs text-red-700 dark:text-red-300">Irreversible account actions</p>
+                    </div>
                 </div>
-                <div class="p-6">
-                    <div class="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-4">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-exclamation-triangle text-red-400"></i>
-                            </div>
-                            <div class="ml-3">
-                                <h4 class="text-sm font-medium text-red-800 dark:text-red-200">
-                                    Delete Account
-                                </h4>
-                                <div class="mt-2 text-sm text-red-700 dark:text-red-300">
-                                    <p>Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.</p>
-                                </div>
-                                <div class="mt-4">
-                                    @include('profile.partials.delete-user-form')
-                                </div>
-                            </div>
+                <div class="p-5">
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-red-800 dark:text-red-200">Delete Account</h4>
+                        <p class="mt-1 text-sm text-red-700 dark:text-red-300">
+                            Once your account is deleted, all of its resources and data will be permanently deleted.
+                            Before deleting your account, please download any data or information that you wish to retain.
+                        </p>
+                        <div class="mt-4">
+                            @include('profile.partials.delete-user-form')
                         </div>
                     </div>
                 </div>
@@ -243,7 +261,6 @@
 
     @push('scripts')
     <script>
-        // Store user data for form submission
         const userData = {
             name: @json(auth()->user()->name),
             email: @json(auth()->user()->email),
@@ -251,78 +268,56 @@
             bio: @json(auth()->user()->bio ?? ''),
         };
 
-        // Store original avatar HTML for rollback
         let originalAvatarHTML = '';
-        
+
         document.addEventListener('DOMContentLoaded', function() {
             const input = document.getElementById('profile-photo');
             const avatarContainer = document.getElementById('avatar-container');
-            originalAvatarHTML = avatarContainer.innerHTML;
-            
+            if (avatarContainer) {
+                originalAvatarHTML = avatarContainer.innerHTML;
+            }
             if (input) {
                 input.addEventListener('change', handleProfilePhotoUpload);
             }
-
-            // Page load animation
-            animatePageLoad();
         });
 
         function handleProfilePhotoUpload(event) {
             const input = event.target;
             const file = input.files[0];
-            
-            if (!file) {
-                return;
-            }
+            if (!file) return;
 
-            // Validate file type
             const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
             if (!validTypes.includes(file.type)) {
                 showNotification('Please select a valid image file (JPEG, PNG, or GIF)', 'error');
                 input.value = '';
                 return;
             }
-            
-            // Validate file size (max 2MB)
-            const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+
+            const maxSize = 2 * 1024 * 1024;
             if (file.size > maxSize) {
                 showNotification('Image size should be less than 2MB', 'error');
                 input.value = '';
                 return;
             }
 
-            // Show loading state
             showLoadingState(true);
 
-            // Get current form values for name, email, phone, bio
             const nameInput = document.querySelector('input[name="name"]');
             const emailInput = document.querySelector('input[name="email"]');
             const phoneInput = document.querySelector('input[name="phone"]');
             const bioInput = document.querySelector('textarea[name="bio"]');
-            
-            // Create form data - Include required fields + photo
+
             const formData = new FormData();
             formData.append('profile_photo', file);
             formData.append('name', nameInput ? nameInput.value : userData.name);
             formData.append('email', emailInput ? emailInput.value : userData.email);
-            
-            // Optional fields - use actual form values if available
-            if (phoneInput && phoneInput.value) {
-                formData.append('phone', phoneInput.value);
-            } else if (userData.phone) {
-                formData.append('phone', userData.phone);
-            }
-            
-            if (bioInput && bioInput.value) {
-                formData.append('bio', bioInput.value);
-            } else if (userData.bio) {
-                formData.append('bio', userData.bio);
-            }
-            
+            if (phoneInput && phoneInput.value) formData.append('phone', phoneInput.value);
+            else if (userData.phone) formData.append('phone', userData.phone);
+            if (bioInput && bioInput.value) formData.append('bio', bioInput.value);
+            else if (userData.bio) formData.append('bio', userData.bio);
             formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}');
             formData.append('_method', 'PATCH');
 
-            // Submit via fetch
             fetch('{{ route("profile.update") }}', {
                 method: 'POST',
                 body: formData,
@@ -333,72 +328,39 @@
                 credentials: 'same-origin'
             })
             .then(async response => {
-                // Parse JSON response
-                const data = await response.json().catch(() => {
-                    return { success: false, message: 'Invalid response from server' };
-                });
-                
-                // Check if response is ok
-                if (!response.ok) {
-                    console.error('Server error:', data);
-                    return Promise.reject(data);
-                }
-                
+                const data = await response.json().catch(() => ({ success: false, message: 'Invalid response from server' }));
+                if (!response.ok) return Promise.reject(data);
                 return data;
             })
             .then(data => {
-                console.log('Success response:', data);
                 showLoadingState(false);
-                
                 if (data.success || data.status === 'success' || data.message) {
                     showNotification(data.message || 'Profile photo updated successfully!', 'success');
-                    
-                    // Update avatar with new photo
                     const photoUrl = data.photo_url || data.profile_photo_url || data.profile_photo_path;
-                    if (photoUrl) {
-                        updateAvatarImage(photoUrl);
-                    }
-                    
-                    // Clear input
+                    if (photoUrl) updateAvatarImage(photoUrl);
                     input.value = '';
-                    
-                    // Reload page after 1 second to show updated photo
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
+                    // Keep page open with new avatar; full reload after short delay if needed
+                    setTimeout(() => window.location.reload(), 1200);
                 } else {
                     throw new Error(data.message || 'Failed to upload photo');
                 }
             })
             .catch(error => {
-                console.error('Upload Error:', error);
                 showLoadingState(false);
-                
-                // Handle Laravel validation errors
                 let errorMessage = 'Failed to upload photo. Please try again.';
-                
                 if (error.errors) {
-                    // Laravel validation errors
-                    const errorMessages = [];
+                    const msgs = [];
                     for (const field in error.errors) {
                         const fieldErrors = error.errors[field];
-                        if (Array.isArray(fieldErrors)) {
-                            errorMessages.push(...fieldErrors);
-                        } else {
-                            errorMessages.push(fieldErrors);
-                        }
+                        if (Array.isArray(fieldErrors)) msgs.push(...fieldErrors);
+                        else msgs.push(fieldErrors);
                     }
-                    errorMessage = errorMessages.join(', ');
+                    errorMessage = msgs.join(', ');
                 } else if (error.message) {
                     errorMessage = error.message;
                 }
-                
                 showNotification(errorMessage, 'error');
-                
-                // Rollback avatar
                 rollbackAvatar();
-                
-                // Clear input
                 input.value = '';
             });
         }
@@ -407,100 +369,86 @@
             const loadingOverlay = document.getElementById('upload-loading');
             const input = document.getElementById('profile-photo');
             const cameraIcon = document.getElementById('camera-icon');
-            
             if (isLoading) {
-                loadingOverlay?.classList.remove('hidden');
+                if (loadingOverlay) loadingOverlay.style.display = 'flex';
                 if (input) input.disabled = true;
                 if (cameraIcon) {
                     cameraIcon.dataset.originalClass = cameraIcon.className;
-                    cameraIcon.className = 'fas fa-spinner fa-spin text-gray-600 dark:text-gray-300 text-lg';
+                    cameraIcon.className = 'fas fa-spinner fa-spin';
                 }
             } else {
-                loadingOverlay?.classList.add('hidden');
+                if (loadingOverlay) loadingOverlay.style.display = 'none';
                 if (input) input.disabled = false;
-                if (cameraIcon && cameraIcon.dataset.originalClass) {
-                    cameraIcon.className = cameraIcon.dataset.originalClass;
-                }
+                if (cameraIcon && cameraIcon.dataset.originalClass) cameraIcon.className = cameraIcon.dataset.originalClass;
             }
         }
 
         function updateAvatarImage(photoUrl) {
             if (!photoUrl) return;
-            
-            // Handle different URL formats
             let imageUrl = photoUrl;
             if (!photoUrl.startsWith('http') && !photoUrl.startsWith('/')) {
                 imageUrl = '/storage/' + photoUrl;
             }
-            
+            imageUrl = imageUrl + '?t=' + Date.now();
+
             const avatarContainer = document.getElementById('avatar-container');
             const avatarImage = document.getElementById('avatar-image');
             const avatarPlaceholder = document.getElementById('avatar-placeholder');
-            
-            // Add cache buster
-            imageUrl = imageUrl + '?t=' + Date.now();
-            
+
             if (avatarImage) {
-                // Update existing image
                 avatarImage.src = imageUrl;
+                avatarImage.style.display = 'block';
+                avatarImage.style.width = '100%';
+                avatarImage.style.height = '100%';
+                avatarImage.style.objectFit = 'cover';
+                if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
             } else if (avatarPlaceholder) {
-                // Replace placeholder with image
-                avatarPlaceholder.outerHTML = `<img id="avatar-image" src="${imageUrl}" alt="Profile" class="w-full h-full object-cover">`;
+                const img = document.createElement('img');
+                img.id = 'avatar-image';
+                img.src = imageUrl;
+                img.alt = 'Profile';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.style.display = 'block';
+                avatarPlaceholder.replaceWith(img);
             } else if (avatarContainer) {
-                // Create new image
                 const loadingOverlay = avatarContainer.querySelector('#upload-loading');
-                avatarContainer.innerHTML = `<img id="avatar-image" src="${imageUrl}" alt="Profile" class="w-full h-full object-cover">`;
-                if (loadingOverlay) {
-                    avatarContainer.appendChild(loadingOverlay);
-                }
+                avatarContainer.innerHTML = '';
+                const img = document.createElement('img');
+                img.id = 'avatar-image';
+                img.src = imageUrl;
+                img.alt = 'Profile';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.style.display = 'block';
+                avatarContainer.appendChild(img);
+                if (loadingOverlay) avatarContainer.appendChild(loadingOverlay);
             }
-            
-            // Update original HTML for future rollbacks
             setTimeout(() => {
-                originalAvatarHTML = avatarContainer.innerHTML;
+                if (avatarContainer) originalAvatarHTML = avatarContainer.innerHTML;
             }, 100);
         }
 
         function rollbackAvatar() {
             const avatarContainer = document.getElementById('avatar-container');
-            if (avatarContainer && originalAvatarHTML) {
-                avatarContainer.innerHTML = originalAvatarHTML;
-            }
+            if (avatarContainer && originalAvatarHTML) avatarContainer.innerHTML = originalAvatarHTML;
         }
 
         function showNotification(message, type = 'info') {
-            // Remove existing notifications
-            const existingNotifications = document.querySelectorAll('.notification-toast');
-            existingNotifications.forEach(n => n.remove());
-            
+            document.querySelectorAll('.notification-toast').forEach(n => n.remove());
             const notification = document.createElement('div');
             const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
             const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
-            
-            notification.className = `notification-toast fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center max-w-md transition-all duration-300 transform translate-x-0`;
-            notification.innerHTML = `
-                <i class="fas ${icon} mr-2"></i>
-                <span>${escapeHtml(message)}</span>
-                <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
-                    <i class="fas fa-times"></i>
-                </button>
-            `;
-            
+            notification.className = `notification-toast fixed top-4 right-4 ${bgColor} text-white px-5 py-3 rounded-lg shadow-lg z-50 flex items-center max-w-md`;
+            notification.innerHTML = `<i class="fas ${icon} mr-2"></i><span>${escapeHtml(message)}</span><button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200"><i class="fas fa-times"></i></button>`;
             document.body.appendChild(notification);
-            
-            // Slide in animation
-            setTimeout(() => {
-                notification.style.opacity = '1';
-            }, 10);
-            
-            // Auto remove after 5 seconds
             setTimeout(() => {
                 notification.style.opacity = '0';
                 notification.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }, 5000);
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
         }
 
         function escapeHtml(text) {
@@ -508,99 +456,6 @@
             div.textContent = text;
             return div.innerHTML;
         }
-
-        function animatePageLoad() {
-            const cards = document.querySelectorAll('.bg-white, .bg-gray-800');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    card.style.transition = 'all 0.6s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
-        }
     </script>
     @endpush
-
-    <style>
-        .group:hover .group-hover\:scale-110 {
-            transform: scale(1.1);
-        }
-        
-        .animate-pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: .5;
-            }
-        }
-
-        .notification-toast {
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        #upload-loading {
-            transition: opacity 0.3s ease;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .bg-gradient-to-r.from-blue-600 {
-                padding: 1.5rem !important;
-            }
-            
-            .w-32.h-32 {
-                width: 6rem;
-                height: 6rem;
-            }
-            
-            .text-3xl {
-                font-size: 1.5rem;
-            }
-            
-            .grid.grid-cols-2 {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 0.75rem;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .max-w-7xl {
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }
-            
-            .flex.flex-col.md\:flex-row {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-            
-            .text-center.md\:text-left {
-                text-align: center !important;
-            }
-            
-            .justify-center.md\:justify-start {
-                justify-content: center !important;
-            }
-        }
-    </style>
 </x-app-layout>

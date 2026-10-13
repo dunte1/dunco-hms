@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login - {{ config('app.name', 'Dunco HMS') }}</title>
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+        <link rel="icon" type="image/png" href="{{ \App\Support\Favicon::url() }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,14 +15,7 @@
         $logoUrl = \App\Models\SystemSetting::get('hospital_logo', '');
         $primaryColor = \App\Models\SystemSetting::get('primary_color', '#2563EB');
         $primaryDark = \App\Models\SystemSetting::get('secondary_color', '#1D4ED8');
-        $logoPath = null;
-        if ($logoUrl) {
-            if (str_starts_with($logoUrl, 'http')) $logoPath = $logoUrl;
-            elseif (str_starts_with($logoUrl, 'data:')) $logoPath = $logoUrl;
-            elseif (str_starts_with($logoUrl, '/storage/')) $logoPath = asset($logoUrl);
-            elseif (str_starts_with($logoUrl, '/')) $logoPath = asset($logoUrl);
-            else $logoPath = asset('storage/' . $logoUrl);
-        }
+        $logoPath = \App\Support\Logo::url($logoUrl ?: null);
     @endphp
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }

@@ -265,7 +265,7 @@
                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-2"
                                            onchange="toggleInsuranceFields()">
                                     <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Patient has insurance (NHIF, SHA, or other)
+                                        Patient has insurance (SHA, Britam, Clergy scheme, or other)
                                     </span>
                                 </label>
                             </div>
@@ -283,14 +283,16 @@
                                             <label for="insurance_provider_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                 Insurance Provider
                                             </label>
-                                            <select name="insurance_provider_id" 
+                                            <select name="insurance_provider_id"
                                                     id="insurance_provider_id"
                                                     class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500">
                                                 <option value="">Select Provider</option>
-                                                <option value="nhif">NHIF (National Hospital Insurance Fund)</option>
-                                                <option value="sha">SHA (Social Health Authority)</option>
-                                                <option value="private">Private Insurance</option>
-                                                <option value="other">Other</option>
+                                                @foreach(($insuranceProviders ?? collect()) as $provider)
+                                                    <option value="{{ $provider->code }}" {{ old('insurance_provider_id') == $provider->code ? 'selected' : '' }}>
+                                                        {{ $provider->name }} ({{ $provider->code }})
+                                                    </option>
+                                                @endforeach
+                                                <option value="OTHER" {{ old('insurance_provider_id') == 'OTHER' ? 'selected' : '' }}>Other / not listed</option>
                                             </select>
                                         </div>
                                         

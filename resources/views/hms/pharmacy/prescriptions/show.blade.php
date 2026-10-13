@@ -15,26 +15,50 @@
                             Prescription Details
                         </h1>
                         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            Patient: {{ $prescription->patient->full_name ?? 'N/A' }} | 
+                            Patient: {{ $prescription->patient->full_name ?? 'N/A' }} |
                             Doctor: Dr. {{ $prescription->doctor ? $prescription->doctor->first_name . ' ' . $prescription->doctor->last_name : 'N/A' }}
                         </p>
                     </div>
                     <div class="flex space-x-3">
-                        <a href="{{ route('hms.pharmacy.prescriptions.edit', $prescription) }}" 
+                        <a href="{{ route('hms.pharmacy.prescriptions.edit', $prescription) }}"
                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
                             <i class="fa fa-edit mr-2"></i> Edit
                         </a>
-                        <button onclick="window.print()" 
+                        <button onclick="window.print()"
                                 class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg">
                             <i class="fa fa-print mr-2"></i> Print
                         </button>
-                        <a href="{{ route('hms.pharmacy.prescriptions.index') }}" 
+                        <a href="{{ route('hms.pharmacy.prescriptions.index') }}"
                            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg">
                             <i class="fa fa-arrow-left mr-2"></i> Back
                         </a>
                     </div>
                 </div>
             </div>
+
+            @if(session('success') || session('status') || session('error') || $errors->any())
+                <div class="mb-4">
+                    @if(session('success') || session('status'))
+                        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg flex items-center" role="alert">
+                            <i class="fa fa-check-circle mr-2"></i>
+                            <span>{{ session('success') ?: session('status') }}</span>
+                        </div>
+                    @endif
+                    @if(session('error') || $errors->any())
+                        <div class="mt-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg" role="alert">
+                            <i class="fa fa-exclamation-circle mr-2"></i>
+                            {{ session('error') ?: 'Please fix the highlighted errors.' }}
+                            @if($errors->any() && !session('error'))
+                                <ul class="mt-2 list-disc list-inside text-sm">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            @endif
 
             <!-- Prescription Details -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -372,7 +396,7 @@
                                     <div class="flex justify-between">
                                         <span class="text-gray-600 dark:text-gray-400">Last Visit:</span>
                                         <span class="text-gray-900 dark:text-white">
-                                            {{ $prescription->patient->prescriptions->latest()->first()?->prescription_date->format('M d, Y') ?? 'N/A' }}
+                                            {{ $prescription->patient->prescriptions()->latest('prescription_date')->first()?->prescription_date?->format('M d, Y') ?? 'N/A' }}
                                         </span>
                                     </div>
                                 </div>

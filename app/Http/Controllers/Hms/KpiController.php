@@ -6,25 +6,29 @@ use App\Http\Controllers\Controller;
 use App\Models\KpiDefinition;
 use App\Models\KpiSnapshot;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
 
 class KpiController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(): View
     {
         $kpis = KpiDefinition::where('is_active', true)
             ->with('snapshots', function ($q) {
                 $q->latest('snapshot_date')->limit(1);
             })
+            ->orderBy('name')
             ->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $kpis,
-        ]);
+        $stats = [
+            'total' => KpiDefinition::count(),
+            'active' => KpiDefinition::where('is_active', true)->count(),
+            'snapshots' => KpiSnapshot::count(),
+        ];
+
+        return view('hms.dashboard.kpis.index', compact('kpis', 'stats'));
     }
 
-    public function record(Request $request, KpiDefinition $kpi): JsonResponse
+    public function record(Request $request, KpiDefinition $kpi)
     {
         $data = $request->validate([
             'actual_value' => 'required|numeric',
@@ -37,7 +41,7 @@ class KpiController extends Controller
             $status = $data['actual_value'] >= $kpi->target_value ? 'met' : 'not_met';
         }
 
-        $snapshot = KpiSnapshot::updateOrCreate(
+        KpiSnapshot::updateOrCreate(
             ['kpi_definition_id' => $kpi->id, 'snapshot_date' => $data['snapshot_date']],
             [
                 'actual_value' => $data['actual_value'],
@@ -48,23 +52,12 @@ class KpiController extends Controller
             ]
         );
 
-        return response()->json([
-            'success' => true,
-            'data' => $snapshot,
-            'message' => 'KPI snapshot recorded successfully',
-        ], 201);
+        return back()->with('status', 'KPI snapshot recorded.');
     }
 
-    public function trend(KpiDefinition $kpi, Request $request): JsonResponse
+    public function trend(KpiDefinition $kpi, Request $request): View
     {
-        $request->validate([
-            'period' => 'sometimes|string|in:daily,weekly,monthly,yearly',
-            'date_from' => 'sometimes|date',
-            'date_to' => 'sometimes|date',
-        ]);
-
         $query = $kpi->snapshots()->orderBy('snapshot_date');
-
         if ($request->filled('date_from')) {
             $query->where('snapshot_date', '>=', $request->date_from);
         }
@@ -72,14 +65,9 @@ class KpiController extends Controller
             $query->where('snapshot_date', '<=', $request->date_to);
         }
 
-        $snapshots = $query->get();
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'kpi' => $kpi,
-                'trend' => $snapshots,
-            ],
+        return view('hms.dashboard.kpis.trend', [
+            'kpi' => $kpi,
+            'snapshots' => $query->get(),
         ]);
     }
 }

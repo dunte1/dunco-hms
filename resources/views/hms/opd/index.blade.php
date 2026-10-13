@@ -122,27 +122,27 @@
             </div>
 
             <!-- Visits Table -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" style="min-width: 960px;">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Patient</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Doctor</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Visit Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Chief Complaint</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fee</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Patient</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Doctor</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Visit Date</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Chief Complaint</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fee</th>
+                                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sticky right-0 bg-gray-50 dark:bg-gray-700 z-10" style="min-width: 110px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             @forelse($visits as $visit)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-4 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10 bg-teal-100 dark:bg-teal-900 rounded-full flex items-center justify-center">
+                                            <div class="flex-shrink-0 h-9 w-9 bg-teal-100 dark:bg-teal-900 rounded-full flex items-center justify-center">
                                                 <i class="fa fa-user text-teal-600 dark:text-teal-400"></i>
                                             </div>
                                             <div class="ml-3">
@@ -151,43 +151,43 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                                         {{ $visit->doctor ? 'Dr. ' . $visit->doctor->first_name . ' ' . $visit->doctor->last_name : 'Not assigned' }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                                         {{ \Carbon\Carbon::parse($visit->visit_date)->format('M d, Y h:i A') }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-4 py-4 whitespace-nowrap">
                                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-{{ $visit->status_color }}-100 text-{{ $visit->status_color }}-800 dark:bg-{{ $visit->status_color }}-900 dark:text-{{ $visit->status_color }}-200">
                                             {{ $visit->status_label }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                            {{ $visit->visit_type == 'emergency' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 
-                                               ($visit->visit_type == 'consultation' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                            {{ $visit->visit_type == 'emergency' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                                               ($visit->visit_type == 'consultation' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
                                                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200') }}">
                                             {{ ucfirst(str_replace('_', ' ', $visit->visit_type)) }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
-                                        <div class="max-w-xs truncate">{{ $visit->chief_complaint ?? 'N/A' }}</div>
+                                    <td class="px-4 py-4 text-sm text-gray-600 dark:text-gray-300">
+                                        <div class="max-w-[140px] truncate" title="{{ $visit->chief_complaint ?? '' }}">{{ $visit->chief_complaint ?? 'N/A' }}</div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                                         ${{ number_format($visit->consultation_fee ?? 0, 2) }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <a href="{{ route('hms.opd.show', $visit) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400" title="View">
+                                    <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium sticky right-0 bg-white dark:bg-gray-800 z-10" style="min-width: 110px; box-shadow: -8px 0 12px -10px rgba(0,0,0,0.25);">
+                                        <div class="flex items-center justify-end gap-1.5">
+                                            <a href="{{ route('hms.opd.show', $visit) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-md text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/40" title="View">
                                                 <i class="fa fa-eye"></i>
                                             </a>
-                                            <a href="{{ route('hms.opd.edit', $visit) }}" class="text-green-600 hover:text-green-900 dark:text-green-400" title="Edit">
+                                            <a href="{{ route('hms.opd.edit', $visit) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-md text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/40" title="Edit">
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                             <form action="{{ route('hms.opd.destroy', $visit) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400" title="Delete">
+                                                <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/40" title="Delete">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
                                             </form>
@@ -196,7 +196,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-6 py-12 text-center">
+                                    <td colspan="8" class="px-6 py-12 text-center">
                                         <div class="text-gray-400 dark:text-gray-500">
                                             <i class="fa fa-hospital-user text-6xl mb-4"></i>
                                             <p class="text-lg font-medium">No OPD visits found</p>

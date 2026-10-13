@@ -68,7 +68,7 @@ class DischargeSummaryController extends Controller
     public function show(IpdAdmission $discharge): View
     {
         $discharge->load(['patient', 'doctor', 'bed']);
-        
+
         return view('hms.discharge-summary.show', compact('discharge'));
     }
     
@@ -152,7 +152,9 @@ class DischargeSummaryController extends Controller
     public function generatePdf(IpdAdmission $discharge)
     {
         $discharge->load(['patient', 'doctor', 'bed']);
-        $pdf = PDF::loadView('hms.discharge-summary.discharge-pdf', compact('discharge'));
-        return $pdf->download("Discharge-Summary-{$discharge->id}.pdf");
+        $patientNo = $discharge->patient->patient_no ?? $discharge->id;
+        $pdf = PDF::loadView('hms.discharge-summary.discharge-pdf', compact('discharge'))
+            ->setPaper('a4');
+        return $pdf->download("Discharge-Summary-{$patientNo}.pdf");
     }
 }

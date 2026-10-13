@@ -46,8 +46,13 @@ class SendPatientWelcomeNotification implements ShouldQueue
 
         // Send welcome SMS
         if ($patient->phone && $this->smsService->isConfigured()) {
-            $message = "Hello {$patient->first_name}, welcome to " . config('app.name') . 
-                      ". Your Patient ID is: " . ($patient->patient_no ?? 'P-' . str_pad($patient->id, 6, '0', STR_PAD_LEFT));
+            $patientNo = $patient->patient_no ?? 'P-' . str_pad($patient->id, 6, '0', STR_PAD_LEFT);
+            $message = \App\Models\MessageTemplate::renderByName('Patient Registration Welcome', [
+                'patient_name' => $patient->first_name,
+                'facility_name' => config('app.name'),
+                'patient_id' => $patientNo,
+            ], fallback: "Hello {$patient->first_name}, welcome to " . config('app.name') .
+                ". Your Patient ID is: {$patientNo}");
             $this->smsService->send($patient->phone, $message);
         }
     }

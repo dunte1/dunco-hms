@@ -104,6 +104,15 @@ class QueueManagementController extends Controller
             'called_time' => now(),
         ]);
 
+        try {
+            app(\App\Services\PatientFlowService::class)->afterQueueCalled($queue->fresh());
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Queue call handoff failed', [
+                'queue_id' => $queue->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         // Get location/room information if doctor assigned
         $location = 'Reception';
         if ($queue->doctor) {
@@ -130,6 +139,15 @@ class QueueManagementController extends Controller
             'status' => 'in_progress',
         ]);
 
+        try {
+            app(\App\Services\PatientFlowService::class)->afterQueueServiceStart($queue->fresh());
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Queue start handoff failed', [
+                'queue_id' => $queue->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Service started'
@@ -142,6 +160,15 @@ class QueueManagementController extends Controller
             'status' => 'completed',
             'completed_time' => now(),
         ]);
+
+        try {
+            app(\App\Services\PatientFlowService::class)->afterQueueCompleted($queue->fresh());
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Queue complete handoff failed', [
+                'queue_id' => $queue->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'success' => true,
